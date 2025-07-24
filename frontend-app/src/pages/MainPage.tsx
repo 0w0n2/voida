@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
-import VoidaLogo from "../assets/icon/voida-logo.png";
+import VoidaLogo from "@/assets/icon/voida-logo.png";
 
 const MainPage = () => {
   return (

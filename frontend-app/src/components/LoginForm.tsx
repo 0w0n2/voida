@@ -1,12 +1,12 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 import { useState } from "react";
-import { AxiosError } from 'axios';
-import { login } from "../apis/authApi";
-import VoidaLogo from "../assets/icon/voida-logo.png";
-import GoogleLogo from "../assets/icon/google-logo.png";
-import EyeIcon from "../assets/icon/eye.png";
-import EyeCloseIcon from "../assets/icon/crossed-eye.png";
+import { AxiosError } from "axios";
+import { login } from "@/apis/authApi";
+import VoidaLogo from "@/assets/icon/voida-logo.png";
+import GoogleLogo from "@/assets/icon/google-logo.png";
+import EyeIcon from "@/assets/icon/eye.png";
+import EyeCloseIcon from "@/assets/icon/crossed-eye.png";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -57,9 +57,7 @@ const LoginForm = () => {
     } catch (err) {
       const axiosError = err as AxiosError<{ message: string }>;
 
-      setError(
-        axiosError.response?.data?.message || "로그인 실패"
-      );
+      setError(axiosError.response?.data?.message || "로그인 실패");
     }
   };
 
@@ -72,10 +70,14 @@ const LoginForm = () => {
         Google로 로그인하기
       </button>
 
-      <div css={dividerStyle}><span>or</span></div>
+      <div css={dividerStyle}>
+        <span>or</span>
+      </div>
 
       <div css={inputRowStyle}>
-        <label htmlFor="email" css={labelStyle}>이메일 주소</label>
+        <label htmlFor="email" css={labelStyle}>
+          이메일 주소
+        </label>
         <input
           id="email"
           type="email"
@@ -88,7 +90,9 @@ const LoginForm = () => {
       </div>
 
       <div css={inputRowStyle}>
-        <label htmlFor="password" css={labelStyle}>비밀번호</label>
+        <label htmlFor="password" css={labelStyle}>
+          비밀번호
+        </label>
         <div css={passwordBoxStyle}>
           <input
             id="password"
@@ -116,7 +120,9 @@ const LoginForm = () => {
           <span>|</span>
           <a href="/forgot">비밀번호 찾기</a>
         </div>
-        <button type="submit" css={loginBtnStyle}>로그인</button>
+        <button type="submit" css={loginBtnStyle}>
+          로그인
+        </button>
       </div>
     </form>
   );
@@ -175,7 +181,7 @@ const dividerStyle = css`
 
   &::before,
   &::after {
-    content: '';
+    content: "";
     flex: 1;
     height: 1px;
     background-color: #e0e0e0;
@@ -191,14 +197,14 @@ const labelStyle = css`
   margin-bottom: 0.5rem;
   font-size: 0.85rem;
   color: #444;
-  font-family: 'NanumSquareR';
+  font-family: "NanumSquareR";
   margin-left: 0.35rem;
 `;
 
 const inputRowStyle = css`
   display: flex;
   flex-direction: column;
-`
+`;
 
 const inputStyle = css`
   padding: 0.75rem;
@@ -226,7 +232,7 @@ const inputErrorStyle = css`
 
 const errorTextStyle = css`
   color: red;
-  font-size: 0.80rem;
+  font-size: 0.8rem;
   margin-top: 0.25rem;
   text-align: right;
 `;
