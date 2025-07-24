@@ -38,6 +38,7 @@ const GlobalStyles = () => (
         font-family: 'NanumSquareR', sans-serif;
         background-color: #f9f9f9;
         color: #333;
+        caret-color: transparent;
       }
     `}
   />
