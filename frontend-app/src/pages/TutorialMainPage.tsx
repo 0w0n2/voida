@@ -59,26 +59,27 @@ export default function TutorialMainPage() {
 
 const pageWrapperStyle = css`
   min-height: 100vh;
-  background-color: #f9f9f9;
+  background-color: var(--color-bg-white);
 `;
 
 const cardWrapperStyle = css`
-  max-width: 64rem;
+  max-width: 84rem;
   margin: 0 auto;
-  padding: 2.5rem;
+  padding: 1.5rem;
 `;
 
 const titleStyle = css`
-  font-size: 1.875rem;
+  font-size: 40px;
   font-family: 'NanumSquareEB';
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
   text-align: center;
 `;
 
 const subtitleStyle = css`
-  color: #999;
+  color: var(--color-gray-600);
   margin-bottom: 2.5rem;
   text-align: center;
+  font-size: 20px;
 `;
 
 const cardGridStyle = css`
@@ -90,25 +91,37 @@ const cardGridStyle = css`
 const buttonWrapperStyle = css`
   margin-top: 2.5rem;
   display: flex;
-  justify-content: center;
+  justify-content: right;
   gap: 1rem;
 `;
 
 const buttonStyle = css`
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
+  padding: 0.75rem 2.5rem;
+  border: none;
+  border-radius: 3rem;
   font-weight: 600;
   font-size: 1rem;
+  font-family: 'NanumSquareB';
 `;
 
 const skipButtonStyle = css`
   ${buttonStyle};
-  background-color: #e5e5e5;
-  color: #666;
+  background-color: var(--color-gray-400);
+  color: var(--color-text-white);
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--color-gray-500);
+  }
 `;
 
 const startButtonStyle = css`
   ${buttonStyle};
-  background-color: #2563eb;
-  color: white;
+  background-color: var(--color-primary);
+  color: var(--color-text-white);
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--color-primary-dark);
+  }
 `;

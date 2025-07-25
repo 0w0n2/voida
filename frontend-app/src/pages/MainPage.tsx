@@ -24,7 +24,7 @@ const wrapper = css`
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background-color: #F8F9FC;
+  background-color: var(--color-bg-blue);
   text-align: center;
 `;
 
@@ -41,6 +41,6 @@ const title = css`
 
 const desc = css`
   font-size: 18px;
-  color: #888;
+  color: var(--color-gray-500);
   line-height: 1.6;
 `;
