@@ -1,14 +1,13 @@
 # Created by https://www.toptal.com/developers/gitignore/api/react,visualstudiocode,macos,windows
 # Edit at https://www.toptal.com/developers/gitignore?templates=react,visualstudiocode,macos,windows
 
+.env
+
 ### macOS ###
 # General
 .DS_Store
 .AppleDouble
 .LSOverride
-# Icon must end with two \r
-Icon
-
 
 # Thumbnails
 ._*
