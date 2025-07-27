@@ -1,13 +1,9 @@
 /** @jsxImportSource @emotion/react */
-import { css } from "@emotion/react";
+import { css } from '@emotion/react';
 // import RegisterForm from "@/components/RegisterForm.tsx";
 
 const RegisterPage = () => {
-  return (
-    <div css={wrapperStyle}>
-      {/* <RegisterForm /> */}
-    </div>
-  );
+  return <div css={wrapperStyle}>{/* <RegisterForm /> */}</div>;
 };
 
 export default RegisterPage;
