@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { postUserType } from '@/apis/userApi';
 import Header from '@/components/Header';
+import TutorialFooter from '@/components/TurtorialFooter';
 import GeneralUserImg from '@/assets/icon/general-user-gray.png';
 import GeneralUserImgHover from '@/assets/icon/general-user-blue.png';
 import LipReadingUserImg from '@/assets/icon/lip-reading-user-gray.png';
@@ -102,13 +103,8 @@ export default function UserType() {
             </button>
           </div>
         </div>
-
-        <div css={buttonWrapperStyle}>
-          <button css={skipButtonStyle} onClick={() => navigate('/rooms')}>
-            메인으로 가기
-          </button>
-        </div>
       </div>
+      <TutorialFooter />
     </div>
   );
 }
@@ -128,7 +124,7 @@ const contentWrapperStyle = css`
 const titleStyle = css`
   font-size: 40px;
   font-family: 'NanumSquareEB';
-  margin-top: 2.8rem;
+  margin-top: 2rem;
   margin-bottom: 1rem;
 `;
 
@@ -189,32 +185,6 @@ const cardDescStyle = css`
   color: #555;
   line-height: 1.8;
   letter-spacing: 0.03em;
-`;
-
-const buttonWrapperStyle = css`
-  display: flex;
-  justify-content: right;
-  gap: 1rem;
-`;
-
-const buttonStyle = css`
-  padding: 0.75rem 2.5rem;
-  border: none;
-  border-radius: 3rem;
-  font-weight: 600;
-  font-size: 1rem;
-  font-family: 'NanumSquareB';
-`;
-
-const skipButtonStyle = css`
-  ${buttonStyle};
-  background-color: var(--color-gray-400);
-  color: var(--color-text-white);
-  cursor: pointer;
-
-  &:hover {
-    background-color: var(--color-gray-500);
-  }
 `;
 
 const cardButtonStyle = css`
