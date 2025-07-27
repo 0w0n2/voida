@@ -64,7 +64,7 @@ export default MainPage;
 const wrapper = css`
   position: relative;
   height: 100vh;
-  background: linear-gradient(135deg, #f8fbff 0%, #eaf3ff 50%, #e0ecff 100%);
+  background: linear-gradient(135deg, #ffffffff 0%, #eaf3ff 50%, #e0ecff 100%);
 `;
 
 const headerLogo = css`
@@ -80,12 +80,23 @@ const headerLogo = css`
 const content = css`
   display: flex;
   height: 100%;
-  margin: 0 auto;
   justify-content: space-between;
   align-items: center;
-  padding-left: 180px;
-  padding-right: 20px;
+  padding: 0 20px 0 180px;
   gap: 80px;
+
+  @media (max-width: 1024px) {
+    padding-left: 120px;
+    gap: 40px;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 20px 40px;
+    gap: 40px;
+  }
 `;
 
 const left = css`
@@ -119,6 +130,14 @@ const title = css`
   font-family: 'NanumSquareEB';
   line-height: 1.3;
   margin-bottom: 20px;
+
+  @media (max-width: 1024px) {
+    font-size: 48px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 36px;
+  }
 `;
 
 const gradientBlue = css`
@@ -138,11 +157,25 @@ const desc = css`
   color: #555;
   line-height: 1.7;
   margin-bottom: 30px;
+
+  @media (max-width: 1024px) {
+    font-size: 16px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 15px;
+  }
 `;
 
 const buttonBox = css`
   display: flex;
   gap: 16px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
 `;
 
 const startButton = css`
@@ -205,6 +238,18 @@ const chatImage = css`
 
   &:hover {
     transform: rotate(-4.5deg);
+  }
+
+  @media (max-width: 1280px) {
+    width: 700px;
+  }
+
+  @media (max-width: 1024px) {
+    width: 500px;
+  }
+
+  @media (max-width: 768px) {
+    width: 90%;
   }
 `;
 

@@ -104,14 +104,13 @@ export default function UserType() {
           </div>
         </div>
       </div>
-      <TutorialFooter />
+      <TutorialFooter items={'메인으로 가기'} />
     </div>
   );
 }
 
 const pageWrapperStyle = css`
   min-height: 100vh;
-  background-color: var(--color-bg-blue);
 `;
 
 const contentWrapperStyle = css`

@@ -61,7 +61,7 @@ const headerStyle = css`
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
 `;
 
 const stepCircleStyle = css`
@@ -81,7 +81,6 @@ const titleStyle = css`
   font-size: 24px;
   font-family: 'NanumSquareEB';
   color: black;
-  margin-bottom: 10px;
 `;
 
 const listStyle = css`
@@ -93,10 +92,10 @@ const listStyle = css`
 const listItemStyle = css`
   display: flex;
   align-items: flex-start;
-  gap: 0.5rem;
+  gap: 0.7rem;
   font-size: 16px;
   color: ;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 `;
 
 const checkIcon = css`

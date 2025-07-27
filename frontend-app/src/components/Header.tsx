@@ -25,7 +25,7 @@ const headerContainer = css`
 `;
 
 const logo = css`
-  width: 100px;
+  width: 120px;
 `;
 
 const userInfoStyle = css`

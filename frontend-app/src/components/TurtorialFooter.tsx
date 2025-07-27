@@ -2,13 +2,13 @@
 import { css } from '@emotion/react';
 import { useNavigate } from 'react-router-dom';
 
-export default function TutorialFooter() {
+export default function TutorialFooter({ items }: { items: string }) {
   const navigate = useNavigate();
 
   return (
     <div css={footerWrapperStyle}>
       <button css={skipButtonStyle} onClick={() => navigate('/rooms')}>
-        메인으로 가기
+        {items}
       </button>
     </div>
   );
@@ -17,6 +17,7 @@ export default function TutorialFooter() {
 const footerWrapperStyle = css`
   display: flex;
   justify-content: right;
+  margin-top: 0.8rem;
   margin-right: 20rem;
 `;
 

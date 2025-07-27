@@ -5,6 +5,8 @@ import RegisterPage from '@/pages/RegisterPage.tsx';
 import EmailAuthPage from '@/pages/EmailAuthPage.tsx';
 import TutorialMainPage from '@/pages/TutorialMainPage.tsx';
 import UserTypePage from '@/pages/UserTypePage';
+import TutorialGeneralPage from '@/pages/TutorialGeneralPage.tsx';
+import TutorialLipReadingPage from '@/pages/TutorialLipReadingPage.tsx';
 import RoomsPage from '@/pages/RoomsPage.tsx';
 
 function App() {
@@ -17,6 +19,11 @@ function App() {
         <Route path="/email-auth" element={<EmailAuthPage />} />
         <Route path="/tutorial" element={<TutorialMainPage />} />
         <Route path="/tutorial/user-type" element={<UserTypePage />} />
+        <Route path="/tutorial/general" element={<TutorialGeneralPage />} />
+        <Route
+          path="/tutorial/lip-reading"
+          element={<TutorialLipReadingPage />}
+        />
         <Route path="/rooms" element={<RoomsPage />} />
       </Routes>
     </BrowserRouter>
