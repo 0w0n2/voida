@@ -3,10 +3,10 @@ import { css } from '@emotion/react';
 import { useState } from 'react';
 import { AxiosError } from 'axios';
 import { login } from '@/apis/authApi';
-import VoidaLogo from '@/assets/icon/voida-logo.png';
-import GoogleLogo from '@/assets/icon/google-logo.png';
-import EyeIcon from '@/assets/icon/eye.png';
-import EyeCloseIcon from '@/assets/icon/crossed-eye.png';
+import VoidaLogo from '@/assets/logo/voida-logo.png';
+import GoogleLogo from '@/assets/icons/google-logo.png';
+import EyeIcon from '@/assets/icons/eye.png';
+import EyeCloseIcon from '@/assets/icons/crossed-eye.png';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');

@@ -5,12 +5,12 @@ import { useState } from 'react';
 import { postUserType } from '@/apis/userApi';
 import Header from '@/components/Header';
 import TutorialFooter from '@/components/TurtorialFooter';
-import GeneralUserImg from '@/assets/icon/general-user-gray.png';
-import GeneralUserImgHover from '@/assets/icon/general-user-blue.png';
-import LipReadingUserImg from '@/assets/icon/lip-reading-user-gray.png';
-import LipReadingUserImgHover from '@/assets/icon/lip-reading-user-blue.png';
-import Microphton from '@/assets/icon/microphone.png';
-import Lip from '@/assets/icon/lip.png';
+import GeneralUserImg from '@/assets/images/general-user-gray.png';
+import GeneralUserImgHover from '@/assets/images/general-user-blue.png';
+import LipReadingUserImg from '@/assets/images/lip-reading-user-gray.png';
+import LipReadingUserImgHover from '@/assets/images/lip-reading-user-blue.png';
+import Microphton from '@/assets/icons/microphone.png';
+import Lip from '@/assets/icons/lip.png';
 
 export default function UserType() {
   const navigate = useNavigate();
@@ -155,7 +155,7 @@ const cardStyle = css`
   min-height: 450px;
 
   &:hover {
-    background: #f0f7ff;
+    background: linear-gradient(135deg, #f1f6ffff 0%, #e0ecff 50%, #f8e9faff 100%);
     transform: translateY(-4px);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
   }

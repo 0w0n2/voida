@@ -1,6 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import Header from '@/components/Header';
+import TutorialCard from'@/components/TutorialCard';
 import TutorialFooter from '@/components/TurtorialFooter';
 
 export default function TutorialLipReadingPage() {
@@ -11,6 +12,7 @@ export default function TutorialLipReadingPage() {
         <h2 css={titleStyle}>웹캠 인식 상태를 확인하겠습니다.</h2>
         <p css={subtitleStyle}>아래의 유의 사항을 확인해주세요.</p>
       </div>
+      <TutorialCard />
       <TutorialFooter items={'튜토리얼 건너뛰기'} />
     </div>
   );

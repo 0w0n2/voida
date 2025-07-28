@@ -7,7 +7,7 @@ import {
   checkEmailDuplicate,
   checkNicknameDuplicate,
 } from '@/apis/authApi';
-import VoidaLogo from '@/assets/icon/voida-logo.png';
+import VoidaLogo from '@/assets/logo/voida-logo.png';
 import defaultProfile from '@/assets/profiles/defaultProfile.png';
 import EmailVerificationModal from './EmailVerificationModal';
 

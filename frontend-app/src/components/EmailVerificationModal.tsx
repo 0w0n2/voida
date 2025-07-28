@@ -3,7 +3,7 @@ import { css } from '@emotion/react';
 import { useState, useEffect } from 'react';
 import { AxiosError } from 'axios';
 import { sendEmailVerification, verifyEmailCode } from '@/apis/authApi';
-import mailIcon from '@/assets/icon/mail.png';
+import mailIcon from '@/assets/icons/mail.png';
 
 interface EmailVerificationModalProps {
   isOpen: boolean;

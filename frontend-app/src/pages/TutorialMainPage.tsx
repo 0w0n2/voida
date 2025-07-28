@@ -4,9 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { css } from '@emotion/react';
 import TutorialMainCard from '@/components/TutorialMainCard';
 import Header from '@/components/Header';
-import Microphone from '@/assets/icon/tutorial-microphone.png';
-import WebCam from '@/assets/icon/tutorial-webcam.png';
-import Text from '@/assets/icon/tutorial-text.png';
+import Microphone from '@/assets/images/tutorial-microphone.png';
+import WebCam from '@/assets/images/tutorial-webcam.png';
+import Text from '@/assets/images/tutorial-text.png';
 
 export default function TutorialMainPage() {
   const navigate = useNavigate();
