@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AxiosError } from 'axios';
 import {
   register,
@@ -10,6 +10,7 @@ import {
 import VoidaLogo from '@/assets/icon/voida-logo.png';
 import defaultProfile from '@/assets/profiles/defaultProfile.png';
 import EmailVerificationModal from './EmailVerificationModal';
+import { getRandomNickname } from '@/apis/authApi';
 
 const RegisterForm = () => {
   const [email, setEmail] = useState('');
@@ -32,7 +33,6 @@ const RegisterForm = () => {
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
 
-  //
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setEmail(value);
@@ -61,6 +61,19 @@ const RegisterForm = () => {
       setNicknameError('');
     }
   };
+
+  // 닉네임 랜덤 생성
+  useEffect(() => {
+    const fetchRandomNickname = async () => {
+      try {
+        const response = await getRandomNickname();
+        setNickname(response.data.nickname);
+      } catch (error) {
+        console.error('닉네임 랜덤 생성 중 오류 발생:', error);
+      }
+    };
+    fetchRandomNickname();
+  }, []);
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -151,7 +164,7 @@ const RegisterForm = () => {
     } catch (error) {
       if (error instanceof AxiosError) {
         setNicknameError(
-          error.response?.data?.message || '중복확인 중 오류가 발생했습니다.'
+          error.response?.data?.message || '중복확인 중 오류가 발생했습니다.',
         );
       }
       setIsNicknameChecked(false);
@@ -223,7 +236,7 @@ const RegisterForm = () => {
     } catch (error) {
       if (error instanceof AxiosError) {
         alert(
-          error.response?.data?.message || '회원가입 중 오류가 발생했습니다.'
+          error.response?.data?.message || '회원가입 중 오류가 발생했습니다.',
         );
       }
     } finally {
@@ -404,11 +417,11 @@ const logoStyle = css`
 `;
 
 const labelStyle = css`
-  font-size: 15px;
-  margin-bottom: 6px;
-  color: #222;
-  font-family: 'NanumSquareR';
-  margin-left: 0.5rem;
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  color: #444;
+  margin-left: 0.35rem;
 `;
 
 const requiredStyle = css`
