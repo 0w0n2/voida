@@ -6,21 +6,17 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class MeetingRoomCreateResponse {
+public class MeetingRoomInfoResponseDto {
 
-    private final Long meetingRoomId;
     private final String title;
     private final String category;
     private final String thumbnailImageUrl;
-    private final Integer memberCount;
 
-    public static MeetingRoomCreateResponse from(MeetingRoom meetingRoom) {
-        return new MeetingRoomCreateResponse(
-                meetingRoom.getId(),
+    public static MeetingRoomInfoResponseDto from(MeetingRoom meetingRoom) {
+        return new MeetingRoomInfoResponseDto(
                 meetingRoom.getTitle(),
                 meetingRoom.getCategoryName(),
-                meetingRoom.getThumbnailImageUrl(),
-                meetingRoom.getMemberCount()
+                meetingRoom.getThumbnailImageUrl()
         );
     }
 }

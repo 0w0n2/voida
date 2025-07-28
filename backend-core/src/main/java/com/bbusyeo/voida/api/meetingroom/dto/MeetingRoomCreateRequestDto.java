@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class MeetingRoomCreateRequest {
+public class MeetingRoomCreateRequestDto {
 
     private String title;
     private String category;

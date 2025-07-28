@@ -18,6 +18,7 @@ public enum BaseResponseStatus {
      */
     ILLEGAL_ARGUMENT(HttpStatus.BAD_REQUEST, false, 400, "잘못된 요청입니다."),
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, false, 401, "적절하지 않은 요청값입니다."),
+    NOT_FOUND_MEETING_ROOM(HttpStatus.NOT_FOUND, false, 404, "존재하지 않는 대기실입니다."),
 
     /**
      * 500: 기타 에러.
