@@ -1,11 +1,11 @@
 /** @jsxImportSource @emotion/react */
+import { useEffect } from 'react';
 import { css } from '@emotion/react';
 import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import tutorial from '@/assets/icon/tutorialButton.png';
 import home from '@/assets/icon/homeButton.png';
 import congratu from '@/assets/icon/congratu.png';
-import congratuReverse from '@/assets/icon/congratu-1.png';
 
 interface IsRegisteredModalProps {
   isOpen: boolean;
@@ -20,6 +20,56 @@ const IsRegisteredModal = ({
 }: IsRegisteredModalProps) => {
   const navigate = useNavigate();
 
+  // 컨페티 효과 함수
+  const triggerConfetti = () => {
+    // 중앙에서 발사
+    confetti({
+      particleCount: 200,
+      spread: 90,
+      origin: { y: 0.6 },
+      colors: ['#3182f6', '#23ad6f', '#f4d248', '#f14452'],
+      gravity: 0.8,
+      ticks: 200,
+      startVelocity: 30,
+      zIndex: 1500, // 모달(1000)보다 높고, 적당한 여유
+    });
+
+    // 왼쪽에서 발사
+    setTimeout(() => {
+      confetti({
+        particleCount: 100,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0, y: 0.7 },
+        colors: ['#3182f6', '#23ad6f', '#f4d248'],
+        gravity: 0.9,
+        ticks: 150,
+        zIndex: 1500,
+      });
+    }, 100);
+
+    // 오른쪽에서 발사
+    setTimeout(() => {
+      confetti({
+        particleCount: 100,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1, y: 0.7 },
+        colors: ['#f14452', '#f4d248', '#f14452'],
+        gravity: 0.9,
+        ticks: 150,
+        zIndex: 1500,
+      });
+    }, 200);
+  };
+
+  // 모달이 열릴 때 컨페티 실행
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(triggerConfetti, 300);
+    }
+  }, [isOpen]);
+
   const goToTutorial = () => {
     onClose();
     navigate('/tutorial');
@@ -30,6 +80,7 @@ const IsRegisteredModal = ({
     navigate('/rooms');
   };
 
+  // 조건부 모달 렌더링
   if (!isOpen) return null;
 
   return (
@@ -45,11 +96,13 @@ const IsRegisteredModal = ({
         </button>
 
         <div css={contentStyle}>
-          <h2 css={titleStyle}>
-            <img src={congratu} alt="축1" css={congratuIconStyle} />
-            {nickname}님 회원가입을 축하합니다!
-            <img src={congratuReverse} alt="축2" css={congratuIconStyle} />
-          </h2>
+          <h3 css={titleStyle}>
+            <div css={nameStyle}>{nickname}님</div>
+            <div css={messageStyle}>
+              <img src={congratu} alt="축1" css={congratuIconStyle} />
+              회원가입을 축하합니다!
+            </div>
+          </h3>
           <p css={instructionStyle}>Voida에서 많은 사람들과 소통해보세요!</p>
         </div>
 
@@ -139,9 +192,32 @@ const titleStyle = css`
   color: var(--color-text);
   letter-spacing: -0.5px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  word-break: keep-all;
+  line-height: 1.1;
+`;
+
+const nameStyle = css`
+  font-size: 28px;
+  font-family: 'NanumSquareEB', sans-serif;
+  font-weight: 800;
+  color: var(--color-text);
+  letter-spacing: -0.5px;
+`;
+
+const messageStyle = css`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 28px;
+  font-family: 'NanumSquareEB', sans-serif;
+  font-weight: 800;
+  color: var(--color-text);
+  letter-spacing: -0.5px;
 `;
 
 const congratuIconStyle = css`
@@ -161,17 +237,20 @@ const instructionStyle = css`
 
 const buttonContainerStyle = css`
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  flex-direction: row;
+  gap: 40px;
+  justify-content: center;
+  margin-top: 20px;
 `;
 
 const buttonStyle = css`
-  background: #1976d2;
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-text-white);
   border: none;
   border-radius: 12px;
-  padding: 16px 24px;
-  font-size: 16px;
+  padding: 12px 26px;
+  font-size: 14px;
+  font-family: 'NanumSquareB', sans-serif;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -181,9 +260,9 @@ const buttonStyle = css`
   gap: 8px;
 
   &:hover {
-    background: #1565c0;
+    background: var(--color-primary-dark);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+    box-shadow: 0 4px 12px rgba(49, 130, 246, 0.3);
   }
 
   &:active {
@@ -192,12 +271,13 @@ const buttonStyle = css`
 `;
 
 const grayButtonStyle = css`
-  background: #6c757d;
-  color: #fff;
+  background: var(--color-gray-500);
+  color: var(--color-text-white);
   border: none;
   border-radius: 12px;
-  padding: 16px 24px;
-  font-size: 16px;
+  padding: 12px 26px;
+  font-size: 14px;
+  font-family: 'NanumSquareB', sans-serif;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -207,9 +287,9 @@ const grayButtonStyle = css`
   gap: 8px;
 
   &:hover {
-    background: #5a6268;
+    background: var(--color-gray-600);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+    box-shadow: 0 4px 12px rgba(147, 147, 147, 0.3);
   }
 
   &:active {
