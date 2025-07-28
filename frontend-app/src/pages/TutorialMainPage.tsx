@@ -75,7 +75,6 @@ const pageWrapperStyle = css`
 const cardWrapperStyle = css`
   max-width: 84rem;
   margin: 0 auto;
-  padding: 1.5rem;
 `;
 
 const titleStyle = css`
@@ -94,8 +93,8 @@ const subtitleStyle = css`
 
 const cardGridStyle = css`
   display: grid;
-  gap: 1.5rem;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 410px));
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 410px));
 `;
 
 const buttonWrapperStyle = css`

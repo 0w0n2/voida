@@ -11,8 +11,8 @@ export default function TutorialLipReadingPage() {
       <div css={contentWrapperStyle}>
         <h2 css={titleStyle}>웹캠 인식 상태를 확인하겠습니다.</h2>
         <p css={subtitleStyle}>아래의 유의 사항을 확인해주세요.</p>
+        <TutorialCard type='lip'/>
       </div>
-      <TutorialCard />
       <TutorialFooter items={'튜토리얼 건너뛰기'} />
     </div>
   );
@@ -23,21 +23,25 @@ const pageWrapperStyle = css`
 `;
 
 const contentWrapperStyle = css`
-  max-width: 60rem;
+  max-width: 200rem;
   margin: 0 auto;
   padding: 1.5rem;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 const titleStyle = css`
   font-size: 40px;
   font-family: 'NanumSquareEB';
-  margin-top: 2rem;
   margin-bottom: 1rem;
+  text-align: center;
 `;
 
 const subtitleStyle = css`
   color: var(--color-gray-600);
   margin-bottom: 3rem;
   font-size: 20px;
+  text-align: center;
 `;

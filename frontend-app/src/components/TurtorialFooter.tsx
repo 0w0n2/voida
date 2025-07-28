@@ -17,8 +17,7 @@ export default function TutorialFooter({ items }: { items: string }) {
 const footerWrapperStyle = css`
   display: flex;
   justify-content: right;
-  margin-top: 0.8rem;
-  margin-right: 20rem;
+  margin-right: 10rem;
 `;
 
 const buttonStyle = css`
@@ -27,7 +26,7 @@ const buttonStyle = css`
   border-radius: 3rem;
   font-weight: 600;
   font-size: 1rem;
-  font-family: 'NanumSquareB';
+  font-family: 'NanumSquareB'; 
 `;
 
 const skipButtonStyle = css`

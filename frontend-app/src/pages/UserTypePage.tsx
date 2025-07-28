@@ -116,7 +116,6 @@ const pageWrapperStyle = css`
 const contentWrapperStyle = css`
   max-width: 60rem;
   margin: 0 auto;
-  padding: 1.5rem;
   text-align: center;
 `;
 
@@ -138,7 +137,7 @@ const cardGridStyle = css`
   gap: 3rem;
   justify-content: center;
   grid-template-columns: repeat(auto-fit, minmax(280px, 410px));
-  margin-bottom: 2.5rem;
+  margin-bottom: 4rem;
 `;
 
 const cardStyle = css`

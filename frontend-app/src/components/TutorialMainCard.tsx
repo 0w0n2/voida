@@ -42,7 +42,7 @@ const cardStyle = css`
 
 const imageWrapperStyle = css`
   background-color: var(--color-gray-100);
-  padding: 2rem;
+  padding: 1.8rem;
   display: flex;
   justify-content: center;
 `;
@@ -53,7 +53,7 @@ const imageStyle = css`
 
 const contentBoxStyle = css`
   background-color: white;
-  padding: 2.5rem 2rem;
+  padding: 2rem 2rem;
   text-align: left;
 `;
 

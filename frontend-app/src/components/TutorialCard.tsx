@@ -1,33 +1,63 @@
 /** @jsxImportSource @emotion/react */
-import { css, keyframes } from '@emotion/react';
+import { css } from '@emotion/react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Lip1 from '@/assets/images/lip-reading-tutorial1.png';
+import Lip2 from '@/assets/images/lip-reading-tutorial2.png';
+import Lip3 from '@/assets/images/lip-reading-tutorial3.png';
+import General1 from '@/assets/images/general-tutorial1.png';
+import General2 from '@/assets/images/general-tutorial2.png';
+import NextIcon from '@/assets/icons/next.png';
 
-const StepCards = () => {
+interface StepCardsProps {
+  type: 'general' | 'lip';
+}
+
+const StepCards = ({ type }: StepCardsProps) => {
+  const cardSets = type === 'general' ? generalCards : lipReadingCards;
   const [step, setStep] = useState(0);
-  const next = () => setStep((s) => Math.min(s + 1, cards.length - 1));
 
-  const CurrentCard = cards[step];
+  const next = () => setStep((s) => Math.min(s + 1, cardSets.length - 1));
 
+  const navigate = useNavigate();
+
+  const handleFinish = () => {
+    if (type === 'general') {
+      navigate('/tutorial/test/general');
+    } else {
+      navigate('/tutorial/test/lip-reading');
+    }
+  };
+ 
   return (
     <div css={wrapper}>
-      <div css={card}>
-        <div css={fadeIn}>
-          <CurrentCard />
-        </div>
-        <div css={buttonBox}>
-          {step < cards.length - 1 ? (
-            <button css={nextBtn} onClick={next}>
-              다음
-            </button>
-          ) : (
-            <button css={finishBtn}>확인 완료</button>
-          )}
-        </div>
-      </div>
+      <div css={row}>
+        {cardSets.slice(0, step + 1).map((Card, idx) => (
+          <div css={cardWithArrow} key={idx}>
+            <div css={card}>
+              <Card />
+              <div css={buttonBox}>
+                {idx === step ? (
+                  idx < cardSets.length - 1 ? (
+                    <button css={nextBtn} onClick={next}>
+                      확인 완료
+                    </button>
+                  ) : (
+                    <button css={finishBtn} onClick={handleFinish}>
+                      {type === 'general' ? '음성 테스트 하기' : '구화 테스트 하기'}
+                    </button>
+                  )
+                ) : null}
+              </div>
+            </div>
 
-      <div css={dotBox}>
-        {cards.map((_, i) => (
-          <span key={i} css={dot(i === step)} />
+            {idx < step && (
+              <div>
+                <img src={NextIcon} alt="next" css={arrowImg} />
+              </div>
+            )}
+
+          </div>
         ))}
       </div>
     </div>
@@ -36,86 +66,123 @@ const StepCards = () => {
 
 export default StepCards;
 
-const cards = [
+const generalCards = [
   () => (
     <>
-      <p>얼굴 전체가 화면에 들어오도록 해주세요.</p>
-      <img src="/ok.png" alt="ok" width={100} />
+      <p>마이크 연결상태를 <br/> 확인해주세요.</p>
+      <img src={General1} width={105}  />
     </>
   ),
   () => (
     <>
-      <p>입술이 가려지지 않게 주의해주세요.</p>
-      <img src="/error.png" alt="error" width={100} />
+      <p>목소리가 작거나 소란스럽지 <br/> 않도록 해주세요.</p>
+      <img src={General2} width={105} />
+    </>
+  ),
+];
+
+const lipReadingCards = [
+  () => (
+    <>
+      <p>얼굴 전체가 화면에 <br/> 들어오도록 해주세요.</p>
+      <img src={Lip1} width={145} />
     </>
   ),
   () => (
     <>
-      <p>카메라 각도가 바뀌지 않도록 유의해주세요.</p>
-      <img src="/ok.png" alt="ok" width={100} />
+      <p>입술이 가려지지 않게 <br/> 주의해주세요.</p>
+      <img src={Lip2} width={145} />
+    </>
+  ),
+  () => (
+    <>
+      <p>카메라 각도가 바뀌지 <br/> 않도록 유의해주세요.</p>
+      <img src={Lip3} width={110} />
     </>
   ),
 ];
 
 const wrapper = css`
   width: 100%;
-  max-width: 400px;
-  margin: 40px auto;
-  text-align: center;
+  max-width: 1500px;
+  margin-top: 30px;
+  overflow-x: auto;
+  display: flex;
+  justify-content: center;
+`;
+
+const row = css`
+  display: flex;
+  gap: 20px;
+`;
+
+const cardWithArrow = css`
+  display: flex;
+  align-items: center;
+  gap: 10px;
 `;
 
 const card = css`
+  flex: 0 0 250px;
+  padding: 24px;
   background: #f5f5f5;
-  border-radius: 20px;
-  padding: 40px;
-  min-height: 300px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-`;
+  border-radius: 16px;
+  text-align: center;
+  min-width: 320px;
+  min-height: 440px;
+  margin-bottom: 50px;
 
-const fade = keyframes`
-  from { opacity: 0; transform: scale(0.98); }
-  to { opacity: 1; transform: scale(1); }
-`;
-
-const fadeIn = css`
-  animation: ${fade} 0.3s ease;
+  p {
+    font-family: 'NanumSquareB';
+    font-size: 18px;
+    line-height: 1.5;
+    margin-top: 30px;
+    margin-bottom: 60px;
+  }
 `;
 
 const buttonBox = css`
-  margin-top: 24px;
+  margin-top: 16px;
+  display: flex;
+  justify-content: center; 
 `;
 
 const nextBtn = css`
-  background: #e0e0e0;
+  background: var(--color-primary);
+  color: var(--color-text-white);
   border: none;
-  border-radius: 8px;
-  padding: 12px 20px;
-  font-size: 16px;
+  border-radius: 100px;
+  padding: 10px 30px;
   cursor: pointer;
+  font-family: 'NanumSquareB';
+  font-size: 16px;
+  line-height: 1.5; 
+  margin-top: 40px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 const finishBtn = css`
-  background: #3182f6;
+  background: var(--color-primary);
+  color: var(--color-text-white);
   border: none;
-  color: white;
-  border-radius: 8px;
-  padding: 12px 20px;
-  font-size: 16px;
+  border-radius: 100px;
+  padding: 10px 30px;
   cursor: pointer;
+  font-family: 'NanumSquareB';
+  font-size: 16px;
+  line-height: 1.5; 
+  margin-top: 40px;
+  margin-bottom: 10px;
 `;
 
-const dotBox = css`
+const arrowImg = css`
+  width: 50px;
+  height: 50px;
   display: flex;
+  align-items: center;
   justify-content: center;
-  margin-top: 20px;
-  gap: 8px;
-`;
-
-const dot = (active: boolean) => css`
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: ${active ? '#3182f6' : '#ccc'};
+  margin: 0 5px;
 `;
