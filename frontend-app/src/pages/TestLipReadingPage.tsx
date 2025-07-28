@@ -1,8 +1,10 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import TutorialFooter from '@/components/TurtorialFooter';
+import TutorialModal from '@/components/TutorialModal';
 import axios from 'axios';
 import RecordButton from '@/assets/icons/record.png';
 
@@ -13,10 +15,14 @@ const TestLipReadingPage = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [progress, setProgress] = useState(0);
-const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
-const maxDuration = 5000; // 5초 (원하면 조절)
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const maxDuration = 7000;
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<
+    null | 'success' | 'fail'
+  >(null);
+  const navigate = useNavigate();
 
-  // 1. 카메라 권한
   useEffect(() => {
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
@@ -33,65 +39,69 @@ const maxDuration = 5000; // 5초 (원하면 조절)
       });
   }, []);
 
-  // 2. 녹화 토글
- const handleRecord = () => {
-  if (!stream) return;
+  const handleRecord = () => {
+    if (!stream) return;
 
-  if (!isRecording) {
-    const mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
-    const chunks: BlobPart[] = [];
-    let startTime = Date.now();
+    if (!isRecording) {
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'video/webm',
+      });
+      const chunks: BlobPart[] = [];
+      const startTime = Date.now();
 
-    mediaRecorder.ondataavailable = (event) => {
-      if (event.data.size > 0) chunks.push(event.data);
-    };
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) chunks.push(event.data);
+      };
 
-    mediaRecorder.onstop = async () => {
-      // 프로그래스바 초기화
+      mediaRecorder.onstop = async () => {
+        if (progressIntervalRef.current) {
+          clearInterval(progressIntervalRef.current);
+          progressIntervalRef.current = null;
+        }
+        setProgress(0);
+
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        const formData = new FormData();
+        formData.append('file', blob, 'lip-test.webm');
+
+        try {
+          setIsAnalyzing(true);
+          setAnalysisResult(null);
+          await axios.post('/api/upload/lip-test', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          });
+          alert('업로드 완료!');
+          setAnalysisResult('success');
+        } catch (e) {
+          console.error(e);
+          setIsAnalyzing(false);
+          setAnalysisResult('fail');
+        }
+      };
+
+      progressIntervalRef.current = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const ratio = Math.min(elapsed / maxDuration, 1);
+        setProgress(ratio * 100);
+        if (elapsed >= maxDuration) {
+          mediaRecorder.stop();
+          setIsRecording(false);
+        }
+      }, 100);
+
+      mediaRecorder.start();
+      mediaRecorderRef.current = mediaRecorder;
+      setIsRecording(true);
+    } else {
+      mediaRecorderRef.current?.stop();
       if (progressIntervalRef.current) {
         clearInterval(progressIntervalRef.current);
         progressIntervalRef.current = null;
       }
       setProgress(0);
-
-      const blob = new Blob(chunks, { type: 'video/webm' });
-      const formData = new FormData();
-      formData.append('file', blob, 'lip-test.webm');
-      try {
-        await axios.post('/api/upload/lip-test', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        alert('업로드 완료!');
-      } catch (e) {
-        console.error(e);
-      }
-    };
-
-    // 프로그래스바 진행 로직
-    progressIntervalRef.current = setInterval(() => {
-      const elapsed = Date.now() - startTime;
-      const ratio = Math.min(elapsed / maxDuration, 1);
-      setProgress(ratio * 100);
-      if (elapsed >= maxDuration) {
-        // 최대시간 되면 자동 stop
-        mediaRecorder.stop();
-        setIsRecording(false);
-      }
-    }, 100);
-
-    mediaRecorder.start();
-    mediaRecorderRef.current = mediaRecorder;
-    setIsRecording(true);
-  } else {
-    mediaRecorderRef.current?.stop();
-    if (progressIntervalRef.current) {
-      clearInterval(progressIntervalRef.current);
-      progressIntervalRef.current = null;
+      setIsRecording(false);
     }
-    setProgress(0);
-    setIsRecording(false);
-  }
-};
+  };
 
   return (
     <div css={pageWrapperStyle}>
@@ -102,20 +112,20 @@ const maxDuration = 5000; // 5초 (원하면 조절)
 
         <div css={videoContener}>
           <div css={videoBox}>
-          {hasPermission ? (
-            <>
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                css={videoStyle}
-              />
-              <div css={guideBox}></div>
-            </>
-          ) : (
-            <div css={noCamera}>카메라 접근 권한이 필요합니다</div>
-          )}
+            {hasPermission ? (
+              <>
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  css={videoStyle}
+                />
+                <div css={guideBox}></div>
+              </>
+            ) : (
+              <div css={noCamera}>카메라 접근 권한이 필요합니다</div>
+            )}
             <div css={progressBarWrapper}>
               <div css={progressBar(progress)} />
             </div>
@@ -125,12 +135,21 @@ const maxDuration = 5000; // 5초 (원하면 조절)
               <img src={RecordButton} alt="record" css={iconStyle} />
             </button>
           )}
-          <div css={textBox}>
+          <div css={textBox(progress)}>
             <p>“Hello, My name is John.”</p>
           </div>
         </div>
       </div>
-       <TutorialFooter items={'튜토리얼 건너뛰기'} />
+      <TutorialFooter items={'튜토리얼 건너뛰기'} />
+      <TutorialModal
+        isOpen={isAnalyzing}
+        result={analysisResult}
+        onRetry={() => {
+          setIsAnalyzing(false);
+          setAnalysisResult(null);
+        }}
+        onGoHome={() => navigate('/')}
+      />
     </div>
   );
 };
@@ -149,6 +168,7 @@ const contentWrapperStyle = css`
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-bottom: 2rem;
 `;
 
 const titleStyle = css`
@@ -169,7 +189,7 @@ const videoContener = css`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 750px;
+  width: 800px;
   gap: 2rem;
   border-radius: 12px;
   background: var(--color-gray-100);
@@ -177,7 +197,7 @@ const videoContener = css`
 
 const videoBox = css`
   position: relative;
-  width: 750px;
+  width: 800px;
   height: 360px;
   background: #000;
   border-radius: 12px;
@@ -189,6 +209,7 @@ const videoStyle = css`
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transform: scaleX(-1);
 `;
 
 const noCamera = css`
@@ -201,23 +222,22 @@ const noCamera = css`
 
 const guideBox = css`
   position: absolute;
-  top: 50%;
+  top: 45%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 60%;
-  height: 80%;
-  border-radius: 8px;
+  width: 50%;
+  height: 70%;
+  border-radius: 20px;
   pointer-events: none;
   z-index: 1;
   &::before {
-    content: "";
+    content: '';
     position: absolute;
     inset: 0;
     border-radius: 8px;
-    padding: 3px;
-    background: linear-gradient(to right, #b9b5ffff, #d6acfdff);
-    -webkit-mask:
-      linear-gradient(#fff 0 0) content-box,
+    padding: 5px;
+    background: #ffffff;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box,
       linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
@@ -225,24 +245,39 @@ const guideBox = css`
 `;
 
 const recordButton = css`
-  margin-top: -10px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, 120%);
   background: transparent;
   border: none;
   cursor: pointer;
+  z-index: 2;
 `;
 
 const iconStyle = css`
-  width: 64px;
-  height: 64px;
+  width: 70px;
+  height: 70px;
 `;
 
-const textBox = css`
+const textBox = (progress: number) => css`
   margin-top: 10px;
   margin-bottom: 20px;
   font-size: 30px;
   font-family: 'NanumSquareEB';
   padding: 20px 30px;
   display: inline-block;
+
+  background: linear-gradient(
+    to right,
+    #3182f6 0%,
+    #a162e5 ${progress}%,
+    #ccc ${progress + 15 > 100 ? 100 : progress + 15}%
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: background 0.3s ease;
 `;
 
 const progressBarWrapper = css`
@@ -251,13 +286,13 @@ const progressBarWrapper = css`
   left: 0;
   width: 100%;
   height: 10px;
-  background: rgba(255,255,255,0.3);
-  z-index: 1; 
+  background: rgba(255, 255, 255, 0.3);
+  z-index: 1;
 `;
 
 const progressBar = (progress: number) => css`
   height: 100%;
   width: ${progress}%;
-  background: linear-gradient(to right, #4f46e5, #9333ea);
+  background: linear-gradient(to right, #3182f6, #a162e5);
   transition: width 0.1s linear;
 `;

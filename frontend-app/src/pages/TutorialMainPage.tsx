@@ -98,7 +98,7 @@ const cardGridStyle = css`
 `;
 
 const buttonWrapperStyle = css`
-  margin-top: 3rem;
+  margin-top: 3.5rem;
   display: flex;
   justify-content: right;
   gap: 1rem;

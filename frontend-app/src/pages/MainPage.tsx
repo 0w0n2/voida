@@ -85,17 +85,22 @@ const content = css`
   padding: 0 20px 0 180px;
   gap: 80px;
 
-  @media (max-width: 1024px) {
-    padding-left: 120px;
+  @media (max-width: 1200px) {
+    padding-left: 100px;
     gap: 40px;
+  }
+
+  @media (max-width: 1024px) {
+    padding-left: 60px;
+    gap: 30px;
   }
 
   @media (max-width: 768px) {
     flex-direction: column;
     justify-content: center;
     text-align: center;
-    padding: 120px 20px 40px;
-    gap: 40px;
+    padding: 100px 20px 40px;
+    gap: 30px;
   }
 `;
 
@@ -131,12 +136,16 @@ const title = css`
   line-height: 1.3;
   margin-bottom: 20px;
 
+  @media (max-width: 1200px) {
+    font-size: 52px;
+  }
+
   @media (max-width: 1024px) {
-    font-size: 48px;
+    font-size: 44px;
   }
 
   @media (max-width: 768px) {
-    font-size: 36px;
+    font-size: 32px;
   }
 `;
 
@@ -158,12 +167,16 @@ const desc = css`
   line-height: 1.7;
   margin-bottom: 30px;
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1200px) {
     font-size: 16px;
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 1024px) {
     font-size: 15px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 14px;
   }
 `;
 
@@ -240,12 +253,16 @@ const chatImage = css`
     transform: rotate(-4.5deg);
   }
 
-  @media (max-width: 1280px) {
+  @media (max-width: 1400px) {
     width: 700px;
   }
 
+  @media (max-width: 1200px) {
+    width: 550px;
+  }
+
   @media (max-width: 1024px) {
-    width: 500px;
+    width: 450px;
   }
 
   @media (max-width: 768px) {
