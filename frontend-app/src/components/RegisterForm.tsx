@@ -11,6 +11,7 @@ import VoidaLogo from '@/assets/icon/voida-logo.png';
 import defaultProfile from '@/assets/profiles/defaultProfile.png';
 import EmailVerificationModal from './EmailVerificationModal';
 import { getRandomNickname } from '@/apis/authApi';
+import IsRegisteredModal from './IsRegisteredModal';
 
 const RegisterForm = () => {
   const [email, setEmail] = useState('');
@@ -32,6 +33,14 @@ const RegisterForm = () => {
   // 이메일 인증 상태
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
+
+  // 회원가입 완료 상태
+  const [isRegistered, setIsRegistered] = useState(false);
+
+  // 회원가입 완료 모달 닫기
+  const handleCloseRegisteredModal = () => {
+    setIsRegistered(false);
+  };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -190,58 +199,55 @@ const RegisterForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 모든 필수 필드 검증
-    if (
-      !email.trim() ||
-      !password.trim() ||
-      !passwordCheck.trim() ||
-      !nickname.trim()
-    ) {
-      alert('모든 필수 항목을 입력해주세요.');
-      return;
-    }
+    // // 모든 필수 필드 검증
+    // if (
+    //   !email.trim() ||
+    //   !password.trim() ||
+    //   !passwordCheck.trim() ||
+    //   !nickname.trim()
+    // ) {
+    //   alert('모든 필수 항목을 입력해주세요.');
+    //   return;
+    // }
 
-    if (!isEmailChecked) {
-      alert('이메일 중복확인을 해주세요.');
-      return;
-    }
+    // if (!isEmailChecked) {
+    //   alert('이메일 중복확인을 해주세요.');
+    //   return;
+    // }
 
-    if (!isEmailVerified) {
-      alert('이메일 인증을 완료해주세요.');
-      return;
-    }
+    // if (!isEmailVerified) {
+    //   alert('이메일 인증을 완료해주세요.');
+    //   return;
+    // }
 
-    if (!isNicknameChecked) {
-      alert('닉네임 중복확인을 해주세요.');
-      return;
-    }
+    // if (!isNicknameChecked) {
+    //   alert('닉네임 중복확인을 해주세요.');
+    //   return;
+    // }
 
-    if (!isPrivacyChecked) {
-      alert('개인정보 수집 및 이용동의에 체크해주세요.');
-      return;
-    }
+    // if (!isPrivacyChecked) {
+    //   alert('개인정보 수집 및 이용동의에 체크해주세요.');
+    //   return;
+    // }
 
-    if (password !== passwordCheck) {
-      alert('비밀번호가 일치하지 않습니다.');
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      const response = await register(email, password);
-      alert('회원가입이 완료되었습니다!');
-      // TODO: 로그인 페이지로 이동
-      // navigate('/login');
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        alert(
-          error.response?.data?.message || '회원가입 중 오류가 발생했습니다.',
-        );
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
+    // if (password !== passwordCheck) {
+    //   alert('비밀번호가 일치하지 않습니다.');
+    //   return;
+    // }
+ 
+    // setIsSubmitting(true);
+    setIsRegistered(true);
+    // try {
+    //   setIsRegistered(true);
+    // } catch (error) {
+    //   if (error instanceof AxiosError) {
+    //     alert(
+    //       error.response?.data?.message || '회원가입 중 오류가 발생했습니다.',
+    //     );
+    //   }
+    // } finally {
+    //   setIsSubmitting(false);
+    // }
   };
 
   //////////////////////////////////////////////////////
@@ -387,12 +393,18 @@ const RegisterForm = () => {
           </div>
         </div>
       </form>
-
+      {/* 이메일 인증 모달 */}
       <EmailVerificationModal
         isOpen={isVerificationModalOpen}
         onClose={() => setIsVerificationModalOpen(false)}
         email={email}
         onVerificationSuccess={handleVerificationSuccess}
+      />
+      {/* 회원가입 완료 모달 */}
+      <IsRegisteredModal
+        isOpen={isRegistered}
+        onClose={handleCloseRegisteredModal}
+        nickname={nickname}
       />
     </>
   );
