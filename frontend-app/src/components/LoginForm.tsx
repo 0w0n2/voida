@@ -1,31 +1,31 @@
 /** @jsxImportSource @emotion/react */
-import { css } from "@emotion/react";
-import { useState } from "react";
-import { AxiosError } from "axios";
-import { login } from "@/apis/authApi";
-import VoidaLogo from "@/assets/icon/voida-logo.png";
-import GoogleLogo from "@/assets/icon/google-logo.png";
-import EyeIcon from "@/assets/icon/eye.png";
-import EyeCloseIcon from "@/assets/icon/crossed-eye.png";
+import { css } from '@emotion/react';
+import { useState } from 'react';
+import { AxiosError } from 'axios';
+import { login } from '@/apis/authApi';
+import VoidaLogo from '@/assets/icon/voida-logo.png';
+import GoogleLogo from '@/assets/icon/google-logo.png';
+import EyeIcon from '@/assets/icon/eye.png';
+import EyeCloseIcon from '@/assets/icon/crossed-eye.png';
 
 const LoginForm = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setEmail(value);
 
     if (!value.trim()) {
-      setEmailError("이메일을 입력해주세요.");
+      setEmailError('이메일을 입력해주세요.');
     } else if (!/^[\w-.]+@[\w-]+\.[a-z]{2,}$/i.test(value)) {
-      setEmailError("올바른 이메일 형식이 아닙니다.");
+      setEmailError('올바른 이메일 형식이 아닙니다.');
     } else {
-      setEmailError("");
+      setEmailError('');
     }
   };
 
@@ -33,15 +33,15 @@ const LoginForm = () => {
     let isValid = true;
 
     if (!email.trim()) {
-      setEmailError("이메일을 입력해주세요.");
+      setEmailError('이메일을 입력해주세요.');
       isValid = false;
     }
 
     if (!password.trim()) {
-      setPasswordError("비밀번호를 입력해주세요.");
+      setPasswordError('비밀번호를 입력해주세요.');
       isValid = false;
     } else {
-      setPasswordError("");
+      setPasswordError('');
     }
 
     return isValid;
@@ -53,11 +53,11 @@ const LoginForm = () => {
 
     try {
       const res = await login(email, password);
-      console.log("로그인 성공:", res.data);
+      console.log('로그인 성공:', res.data);
     } catch (err) {
       const axiosError = err as AxiosError<{ message: string }>;
 
-      setError(axiosError.response?.data?.message || "로그인 실패");
+      setError(axiosError.response?.data?.message || '로그인 실패');
     }
   };
 
@@ -96,7 +96,7 @@ const LoginForm = () => {
         <div css={passwordBoxStyle}>
           <input
             id="password"
-            type={showPassword ? "text" : "password"}
+            type={showPassword ? 'text' : 'password'}
             placeholder="비밀번호"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -152,13 +152,13 @@ const googleBtnStyle = css`
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background: #ffffff;
+  background: var(--color-bg-white);
   border: 1px solid #ddd;
   height: 60px;
   border-radius: 8px;
   padding: 0.5rem;
   cursor: pointer;
-  font-family: "NanumSquareR";
+  font-family: 'NanumSquareR';
   font-size: 16px;
   color: #939393;
 
@@ -181,7 +181,7 @@ const dividerStyle = css`
 
   &::before,
   &::after {
-    content: "";
+    content: '';
     flex: 1;
     height: 1px;
     background-color: #e0e0e0;
@@ -197,7 +197,7 @@ const labelStyle = css`
   margin-bottom: 0.5rem;
   font-size: 0.85rem;
   color: #444;
-  font-family: "NanumSquareR";
+  font-family: 'NanumSquareR';
   margin-left: 0.35rem;
 `;
 
@@ -221,7 +221,7 @@ const inputStyle = css`
   }
 
   &:focus {
-    border: 2px solid #2d6cdf;
+    border: 2px solid var(--color-primary);
     background-color: white;
   }
 `;
@@ -264,18 +264,17 @@ const eyeIconStyle = css`
 `;
 
 const loginBtnStyle = css`
-  background: #2d6cdf;
+  background: var(--color-primary);
   color: white;
   padding: 0.75rem;
-  font-sizeL 20px;
-  font-family: "NanumSquareR";
+  font-family: 'NanumSquareR';
   border: none;
   border-radius: 8px;
   cursor: pointer;
   width: 80px;
 
   &:hover {
-    background: #1e50b5;
+    background: var(--color-primary-dark);
   }
 `;
 

@@ -1,5 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { css } from '@emotion/react';
 import TutorialMainCard from '@/components/TutorialMainCard';
 import Header from '@/components/Header';
@@ -8,24 +9,26 @@ import WebCam from '@/assets/icon/tutorial-webcam.png';
 import Text from '@/assets/icon/tutorial-text.png';
 
 export default function TutorialMainPage() {
+  const navigate = useNavigate();
+
   return (
     <div css={pageWrapperStyle}>
       <Header />
       <div css={cardWrapperStyle}>
         <h2 css={titleStyle}>
           Voida 이용을 위해
-          <br />아래와 같은 준비 과정이 필요합니다.
+          <br />
+          아래와 같은 준비 과정이 필요합니다.
         </h2>
         <p css={subtitleStyle}>쉽고 간단하게 구화를 텍스트로 전달해보세요!</p>
-
         <div css={cardGridStyle}>
           <TutorialMainCard
             step={1}
             title="마이크 설정"
             image={Microphone}
             items={[
-              "음성 텍스트로 변환하기 위해 필요합니다.",
-              "마이크가 제대로 연결되어 있는지 확인하세요.",
+              '음성 텍스트로 변환하기 위해 필요합니다.',
+              '마이크가 제대로 연결되어 있는지 확인하세요.',
             ]}
           />
           <TutorialMainCard
@@ -33,8 +36,8 @@ export default function TutorialMainPage() {
             title="웹캠 설정"
             image={WebCam}
             items={[
-              "영상을 텍스트로 변환하기 위해 필요합니다.",
-              "얼굴이 중앙으로, 입술이 잘 보이도록 해주세요.",
+              '영상을 텍스트로 변환하기 위해 필요합니다.',
+              '얼굴이 중앙으로, 입술이 잘 보이도록 해주세요.',
             ]}
           />
           <TutorialMainCard
@@ -42,15 +45,22 @@ export default function TutorialMainPage() {
             title="인식 테스트"
             image={Text}
             items={[
-              "음성 인식률이 낮다면 마이크를 확인해주세요.",
-              "구화 인식률이 낮다면 조명, 각도를 확인해주세요.",
+              '음성 인식률이 낮다면 마이크를 확인해주세요.',
+              '구화 인식률이 낮다면 조명, 각도를 확인해주세요.',
             ]}
           />
         </div>
 
         <div css={buttonWrapperStyle}>
-          <button css={skipButtonStyle}>튜토리얼 건너뛰기</button>
-          <button css={startButtonStyle}>테스트 시작하기</button>
+          <button css={skipButtonStyle} onClick={() => navigate('/rooms')}>
+            튜토리얼 건너뛰기
+          </button>
+          <button
+            css={startButtonStyle}
+            onClick={() => navigate('/tutorial/user-type')}
+          >
+            테스트 시작하기
+          </button>
         </div>
       </div>
     </div>
@@ -77,7 +87,7 @@ const titleStyle = css`
 
 const subtitleStyle = css`
   color: var(--color-gray-600);
-  margin-bottom: 2.5rem;
+  margin-bottom: 3rem;
   text-align: center;
   font-size: 20px;
 `;
@@ -85,11 +95,11 @@ const subtitleStyle = css`
 const cardGridStyle = css`
   display: grid;
   gap: 1.5rem;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 410px));
 `;
 
 const buttonWrapperStyle = css`
-  margin-top: 2.5rem;
+  margin-top: 3rem;
   display: flex;
   justify-content: right;
   gap: 1rem;

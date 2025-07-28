@@ -1,4 +1,4 @@
-import apiInstance from './apiInstance';
+import apiInstance from '@/apis/apiInstance';
 
 // 로그인
 export const login = (email: string, password: string) => {

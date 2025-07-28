@@ -30,31 +30,31 @@ const GlobalStyles = () => (
 
       :root {
         /* Primary */
-        --color-primary: #3182F6;
-        --color-primary-dark: #1B6DEC;
+        --color-primary: #3182f6;
+        --color-primary-dark: #1b6dec;
 
         /* Gray */
-        --color-gray-100: #F4F4F5;
-        --color-gray-200: #D9D9D9;
-        --color-gray-300: #CBCBCB; 
-        --color-gray-400: #B7B7B7;
+        --color-gray-100: #f4f4f5;
+        --color-gray-200: #d9d9d9;
+        --color-gray-300: #cbcbcb;
+        --color-gray-400: #b7b7b7;
         --color-gray-500: #939393;
-        --color-gray-600: #7E7E7E;
+        --color-gray-600: #7e7e7e;
 
         /* Semantic */
-        --color-red: #F14452;
-        --color-green: #23AD6F; 
-        --color-yellow: #F4D248;
+        --color-red: #f14452;
+        --color-green: #23ad6f;
+        --color-yellow: #f4d248;
 
         /* Background */
         --color-bg-white: #ffffffff;
-        --color-bg-blue: #dfe7ffff;
+        --color-bg-blue: #f8f9fc;
 
-         /* Base */
+        /* Base */
         --color-background: var(--color-bg-white);
         --color-text: #333;
         --color-text-white: #fff;
-        --color-text-black: #
+        --color-text-black: #;
       }
 
       * {

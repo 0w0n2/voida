@@ -3,7 +3,6 @@ import { css } from '@emotion/react';
 import VoidaLogo from '@/assets/icon/voida-logo.png';
 import ProfileImage from '@/assets/icon/profile.png';
 
-
 export default function Header() {
   return (
     <div css={headerContainer}>
@@ -11,7 +10,7 @@ export default function Header() {
       <div css={userInfoStyle}>
         <img src={ProfileImage} alt="프로필 이미지" css={avatarStyle} />
         <span>
-        <span css={{ fontFamily: 'NanumSquareEB' }}>진모리</span> 님
+          <span css={{ fontFamily: 'NanumSquareEB' }}>진모리</span> 님
         </span>
       </div>
     </div>
@@ -26,7 +25,7 @@ const headerContainer = css`
 `;
 
 const logo = css`
-  width: 100px;
+  width: 120px;
 `;
 
 const userInfoStyle = css`
@@ -44,4 +43,3 @@ const avatarStyle = css`
   border-radius: 50%;
   object-fit: cover;
 `;
-

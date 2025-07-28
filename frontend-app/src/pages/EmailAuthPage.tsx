@@ -1,13 +1,9 @@
 /** @jsxImportSource @emotion/react */
-import { css } from "@emotion/react";
+import { css } from '@emotion/react';
 // import EmailAuthForm from "@/components/EmailAuthForm.tsx";
 
 const EmailAuthPage = () => {
-  return (
-    <div css={wrapperStyle}>
-      {/* <EmailAuthForm />l2 */}
-    </div>
-  );
+  return <div css={wrapperStyle}>{/* <EmailAuthForm />l2 */}</div>;
 };
 
 export default EmailAuthPage;
