@@ -1,11 +1,11 @@
 /** @jsxImportSource @emotion/react */
 import React from 'react';
 import { css } from '@emotion/react';
-import TutorialMainCard from '../components/TutorialMainCard';
-import Header from '../components/Header';
-import Microphone from '../styles/assets/icon/tutorial-microphone.png';
-import WebCam from '../styles/assets/icon/tutorial-webcam.png';
-import Text from '../styles/assets/icon/tutorial-text.png';
+import TutorialMainCard from '@/components/TutorialMainCard';
+import Header from '@/components/Header';
+import Microphone from '@/assets/icon/tutorial-microphone.png';
+import WebCam from '@/assets/icon/tutorial-webcam.png';
+import Text from '@/assets/icon/tutorial-text.png';
 
 export default function TutorialMainPage() {
   return (

@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import VoidaLogo from '../styles/assets/icon/voida-logo.png';
-import ProfileImage from '../styles/assets/icon/profile.png';
+import VoidaLogo from '@/assets/icon/voida-logo.png';
+import ProfileImage from '@/assets/icon/profile.png';
 
 
 export default function Header() {
