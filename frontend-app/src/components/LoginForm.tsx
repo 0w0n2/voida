@@ -7,6 +7,7 @@ import VoidaLogo from '@/assets/icon/voida-logo.png';
 import GoogleLogo from '@/assets/icon/google-logo.png';
 import EyeIcon from '@/assets/icon/eye.png';
 import EyeCloseIcon from '@/assets/icon/crossed-eye.png';
+import { googleLogin } from '@/apis/authApi';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -16,6 +17,12 @@ const LoginForm = () => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
+  // 구글 로그인 리다이렉트 함수 !! 
+  const handleGoogleLogin = () => {
+    const provider = 'google';
+    window.location.href = `${import.meta.env.VITE_API_URL}/v1/auth/login/${provider}`;
+  }
+  
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setEmail(value);
@@ -65,7 +72,7 @@ const LoginForm = () => {
     <form css={formStyle} onSubmit={handleLogin}>
       <img src={VoidaLogo} alt="Voida Logo" css={logoStyle} />
 
-      <button type="button" css={googleBtnStyle}>
+      <button type="button" css={googleBtnStyle} onClick={handleGoogleLogin}>
         <img src={GoogleLogo} alt="Google" css={googleLogoStyle} />
         Google로 로그인하기
       </button>
