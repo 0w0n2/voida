@@ -6,6 +6,8 @@ import com.bbusyeo.voida.api.meetingroom.dto.MeetingRoomCreateRequestDto;
 import com.bbusyeo.voida.api.meetingroom.dto.MeetingRoomUpdateRequestDto;
 import com.bbusyeo.voida.api.meetingroom.repository.MeetingRoomRepository;
 import com.bbusyeo.voida.api.meetingroom.repository.MemberMeetingRoomRepository;
+import com.bbusyeo.voida.api.member.domain.Member;
+import com.bbusyeo.voida.api.member.repository.MemberRepository;
 import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ public class MeetingRoomService {
 
     private final MeetingRoomRepository meetingRoomRepository;
     private final MemberMeetingRoomRepository memberMeetingRoomRepository;
+    private final MemberRepository memberRepository;
 
     // 대기실 생성
     public MeetingRoom create(MeetingRoomCreateRequestDto request) {
@@ -37,7 +40,10 @@ public class MeetingRoomService {
     // 방장 권한 확인 메서드
     private void checkHostAuthority(Long memberId, Long meetingRoomId) {
         // memberId는 혜원 작업 완료 후, 인증(JWT 토큰)에서 가져와야함
-        memberMeetingRoomRepository.findByMemberIdAndMeetingRoomId(memberId, meetingRoomId)
+        Member member = memberRepository.findById(memberId)
+                // 시스템에 존재하는 유저가 아닐때, 임시로 400 에러 => 추후 NOT_FOUND_MEMBER response로 바꿔야함
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.ILLEGAL_ARGUMENT));
+        memberMeetingRoomRepository.findByMemberAndMeetingRoomId(member, meetingRoomId)
                 .filter(memberMeetingRoom -> memberMeetingRoom.getState() == MemberMeetingRoomState.HOST)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.FORBIDDEN_ACCESS));
     }
@@ -46,7 +52,6 @@ public class MeetingRoomService {
     public MeetingRoom update(Long memberId, Long meetingRoomId, MeetingRoomUpdateRequestDto requestDto) {
         // 방장 권한 확인하기
         checkHostAuthority(memberId, meetingRoomId);
-
         MeetingRoom meetingRoom = findById(meetingRoomId);
         meetingRoom.update(requestDto.getTitle(), requestDto.getCategory(), requestDto.getThumbnailImageUrl());
         return meetingRoom;
@@ -56,7 +61,11 @@ public class MeetingRoomService {
     public void delete(Long memberId, Long meetingRoomId) {
         // 방장 권한 확인
         checkHostAuthority(memberId, meetingRoomId);
+        // MeetingRoom 존재 확인
         MeetingRoom meetingRoom = findById(meetingRoomId);
+        // 연관된 MemberMeetingRoom 데이터 삭제
+        memberMeetingRoomRepository.deleteByMeetingRoom_Id(meetingRoom.getId());
+        // 모든 자식 데이터 삭제된 후, MeetingRoom 삭제
         meetingRoomRepository.delete(meetingRoom);
     }
 }
