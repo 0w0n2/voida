@@ -1,9 +1,7 @@
 package com.bbusyeo.voida.api.meetingroom.controller;
 
 import com.bbusyeo.voida.api.meetingroom.domain.MeetingRoom;
-import com.bbusyeo.voida.api.meetingroom.dto.MeetingRoomCreateRequestDto;
-import com.bbusyeo.voida.api.meetingroom.dto.MeetingRoomCreateResponseDto;
-import com.bbusyeo.voida.api.meetingroom.dto.MeetingRoomInfoResponseDto;
+import com.bbusyeo.voida.api.meetingroom.dto.*;
 import com.bbusyeo.voida.api.meetingroom.service.MeetingRoomService;
 import com.bbusyeo.voida.global.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +28,16 @@ public class MeetingRoomController {
         MeetingRoom meetingRoom = meetingRoomService.findById(meetingRoomId);
         // 찾은 방 정보를 응답용 DTO로 변환
         MeetingRoomInfoResponseDto response = MeetingRoomInfoResponseDto.from(meetingRoom);
+        return new BaseResponse<>(response);
+    }
+
+    @PutMapping("/{meetingRoomId}/settings")
+    public BaseResponse<MeetingRoomUpdateResponseDto> update(
+        @PathVariable Long meetingRoomId, @RequestBody MeetingRoomUpdateRequestDto request) {
+        // memberId는 인증 기능 구현 완료 후, JWT 토큰에서 추출한 값으로 변경 예정
+        Long memberId = 1L; // 임시
+        MeetingRoom updateMeetingRoom = meetingRoomService.update(memberId, meetingRoomId, request);
+        MeetingRoomUpdateResponseDto response = MeetingRoomUpdateResponseDto.from(updateMeetingRoom);
         return new BaseResponse<>(response);
     }
 }

@@ -18,15 +18,19 @@ public enum BaseResponseStatus {
      */
     ILLEGAL_ARGUMENT(HttpStatus.BAD_REQUEST, false, 400, "잘못된 요청입니다."),
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, false, 401, "적절하지 않은 요청값입니다."),
-    NOT_FOUND_MEETING_ROOM(HttpStatus.NOT_FOUND, false, 404, "존재하지 않는 대기실입니다."),
 
     /**
      * 500: 기타 에러.
      */
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, false, 500, "서버에서 예기치 않은 오류가 발생했습니다."),
     DATABASE_CONSTRAINT_VIOLATION(HttpStatus.CONFLICT, false, 509, "데이터베이스 제약 조건을 위반했습니다. "
-        + "(유니크 키 중복, 외래 키 위반, NOT NULL 위반 등에서 발생합니다.)");
+        + "(유니크 키 중복, 외래 키 위반, NOT NULL 위반 등에서 발생합니다.)"),
 
+    /**
+     * 700: 대기실 에러.
+     */
+    NOT_FOUND_MEETING_ROOM(HttpStatus.NOT_FOUND, false, 704, "존재하지 않는 대기실입니다."),
+    FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN, false, 703, "방장 권한이 없습니다.");
 
     private final HttpStatus httpStatus;
     private final boolean isSuccess;

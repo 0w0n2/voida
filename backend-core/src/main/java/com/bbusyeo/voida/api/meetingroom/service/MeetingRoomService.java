@@ -1,8 +1,11 @@
 package com.bbusyeo.voida.api.meetingroom.service;
 
 import com.bbusyeo.voida.api.meetingroom.domain.MeetingRoom;
+import com.bbusyeo.voida.api.meetingroom.domain.enums.MemberMeetingRoomState;
 import com.bbusyeo.voida.api.meetingroom.dto.MeetingRoomCreateRequestDto;
+import com.bbusyeo.voida.api.meetingroom.dto.MeetingRoomUpdateRequestDto;
 import com.bbusyeo.voida.api.meetingroom.repository.MeetingRoomRepository;
+import com.bbusyeo.voida.api.meetingroom.repository.MemberMeetingRoomRepository;
 import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
@@ -11,12 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class MeetingRoomService {
 
     private final MeetingRoomRepository meetingRoomRepository;
+    private final MemberMeetingRoomRepository memberMeetingRoomRepository;
 
-    @Transactional
     // 대기실 생성
     public MeetingRoom create(MeetingRoomCreateRequestDto request) {
         // 추후 JWT에서 member 정보 받아와서 연관관계 설정 필요
@@ -24,9 +27,27 @@ public class MeetingRoomService {
         return meetingRoomRepository.save(meetingRoom);
     }
 
+    @Transactional(readOnly = true)
     // 대기실 기본정보 조회
     public MeetingRoom findById(Long meetingRoomId) {
         return meetingRoomRepository.findById(meetingRoomId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NOT_FOUND_MEETING_ROOM));
+    }
+
+    public MeetingRoom update(Long memberId, Long meetingRoomId, MeetingRoomUpdateRequestDto requestDto) {
+        // 방장 권한 확인하기
+        checkHostAuthority(memberId, meetingRoomId);
+
+        MeetingRoom meetingRoom = findById(meetingRoomId);
+        meetingRoom.update(requestDto.getTitle(), requestDto.getCategory(), requestDto.getThumbnailImageUrl());
+        return meetingRoom;
+    }
+
+    // 방장 권한 확인 메서드
+    private void checkHostAuthority(Long memberId, Long meetingRoomId) {
+        // memberId는 혜원 작업 완료 후, 인증(JWT 토큰)에서 가져와야함
+        memberMeetingRoomRepository.findByMemberIdAndMeetingRoomId(memberId, meetingRoomId)
+                .filter(memberMeetingRoom -> memberMeetingRoom.getState() == MemberMeetingRoomState.HOST)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.FORBIDDEN_ACCESS));
     }
 }

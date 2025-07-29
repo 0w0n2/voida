@@ -29,6 +29,18 @@ public class MeetingRoom {
     @Column(name = "member_count", nullable = false)
     private int memberCount;
 
+    public void update(String title, String categoryName, String thumbnailImageUrl) {
+        if (title != null) {
+            this.title = title;
+        }
+        if (categoryName != null) {
+            this.categoryName = categoryName;
+        }
+        if (thumbnailImageUrl != null) {
+            this.thumbnailImageUrl = thumbnailImageUrl;
+        }
+    }
+
     @Builder
     public MeetingRoom(String title, String categoryName, String thumbnailImageUrl, Integer memberCount) {
         this.title = title;
