@@ -34,6 +34,15 @@ public class MeetingRoomService {
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NOT_FOUND_MEETING_ROOM));
     }
 
+    // 방장 권한 확인 메서드
+    private void checkHostAuthority(Long memberId, Long meetingRoomId) {
+        // memberId는 혜원 작업 완료 후, 인증(JWT 토큰)에서 가져와야함
+        memberMeetingRoomRepository.findByMemberIdAndMeetingRoomId(memberId, meetingRoomId)
+                .filter(memberMeetingRoom -> memberMeetingRoom.getState() == MemberMeetingRoomState.HOST)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.FORBIDDEN_ACCESS));
+    }
+
+    // 방 기본 정보 수정
     public MeetingRoom update(Long memberId, Long meetingRoomId, MeetingRoomUpdateRequestDto requestDto) {
         // 방장 권한 확인하기
         checkHostAuthority(memberId, meetingRoomId);
@@ -43,11 +52,11 @@ public class MeetingRoomService {
         return meetingRoom;
     }
 
-    // 방장 권한 확인 메서드
-    private void checkHostAuthority(Long memberId, Long meetingRoomId) {
-        // memberId는 혜원 작업 완료 후, 인증(JWT 토큰)에서 가져와야함
-        memberMeetingRoomRepository.findByMemberIdAndMeetingRoomId(memberId, meetingRoomId)
-                .filter(memberMeetingRoom -> memberMeetingRoom.getState() == MemberMeetingRoomState.HOST)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.FORBIDDEN_ACCESS));
+    // 대기실 삭제
+    public void delete(Long memberId, Long meetingRoomId) {
+        // 방장 권한 확인
+        checkHostAuthority(memberId, meetingRoomId);
+        MeetingRoom meetingRoom = findById(meetingRoomId);
+        meetingRoomRepository.delete(meetingRoom);
     }
 }

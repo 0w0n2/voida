@@ -15,6 +15,7 @@ public class MeetingRoomController {
     private final MeetingRoomService meetingRoomService;
 
     @PostMapping
+    // 대기실 생성
     public BaseResponse<MeetingRoomCreateResponseDto> create(@RequestBody MeetingRoomCreateRequestDto request) {
         // 추후 @AuthenticationPrincipal 등 사용해서 인증된 사용자 정보 불러오기
         MeetingRoom newMeetingRoom = meetingRoomService.create(request);
@@ -23,6 +24,7 @@ public class MeetingRoomController {
     }
 
     @GetMapping("/{meetingRoomId}")
+    // 대기실 기본 정보 수정
     public BaseResponse<MeetingRoomInfoResponseDto> findById(@PathVariable Long meetingRoomId) {
         // 서비스에 ID로 방을 찾아달라고 요청
         MeetingRoom meetingRoom = meetingRoomService.findById(meetingRoomId);
@@ -32,6 +34,7 @@ public class MeetingRoomController {
     }
 
     @PutMapping("/{meetingRoomId}/settings")
+    // 대기실 기본 정보 수정
     public BaseResponse<MeetingRoomUpdateResponseDto> update(
         @PathVariable Long meetingRoomId, @RequestBody MeetingRoomUpdateRequestDto request) {
         // memberId는 인증 기능 구현 완료 후, JWT 토큰에서 추출한 값으로 변경 예정
@@ -39,5 +42,14 @@ public class MeetingRoomController {
         MeetingRoom updateMeetingRoom = meetingRoomService.update(memberId, meetingRoomId, request);
         MeetingRoomUpdateResponseDto response = MeetingRoomUpdateResponseDto.from(updateMeetingRoom);
         return new BaseResponse<>(response);
+    }
+
+    @DeleteMapping("{meetingRoomId}")
+    // 대기실 삭제
+    public BaseResponse<Void> delete(@PathVariable Long meetingRoomId) {
+        // memberId는 JWT 토큰에서 추출한 값으로 변경 예정
+        Long memberId = 1L;
+        meetingRoomService.delete(memberId, meetingRoomId);
+        return new BaseResponse<>();
     }
 }
