@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import MainPage from '@/pages/MainPage.tsx';
+import StartingPage from '@/pages/StartingPage.tsx';
 import LoginPage from '@/pages/LoginPage.tsx';
 import RegisterPage from '@/pages/RegisterPage.tsx';
 import EmailAuthPage from '@/pages/EmailAuthPage.tsx';
@@ -13,7 +13,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<MainPage />} />
+        <Route path="/" element={<StartingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/email-auth" element={<EmailAuthPage />} />
@@ -25,6 +25,8 @@ function App() {
           element={<TutorialLipReadingPage />}
         />
         <Route path="/rooms" element={<RoomsPage />} />
+        {/* <Route path="/rooms/create" element={<CreateRoomPage />} /> */}
+        {/* <Route path="/rooms/join" element={<JoinRoomPage />} /> */}
       </Routes>
     </BrowserRouter>
   );
