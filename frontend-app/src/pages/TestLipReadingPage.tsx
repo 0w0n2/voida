@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import TutorialFooter from '@/components/TurtorialFooter';
-import TutorialModal from '@/components/TutorialModal';
+import TutorialModal from '@/components/TutorialLipReadingModal';
 import axios from 'axios';
 import RecordButton from '@/assets/icons/record.png';
 
