@@ -1,10 +1,12 @@
 package com.bbusyeo.voida.global.security.dto;
 
+import com.bbusyeo.voida.api.auth.domain.enums.enums.Role;
 import com.bbusyeo.voida.api.member.domain.Member;
 import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
@@ -21,17 +23,16 @@ public class UserDetailsDto implements UserDetails {
 
     @Delegate // Member 객체의 메소드를 이 클래스에서 직접 사용 가능
     private Member member;
-
-    private Collection<? extends GrantedAuthority> authorities;
-
+    
+    // 사용자 권한 목록 반환
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> roles = new ArrayList<>();
-        if (member.getRole() != null) {
-            String roleName = "ROLE_" + member.getRole();
-            log.debug("권한 등록됨: {}", roleName);
+        Role role = member.getRole();
+        if (role != null) {
+            roles.add(new SimpleGrantedAuthority(role.getRoleName()));
         }
-        return authorities;
+        return roles;
     }
 
     @Override

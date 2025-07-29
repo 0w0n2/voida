@@ -19,6 +19,12 @@ public enum BaseResponseStatus {
     ILLEGAL_ARGUMENT(HttpStatus.BAD_REQUEST, false, 400, "잘못된 요청입니다."),
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, false, 401, "적절하지 않은 요청값입니다."),
 
+    // Token 응답
+    ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, false, 401, "액세스 토큰이 만료되었습니다."),
+    ACCESS_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, false, 401, "잘못된 액세스 토큰입니다."),
+    UNSUPPORTED_JWT_TOKEN(HttpStatus.UNAUTHORIZED, false, 401, "지원되지 않는 JWT 토큰입니다."),
+    INVALID_JWT_TOKEN(HttpStatus.UNAUTHORIZED, false, 401, "유효하지 않은 JWT 토큰입니다."),
+
     /**
      * 500: 기타 에러.
      */

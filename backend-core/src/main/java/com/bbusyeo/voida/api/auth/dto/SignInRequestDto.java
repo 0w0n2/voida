@@ -13,4 +13,11 @@ import lombok.ToString;
 public class SignInRequestDto {
     private String email;
     private String password;
+
+    public Member toEntity(){
+        return Member.builder()
+                .email(email)
+                .password(password)
+                .build();
+    }
 }

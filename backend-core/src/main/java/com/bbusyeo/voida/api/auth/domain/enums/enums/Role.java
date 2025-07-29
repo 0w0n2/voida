@@ -3,9 +3,15 @@ package com.bbusyeo.voida.api.auth.domain.enums.enums;
 public enum Role {
     ADMIN("ROLE_ADMIN"),
     USER("ROLE_USER");
+    // GUEST("ROLE_NOT_PERMITTED");
 
-    private final String role;
-    Role(String roleName) { this.role = roleName; }
+    private final String roleName;
 
-    public String getRole() { return this.role; }
+    Role(String roleName) {
+        this.roleName = roleName;
+    }
+
+    public String getRoleName() {
+        return this.roleName;
+    }
 }
