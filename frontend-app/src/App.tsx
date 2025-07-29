@@ -8,6 +8,7 @@ import UserTypePage from '@/pages/UserTypePage';
 import TutorialGeneralPage from '@/pages/TutorialGeneralPage.tsx';
 import TutorialLipReadingPage from '@/pages/TutorialLipReadingPage.tsx';
 import RoomsPage from '@/pages/RoomsPage.tsx';
+import MainPage from '@/pages/MainPage.tsx';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           element={<TutorialLipReadingPage />}
         />
         <Route path="/rooms" element={<RoomsPage />} />
+        <Route path="/main" element={<MainPage />} />
         {/* <Route path="/rooms/create" element={<CreateRoomPage />} /> */}
         {/* <Route path="/rooms/join" element={<JoinRoomPage />} /> */}
       </Routes>

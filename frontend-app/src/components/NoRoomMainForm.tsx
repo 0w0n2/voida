@@ -21,14 +21,16 @@ const NoRoomMainForm = () => {
     <div>
       <Header />
       <div css={iconWrapperStyle}>
-        <img src={mainHome} alt="mainHome" />
+        <div css={iconContainerStyle}>
+          <img src={mainHome} alt="mainHome" css={iconStyle} />
+        </div>
         <h1 css={NoRoomTextStyle}>현재 참여 중인 방이 없습니다.</h1>
         <span css={GuideTextStyle}>
           새로운 방을 만들어보거나, 코드를 입력해 입장해보세요.
         </span>
       </div>
       <div css={buttonWrapperStyle}>
-        <div>
+        <div css={buttonContainerStyle}>
           <h3>새로운</h3>
           <button
             onMouseEnter={() => setHoveredCard('general')}
@@ -45,18 +47,15 @@ const NoRoomMainForm = () => {
             <img src={plusButton} alt="plusButton" />방 생성하기
           </button>
         </div>
-        <div>
+        <div css={buttonContainerStyle}>
           <h3>코드로</h3>
           <button
-            onMouseEnter={() => setHoveredCard('general')}
+            onMouseEnter={() => setHoveredCard('join')}
             onMouseLeave={() => setHoveredCard(null)}
             onClick={JoinRoom}
             css={[
-              GoRoomButtonStyle,
-              hoveredCard === 'general' && {
-                backgroundColor: 'var(--color-primary)',
-                color: '#fff',
-              },
+              joinButtonStyle,
+              hoveredCard === 'join' && joinButtonHoverStyle,
             ]}
           >
             <img src={goButton} alt="goButton" />방 들어가기
@@ -70,49 +69,80 @@ const NoRoomMainForm = () => {
 export default NoRoomMainForm;
 
 const iconWrapperStyle = css`
-  background-color: linear-gradient(
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 50vh;
+  padding: 2rem 1rem;
+  background-color: #ffffff;
+`;
+
+const iconContainerStyle = css`
+  width: 120px;
+  height: 120px;
+  background-color: var(--color-gray-100);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+`;
+
+const iconStyle = css`
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
 `;
 
 const NoRoomTextStyle = css`
-  font-size: 24px;
+  font-size: 2rem;
   font-weight: 700;
-  color: #000;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+  text-align: center;
+  font-family: 'NanumSquareR', sans-serif;
+  font-weight: 800;
 `;
 
 const GuideTextStyle = css`
-  font-size: 16px;
-  color: #000;
+  font-size: 1.125rem;
+  color: var(--color-gray-500);
+  font-weight: 400;
+  text-align: center;
+  margin-bottom: 3rem;
+  font-family: 'NanumSquareR', sans-serif;
 `;
 
 const buttonWrapperStyle = css`
   display: flex;
   justify-content: center;
-  gap: 1rem;
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
 `;
 
 const GoRoomButtonStyle = css`
-  margin-top: 1.5rem;
-  padding: 0.8rem 1.5rem;
+  padding: 1rem 1.5rem;
   border: none;
-  border-radius: 8px;
-  background-color: #1976d2;
-  color: white;
+  border-radius: 12px;
   font-size: 1rem;
-  font-family: 'NanumSquareR';
+  font-weight: 600;
+  font-family: 'NanumSquareR', sans-serif;
   cursor: pointer;
   transition: all 0.2s ease;
-
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
+  gap: 0.5rem;
+  min-width: 160px;
+  background-color: var(--color-gray-100);
+  color: var(--color-text);
 
   &:hover {
-    background-color: #1565c0;
+    background-color: var(--color-gray-200);
   }
 
   &:active {
@@ -122,5 +152,59 @@ const GoRoomButtonStyle = css`
   img {
     width: 20px;
     height: 20px;
+    object-fit: contain;
   }
+`;
+const buttonContainerStyle = css`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-align: center;
+
+  h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin: 0;
+    text-align: center;
+    font-family: 'NanumSquareR', sans-serif;
+  }
+`;
+
+const joinButtonStyle = css`
+  padding: 1rem 1.5rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: 'NanumSquareR', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 160px;
+  background-color: var(--color-primary);
+  color: var(--color-text-white);
+
+  &:hover {
+    background-color: var(--color-primary-dark);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+  }
+`;
+
+const joinButtonHoverStyle = css`
+  background-color: #1565c0 !important;
 `;
