@@ -54,7 +54,7 @@ const GlobalStyles = () => (
         --color-background: var(--color-bg-white);
         --color-text: #333;
         --color-text-white: #fff;
-        --color-text-black: #;
+        --color-text-black: #000;
       }
 
       * {
