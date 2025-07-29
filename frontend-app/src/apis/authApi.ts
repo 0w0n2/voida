@@ -28,3 +28,8 @@ export const sendEmailVerification = (email: string) => {
 export const verifyEmailCode = (email: string, code: string) => {
   return apiInstance.post('/v1/auth/verify-email', { email, code });
 };
+
+// 회원가입 닉네임 랜덤 생성
+export const getRandomNickname = () => {
+  return apiInstance.get('/v1/auth/random-nickname');
+};

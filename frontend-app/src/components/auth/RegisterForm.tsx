@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AxiosError } from 'axios';
 import {
   register,
@@ -10,6 +10,8 @@ import {
 import VoidaLogo from '@/assets/logo/voida-logo.png';
 import defaultProfile from '@/assets/profiles/defaultProfile.png';
 import EmailVerificationModal from './EmailVerificationModal';
+import { getRandomNickname } from '@/apis/authApi';
+import IsRegisteredModal from './IsRegisteredModal';
 
 const RegisterForm = () => {
   const [email, setEmail] = useState('');
@@ -32,12 +34,22 @@ const RegisterForm = () => {
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
 
-  //
+  // 회원가입 완료 상태
+  const [isRegistered, setIsRegistered] = useState(false);
+
+  // 프로필 이미지 상태
+  const [profileImage, setProfileImage] = useState<string>(defaultProfile);
+
+  // 회원가입 완료 모달 닫기
+  const handleCloseRegisteredModal = () => {
+    setIsRegistered(false);
+  };
+
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setEmail(value);
-    setIsEmailChecked(false); // 이메일 변경 시 중복확인 상태 초기화
-    setIsEmailVerified(false); // 이메일 변경 시 인증 상태 초기화
+    setIsEmailChecked(false);
+    setIsEmailVerified(false);
 
     if (!value.trim()) {
       setEmailError('이메일을 입력해주세요.');
@@ -51,7 +63,7 @@ const RegisterForm = () => {
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setNickname(value);
-    setIsNicknameChecked(false); // 닉네임 변경 시 중복확인 상태 초기화
+    setIsNicknameChecked(false);
 
     if (!value.trim()) {
       setNicknameError('닉네임을 입력해주세요.');
@@ -62,10 +74,22 @@ const RegisterForm = () => {
     }
   };
 
+  // 닉네임 랜덤 생성
+  useEffect(() => {
+    const fetchRandomNickname = async () => {
+      try {
+        const response = await getRandomNickname();
+        setNickname(response.data.nickname);
+      } catch (error) {
+        console.error('닉네임 랜덤 생성 중 오류 발생:', error);
+      }
+    };
+    fetchRandomNickname();
+  }, []);
+
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setPassword(value);
-    // 비밀번호가 변경되면 비밀번호 확인 필드도 다시 검증
     if (passwordCheck) {
       validatePasswordCheck(passwordCheck);
     }
@@ -94,6 +118,30 @@ const RegisterForm = () => {
 
   const handlePrivacyCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsPrivacyChecked(e.target.checked);
+  };
+
+  // 프로필 이미지 변경 핸들러
+  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert('파일 크기는 5MB 이하여야 합니다.');
+        return;
+      }
+
+      if (!file.type.startsWith('image/')) {
+        alert('이미지 파일만 업로드 가능합니다.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setProfileImage(event.target.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   // 이메일 중복확인
@@ -151,7 +199,7 @@ const RegisterForm = () => {
     } catch (error) {
       if (error instanceof AxiosError) {
         setNicknameError(
-          error.response?.data?.message || '중복확인 중 오류가 발생했습니다.'
+          error.response?.data?.message || '중복확인 중 오류가 발생했습니다.',
         );
       }
       setIsNicknameChecked(false);
@@ -177,58 +225,55 @@ const RegisterForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 모든 필수 필드 검증
-    if (
-      !email.trim() ||
-      !password.trim() ||
-      !passwordCheck.trim() ||
-      !nickname.trim()
-    ) {
-      alert('모든 필수 항목을 입력해주세요.');
-      return;
-    }
+    // // 모든 필수 필드 검증
+    // if (
+    //   !email.trim() ||
+    //   !password.trim() ||
+    //   !passwordCheck.trim() ||
+    //   !nickname.trim()
+    // ) {
+    //   alert('모든 필수 항목을 입력해주세요.');
+    //   return;
+    // }
 
-    if (!isEmailChecked) {
-      alert('이메일 중복확인을 해주세요.');
-      return;
-    }
+    // if (!isEmailChecked) {
+    //   alert('이메일 중복확인을 해주세요.');
+    //   return;
+    // }
 
-    if (!isEmailVerified) {
-      alert('이메일 인증을 완료해주세요.');
-      return;
-    }
+    // if (!isEmailVerified) {
+    //   alert('이메일 인증을 완료해주세요.');
+    //   return;
+    // }
 
-    if (!isNicknameChecked) {
-      alert('닉네임 중복확인을 해주세요.');
-      return;
-    }
+    // if (!isNicknameChecked) {
+    //   alert('닉네임 중복확인을 해주세요.');
+    //   return;
+    // }
 
-    if (!isPrivacyChecked) {
-      alert('개인정보 수집 및 이용동의에 체크해주세요.');
-      return;
-    }
+    // if (!isPrivacyChecked) {
+    //   alert('개인정보 수집 및 이용동의에 체크해주세요.');
+    //   return;
+    // }
 
-    if (password !== passwordCheck) {
-      alert('비밀번호가 일치하지 않습니다.');
-      return;
-    }
+    // if (password !== passwordCheck) {
+    //   alert('비밀번호가 일치하지 않습니다.');
+    //   return;
+    // }
 
-    setIsSubmitting(true);
-
-    try {
-      const response = await register(email, password);
-      alert('회원가입이 완료되었습니다!');
-      // TODO: 로그인 페이지로 이동
-      // navigate('/login');
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        alert(
-          error.response?.data?.message || '회원가입 중 오류가 발생했습니다.'
-        );
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
+    // setIsSubmitting(true);
+    setIsRegistered(true);
+    // try {
+    //   setIsRegistered(true);
+    // } catch (error) {
+    //   if (error instanceof AxiosError) {
+    //     alert(
+    //       error.response?.data?.message || '회원가입 중 오류가 발생했습니다.',
+    //     );
+    //   }
+    // } finally {
+    //   setIsSubmitting(false);
+    // }
   };
 
   //////////////////////////////////////////////////////
@@ -243,17 +288,16 @@ const RegisterForm = () => {
           <div css={profileImageWrapperStyle}>
             <label htmlFor="profile-upload">
               <img
-                src={defaultProfile}
-                alt="기본 프로필"
+                src={profileImage}
+                alt="프로필 이미지"
                 css={profileImageStyle}
               />
-              {/* 추후 이미지 변경 기능을 위해 input 추가 */}
               <input
                 id="profile-upload"
                 type="file"
                 accept="image/*"
                 style={{ display: 'none' }}
-                // onChange={handleProfileChange} // 추후 구현
+                onChange={handleProfileChange}
               />
             </label>
           </div>
@@ -374,12 +418,18 @@ const RegisterForm = () => {
           </div>
         </div>
       </form>
-
+      {/* 이메일 인증 모달 */}
       <EmailVerificationModal
         isOpen={isVerificationModalOpen}
         onClose={() => setIsVerificationModalOpen(false)}
         email={email}
         onVerificationSuccess={handleVerificationSuccess}
+      />
+      {/* 회원가입 완료 모달 */}
+      <IsRegisteredModal
+        isOpen={isRegistered}
+        onClose={handleCloseRegisteredModal}
+        nickname={nickname}
       />
     </>
   );
@@ -404,16 +454,18 @@ const logoStyle = css`
 `;
 
 const labelStyle = css`
-  font-size: 15px;
-  margin-bottom: 6px;
-  color: #222;
-  font-family: 'NanumSquareR';
-  margin-left: 0.5rem;
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  font-family: 'NanumSquareR', sans-serif;
+  color: var(--color-text);
+  margin-left: 0.35rem;
 `;
 
 const requiredStyle = css`
-  color: #ff3b3b;
+  color: var(--color-red);
   font-size: 15px;
+  font-family: 'NanumSquareR', sans-serif;
 `;
 
 const inputRowStyle = css`
@@ -424,15 +476,16 @@ const inputRowStyle = css`
 
 const inputStyle = css`
   height: 44px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-gray-200);
   border-radius: 8px;
   padding: 0 14px;
   font-size: 15px;
-  background: #fafbfc;
+  font-family: 'NanumSquareR', sans-serif;
+  background: var(--color-gray-100);
   outline: none;
   &:focus {
-    border-color: #4a90e2;
-    background: #fff;
+    border-color: var(--color-primary);
+    background: var(--color-bg-white);
   }
 `;
 
@@ -448,8 +501,14 @@ const profileImageStyle = css`
   border-radius: 50%;
   object-fit: cover;
   cursor: pointer;
-  border: 2px solid #e0e0e0;
-  background: #f5f5f5;
+  border: 2px solid var(--color-gray-200);
+  background: var(--color-gray-100);
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--color-primary);
+    transform: scale(1.05);
+  }
 `;
 
 const checkboxWrapperStyle = css`
@@ -457,7 +516,8 @@ const checkboxWrapperStyle = css`
   align-items: center;
   margin-bottom: 12px;
   font-size: 14px;
-  color: #666;
+  font-family: 'NanumSquareR', sans-serif;
+  color: var(--color-gray-500);
   gap: 8px;
 `;
 
@@ -471,12 +531,14 @@ const bottomRowStyle = css`
 
 const checkIdStyle = css`
   font-size: 14px;
+  font-family: 'NanumSquareR', sans-serif;
   line-height: 1.4;
   display: inline-block;
 `;
 const loginLinkStyle = css`
-  color: #1976d2;
+  color: var(--color-primary);
   text-decoration: none;
+  font-family: 'NanumSquareB', sans-serif;
   font-weight: 500;
   &:hover {
     text-decoration: underline;
@@ -485,28 +547,30 @@ const loginLinkStyle = css`
 `;
 const submitButtonStyle = css`
   margin-left: auto;
-  background: #1976d2;
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-text-white);
   border: none;
   border-radius: 8px;
   padding: 10px 24px;
   font-size: 16px;
+  font-family: 'NanumSquareB', sans-serif;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
   &:hover {
-    background: #1565c0;
+    background: var(--color-primary-dark);
   }
 `;
 
 const errorInputStyle = css`
-  border: 2px solid #ff3b3b !important;
+  border: 2px solid var(--color-red) !important;
   background: #fff0f0;
 `;
 
 const errorMsgStyle = css`
-  color: #ff3b3b;
+  color: var(--color-red);
   font-size: 13px;
+  font-family: 'NanumSquareR', sans-serif;
   margin-top: 4px;
   margin-left: 2px;
   min-height: 18px;
@@ -520,38 +584,39 @@ const inputWithButtonStyle = css`
 `;
 
 const checkButtonStyle = css`
-  background: #1976d2;
-  color: white;
+  background: var(--color-primary);
+  color: var(--color-text-white);
   border: none;
   border-radius: 6px;
   padding: 8px 12px;
   font-size: 13px;
+  font-family: 'NanumSquareB', sans-serif;
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.2s;
 
   &:hover:not(:disabled) {
-    background: #1565c0;
+    background: var(--color-primary-dark);
   }
 
   &:disabled {
-    background: #ccc;
+    background: var(--color-gray-300);
     cursor: not-allowed;
   }
 `;
 
 const checkedButtonStyle = css`
-  background: #4caf50 !important;
+  background: var(--color-green) !important;
 
   &:hover {
-    background: #45a049 !important;
+    background: var(--color-green) !important;
   }
 `;
 
 const verifiedButtonStyle = css`
-  background: #2196f3 !important;
+  background: var(--color-primary) !important;
 
   &:hover {
-    background: #1976d2 !important;
+    background: var(--color-primary-dark) !important;
   }
 `;
