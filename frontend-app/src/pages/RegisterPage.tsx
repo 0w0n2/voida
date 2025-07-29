@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
-import { css } from "@emotion/react";
-import RegisterForm from "@/components/RegisterForm";
-import { checkEmailDuplicate, checkNicknameDuplicate } from "@/apis/authApi";
+import { css } from '@emotion/react';
+import RegisterForm from '@/components/RegisterForm';
+import { checkEmailDuplicate, checkNicknameDuplicate } from '@/apis/authApi';
 
 const RegisterPage = () => {
   return (
@@ -15,7 +15,12 @@ export default RegisterPage;
 
 const wrapperStyle = css`
   min-height: 100vh;
-  ba kground-color: #f8f9fc;
+  background: linear-gradient(
+    135deg,
+    #f8fbff 0%,
+    #eaeeffff 50%,
+    #e0efffff 100%
+  );
   display: flex;
   align-items: center;
   justify-content: center;
