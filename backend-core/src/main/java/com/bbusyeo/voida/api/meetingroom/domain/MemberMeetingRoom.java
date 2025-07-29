@@ -3,6 +3,7 @@ package com.bbusyeo.voida.api.meetingroom.domain;
 import com.bbusyeo.voida.api.meetingroom.domain.enums.MemberMeetingRoomState;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -37,4 +38,11 @@ public class MemberMeetingRoom {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MemberMeetingRoomState state;
+
+    @Builder
+    public MemberMeetingRoom(Long memberId, Long meetingRoomId, MemberMeetingRoomState state) {
+        this.memberId = memberId;
+        this.meetingRoomId = meetingRoomId;
+        this.state = state;
+    }
 }
