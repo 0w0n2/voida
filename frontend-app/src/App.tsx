@@ -9,7 +9,8 @@ import TutorialGeneralPage from '@/pages/tutorial/TutorialGeneralPage';
 import TutorialLipReadingPage from '@/pages/tutorial/TutorialLipReadingPage';
 import TestGeneralPage from '@/pages/tutorial/TestGeneralPage';
 import TestLipReadingPage from '@/pages/tutorial/TestLipReadingPage';
-import RoomsPage from '@/pages/RoomsPage.tsx';
+import RoomsPage from '@/pages/RoomsPage';
+import MeetingRoomPage from '@/pages/MeetingRoomPage';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
           element={<TestLipReadingPage />}
         />
         <Route path="/rooms" element={<RoomsPage />} />
+        <Route path="/meeting-room" element={<MeetingRoomPage />} />
       </Routes>
     </BrowserRouter>
   );

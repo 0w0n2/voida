@@ -3,9 +3,9 @@ import { useEffect } from 'react';
 import { css } from '@emotion/react';
 import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
-import tutorial from '@/assets/icon/tutorialButton.png';
-import home from '@/assets/icon/homeButton.png';
-import congratu from '@/assets/icon/congratu.png';
+import tutorial from '@/assets/icons/tutorialButton.png';
+import home from '@/assets/icons/homeButton.png';
+import congratu from '@/assets/icons/congratu.png';
 
 interface IsRegisteredModalProps {
   isOpen: boolean;
