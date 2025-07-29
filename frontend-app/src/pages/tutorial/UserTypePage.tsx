@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { postUserType } from '@/apis/userApi';
 import Header from '@/components/Header';
-import TutorialFooter from '@/components/TurtorialFooter';
+import TutorialFooter from '@/components/tutorial/TurtorialFooter';
 import GeneralUserImg from '@/assets/images/general-user-gray.png';
 import GeneralUserImgHover from '@/assets/images/general-user-blue.png';
 import LipReadingUserImg from '@/assets/images/lip-reading-user-gray.png';
@@ -117,6 +117,7 @@ const contentWrapperStyle = css`
   max-width: 60rem;
   margin: 0 auto;
   text-align: center;
+  margin-bottom: 4.7rem;
 `;
 
 const titleStyle = css`
@@ -154,7 +155,12 @@ const cardStyle = css`
   min-height: 450px;
 
   &:hover {
-    background: linear-gradient(135deg, #f1f6ffff 0%, #e0ecff 50%, #f8e9faff 100%);
+    background: linear-gradient(
+      135deg,
+      #f1f6ffff 0%,
+      #e0ecff 50%,
+      #f8e9faff 100%
+    );
     transform: translateY(-4px);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
   }

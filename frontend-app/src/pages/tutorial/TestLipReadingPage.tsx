@@ -2,10 +2,10 @@
 import { css } from '@emotion/react';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { uploadLipTestVideo } from '@/apis/tutorialApi';
 import Header from '@/components/Header';
-import TutorialFooter from '@/components/TurtorialFooter';
-import TutorialModal from '@/components/TutorialLipReadingModal';
-import axios from 'axios';
+import TutorialFooter from '@/components/tutorial/TurtorialFooter';
+import TutorialModal from '@/components/tutorial/TutorialLipReadingModal';
 import RecordButton from '@/assets/icons/record.png';
 
 const TestLipReadingPage = () => {
@@ -23,6 +23,7 @@ const TestLipReadingPage = () => {
   >(null);
   const navigate = useNavigate();
 
+  // 카메라 권한 요청 및 스트림 설정
   useEffect(() => {
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
@@ -39,6 +40,7 @@ const TestLipReadingPage = () => {
       });
   }, []);
 
+  // 녹화 시작 핸들러
   const handleRecord = () => {
     if (!stream) return;
 
@@ -61,17 +63,12 @@ const TestLipReadingPage = () => {
         setProgress(0);
 
         const blob = new Blob(chunks, { type: 'video/webm' });
-        const formData = new FormData();
-        formData.append('file', blob, 'lip-test.webm');
 
         try {
           setIsAnalyzing(true);
           setAnalysisResult(null);
-          await axios.post('/api/upload/lip-test', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-          });
-          alert('업로드 완료!');
-          setAnalysisResult('success');
+          const res = await uploadLipTestVideo(blob);
+          setAnalysisResult(res.data.result);
         } catch (e) {
           console.error(e);
           setIsAnalyzing(false);
@@ -124,7 +121,7 @@ const TestLipReadingPage = () => {
                 <div css={guideBox}></div>
               </>
             ) : (
-              <div css={noCamera}>카메라 접근 권한이 필요합니다</div>
+              <div css={noCamera}>카메라 접근 권한이 필요합니다.</div>
             )}
             <div css={progressBarWrapper}>
               <div css={progressBar(progress)} />

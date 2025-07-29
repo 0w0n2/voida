@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { css } from '@emotion/react';
-import TutorialMainCard from '@/components/TutorialMainCard';
+import TutorialMainCard from '@/components/tutorial/TutorialMainCard';
 import Header from '@/components/Header';
 import Microphone from '@/assets/images/tutorial-microphone.png';
 import WebCam from '@/assets/images/tutorial-webcam.png';
@@ -94,18 +94,19 @@ const subtitleStyle = css`
 const cardGridStyle = css`
   display: grid;
   gap: 2rem;
-  grid-template-columns: repeat(auto-fit, minmax(270px, 410px));
+  grid-template-columns: repeat(auto-fit, minmax(380px, 420px));
+  justify-content: center;
 `;
 
 const buttonWrapperStyle = css`
-  margin-top: 3.5rem;
+  margin-top: 4rem;
   display: flex;
   justify-content: right;
   gap: 1rem;
 `;
 
 const buttonStyle = css`
-  padding: 0.75rem 2.5rem;
+  padding: 0.8rem 2.5rem;
   border: none;
   border-radius: 3rem;
   font-weight: 600;

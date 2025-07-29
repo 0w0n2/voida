@@ -28,7 +28,7 @@ const StepCards = ({ type }: StepCardsProps) => {
       navigate('/tutorial/test/lip-reading');
     }
   };
- 
+
   return (
     <div css={wrapper}>
       <div css={row}>
@@ -39,24 +39,28 @@ const StepCards = ({ type }: StepCardsProps) => {
               <div css={buttonBox}>
                 {idx === step ? (
                   idx < cardSets.length - 1 ? (
-                    <button css={nextBtn} onClick={next}>
-                      확인 완료
-                    </button>
+                    <>
+                      <button css={nextBtn} onClick={next}>
+                        확인 완료
+                      </button>
+                      <img src={NextIcon} alt="next" css={floatingArrow} />
+                    </>
                   ) : (
                     <button css={finishBtn} onClick={handleFinish}>
-                      {type === 'general' ? '음성 테스트 하기' : '구화 테스트 하기'}
+                      {type === 'general'
+                        ? '음성 테스트 하기'
+                        : '구화 테스트 하기'}
                     </button>
                   )
-                ) : null}
+                ) : (
+                  <div css={dotsWrapper}>
+                    {cardSets.map((_, dotIdx) => (
+                      <span key={dotIdx} css={dot(dotIdx <= idx)} />
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
-
-            {idx < step && (
-              <div>
-                <img src={NextIcon} alt="next" css={arrowImg} />
-              </div>
-            )}
-
           </div>
         ))}
       </div>
@@ -69,13 +73,23 @@ export default StepCards;
 const generalCards = [
   () => (
     <>
-      <p>마이크 연결상태를 <br/> 확인해주세요.</p>
-      <img src={General1} width={105}  />
+      <p>
+        마이크 연결상태를 <br /> 확인해주세요.
+      </p>
+      <img
+        src={General1}
+        width={105}
+        css={css`
+          padding-bottom: 25px;
+        `}
+      />
     </>
   ),
   () => (
     <>
-      <p>목소리가 작거나 소란스럽지 <br/> 않도록 해주세요.</p>
+      <p>
+        목소리가 작거나 소란스럽지 <br /> 않도록 해주세요.
+      </p>
       <img src={General2} width={105} />
     </>
   ),
@@ -84,19 +98,25 @@ const generalCards = [
 const lipReadingCards = [
   () => (
     <>
-      <p>얼굴 전체가 화면에 <br/> 들어오도록 해주세요.</p>
+      <p>
+        얼굴 전체가 화면에 <br /> 들어오도록 해주세요.
+      </p>
       <img src={Lip1} width={145} />
     </>
   ),
   () => (
     <>
-      <p>입술이 가려지지 않게 <br/> 주의해주세요.</p>
+      <p>
+        입술이 가려지지 않게 <br /> 주의해주세요.
+      </p>
       <img src={Lip2} width={145} />
     </>
   ),
   () => (
     <>
-      <p>카메라 각도가 바뀌지 <br/> 않도록 유의해주세요.</p>
+      <p>
+        카메라 각도가 바뀌지 <br /> 않도록 유의해주세요.
+      </p>
       <img src={Lip3} width={110} />
     </>
   ),
@@ -113,13 +133,32 @@ const wrapper = css`
 
 const row = css`
   display: flex;
-  gap: 20px;
+  gap: 3rem;
 `;
 
 const cardWithArrow = css`
   display: flex;
   align-items: center;
   gap: 10px;
+
+  opacity: 0;
+  transform: translateX(40px);
+  animation: slideIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+
+  @keyframes slideIn {
+    0% {
+      opacity: 0;
+      transform: translateX(40px);
+    }
+    70% {
+      opacity: 1;
+      transform: translateX(0px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
 `;
 
 const card = css`
@@ -144,7 +183,22 @@ const card = css`
 const buttonBox = css`
   margin-top: 16px;
   display: flex;
-  justify-content: center; 
+  justify-content: center;
+  position: relative;
+`;
+
+const floatingArrow = css`
+  position: absolute;
+  top: 50%;
+  right: -50px;
+  transform: translateY(-310%);
+  width: 55px;
+  height: 55px;
+  background: #e0e0e0;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 const nextBtn = css`
@@ -156,12 +210,16 @@ const nextBtn = css`
   cursor: pointer;
   font-family: 'NanumSquareB';
   font-size: 16px;
-  line-height: 1.5; 
+  line-height: 1.5;
   margin-top: 40px;
   margin-bottom: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
+
+  &:hover {
+    background-color: var(--color-primary-dark);
+  }
 `;
 
 const finishBtn = css`
@@ -173,16 +231,28 @@ const finishBtn = css`
   cursor: pointer;
   font-family: 'NanumSquareB';
   font-size: 16px;
-  line-height: 1.5; 
-  margin-top: 40px;
+  line-height: 1.5;
+  margin-top: 60px;
   margin-bottom: 10px;
+
+  &:hover {
+    background-color: var(--color-primary-dark);
+  }
 `;
 
-const arrowImg = css`
-  width: 50px;
-  height: 50px;
+const dotsWrapper = css`
   display: flex;
-  align-items: center;
   justify-content: center;
-  margin: 0 5px;
+  gap: 10px;
+  margin-top: 50px;
+`;
+
+const dot = (active: boolean) => css`
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: ${active
+    ? 'var(--color-primary)'
+    : 'var(--color-gray-300)'};
+  transition: background-color 0.3s ease;
 `;

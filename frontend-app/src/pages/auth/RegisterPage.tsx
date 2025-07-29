@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
-import { css } from "@emotion/react";
-import RegisterForm from "@/components/RegisterForm";
-import { checkEmailDuplicate, checkNicknameDuplicate } from "@/apis/authApi";
+import { css } from '@emotion/react';
+import RegisterForm from '@/components/auth/RegisterForm';
+import { checkEmailDuplicate, checkNicknameDuplicate } from '@/apis/authApi';
 
 const RegisterPage = () => {
   return (

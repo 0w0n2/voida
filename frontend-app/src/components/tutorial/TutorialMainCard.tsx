@@ -37,7 +37,7 @@ interface Props {
 const cardStyle = css`
   border-radius: 1rem;
   overflow: hidden;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  border: 2px solid var(--color-gray-100);
 `;
 
 const imageWrapperStyle = css`

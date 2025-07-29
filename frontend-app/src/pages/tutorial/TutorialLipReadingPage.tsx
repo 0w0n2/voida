@@ -1,17 +1,17 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import Header from '@/components/Header';
-import TutorialCard from '@/components/TutorialCard';
-import TutorialFooter from '@/components/TurtorialFooter';
+import TutorialCard from '@/components/tutorial/TutorialCard';
+import TutorialFooter from '@/components/tutorial/TurtorialFooter';
 
 export default function TutorialLipReadingPage() {
   return (
     <div css={pageWrapperStyle}>
       <Header />
       <div css={contentWrapperStyle}>
-        <h2 css={titleStyle}>마이크 인식 상태를 확인하겠습니다.</h2>
+        <h2 css={titleStyle}>웹캠 인식 상태를 확인하겠습니다.</h2>
         <p css={subtitleStyle}>아래의 유의 사항을 확인해주세요.</p>
-        <TutorialCard type='general' />
+        <TutorialCard type="lip" />
       </div>
       <TutorialFooter items={'튜토리얼 건너뛰기'} />
     </div>
@@ -42,6 +42,6 @@ const titleStyle = css`
 const subtitleStyle = css`
   color: var(--color-gray-600);
   margin-bottom: 3rem;
-  text-align: center;
   font-size: 20px;
+  text-align: center;
 `;
