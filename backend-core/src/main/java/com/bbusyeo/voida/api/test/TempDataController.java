@@ -7,6 +7,10 @@ import com.bbusyeo.voida.api.meetingroom.repository.MeetingRoomRepository;
 import com.bbusyeo.voida.api.meetingroom.repository.MemberMeetingRoomRepository;
 import com.bbusyeo.voida.api.member.domain.Member;
 import com.bbusyeo.voida.api.member.repository.MemberRepository;
+import com.bbusyeo.voida.api.member.domain.Role;
+import jakarta.annotation.PostConstruct;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +25,23 @@ public class TempDataController {
     private final MemberRepository memberRepository;
     private final MeetingRoomRepository meetingRoomRepository;
     private final MemberMeetingRoomRepository memberMeetingRoomRepository;
+
+    @Transactional
+    @PostConstruct
+    public void init() {
+        // DB에 멤버가 한 명도 없을 때만 실행
+        if (memberRepository.count() == 0) {
+            Member testMember = Member.builder()
+                    .memberUuid(UUID.randomUUID().toString())
+                    .nickname("테스트유저")
+                    .email("test@voida.com")
+                    .password("password") // 실제로는 암호화 필요
+                    .profileImageUrl("default_profile.png")
+                    .role(Role.USER) // Role Enum이 있다면 사용
+                    .build();
+            memberRepository.save(testMember);
+        }
+    }
 
     /**
      * 테스트용 방장 권한 부여 API

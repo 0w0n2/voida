@@ -1,6 +1,7 @@
 package com.bbusyeo.voida.api.meetingroom.service;
 
 import com.bbusyeo.voida.api.meetingroom.domain.MeetingRoom;
+import com.bbusyeo.voida.api.meetingroom.domain.MemberMeetingRoom;
 import com.bbusyeo.voida.api.meetingroom.domain.enums.MemberMeetingRoomState;
 import com.bbusyeo.voida.api.meetingroom.dto.MeetingRoomCreateRequestDto;
 import com.bbusyeo.voida.api.meetingroom.dto.MeetingRoomUpdateRequestDto;
@@ -24,10 +25,28 @@ public class MeetingRoomService {
     private final MemberRepository memberRepository;
 
     // 대기실 생성
-    public MeetingRoom create(MeetingRoomCreateRequestDto request) {
+    public MeetingRoom create(Long memberId, MeetingRoomCreateRequestDto request) {
+
         // 추후 JWT에서 member 정보 받아와서 연관관계 설정 필요
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.ILLEGAL_ARGUMENT));
+
+        // 요청 DTO를 MeetingRoom 엔티티로 변환
         MeetingRoom meetingRoom = request.toEntity();
-        return meetingRoomRepository.save(meetingRoom);
+
+        // MeetingRoom 저장
+        MeetingRoom saveMeetingRoom = meetingRoomRepository.save(meetingRoom);
+
+        // 생성자 = Host 설정하는 MemberMeetingRoom 객체 생성
+        MemberMeetingRoom hostLink = MemberMeetingRoom.builder()
+                .member(member)
+                .meetingRoom(saveMeetingRoom)
+                .state(MemberMeetingRoomState.HOST)
+                .build();
+
+        // MemberMeetingRoom에 관계 저장
+        memberMeetingRoomRepository.save(hostLink);
+        return saveMeetingRoom;
     }
 
     @Transactional(readOnly = true)

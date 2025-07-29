@@ -17,8 +17,9 @@ public class MeetingRoomController {
     @PostMapping
     // 대기실 생성
     public BaseResponse<MeetingRoomCreateResponseDto> create(@RequestBody MeetingRoomCreateRequestDto request) {
-        // 추후 @AuthenticationPrincipal 등 사용해서 인증된 사용자 정보 불러오기
-        MeetingRoom newMeetingRoom = meetingRoomService.create(request);
+        // 추후 @AuthenticationPrincipal 등 사용해서 인증된 사용자 정보 불러오기, 임시 memberId 생성
+        Long memberId = 1L;
+        MeetingRoom newMeetingRoom = meetingRoomService.create(memberId, request);
         MeetingRoomCreateResponseDto response = MeetingRoomCreateResponseDto.from(newMeetingRoom);
         return new BaseResponse<>(response);
     }
