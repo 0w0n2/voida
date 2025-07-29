@@ -33,8 +33,3 @@ export const verifyEmailCode = (email: string, code: string) => {
 export const getRandomNickname = () => {
   return apiInstance.get('/v1/auth/random-nickname');
 };
-
-// 구글 로그인 요청 api
-export const googleLogin = () => {
-  return apiInstance.post('/v1/auth/social/{provider}');
-};

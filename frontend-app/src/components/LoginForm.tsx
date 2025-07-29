@@ -7,7 +7,8 @@ import VoidaLogo from '@/assets/icon/voida-logo.png';
 import GoogleLogo from '@/assets/icon/google-logo.png';
 import EyeIcon from '@/assets/icon/eye.png';
 import EyeCloseIcon from '@/assets/icon/crossed-eye.png';
-import { googleLogin } from '@/apis/authApi';
+import { useAuthStore } from '@/store/store';
+import { useNavigate } from 'react-router-dom';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -16,13 +17,19 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const { setAuth } = useAuthStore();
+  const navigate = useNavigate();
+  //
 
-  // 구글 로그인 리다이렉트 함수 !! 
+  // 구글 로그인 리다이렉트 함수 !!
+  // 리다이렉트 페이지 새로 파야함 ;;
   const handleGoogleLogin = () => {
     const provider = 'google';
-    window.location.href = `${import.meta.env.VITE_API_URL}/v1/auth/login/${provider}`;
-  }
-  
+    window.location.href = `${
+      import.meta.env.VITE_API_URL
+    }/v1/auth/login/${provider}`;
+  };
+
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setEmail(value);
@@ -60,7 +67,13 @@ const LoginForm = () => {
 
     try {
       const res = await login(email, password);
-      console.log('로그인 성공:', res.data);
+      const { accessToken, user, isNewbie } = res.data;
+      setAuth(accessToken, user);
+      if (isNewbie) {
+        navigate('/tutorial');
+      } else {
+        navigate('/main');
+      }
     } catch (err) {
       const axiosError = err as AxiosError<{ message: string }>;
 

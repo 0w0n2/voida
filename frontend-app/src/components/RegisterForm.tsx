@@ -48,7 +48,6 @@ const RegisterForm = () => {
 
   // 소셜 로그인 
   const [params] = useSearchParams();
-  const navigate = useNavigate();
   const socialEmail = params.get('email');
 
   useEffect(() => {
