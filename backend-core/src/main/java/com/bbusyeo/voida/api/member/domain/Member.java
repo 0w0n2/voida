@@ -1,6 +1,6 @@
 package com.bbusyeo.voida.api.member.domain;
 
-import com.bbusyeo.voida.api.auth.domain.enums.enums.Role;
+import com.bbusyeo.voida.api.member.domain.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 

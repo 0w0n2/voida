@@ -1,6 +1,6 @@
 package com.bbusyeo.voida.global.security.dto;
 
-import com.bbusyeo.voida.api.auth.domain.enums.enums.Role;
+import com.bbusyeo.voida.api.member.domain.enums.Role;
 import com.bbusyeo.voida.api.member.domain.Member;
 import lombok.*;
 import lombok.experimental.Delegate;
@@ -23,6 +23,10 @@ public class UserDetailsDto implements UserDetails {
 
     @Delegate // Member 객체의 메소드를 이 클래스에서 직접 사용 가능
     private Member member;
+
+//    public String getMemberUuid(){
+//        return member.getMemberUuid();
+//    }
     
     // 사용자 권한 목록 반환
     @Override
@@ -45,40 +49,30 @@ public class UserDetailsDto implements UserDetails {
         return member.getEmail();
     }
 
-    /**
+    /*
      * 계정이 만료되지 않았는지 여부 반환
      * 현재 항상 false 를 반환하므로 -> 모든 계정이 만료된 것으로 처리
-     * @return
      */
     @Override
     public boolean isAccountNonExpired() {
         return false;
     }
 
-    /**
-     * 계정이 잠기지 않았는지 여부 반환
-     * @return
-     */
+    // 계정이 잠기지 않았는지 여부 반환
     @Override
     public boolean isAccountNonLocked() {
         return UserDetails.super.isAccountNonLocked();
     }
-    
-    /**
-     * 자격 증명(비밀번호)이 만료되지 않았는지 여부 반환
-     * @return
-     */
+
+    // 자격 증명(비밀번호)이 만료되지 않았는지 여부 반환
     @Override
     public boolean isCredentialsNonExpired() {
         return false;
     }
 
-    /**
-     * 계정이 활성화되어 있는지 여부 반환
-     * @return
-     */
+    // 계정이 활성화되어 있는지 여부 반환
     @Override
     public boolean isEnabled() {
-        return false;
+        return false; // 탈퇴/비활성 등 처리 필요시 custom
     }
 }

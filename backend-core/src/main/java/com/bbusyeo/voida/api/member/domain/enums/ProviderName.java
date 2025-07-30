@@ -1,4 +1,4 @@
-package com.bbusyeo.voida.api.auth.domain.enums.enums;
+package com.bbusyeo.voida.api.member.domain.enums;
 
 public enum ProviderName {
     GOOGLE,

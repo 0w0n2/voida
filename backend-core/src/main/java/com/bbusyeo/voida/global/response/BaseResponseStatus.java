@@ -19,11 +19,18 @@ public enum BaseResponseStatus {
     ILLEGAL_ARGUMENT(HttpStatus.BAD_REQUEST, false, 400, "잘못된 요청입니다."),
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, false, 401, "적절하지 않은 요청값입니다."),
 
-    // Token 응답
+    // Security - Token 응답
     ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, false, 401, "액세스 토큰이 만료되었습니다."),
+    
+    // INVALID_JWT_TOKEN으로 합치는 거 추천
     ACCESS_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, false, 401, "잘못된 액세스 토큰입니다."),
     UNSUPPORTED_JWT_TOKEN(HttpStatus.UNAUTHORIZED, false, 401, "지원되지 않는 JWT 토큰입니다."),
     INVALID_JWT_TOKEN(HttpStatus.UNAUTHORIZED, false, 401, "유효하지 않은 JWT 토큰입니다."),
+
+    TOKEN_USERNAME_NOT_FOUND(HttpStatus.UNAUTHORIZED, false, 401, "토큰 내에 userName이 존재하지 않습니다."),
+    TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, false, 401, "토큰이 존재하지 않습니다."),
+
+    INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, false, 401, "로그인 정보가 일치하지 않습니다."),
 
     /**
      * 500: 기타 에러.

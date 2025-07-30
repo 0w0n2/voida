@@ -1,4 +1,4 @@
-package com.bbusyeo.voida.api.auth.domain.enums;
+package com.bbusyeo.voida.api.auth.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
