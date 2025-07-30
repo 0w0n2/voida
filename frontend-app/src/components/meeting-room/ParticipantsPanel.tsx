@@ -2,9 +2,10 @@
 import { css, keyframes } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import type { RoomParticipant } from '@/apis/meetingRoomApi';
+import RoomSettingModal from './RoomSettingModal';
 import profile2 from '@/assets/profiles/profile2.png';
 import profile3 from '@/assets/profiles/profile3.png';
-import Lip from '@/assets/icons/lip-red.png';
+import Lip from '@/assets/icons/lip-blue.png';
 import Setting from '@/assets/icons/room-setting.png';
 import Home from '@/assets/icons/home-gray.png';
 import Crown from '@/assets/icons/crown.png';
@@ -16,6 +17,7 @@ const dummyParticipants: RoomParticipant[] = [
     profileImageUrl: profile2,
     state: 'HOST',
     lipTalkMode: true,
+    isMine: true,
   },
   {
     memberId: 2,
@@ -23,6 +25,7 @@ const dummyParticipants: RoomParticipant[] = [
     profileImageUrl: profile3,
     state: 'PARTICIPANT',
     lipTalkMode: false,
+    isMine: false,
   },
   {
     memberId: 2,
@@ -30,6 +33,7 @@ const dummyParticipants: RoomParticipant[] = [
     profileImageUrl: profile3,
     state: 'PARTICIPANT',
     lipTalkMode: false,
+    isMine: false,
   },
   {
     memberId: 2,
@@ -37,6 +41,7 @@ const dummyParticipants: RoomParticipant[] = [
     profileImageUrl: profile3,
     state: 'PARTICIPANT',
     lipTalkMode: false,
+    isMine: false,
   },
   {
     memberId: 2,
@@ -44,6 +49,7 @@ const dummyParticipants: RoomParticipant[] = [
     profileImageUrl: profile3,
     state: 'PARTICIPANT',
     lipTalkMode: false,
+    isMine: false,
   },
   {
     memberId: 2,
@@ -51,6 +57,7 @@ const dummyParticipants: RoomParticipant[] = [
     profileImageUrl: profile3,
     state: 'PARTICIPANT',
     lipTalkMode: false,
+    isMine: false,
   },
 ];
 
@@ -61,8 +68,8 @@ const pulse = keyframes`
 `;
 
 const ParticipantsPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
-  const [participants, setParticipants] =
-    useState<RoomParticipant[]>(dummyParticipants);
+  const [participants, setParticipants] = useState<RoomParticipant[]>(dummyParticipants);
+  const [isRoomSettingOpen, setIsRoomSettingOpen] = useState(false);
 
   useEffect(() => {
     // API 연동
@@ -77,10 +84,13 @@ const ParticipantsPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
           <p>현재 참여자를 확인해보세요.</p>
         </div>
         <div css={headerIcons}>
-          <div css={iconWrapper}>
+          <div css={iconWrapper} onClick={() => setIsRoomSettingOpen(true)}>
             <img src={Setting} alt="설정" css={iconStyle} />
             <span css={tooltip}>설정</span>
           </div>
+          {isRoomSettingOpen && (
+            <RoomSettingModal onClose={() => setIsRoomSettingOpen(false)} />
+          )}
           <div css={iconWrapper}>
             <img src={Home} alt="홈" css={iconStyle} />
             <span css={tooltip}>홈으로</span>
@@ -90,7 +100,7 @@ const ParticipantsPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
 
       <div css={listStyle}>
         {participants.map((p) => (
-          <div key={p.memberId} css={cardStyle}>
+          <div key={p.memberId} css={[cardStyle, p.isMine && myCardStyle]}>
             <div css={avatarWrapper}>
               <img src={p.profileImageUrl} alt={p.nickname} css={avatarStyle} />
               {p.state === 'HOST' && (
@@ -103,8 +113,12 @@ const ParticipantsPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
             </div>
             <div css={infoBox}>
               <div css={nameRow}>
-                <span>{p.nickname}</span>
-                {p.lipTalkMode && <img src={Lip} alt="구화" css={lipIcon} />}
+                <span css={nicknameStyle}>{p.nickname}</span>
+                {p.lipTalkMode && 
+                <div css={lipIconWrapper}>
+                  <img src={Lip} alt="구화" css={lipIcon} />
+                  <span css={lipTooltip}>구화 사용자 입니다.</span>
+                </div>}
               </div>
             </div>
           </div>
@@ -143,8 +157,8 @@ const panelHeader = css`
   }
 
   p {
-    font-size: 18px;
-    color: #666;
+    font-size: 16px;
+    color: var(--color-gray-600);
     margin: 6px 0 0;
   }
 `;
@@ -201,14 +215,15 @@ const listStyle = css`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 25px;
 `;
 
 const cardStyle = css`
   display: flex;
   align-items: center;
-  gap: 20px;
-  padding: 1.5rem 2rem;
+  gap: 25px;
+  padding: 1rem 2rem;
+  padding-bottom: 1.5rem;
   background: white;
   border-radius: 100px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
@@ -216,9 +231,15 @@ const cardStyle = css`
   max-width: 90%;
 `;
 
+const myCardStyle = css`
+  background: #eef6ff;
+  border: 1px solid #d0e2ff;
+`;
+
+
 const avatarStyle = css`
-  width: 50px;
-  height: 50px;
+  width: 55px;
+  height: 55px;
   border-radius: 50%;
   object-fit: cover;
 `;
@@ -232,10 +253,10 @@ const avatarWrapper = css`
 const hostBadge = css`
   position: absolute;
   top: -6px;
-  right: -12px;
+  right: -15px;
   width: 22px;
   height: 22px;
-  background-color: #ffcc00;
+  background-color: var(--color-yellow);
   border: 1.5px solid white;
   border-radius: 50%;
   display: flex;
@@ -259,26 +280,66 @@ const nameRow = css`
   display: flex;
   justify-content: space-between;
   align-items: center;
+`;
 
-  span {
-    font-size: 18px;
-    font-family: 'NanumSquareR';
-  }
+const nicknameStyle = css`
+  font-size: 18px;
+  font-family: 'NanumSquareR';
 `;
 
 const lipIcon = css`
   width: 20px;
   height: 20px;
-  margin-bottom: 20px;
+`;
+
+const lipIconWrapper = css`
+  position: relative;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 4px;
+  transition: background-color 0.2s ease;
+  margin-bottom: 12px;
+  margin-right: 4px;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  &:hover span {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
+const lipTooltip = css`
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: #333;
+  color: #fff;
+  font-size: 12px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  z-index: 10;
 `;
 
 const activeBadge = css`
   position: absolute;
-  bottom: -2px;
-  right: -9px;
-  width: 14px;
-  height: 14px;
-  background-color: #4ade80;
+  bottom: -5px;
+  right: -12px;
+  width: 15px;
+  height: 15px;
+  background-color: var(--color-green);
   border: 2px solid white;
   border-radius: 50%;
   animation: ${pulse} 4s infinite;
@@ -290,8 +351,9 @@ const roomInfoBox = css`
   margin-right: -1.5rem;
   margin-bottom: -1.5rem;
   width: calc(100% + 3rem);
-  height: 130px;
-  padding: 2rem;
+  height: 120px;
+  padding: 1.5rem;
+  padding-left: 2.5rem;
   background: white;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   text-align: left;

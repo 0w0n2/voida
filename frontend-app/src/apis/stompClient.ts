@@ -2,17 +2,13 @@ import { Client } from '@stomp/stompjs';
 
 let stompClient: Client | null = null;
 
-/**
- * STOMP 연결
- * @param meetingRoomId 방 ID
- * @param onMessage 수신 메시지 처리 콜백
- */
+// STOMP 연결
 export const connectStomp = (
   meetingRoomId: string,
   onMessage: (msg: any) => void,
 ) => {
   stompClient = new Client({
-    brokerURL: 'ws://localhost:8080/ws', // 서버의 WebSocket STOMP endpoint
+    brokerURL: 'ws://localhost:8080/ws',
     reconnectDelay: 5000,
     onConnect: () => {
       console.log('STOMP connected');
@@ -25,9 +21,7 @@ export const connectStomp = (
   stompClient.activate();
 };
 
-/**
- * STOMP로 실시간 메시지 발행 (저장용 POST는 별도 API에서 처리)
- */
+// STOMP로 실시간 페이지 발생 (저장용 POST는 별도 API에서 처리)
 export const publishMessage = (meetingRoomId: string, content: string) => {
   if (!stompClient || !stompClient.connected) return;
   stompClient.publish({
@@ -36,9 +30,7 @@ export const publishMessage = (meetingRoomId: string, content: string) => {
   });
 };
 
-/**
- * STOMP 연결 해제
- */
+// STOMP 연결 해제
 export const disconnectStomp = () => {
   stompClient?.deactivate();
 };

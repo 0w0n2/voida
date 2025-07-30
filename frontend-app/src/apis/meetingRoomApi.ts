@@ -14,6 +14,7 @@ export interface RoomParticipant {
   profileImageUrl: string;
   state: 'HOST' | 'PARTICIPANT';
   lipTalkMode: boolean;
+  isMine: boolean;
 }
 
 export interface ChatMessage {
