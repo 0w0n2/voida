@@ -10,12 +10,13 @@ import TutorialLipReadingPage from '@/pages/tutorial/TutorialLipReadingPage';
 import TestGeneralPage from '@/pages/tutorial/TestGeneralPage';
 import TestLipReadingPage from '@/pages/tutorial/TestLipReadingPage';
 import RoomsPage from '@/pages/RoomsPage.tsx';
+import StartingPage from '@/pages/StartingPage.tsx';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<MainPage />} />
+        <Route path="/" element={<StartingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/email-auth" element={<EmailAuthPage />} />
@@ -32,6 +33,9 @@ function App() {
           element={<TestLipReadingPage />}
         />
         <Route path="/rooms" element={<RoomsPage />} />
+        <Route path="/main" element={<MainPage />} />
+        {/* <Route path="/rooms/create" element={<CreateRoomPage />} /> */}
+        {/* <Route path="/rooms/join" element={<JoinRoomPage />} /> */}
       </Routes>
     </BrowserRouter>
   );

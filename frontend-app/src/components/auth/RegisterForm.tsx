@@ -12,6 +12,7 @@ import defaultProfile from '@/assets/profiles/defaultProfile.png';
 import EmailVerificationModal from './EmailVerificationModal';
 import { getRandomNickname } from '@/apis/authApi';
 import IsRegisteredModal from './IsRegisteredModal';
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 
 const RegisterForm = () => {
   const [email, setEmail] = useState('');
@@ -44,6 +45,17 @@ const RegisterForm = () => {
   const handleCloseRegisteredModal = () => {
     setIsRegistered(false);
   };
+
+  // 소셜 로그인
+  const location = useLocation();
+  const socialEmail = location.state?.socialEmail;
+
+  useEffect(() => {
+    if (socialEmail) {
+      setEmail(socialEmail);
+      setIsEmailChecked(true);
+    }
+  }, []);
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -312,6 +324,7 @@ const RegisterForm = () => {
                 value={email}
                 onChange={handleEmailChange}
                 css={[inputStyle, emailError && errorInputStyle]}
+                disabled={!!socialEmail}
                 required
               />
               <button
