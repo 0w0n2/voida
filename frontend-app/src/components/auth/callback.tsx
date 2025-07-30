@@ -31,15 +31,16 @@ const CallbackPage = () => {
           }
         })
         .catch(() => {
-          navigate('/signup');
+          navigate('/register');
         });
     }
 
     if (result === 'need_signup') {
-      navigate('/signup', {
+      navigate('/register', {
         state: { socialEmail: email },
       });
     }
   }, []);
+  return <></>
 };
 export default CallbackPage;

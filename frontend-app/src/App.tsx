@@ -11,6 +11,7 @@ import TestGeneralPage from '@/pages/tutorial/TestGeneralPage';
 import TestLipReadingPage from '@/pages/tutorial/TestLipReadingPage';
 import RoomsPage from '@/pages/RoomsPage.tsx';
 import StartingPage from '@/pages/StartingPage.tsx';
+import CallbackPage from '@/components/auth/callback';
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
         />
         <Route path="/rooms" element={<RoomsPage />} />
         <Route path="/main" element={<MainPage />} />
+        <Route path="/callback" element={<CallbackPage />} />
         {/* <Route path="/rooms/create" element={<CreateRoomPage />} /> */}
         {/* <Route path="/rooms/join" element={<JoinRoomPage />} /> */}
       </Routes>
