@@ -19,7 +19,6 @@ const NoRoomMainForm = () => {
   };
   return (
     <div>
-      <Header />
       <div css={iconWrapperStyle}>
         <div css={iconContainerStyle}>
           <img src={mainHome} alt="mainHome" css={iconStyle} />
