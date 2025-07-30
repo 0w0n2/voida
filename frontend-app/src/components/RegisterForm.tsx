@@ -12,7 +12,7 @@ import defaultProfile from '@/assets/profiles/defaultProfile.png';
 import EmailVerificationModal from './EmailVerificationModal';
 import { getRandomNickname } from '@/apis/authApi';
 import IsRegisteredModal from './IsRegisteredModal';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 
 const RegisterForm = () => {
   const [email, setEmail] = useState('');
@@ -46,9 +46,9 @@ const RegisterForm = () => {
     setIsRegistered(false);
   };
 
-  // 소셜 로그인 
-  const [params] = useSearchParams();
-  const socialEmail = params.get('email');
+  // 소셜 로그인
+  const location = useLocation();
+  const socialEmail = location.state?.socialEmail;
 
   useEffect(() => {
     if (socialEmail) {

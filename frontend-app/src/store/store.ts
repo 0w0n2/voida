@@ -11,15 +11,15 @@ type RoomState = {
 };
 
 type User = {
-  id: string;
   email: string;
   nickname: string;
+  profileImage: string;
 };
 
 type AuthState = {
   accessToken: string | null;
   user: User | null;
-  setAuth: (token: string, user: User) => void;
+  setAuth: (token: string, user: User | null) => void;
   clearAuth: () => void;
 };
 
