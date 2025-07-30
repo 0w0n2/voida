@@ -4,7 +4,7 @@ import { css } from '@emotion/react';
 import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import tutorial from '@/assets/icons/tutorialButton.png';
-import home from '@/assets/icons/homeButton.png';
+import home from '@/assets/icons/home-white.png';
 import congratu from '@/assets/icons/congratu.png';
 
 interface IsRegisteredModalProps {
