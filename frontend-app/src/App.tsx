@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import MainPage from '@/pages/MainPage.tsx';
+import StartingPage from '@/pages/StartingPage';
 import LoginPage from '@/pages/auth/LoginPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
 import EmailAuthPage from '@/pages/auth/EmailAuthPage';
@@ -9,8 +9,8 @@ import TutorialGeneralPage from '@/pages/tutorial/TutorialGeneralPage';
 import TutorialLipReadingPage from '@/pages/tutorial/TutorialLipReadingPage';
 import TestGeneralPage from '@/pages/tutorial/TestGeneralPage';
 import TestLipReadingPage from '@/pages/tutorial/TestLipReadingPage';
-import RoomsPage from '@/pages/RoomsPage.tsx';
-import StartingPage from '@/pages/StartingPage.tsx';
+import MeetingRoomPage from '@/pages/MeetingRoomPage';
+import MainPage from '@/pages/MainPage';
 
 function App() {
   return (
@@ -32,7 +32,7 @@ function App() {
           path="/tutorial/test/lip-reading"
           element={<TestLipReadingPage />}
         />
-        <Route path="/rooms" element={<RoomsPage />} />
+        <Route path="/meeting-room" element={<MeetingRoomPage />} />
         <Route path="/main" element={<MainPage />} />
         {/* <Route path="/rooms/create" element={<CreateRoomPage />} /> */}
         {/* <Route path="/rooms/join" element={<JoinRoomPage />} /> */}
