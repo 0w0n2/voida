@@ -1,6 +1,7 @@
 package com.bbusyeo.voida.global.security.util;
 
 import com.bbusyeo.voida.api.auth.domain.JwtToken;
+import com.bbusyeo.voida.api.member.domain.Member;
 import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.redis.dao.RedisDao;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
@@ -18,12 +19,11 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -35,8 +35,15 @@ public class TokenUtils {
 
     private final SecretKey secretKey;
     private final RedisDao redisDao;
-    private static final String GRANT_TYPE = "Bearer";
     private final UserDetailsService userDetailsService;
+
+    private static final String GRANT_TYPE = "Bearer";
+
+    @Value("${jwt.expire-time.access}")
+    private Duration accessExpMin;
+
+    @Value("${jwt.expire-time.refresh}")
+    private Duration refreshExpMin;
 
     public TokenUtils(@Value("${jwt.secret}") String secretKey, // application.yaml 에서 secret 값 추출
                       RedisDao redisDao, UserDetailsService userDetailsService) {
@@ -45,12 +52,6 @@ public class TokenUtils {
         this.redisDao = redisDao;
         this.userDetailsService = userDetailsService;
     }
-
-    @Value("${jwt.expire-time.access}")
-    private Duration accessExpMin;
-
-    @Value("${jwt.expire-time.refresh}")
-    private Duration refreshExpMin;
 
     // 사용자 정보(Member) 정보로 AccessToken & RefreshToken 생성
     public JwtToken generateToken(Authentication authentication) {
@@ -71,7 +72,7 @@ public class TokenUtils {
 
         // Refresh Token 생성
         Date refreshTokenExpireTime = new Date(now + refreshExpMin.toMillis());
-        String refreshToken = generateRefreshToken(authorities, refreshTokenExpireTime);
+        String refreshToken = generateRefreshToken(username, refreshTokenExpireTime);
 
         // redis에 RefreshToken 넣기
         // 나중에 memberId로 변경
@@ -94,6 +95,7 @@ public class TokenUtils {
     }
 
     private String generateRefreshToken(String username, Date expireDate) {
+
         return Jwts.builder()
                 .subject(username)
                 .expiration(expireDate)
@@ -105,6 +107,7 @@ public class TokenUtils {
         long now = (new Date()).getTime();
         // AccessToken 생성
         Date accessTokenExpireTime = new Date(now + refreshExpMin.toMillis());
+
         // UserDetailsService로 사용자 권한 정보 가져오기
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         String authorities = userDetails.getAuthorities().stream()
@@ -144,7 +147,7 @@ public class TokenUtils {
     }
     
     // JWT 토큰 복호화 -> 검증 및 파싱 모두 수행
-    private Claims parseClaims(String accessToken) {
+    public Claims parseClaims(String accessToken) {
         try {
             return Jwts.parser()
                     .verifyWith(secretKey)
@@ -158,6 +161,10 @@ public class TokenUtils {
 
     // 토큰 정보 검증
     public boolean validateToken(String token) {
+        if (!StringUtils.hasText(token)){
+            log.info("JWT token is null or empty");
+            return false;
+        }
         try {
             Jwts.parser()
                 .verifyWith(secretKey)
@@ -165,14 +172,15 @@ public class TokenUtils {
                 .parseSignedClaims(token);
             return true;
         } catch (SecurityException | MalformedJwtException e){
-            throw new BaseException(BaseResponseStatus.ACCESS_TOKEN_INVALID);
+            log.info("Invalid JWT Token", e);
         } catch (ExpiredJwtException e){
-            throw new BaseException(BaseResponseStatus.ACCESS_TOKEN_EXPIRED);
+            log.info("Expired JWT Token", e);
         } catch (UnsupportedJwtException e){
-            throw new BaseException(BaseResponseStatus.UNSUPPORTED_JWT_TOKEN);
+            log.info("Unsupported JWT Token", e);
         } catch (IllegalArgumentException e){
-            throw new BaseException(BaseResponseStatus.INVALID_JWT_TOKEN);
+            log.info("JWT claims string is empty", e);
         }
+        return false;
     }
     
     // RefreshToken 검증

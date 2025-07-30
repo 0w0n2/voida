@@ -158,6 +158,7 @@ public class SecurityConfig {
         corsConfiguration.setAllowedHeaders(List.of("*"));              // 허용할 헤더 -> 모든 header
         corsConfiguration.setAllowCredentials(true);                    // (인증) 정보 포함 요청 허용 ->
         // TODO-SECURITY: CORS -> RT 토큰 쿠키 문제 시 setAllowCredentials 재확인
+        corsConfiguration.addExposedHeader("Set-Cookie");
         corsConfiguration.setMaxAge(3600L);                             // 프리플라이트 요청 결과를 3600초 동안 유지
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
