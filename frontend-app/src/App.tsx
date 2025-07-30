@@ -1,14 +1,16 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import StartingPage from '@/pages/StartingPage.tsx';
-import LoginPage from '@/pages/LoginPage.tsx';
-import RegisterPage from '@/pages/RegisterPage.tsx';
-import EmailAuthPage from '@/pages/EmailAuthPage.tsx';
-import TutorialMainPage from '@/pages/TutorialMainPage.tsx';
-import UserTypePage from '@/pages/UserTypePage';
-import TutorialGeneralPage from '@/pages/TutorialGeneralPage.tsx';
-import TutorialLipReadingPage from '@/pages/TutorialLipReadingPage.tsx';
-import RoomsPage from '@/pages/RoomsPage.tsx';
 import MainPage from '@/pages/MainPage.tsx';
+import LoginPage from '@/pages/auth/LoginPage';
+import RegisterPage from '@/pages/auth/RegisterPage';
+import EmailAuthPage from '@/pages/auth/EmailAuthPage';
+import TutorialMainPage from '@/pages/tutorial/TutorialMainPage';
+import UserTypePage from '@/pages/tutorial/UserTypePage';
+import TutorialGeneralPage from '@/pages/tutorial/TutorialGeneralPage';
+import TutorialLipReadingPage from '@/pages/tutorial/TutorialLipReadingPage';
+import TestGeneralPage from '@/pages/tutorial/TestGeneralPage';
+import TestLipReadingPage from '@/pages/tutorial/TestLipReadingPage';
+import RoomsPage from '@/pages/RoomsPage.tsx';
+import StartingPage from '@/pages/StartingPage.tsx';
 
 function App() {
   return (
@@ -24,6 +26,11 @@ function App() {
         <Route
           path="/tutorial/lip-reading"
           element={<TutorialLipReadingPage />}
+        />
+        <Route path="/tutorial/test/general" element={<TestGeneralPage />} />
+        <Route
+          path="/tutorial/test/lip-reading"
+          element={<TestLipReadingPage />}
         />
         <Route path="/rooms" element={<RoomsPage />} />
         <Route path="/main" element={<MainPage />} />

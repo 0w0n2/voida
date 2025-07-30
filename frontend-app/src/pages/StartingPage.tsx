@@ -1,11 +1,11 @@
 /** @jsxImportSource @emotion/react */
 import { css, keyframes } from '@emotion/react';
 import { useNavigate } from 'react-router-dom';
-import VoidaLogo from '@/assets/icon/voida-logo.png';
-import ChatImage from '@/assets/icon/main-chat.png';
-import LipIcon from '@/assets/icon/lip-blue.png';
-import StartIcon from '@/assets/icon/start.png';
-import DemoVideoIcon from '@/assets/icon/demo-video.png';
+import VoidaLogo from '@/assets/logo/voida-logo.png';
+import ChatImage from '@/assets/icons/main-chat.png';
+import LipIcon from '@/assets/icons/lip-blue.png';
+import StartIcon from '@/assets/icons/start.png';
+import DemoVideoIcon from '@/assets/icons/demo-video.png';
 
 const MainPage = () => {
   const navigate = useNavigate();

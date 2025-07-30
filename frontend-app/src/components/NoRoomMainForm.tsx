@@ -1,11 +1,11 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useNavigate } from 'react-router-dom';
-import VoidaLogo from '@/assets/icon/voida-logo.png';
-import mainHome from '@/assets/icon/main-home.png';
+import VoidaLogo from '@/assets/logo/voida-logo.png';
+import mainHome from '@/assets/icons/main-home.png';
 import Header from '@/components/Header';
-import goButton from '@/assets/icon/go-button.png';
-import plusButton from '@/assets/icon/plus-button.png';
+import goButton from '@/assets/icons/go-button.png';
+import plusButton from '@/assets/icons/plus-button.png';
 import { useState } from 'react';
 
 const NoRoomMainForm = () => {

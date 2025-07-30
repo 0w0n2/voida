@@ -1,7 +1,7 @@
 import { css } from '@emotion/react';
 import { useNavigate } from 'react-router-dom';
-import VoidaLogo from '@/assets/icon/voida-logo.png';
-import mainHome from '@/assets/icon/main-home.png';
+import VoidaLogo from '@/assets/logo/voida-logo.png';
+import mainHome from '@/assets/icons/main-home.png';
 import Header from '@/components/Header';
 
 const MainForm = () => {
