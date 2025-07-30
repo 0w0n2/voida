@@ -6,6 +6,8 @@ import confetti from 'canvas-confetti';
 import tutorial from '@/assets/icons/tutorialButton.png';
 import home from '@/assets/icons/homeButton.png';
 import congratu from '@/assets/icons/congratu.png';
+import { useAuthStore } from '@/store/store';
+import defaultProfile from '@/assets/profiles/defaultProfile.png';
 
 interface IsRegisteredModalProps {
   isOpen: boolean;
@@ -18,6 +20,8 @@ const IsRegisteredModal = ({
   onClose,
   nickname,
 }: IsRegisteredModalProps) => {
+  const { user } = useAuthStore();
+  const profileImage = user?.profileImage;
   const navigate = useNavigate();
 
   // 컨페티 효과 함수
@@ -90,7 +94,11 @@ const IsRegisteredModal = ({
         </button>
 
         <div css={contentStyle}>
-          <img src="{}" alt="회원가입 프로필" css="userProfileStyle" />
+          <img
+            src={profileImage ?? defaultProfile}
+            alt="회원가입 프로필"
+            css={userProfileStyle}
+          />
           <h3 css={titleStyle}>
             <div css={nameStyle}>{nickname}님</div>
             <div css={messageStyle}>
@@ -130,8 +138,8 @@ const overlayStyle = css`
 const modalStyle = css`
   background: white;
   border-radius: 20px;
-  padding: 50px 40px;
-  width: 500px;
+  padding: 30px 40px;
+  width: 600px;
   max-width: 90vw;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   border: 1px solid rgba(0, 0, 0, 0.05);
@@ -260,4 +268,10 @@ const buttonStyle = css`
   }
 `;
 
-const userProfileStyle = css``;
+const userProfileStyle = css`
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 20px;
+`;
