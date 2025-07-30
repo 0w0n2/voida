@@ -5,7 +5,9 @@ import com.bbusyeo.voida.api.meetingroom.dto.*;
 import com.bbusyeo.voida.api.meetingroom.service.MeetingRoomService;
 import com.bbusyeo.voida.global.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -14,12 +16,18 @@ public class MeetingRoomController {
 
     private final MeetingRoomService meetingRoomService;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     // 대기실 생성
-    public BaseResponse<MeetingRoomCreateResponseDto> create(@RequestBody MeetingRoomCreateRequestDto request) {
+    public BaseResponse<MeetingRoomCreateResponseDto> create(
+            @RequestParam("title") String title,
+            @RequestParam("category") String category,
+            @RequestPart(value = "thumbnailImage", required = false) MultipartFile thumbnailImage) {
+
+        MeetingRoomCreateRequestDto request = new MeetingRoomCreateRequestDto(title, category);
+
         // 추후 @AuthenticationPrincipal 등 사용해서 인증된 사용자 정보 불러오기, 임시 memberId 생성
         Long memberId = 1L;
-        MeetingRoom newMeetingRoom = meetingRoomService.create(memberId, request);
+        MeetingRoom newMeetingRoom = meetingRoomService.create(memberId, request, thumbnailImage);
         MeetingRoomCreateResponseDto response = MeetingRoomCreateResponseDto.from(newMeetingRoom);
         return new BaseResponse<>(response);
     }
@@ -34,13 +42,15 @@ public class MeetingRoomController {
         return new BaseResponse<>(response);
     }
 
-    @PutMapping("/{meetingRoomId}/settings")
+    @PutMapping(value = "/{meetingRoomId}/settings", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     // 대기실 기본 정보 수정
     public BaseResponse<MeetingRoomUpdateResponseDto> update(
-        @PathVariable Long meetingRoomId, @RequestBody MeetingRoomUpdateRequestDto request) {
+        @PathVariable Long meetingRoomId,
+        @RequestPart("request") MeetingRoomUpdateRequestDto request,
+        @RequestPart(value = "thumbnailImage", required = false)MultipartFile thumbnailImage) {
         // memberId는 인증 기능 구현 완료 후, JWT 토큰에서 추출한 값으로 변경 예정
         Long memberId = 1L; // 임시
-        MeetingRoom updateMeetingRoom = meetingRoomService.update(memberId, meetingRoomId, request);
+        MeetingRoom updateMeetingRoom = meetingRoomService.update(memberId, meetingRoomId, request, thumbnailImage);
         MeetingRoomUpdateResponseDto response = MeetingRoomUpdateResponseDto.from(updateMeetingRoom);
         return new BaseResponse<>(response);
     }

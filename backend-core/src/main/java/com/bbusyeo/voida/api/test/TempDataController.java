@@ -37,7 +37,7 @@ public class TempDataController {
                     .email("test@voida.com")
                     .password("password") // 실제로는 암호화 필요
                     .profileImageUrl("default_profile.png")
-                    .role(Role.USER) // Role Enum이 있다면 사용
+                    .role(Role.USER)
                     .build();
             memberRepository.save(testMember);
         }

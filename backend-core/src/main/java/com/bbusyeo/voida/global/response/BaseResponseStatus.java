@@ -26,6 +26,12 @@ public enum BaseResponseStatus {
     DATABASE_CONSTRAINT_VIOLATION(HttpStatus.CONFLICT, false, 509, "데이터베이스 제약 조건을 위반했습니다. "
         + "(유니크 키 중복, 외래 키 위반, NOT NULL 위반 등에서 발생합니다.)"),
 
+
+    /**
+     * 600: S3 에러.
+     */
+    FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, false, 600, "파일 업로드에 실패했습니다."),
+
     /**
      * 700: 대기실 에러.
      */
