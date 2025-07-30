@@ -70,14 +70,8 @@ const IsRegisteredModal = ({
     }
   }, [isOpen]);
 
-  const goToTutorial = () => {
-    onClose();
-    navigate('/tutorial');
-  };
-
-  const goToMain = () => {
-    onClose();
-    navigate('/rooms');
+  const goTologin = () => {
+    navigate('/login');
   };
 
   // 조건부 모달 렌더링
@@ -96,6 +90,7 @@ const IsRegisteredModal = ({
         </button>
 
         <div css={contentStyle}>
+          <img src="{}" alt="회원가입 프로필" css="userProfileStyle" />
           <h3 css={titleStyle}>
             <div css={nameStyle}>{nickname}님</div>
             <div css={messageStyle}>
@@ -107,13 +102,8 @@ const IsRegisteredModal = ({
         </div>
 
         <div css={buttonContainerStyle}>
-          <button css={buttonStyle} onClick={goToTutorial}>
-            <img src={tutorial} alt="튜토리얼 보기" css={buttonIconStyle} />
-            튜토리얼 보기
-          </button>
-          <button css={grayButtonStyle} onClick={goToMain}>
-            <img src={home} alt="메인으로 가기" css={buttonIconStyle} />
-            메인으로 가기
+          <button css={buttonStyle} onClick={goTologin}>
+            로그인하러 가기
           </button>
         </div>
       </div>
@@ -270,34 +260,4 @@ const buttonStyle = css`
   }
 `;
 
-const grayButtonStyle = css`
-  background: var(--color-gray-500);
-  color: var(--color-text-white);
-  border: none;
-  border-radius: 12px;
-  padding: 12px 26px;
-  font-size: 14px;
-  font-family: 'NanumSquareB', sans-serif;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-
-  &:hover {
-    background: var(--color-gray-600);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(147, 147, 147, 0.3);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-`;
-
-const buttonIconStyle = css`
-  width: 18px;
-  height: 18px;
-`;
+const userProfileStyle = css``;
