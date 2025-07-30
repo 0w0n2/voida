@@ -4,6 +4,7 @@ import com.bbusyeo.voida.api.meetingroom.domain.MeetingRoom;
 import com.bbusyeo.voida.api.meetingroom.domain.MemberMeetingRoom;
 import com.bbusyeo.voida.api.meetingroom.domain.enums.MemberMeetingRoomState;
 import com.bbusyeo.voida.api.meetingroom.dto.MeetingRoomCreateRequestDto;
+import com.bbusyeo.voida.api.meetingroom.dto.MeetingRoomCreateResponseDto;
 import com.bbusyeo.voida.api.meetingroom.dto.MeetingRoomUpdateRequestDto;
 import com.bbusyeo.voida.api.meetingroom.repository.MeetingRoomRepository;
 import com.bbusyeo.voida.api.meetingroom.repository.MemberMeetingRoomRepository;
@@ -12,6 +13,8 @@ import com.bbusyeo.voida.api.member.repository.MemberRepository;
 import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
 import com.bbusyeo.voida.global.support.S3Uploader;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +29,7 @@ public class MeetingRoomService {
     private final MeetingRoomRepository meetingRoomRepository;
     private final MemberMeetingRoomRepository memberMeetingRoomRepository;
     private final MemberRepository memberRepository;
+    private final ObjectMapper objectMapper;
 
     // 대기실 생성
     public MeetingRoom create(Long memberId, MeetingRoomCreateRequestDto request, MultipartFile thumbnailImage) {
