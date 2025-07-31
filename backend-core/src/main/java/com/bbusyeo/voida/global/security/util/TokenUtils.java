@@ -1,7 +1,6 @@
 package com.bbusyeo.voida.global.security.util;
 
 import com.bbusyeo.voida.api.auth.domain.JwtToken;
-import com.bbusyeo.voida.api.member.domain.Member;
 import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.redis.dao.RedisDao;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
@@ -9,8 +8,11 @@ import com.bbusyeo.voida.global.security.dto.UserDetailsDto;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -95,7 +97,6 @@ public class TokenUtils {
     }
 
     private String generateRefreshToken(String username, Date expireDate) {
-
         return Jwts.builder()
                 .subject(username)
                 .expiration(expireDate)
@@ -127,6 +128,15 @@ public class TokenUtils {
                 .grantType(GRANT_TYPE)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken).build();
+    }
+
+    // Request Header 에서 토큰 정보 추출
+    public String getTokenFromRequest(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
     }
     
     // JWT 토큰을 복호화하여 토큰에 들어있는 정보 꺼내기
@@ -160,17 +170,17 @@ public class TokenUtils {
     }
 
     // 토큰 정보 검증
-    public boolean validateToken(String token) {
+    public boolean isInvalidToken(String token) {
         if (!StringUtils.hasText(token)){
             log.info("JWT token is null or empty");
-            return false;
+            return true;
         }
         try {
             Jwts.parser()
                 .verifyWith(secretKey)
                 .build()
                 .parseSignedClaims(token);
-            return true;
+            return false;
         } catch (SecurityException | MalformedJwtException e){
             log.info("Invalid JWT Token", e);
         } catch (ExpiredJwtException e){
@@ -180,12 +190,12 @@ public class TokenUtils {
         } catch (IllegalArgumentException e){
             log.info("JWT claims string is empty", e);
         }
-        return false;
+        return true;
     }
     
     // RefreshToken 검증
     public boolean validateRefreshToken(String token){
-        if (!validateToken(token)) return false; // 1차 유효 검증
+        if (isInvalidToken(token)) return false; // 1차 유효 검증
         try {
             String username = getUserNameFromToken(token);
             String redisToken = (String) redisDao.getValue(username);
@@ -211,10 +221,9 @@ public class TokenUtils {
 
     // RefreshToken 삭제
     public void deleteRefreshToken(String username) {
-        if (username==null || username.trim().isEmpty()){
-            throw new IllegalArgumentException("Username cannot be null or empty.");
+        if (!StringUtils.hasText(username)) {
+            throw new BaseException(BaseResponseStatus.TOKEN_USERNAME_NOT_FOUND);
         }
         redisDao.deleteValue(username); // 로그아웃 시 Redis 에서 RefreshToken 삭제
     }
-
 }

@@ -3,6 +3,7 @@ package com.bbusyeo.voida.global.security.filter;
 import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.response.BaseResponse;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
+import com.bbusyeo.voida.global.security.service.TokenBlackListService;
 import com.bbusyeo.voida.global.security.util.TokenUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -42,14 +43,15 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private static final AntPathMatcher pathMatcher = new AntPathMatcher(); // contains는 순수 문자열 비교라 와일드 카드 체크가 안 됨
 
     private final TokenUtils tokenUtils;
+    private final TokenBlackListService tokenBlackListService;
 
     // 토큰이 필요 없는 URL 리스트
     private static final List<String> NOT_USE_JWT_URL_LIST = List.of( // TODO-SECURITY: 화이트리스트(JWT 토큰 미필요 api) 리스트 설정 파일로 관리
         "/swagger-ui/**",
         "/v3/api-docs/**",
         "/swagger-ui.html",
-        "/v1/auth/sign-in",
-        "/v1/auth/**"
+        "/v1/auth/sign-in"
+//        "/v1/auth/**"
     );
 
     // JWT 인증처리
@@ -76,17 +78,21 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             }
 
             // 3. JWT 토큰이 필요한 요청 처리 -> 토큰 추출 및 유효성 검사
-            String token = getTokenFromRequest(request);
-            if (!StringUtils.hasText(token)){
+            // + AccessToken blackList 검사
+            String AccessToken = tokenUtils.getTokenFromRequest(request);
+            if (!StringUtils.hasText(AccessToken)){
                 throw new BaseException(BaseResponseStatus.TOKEN_USERNAME_NOT_FOUND);
             }
-            if (!tokenUtils.validateToken(token)){
+            if (tokenUtils.isInvalidToken(AccessToken)){
+                throw new BaseException(BaseResponseStatus.INVALID_JWT_TOKEN);
+            }
+            if (tokenBlackListService.isBlacklisted(AccessToken)){
                 throw new BaseException(BaseResponseStatus.INVALID_JWT_TOKEN);
             }
             
             // 4. 인증 객체 생성 및 SecurityContext 에 저장
             // 토큰이 유효할 경우 토큰에서 Authentication 객체를 가지고 와서 SecurityContext 에 저장
-            Authentication authentication = tokenUtils.getAuthentication(token);
+            Authentication authentication = tokenUtils.getAuthentication(AccessToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             // TODO-SECURITY: username 추출 체크 로직 확인(username인지 userId인지...)
@@ -111,15 +117,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 setErrorResponse(response, BaseResponseStatus.INTERNAL_SERVER_ERROR);
             }
         }
-    }
-
-    // Request Header 에서 토큰 정보 추출
-    private String getTokenFromRequest(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
     }
 
     // JWT 관련 예외 발생 시 JSON 형태의 에러 응답 직접 생성

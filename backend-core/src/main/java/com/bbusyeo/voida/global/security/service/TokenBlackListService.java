@@ -1,11 +1,6 @@
 package com.bbusyeo.voida.global.security.service;
 
-import com.bbusyeo.voida.global.redis.dao.RedisDao;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-
 /**
  * Redis 내에 AccessToken BlackList 를 관리
  */

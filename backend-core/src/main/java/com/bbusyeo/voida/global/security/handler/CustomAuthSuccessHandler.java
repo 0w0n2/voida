@@ -3,10 +3,10 @@ package com.bbusyeo.voida.global.security.handler;
 import com.bbusyeo.voida.api.auth.domain.JwtToken;
 import com.bbusyeo.voida.api.member.domain.Member;
 import com.bbusyeo.voida.global.security.dto.UserDetailsDto;
+import com.bbusyeo.voida.global.security.util.CookieUtils;
 import com.bbusyeo.voida.global.security.util.TokenUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +29,7 @@ public class CustomAuthSuccessHandler extends SavedRequestAwareAuthenticationSuc
 
     private final ObjectMapper objectMapper;
     private final TokenUtils tokenUtils;
+    private final CookieUtils cookieUtils;
 
     @Value("${jwt.expire-time.refresh}")
     private Duration refreshExpMin;
@@ -57,13 +58,7 @@ public class CustomAuthSuccessHandler extends SavedRequestAwareAuthenticationSuc
         response.addHeader("Authorization", "Bearer " + accessToken);
 
         // Refresh Token -> Cookie
-        Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
-        refreshCookie.setHttpOnly(true);
-        refreshCookie.setSecure(false); // TODO-SECURITY: 개발 후엔 true로
-        refreshCookie.setPath("/");
-        refreshCookie.setMaxAge((int) (refreshExpMin.getSeconds()));
-
-        response.addCookie(refreshCookie);
+        cookieUtils.setRefreshCookie(response, refreshToken, (int) (refreshExpMin.getSeconds()));
 
         // 응답 JSON 출력
         response.setCharacterEncoding("UTF-8");

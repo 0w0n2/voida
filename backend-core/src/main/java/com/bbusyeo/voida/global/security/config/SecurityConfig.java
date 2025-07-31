@@ -5,6 +5,8 @@ import com.bbusyeo.voida.global.security.filter.JwtAuthorizationFilter;
 import com.bbusyeo.voida.global.security.handler.CustomAuthFailureHandler;
 import com.bbusyeo.voida.global.security.handler.CustomAuthSuccessHandler;
 import com.bbusyeo.voida.global.security.handler.CustomAuthenticationProvider;
+import com.bbusyeo.voida.global.security.service.TokenBlackListService;
+import com.bbusyeo.voida.global.security.util.CookieUtils;
 import com.bbusyeo.voida.global.security.util.TokenUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +47,8 @@ import java.util.List;
 public class SecurityConfig {
 
     private final TokenUtils tokenUtils;
+    private final CookieUtils cookieUtils;
+    private final TokenBlackListService tokenBlackListService;
     private final ObjectMapper objectMapper;
 
     // 1. WebSecurityCustomizer -> 정적 자원(Resource)에 대해 인증된 사용자의 접근 (인가) 설정을 담당
@@ -128,7 +132,7 @@ public class SecurityConfig {
     // TODO-SECURITY: CustomAuthSuccessHandler 작성요망
     @Bean
     public CustomAuthSuccessHandler customAuthSuccessHandler(){
-        return new CustomAuthSuccessHandler(objectMapper, tokenUtils);
+        return new CustomAuthSuccessHandler(objectMapper, tokenUtils, cookieUtils);
     }
 
     // 8. CustomAuthFailureHandler -> (인증) 실패 시 수행될 Handler
@@ -141,7 +145,7 @@ public class SecurityConfig {
     // 9. JwtAuthorizationFilter -> JWT 토큰을 통해서 사용자 인증
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter(){
-        return new JwtAuthorizationFilter(tokenUtils);
+        return new JwtAuthorizationFilter(tokenUtils, tokenBlackListService);
     }
     
     // 10. CorsConfigurationSource -> CORS에 대한 설정을 커스텀으로 구성
