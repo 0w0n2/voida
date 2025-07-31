@@ -20,32 +20,49 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.*;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class MeetingRoomService {
 
+    private static final String S3_THUMBNAIL_DIR = "meeting-rooms/thumbnails/";
+    private static final Map<String, String> CATEGORY_TO_FILENAME_MAP;
+    private static final Set<String> DEFAULT_FILENAMES;
+
+    static {
+        Map<String, String> categoryMap = new HashMap<>();
+        categoryMap.put("game", "default_game_category.png");
+        categoryMap.put("meeting", "default_meeting_category.png");
+        categoryMap.put("talk", "default_talk_category.png");
+        categoryMap.put("study", "default_study_category.png");
+        categoryMap.put("free", "default_free_category.png");
+        CATEGORY_TO_FILENAME_MAP = Collections.unmodifiableMap(categoryMap);
+
+        DEFAULT_FILENAMES = Collections.unmodifiableSet(new HashSet<>(categoryMap.values()));
+    }
+
     private final S3Uploader s3Uploader;
     private final MeetingRoomRepository meetingRoomRepository;
     private final MemberMeetingRoomRepository memberMeetingRoomRepository;
     private final MemberRepository memberRepository;
-    private final ObjectMapper objectMapper;
+
 
     // 대기실 생성
     public MeetingRoom create(Long memberId, MeetingRoomCreateRequestDto request, MultipartFile thumbnailImage) {
 
-        // 추후 JWT에서 member 정보 받아와서 연관관계 설정 필요
+        // Todo: memberId는 혜원 작업 완료 후, 인증(JWT 토큰)에서 가져와야함
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.ILLEGAL_ARGUMENT));
 
         String thumbnailFileKey = null;
-        final String s3DirName = "meeting-rooms/thumbnails";
 
         try {
             // 썸네일 이미지 처리
             if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
                 // 사용자가 이미지를 업로드한 경우 S3에 업로드
-                thumbnailFileKey = s3Uploader.upload(thumbnailImage, s3DirName);
+                thumbnailFileKey = s3Uploader.upload(thumbnailImage, S3_THUMBNAIL_DIR);
             } else {
                 // 이미지가 없는 경우, 카테고리별 기본 이미지 키 설정
                 thumbnailFileKey = getDefaultThumbnailKey(request.getCategory());
@@ -98,25 +115,36 @@ public class MeetingRoomService {
 
         MeetingRoom meetingRoom = findById(meetingRoomId);
         String oldFileKey = meetingRoom.getThumbnailImageUrl();
-        String newFileKey = oldFileKey; // 기존 이미지 키 유지 시켜두기
-
-        final String s3DirName = "meeting-rooms/thumbnails";
+        String newFileKey = null; // 새 파일이 업로드 되었는지 확인하기 위해 null로 초기화
 
 
         // 새 썸네일 이미지가 있는지 확인
         if (newThumbnailImage != null && !newThumbnailImage.isEmpty()) {
             // 새 이미지가 있다면 S3에 업로드하고 새로운 파일 키를 받음
-            newFileKey = s3Uploader.upload(newThumbnailImage, s3DirName);
+            newFileKey = s3Uploader.upload(newThumbnailImage, S3_THUMBNAIL_DIR);
         }
 
-        meetingRoom.update(requestDto.getTitle(), requestDto.getCategory(), newFileKey);
+        try {
+            // DB 엔티티 업데이트
+            // 새 파일이 있으면 newFileKey를, 없으면 oldFileKey를 사용
+            meetingRoom.update(requestDto.getTitle(), requestDto.getCategory(), (newFileKey != null) ? newFileKey : oldFileKey);
 
-        // 후속 처리 : DB 업데이트 성공 후, 기존 사용자 업로드 이미지가 있다면 삭제해주기
-        if (newThumbnailImage != null && !newThumbnailImage.isEmpty() && oldFileKey != null && !isDefaultImageKey(oldFileKey)) {
-            s3Uploader.delete(oldFileKey);
+            // 후속 처리 : DB 업데이트 성공 후, 기존 사용자 업로드 이미지가 있다면 S3에서 삭제
+            if (newFileKey != null && oldFileKey != null && !isDefaultImageKey(oldFileKey)) {
+                s3Uploader.delete(oldFileKey);
+            }
+
+            return meetingRoom;
+        } catch (Exception e) {
+            // 보상 트랜잭션: DB 업데이트 중 에러 발생 시, S3에 새로 업로드된 파일이 있다면 삭제
+            if (newFileKey != null) {
+                s3Uploader.delete(newFileKey);
+            }
+
+            // 원래 예외를 그대로 던지거나, BaseException으로 감싸서 던지기
+            if (e instanceof BaseException) throw e;
+            throw new BaseException(BaseResponseStatus.DATABASE_CONSTRAINT_VIOLATION);
         }
-
-        return meetingRoom;
     }
 
     // 대기실 삭제
@@ -143,7 +171,7 @@ public class MeetingRoomService {
 
     // 방장 권한 확인 메서드
     private void checkHostAuthority(Long memberId, Long meetingRoomId) {
-        // memberId는 혜원 작업 완료 후, 인증(JWT 토큰)에서 가져와야함
+        // Todo: memberId는 혜원 작업 완료 후, 인증(JWT 토큰)에서 가져와야함
         Member member = memberRepository.findById(memberId)
                 // 시스템에 존재하는 유저가 아닐때, 임시로 400 에러 => 추후 NOT_FOUND_MEMBER response로 바꿔야함
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.ILLEGAL_ARGUMENT));
@@ -154,19 +182,27 @@ public class MeetingRoomService {
 
     // 카테고리 이름에 따라 기본 이미지 키를 반환하는 헬퍼 메서드
     private String getDefaultThumbnailKey(String categoryName) {
-        String basePath = "meeting-rooms/thumbnails/";
-        return switch (categoryName.toLowerCase()) {
-            case "game" -> basePath + "default_game_category.png";
-            case "meeting" -> basePath + "default_meeting_category.png";
-            case "talk" -> basePath + "default_talk_category.png";
-            case "study" -> basePath + "default_study_category.png";
-            default -> basePath + "default_free_category.png";
-        };
+        String fileName = CATEGORY_TO_FILENAME_MAP.get(categoryName.toLowerCase());
+
+        // 카테고리 설정하지 않았을 때 프론트엔드에 보내줄 응답코드
+        if (fileName == null) {
+            throw new BaseException(BaseResponseStatus.ILLEGAL_ARGUMENT);
+        }
+        return S3_THUMBNAIL_DIR + fileName;
     }
 
     // 기본 이미지인지 확인하는 메서드
     private boolean isDefaultImageKey(String key) {
         if (key == null) return true;
-        return key.startsWith("meeting-rooms/thumbnails/default-");
+
+        // S3 디렉토리 경로로 시작하는지 먼저 확인
+        if (!key.startsWith(S3_THUMBNAIL_DIR)) {
+            return false;
+        }
+        // 디렉토리 경로를 제외한 파일 이름만 추출
+        String fileName = key.substring(S3_THUMBNAIL_DIR.length());
+
+        // 추출한 파일 이름이 기본 이미지 파일명 Set에 포함되어 있는지 확인
+        return DEFAULT_FILENAMES.contains(fileName);
     }
 }

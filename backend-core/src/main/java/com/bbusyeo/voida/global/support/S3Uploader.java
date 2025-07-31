@@ -5,6 +5,7 @@ import com.bbusyeo.voida.global.response.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import org.slf4j.Logger;
@@ -73,7 +74,7 @@ public class S3Uploader {
      * @param fileKey = 삭제할 파일의 DB에 저장된 값
      */
     public void delete(String fileKey) {
-        if (fileKey == null || fileKey.isEmpty()) {
+        if (!StringUtils.hasText(fileKey)) {
             return;
         }
 
@@ -96,7 +97,7 @@ public class S3Uploader {
      * @return 파일의 전체 URL
      */
     public String getFileUrl(String fileKey) {
-        if (fileKey == null || fileKey.isEmpty()) {
+        if (StringUtils.hasText(fileKey)) {
             return null;
         }
         return s3Client.utilities().getUrl(builder -> builder.bucket(bucket).key(fileKey)).toExternalForm();
