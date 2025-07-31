@@ -142,8 +142,8 @@ public class MeetingRoomService {
 
 
     // 방장 권한 확인 메서드
-    private void checkHostAuthority(Long memberId, Long meetingRoomId) {
-        // memberId는 혜원 작업 완료 후, 인증(JWT 토큰)에서 가져와야함
+    public void checkHostAuthority(Long memberId, Long meetingRoomId) {
+        // todo: memberId는 혜원 작업 완료 후, 인증(JWT 토큰)에서 가져와야함
         Member member = memberRepository.findById(memberId)
                 // 시스템에 존재하는 유저가 아닐때, 임시로 400 에러 => 추후 NOT_FOUND_MEMBER response로 바꿔야함
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.ILLEGAL_ARGUMENT));
