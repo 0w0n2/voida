@@ -23,14 +23,18 @@ public enum BaseResponseStatus {
     ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, false, 401, "액세스 토큰이 만료되었습니다."),
     
     // INVALID_JWT_TOKEN으로 합치는 거 추천
-    ACCESS_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, false, 401, "잘못된 액세스 토큰입니다."),
+    ACCESS_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, false, 401, "유효하지 않은 엑세스 토큰입니다."),
+    REFRESH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, false, 401, "유효하지 않은 리프레시 토큰입니다."),
     UNSUPPORTED_JWT_TOKEN(HttpStatus.UNAUTHORIZED, false, 401, "지원되지 않는 JWT 토큰입니다."),
     INVALID_JWT_TOKEN(HttpStatus.UNAUTHORIZED, false, 401, "유효하지 않은 JWT 토큰입니다."),
+    TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, false, 401, "인증이 필요한 요청입니다."),
 
     TOKEN_USERNAME_NOT_FOUND(HttpStatus.UNAUTHORIZED, false, 401, "토큰 내에 userName이 존재하지 않습니다."),
-    TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, false, 401, "토큰이 존재하지 않습니다."),
+    ACCESS_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, false, 401, "토큰이 존재하지 않습니다."),
 
-    INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, false, 401, "로그인 정보가 일치하지 않습니다."),
+    INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, false, 401, "ID와 PW가 일치하지 않습니다."),
+    USER_NOT_FOUND(HttpStatus.UNAUTHORIZED, false, 401, "해당하는 ID를 찾을 수 없습니다."),
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, false, 403, "접근 권한이 없습니다."),
 
     /**
      * 500: 기타 에러.

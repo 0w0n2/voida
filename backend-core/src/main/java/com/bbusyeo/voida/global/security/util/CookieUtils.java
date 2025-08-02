@@ -17,5 +17,4 @@ public class CookieUtils {
                 .build();
         response.addHeader("Set-Cookie", refreshCookie.toString()); // Response Headers에 Set-Cookie 항목이 보이고, Cookies 탭에도 나타남 // response.addCookie(refreshCookie);
     }
-
 }

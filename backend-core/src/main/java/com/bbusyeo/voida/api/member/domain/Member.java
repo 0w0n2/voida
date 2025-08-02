@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 
 /**
  * member 테이블과 매핑 객체
+ *
  * @author : 이혜원
  */
 @Entity

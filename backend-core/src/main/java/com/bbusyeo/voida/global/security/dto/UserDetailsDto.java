@@ -24,10 +24,6 @@ public class UserDetailsDto implements UserDetails {
     @Delegate // Member 객체의 메소드를 이 클래스에서 직접 사용 가능
     private Member member;
 
-//    public String getMemberUuid(){
-//        return member.getMemberUuid();
-//    }
-    
     // 사용자 권한 목록 반환
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -49,13 +45,10 @@ public class UserDetailsDto implements UserDetails {
         return member.getEmail();
     }
 
-    /*
-     * 계정이 만료되지 않았는지 여부 반환
-     * 현재 항상 false 를 반환하므로 -> 모든 계정이 만료된 것으로 처리
-     */
+    // 계정이 만료되지 않았는지 여부 반환
     @Override
     public boolean isAccountNonExpired() {
-        return false;
+        return true;
     }
 
     // 계정이 잠기지 않았는지 여부 반환
@@ -67,12 +60,12 @@ public class UserDetailsDto implements UserDetails {
     // 자격 증명(비밀번호)이 만료되지 않았는지 여부 반환
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return true;
     }
 
     // 계정이 활성화되어 있는지 여부 반환
     @Override
     public boolean isEnabled() {
-        return false; // 탈퇴/비활성 등 처리 필요시 custom
+        return true; // TODO-SECURITY: 탈퇴/비활성 등 처리 필요시 custom
     }
 }
