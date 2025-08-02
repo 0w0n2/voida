@@ -3,9 +3,12 @@ package com.bbusyeo.voida.api.meetingroom.repository;
 import com.bbusyeo.voida.api.meetingroom.domain.MemberMeetingRoom;
 import com.bbusyeo.voida.api.member.domain.Member;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -19,4 +22,8 @@ public interface MemberMeetingRoomRepository extends JpaRepository<MemberMeeting
     // JPA 규칙, 언더바로 필드 구분, JPA의 삭제 로직
     @Transactional
     void deleteByMeetingRoom_Id(Long meetingRoomId);
+
+    // 탈퇴한 회원이 아니고, 대기실에 들어가있는 회원 목록 JPA로 조회
+    List<MemberMeetingRoom> findByMeetingRoomIdAndMember_IsDeletedFalse(Long meetingRoomId);
+
 }

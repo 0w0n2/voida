@@ -3,9 +3,7 @@ package com.bbusyeo.voida.api.meetingroom.service;
 import com.bbusyeo.voida.api.meetingroom.domain.MeetingRoom;
 import com.bbusyeo.voida.api.meetingroom.domain.MemberMeetingRoom;
 import com.bbusyeo.voida.api.meetingroom.domain.enums.MemberMeetingRoomState;
-import com.bbusyeo.voida.api.meetingroom.dto.MeetingRoomCreateRequestDto;
-import com.bbusyeo.voida.api.meetingroom.dto.MeetingRoomCreateResponseDto;
-import com.bbusyeo.voida.api.meetingroom.dto.MeetingRoomUpdateRequestDto;
+import com.bbusyeo.voida.api.meetingroom.dto.*;
 import com.bbusyeo.voida.api.meetingroom.repository.MeetingRoomRepository;
 import com.bbusyeo.voida.api.meetingroom.repository.MemberMeetingRoomRepository;
 import com.bbusyeo.voida.api.member.domain.Member;
@@ -16,9 +14,14 @@ import com.bbusyeo.voida.global.support.S3Uploader;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -140,6 +143,21 @@ public class MeetingRoomService {
         }
     }
 
+    // 대기실 참여자 정보 리스트 조회
+    @Transactional(readOnly = true)
+    public MeetingRoomParticipantListDto getMeetingRoomMembers(Long memberId, Long meetingRoomId) {
+
+        // repository를 통해 탈퇴하지않은 유저들만 포함된 목록을 Page 형태로 조회
+        List<MemberMeetingRoom> memberMeetingRooms = memberMeetingRoomRepository.findByMeetingRoomIdAndMember_IsDeletedFalse(meetingRoomId);
+
+        // Stream의 map 기능 사용하여 Dto로 변환
+        List<ParticipantInfoDto> participants = memberMeetingRooms.stream()
+                .map(memberMeetingRoom -> ParticipantInfoDto.of(memberMeetingRoom, memberId))
+                .collect(Collectors.toList());
+
+        // 최종 응답 DTO로 변환하여 반환 (memberCount는 getTotalElements 사용으로 계산됨)
+        return MeetingRoomParticipantListDto.of(participants);
+    }
 
     // 방장 권한 확인 메서드
     public void checkHostAuthority(Long memberId, Long meetingRoomId) {

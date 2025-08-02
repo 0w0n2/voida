@@ -57,8 +57,18 @@ public class MeetingRoomController {
         return new BaseResponse<>(response);
     }
 
-    @DeleteMapping("{meetingRoomId}")
+    // 대기실 참여자 정보 리스트 조회
+    @GetMapping("/{meetingRoomId}/members")
+    public BaseResponse<MeetingRoomParticipantListDto> getMeetingRoomMembers(
+            @PathVariable Long meetingRoomId) {
+        Long memberId = 1L;
+        MeetingRoomParticipantListDto response = meetingRoomService.getMeetingRoomMembers(memberId, meetingRoomId);
+        return new BaseResponse<>(response);
+    }
+
+
     // 대기실 삭제
+    @DeleteMapping("{meetingRoomId}")
     public BaseResponse<Void> delete(@PathVariable Long meetingRoomId) {
         // todo: memberId는 JWT 토큰에서 추출한 값으로 변경 예정
         Long memberId = 1L;

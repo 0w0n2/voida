@@ -1,0 +1,40 @@
+package com.bbusyeo.voida.api.meetingroom.dto;
+
+import com.bbusyeo.voida.api.meetingroom.domain.MemberMeetingRoom;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
+@NoArgsConstructor
+public class ParticipantInfoDto {
+    // 참여자 1명의 상세 정보를 담는 DTO
+
+    private String nickname;
+    private String profileImageUrl;
+    private String state;
+    private boolean lipTalkMode;
+    private boolean isMine;
+
+    @Builder
+    private ParticipantInfoDto(String nickname, String profileImageUrl, String state, boolean lipTalkMode, boolean isMine) {
+        this.nickname = nickname;
+        this.profileImageUrl = profileImageUrl;
+        this.state = state;
+        this.lipTalkMode = lipTalkMode;
+        this.isMine = isMine;
+    }
+
+    public static ParticipantInfoDto of(MemberMeetingRoom memberMeetingRoom, Long currentMemberId) {
+        boolean isMine = memberMeetingRoom.getMember().getId().equals(currentMemberId);
+
+        // todo: lipTalkMode는 member 완성 후 실제 로직으로 변경
+        return ParticipantInfoDto.builder()
+                .nickname(memberMeetingRoom.getMember().getNickname())
+                .profileImageUrl(memberMeetingRoom.getMember().getProfileImageUrl())
+                .state(memberMeetingRoom.getState().name())
+                .lipTalkMode(false)
+                .isMine(isMine)
+                .build();
+    }
+}
