@@ -4,8 +4,11 @@ import com.bbusyeo.voida.api.auth.domain.JwtToken;
 import com.bbusyeo.voida.api.auth.domain.VerificationCode;
 import com.bbusyeo.voida.api.auth.dto.*;
 import com.bbusyeo.voida.api.auth.repository.AuthRepository;
+import com.bbusyeo.voida.api.auth.util.NicknameGenerator;
 import com.bbusyeo.voida.api.member.domain.Member;
+import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.redis.dao.RedisDao;
+import com.bbusyeo.voida.global.response.BaseResponseStatus;
 import com.bbusyeo.voida.global.security.dto.UserDetailsDto;
 import com.bbusyeo.voida.global.security.service.JwtTokenService;
 import com.bbusyeo.voida.global.security.service.TokenBlackListService;
@@ -19,6 +22,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -37,6 +41,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationProvider authenticationProvider;
     private final JwtTokenService jwtTokenService;
     private final AuthRepository authRepository;
+    private final NicknameGenerator nicknameGenerator;
 
     private static final String SIGNUP_CODE_PREFIX = "signup-code:";
 
@@ -120,5 +125,23 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public CheckNicknameResponseDto checkNickname(CheckNicknameRequestDto requestDto) {
         return CheckNicknameResponseDto.toDto(authRepository.existsByNickname(requestDto.getNickname()));
+    }
+
+    @Override
+    public RandomNicknameResponseDto getRandomNickname() {
+        String nickname;
+        int attempts = 0;
+        boolean isDuplicate;
+
+        do {
+            nickname = nicknameGenerator.generateNickname();
+            isDuplicate = authRepository.existsByNickname(nickname);
+            attempts++;
+        } while (isDuplicate && attempts < 10);
+
+        if (!StringUtils.hasText(nickname) || isDuplicate) {
+            throw new BaseException(BaseResponseStatus.NICKNAME_GENERATION_FAILED);
+        }
+        return RandomNicknameResponseDto.toDto(nickname);
     }
 }

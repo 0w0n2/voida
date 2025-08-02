@@ -61,4 +61,9 @@ public class AuthController {
     public BaseResponse<CheckNicknameResponseDto> checkNickname(@Valid @RequestBody CheckNicknameRequestDto requestDto) {
         return new BaseResponse<>(authService.checkNickname(requestDto));
     }
+
+    @GetMapping("/random-nickname")
+    public BaseResponse<RandomNicknameResponseDto> randomNickname(){
+        return new BaseResponse<>(authService.getRandomNickname());
+    }
 }

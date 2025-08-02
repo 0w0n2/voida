@@ -19,4 +19,6 @@ public interface AuthService {
     VerifyEmailResponseDto verifyEmailCode(VerifyEmailRequestDto requestDto);
 
     CheckNicknameResponseDto checkNickname(CheckNicknameRequestDto requestDto);
+
+    RandomNicknameResponseDto getRandomNickname();
 }

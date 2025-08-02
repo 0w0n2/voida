@@ -35,6 +35,9 @@ public enum BaseResponseStatus {
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, false, 401, "ID와 PW가 일치하지 않습니다."),
     USER_NOT_FOUND(HttpStatus.UNAUTHORIZED, false, 401, "해당하는 ID를 찾을 수 없습니다."),
     ACCESS_DENIED(HttpStatus.FORBIDDEN, false, 403, "접근 권한이 없습니다."),
+    
+    // 랜덤 닉네임 생성
+    NICKNAME_GENERATION_FAILED(HttpStatus.CONFLICT, false, 409, "랜덤 닉네임 생성을 실패했습니다."),
 
     /**
      * 500: 기타 에러.
@@ -48,5 +51,6 @@ public enum BaseResponseStatus {
     private final boolean isSuccess;
     private final int code;
     private final String message;
+
 
 }
