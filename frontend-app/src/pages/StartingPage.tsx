@@ -69,7 +69,6 @@ const wrapper = css`
   background: linear-gradient(135deg, #ffffff 0%, #eaf3ff 50%, #e0ecff 100%);
   overflow: hidden;
 
-  /* Electron 창 크기별 대응 */
   @container (max-width: 1400px) {
     min-height: 550px;
   }
@@ -104,7 +103,6 @@ const content = css`
   padding: 0 clamp(20px, 3vw, 60px) 0 clamp(120px, 15vw, 180px);
   gap: clamp(30px, 6vw, 80px);
 
-  /* Electron 창이 작아질 때 */
   @media (max-width: 1400px) {
     padding-left: clamp(80px, 12vw, 140px);
     gap: clamp(25px, 5vw, 60px);
@@ -120,7 +118,6 @@ const content = css`
     gap: clamp(15px, 3vw, 30px);
   }
 
-  /* 매우 작은 창에서는 세로 배치 */
   @media (max-width: 800px) {
     flex-direction: column;
     justify-content: center;
@@ -175,7 +172,6 @@ const title = css`
   line-height: 1.3;
   margin-bottom: clamp(16px, 2.5vh, 20px);
 
-  /* Electron 창 크기별 세밀한 조정 */
   @media (max-width: 1400px) {
     font-size: clamp(28px, 4.8vw, 55px);
   }
