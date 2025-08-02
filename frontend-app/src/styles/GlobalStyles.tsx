@@ -45,6 +45,9 @@ const GlobalStyles = () => (
         --color-red: #f14452;
         --color-green: #23ad6f;
         --color-yellow: #f4d248;
+        --color-red-dark: #e43345ff;
+        --color-green-dark: #1fa468ff;
+        --color-yellow-dark: #efcd36ff;
 
         /* Background */
         --color-bg-white: #ffffffff;

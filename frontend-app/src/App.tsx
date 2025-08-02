@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import MainPage from '@/pages/MainPage.tsx';
+import StartingPage from '@/pages/StartingPage';
 import LoginPage from '@/pages/auth/LoginPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
 import EmailAuthPage from '@/pages/auth/EmailAuthPage';
@@ -16,6 +16,8 @@ import CallbackPage from '@/components/auth/callback';
 import MainForm from '@/components/Main/MainForm';
 import CodeCheck from '@/components/Main/CodeCheck';
 import MyPage from '@/pages/MyPage';
+import MeetingRoomPage from '@/pages/MeetingRoomPage';
+import MainPage from '@/pages/MainPage';
 
 function App() {
   return (
@@ -37,7 +39,7 @@ function App() {
           path="/tutorial/test/lip-reading"
           element={<TestLipReadingPage />}
         />
-        <Route path="/rooms" element={<RoomsPage />} />
+        <Route path="/meeting-room" element={<MeetingRoomPage />} />
         <Route path="/main" element={<MainPage />} />
         <Route path="/callback" element={<CallbackPage />} />
         <Route path="/mypage" element={<MyPage />} />

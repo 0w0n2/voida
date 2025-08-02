@@ -24,8 +24,19 @@ public enum BaseResponseStatus {
      */
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, false, 500, "서버에서 예기치 않은 오류가 발생했습니다."),
     DATABASE_CONSTRAINT_VIOLATION(HttpStatus.CONFLICT, false, 509, "데이터베이스 제약 조건을 위반했습니다. "
-        + "(유니크 키 중복, 외래 키 위반, NOT NULL 위반 등에서 발생합니다.)");
+        + "(유니크 키 중복, 외래 키 위반, NOT NULL 위반 등에서 발생합니다.)"),
 
+
+    /**
+     * 600: S3 에러.
+     */
+    FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, false, 600, "파일 업로드에 실패했습니다."),
+
+    /**
+     * 700: 대기실 에러.
+     */
+    NOT_FOUND_MEETING_ROOM(HttpStatus.NOT_FOUND, false, 704, "존재하지 않는 대기실입니다."),
+    FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN, false, 703, "방장 권한이 없습니다.");
 
     private final HttpStatus httpStatus;
     private final boolean isSuccess;
