@@ -61,6 +61,7 @@ public class MeetingRoomController {
     @GetMapping("/{meetingRoomId}/members")
     public BaseResponse<MeetingRoomParticipantListDto> getMeetingRoomMembers(
             @PathVariable Long meetingRoomId) {
+        // todo: memberId는 JWT 토큰 추출 값으로 변경 예정
         Long memberId = 1L;
         MeetingRoomParticipantListDto response = meetingRoomService.getMeetingRoomMembers(memberId, meetingRoomId);
         return new BaseResponse<>(response);
