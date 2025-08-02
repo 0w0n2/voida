@@ -1,18 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { getUserSettings } from '../../apis/userApi';
+import { getUserSettings, updateGuideMode } from '../../apis/userApi';
 import { useAuthStore } from '../../store/store';
+import { useNavigate } from 'react-router-dom';
+import UpdateDoneModal from './UpdateDoneModal';
 
 interface UserSettings {
-  speechEnabled: boolean;
+  useLipTalkMode: boolean; // API 스펙에 맞게 변경
   // 필요한 다른 설정들 추가 가능
 }
 
 const SettingsTab = () => {
-  const { accessToken } = useAuthStore();
+  const { accessToken, user } = useAuthStore();
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [showDoneModal, setShowDoneModal] = useState(false);
+  const navigate = useNavigate();
 
   // 유저 설정 불러오기
   useEffect(() => {
@@ -27,7 +32,7 @@ const SettingsTab = () => {
         // 임시 데이터 사용 (퍼블리싱용)
         setTimeout(() => {
           setUserSettings({
-            speechEnabled: false,
+            useLipTalkMode: false,
           });
           setError(null);
         }, 500);
@@ -42,25 +47,66 @@ const SettingsTab = () => {
     fetchUserSettings();
   }, [accessToken]);
 
-  const handleSpeechToggle = (enabled: boolean) => {
+  const handleSpeechToggle = async (enabled: boolean) => {
     if (userSettings) {
       setUserSettings({
         ...userSettings,
-        speechEnabled: enabled,
+        useLipTalkMode: enabled,
       });
+
+      // TODO: API 연동 시 주석 해제
+      // try {
+      //   setSaving(true);
+      //   await updateGuideMode(accessToken!, enabled);
+      //   console.log('구화 모드 설정 완료');
+      // } catch (err) {
+      //   console.error('구화 모드 설정 실패:', err);
+      //   // 실패 시 원래 상태로 되돌리기
+      //   setUserSettings({
+      //     ...userSettings,
+      //     useLipTalkMode: !enabled,
+      //   });
+      // } finally {
+      //   setSaving(false);
+      // }
+
+      // 임시 저장 시뮬레이션
+      setSaving(true);
+      setTimeout(() => {
+        console.log('구화 모드 설정 완료');
+        setSaving(false);
+      }, 500);
     }
   };
 
   // TODO: API 연동 시 구현
-  const handleSave = () => {
-    console.log('설정 저장');
-    // TODO: 유저 설정 업데이트 API 호출
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      console.log('설정 저장');
+
+      // TODO: 유저 설정 업데이트 API 호출
+      // await updateGuideMode(accessToken!, userSettings);
+
+      // 임시 시뮬레이션
+      setTimeout(() => {
+        console.log('설정 저장 완료');
+        setShowDoneModal(true);
+        setSaving(false);
+      }, 1000);
+    } catch (err) {
+      console.error('설정 저장 실패:', err);
+      setSaving(false);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowDoneModal(false);
   };
 
   // TODO: API 연동 시 구현
   const handleGuidebook = () => {
-    console.log('가이드북 보기');
-    // TODO: 가이드북 페이지로 이동 또는 모달 표시
+    navigate('/tutorial');
   };
 
   if (loading) {
@@ -91,7 +137,9 @@ const SettingsTab = () => {
     <SettingsPanel>
       <SettingsHeader>
         <PanelTitle>설정</PanelTitle>
-        <SaveButton onClick={handleSave}>저장하기</SaveButton>
+        <SaveButton onClick={handleSave} disabled={saving}>
+          {saving ? '저장 중...' : '저장하기'}
+        </SaveButton>
       </SettingsHeader>
       <PanelSubtitle>구화 및 음성 관련 설정을 관리하세요.</PanelSubtitle>
 
@@ -104,10 +152,11 @@ const SettingsTab = () => {
             </SettingsItemDescription>
           </SettingsItemLeft>
           <ToggleSwitch
-            enabled={userSettings.speechEnabled}
-            onClick={() => handleSpeechToggle(!userSettings.speechEnabled)}
+            enabled={userSettings.useLipTalkMode}
+            onClick={() => handleSpeechToggle(!userSettings.useLipTalkMode)}
+            disabled={saving}
           >
-            <ToggleSlider enabled={userSettings.speechEnabled} />
+            <ToggleSlider enabled={userSettings.useLipTalkMode} />
           </ToggleSwitch>
         </SettingsItem>
 
@@ -123,6 +172,12 @@ const SettingsTab = () => {
           </GuidebookButton>
         </SettingsItem>
       </SettingsSection>
+
+      <UpdateDoneModal
+        isOpen={showDoneModal}
+        onClose={handleCloseModal}
+        userName={user?.nickname || '사용자'}
+      />
     </SettingsPanel>
   );
 };
@@ -239,15 +294,16 @@ const SettingsItemDescription = styled.p`
   color: var(--color-gray-600);
 `;
 
-const ToggleSwitch = styled.div<{ enabled: boolean }>`
+const ToggleSwitch = styled.div<{ enabled: boolean; disabled?: boolean }>`
   width: 50px;
   height: 24px;
   background-color: ${(props) =>
     props.enabled ? 'var(--color-primary)' : 'var(--color-gray-200)'};
   border-radius: 12px;
   position: relative;
-  cursor: pointer;
+  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
   transition: background-color 0.2s ease;
+  opacity: ${(props) => (props.disabled ? 0.6 : 1)};
 `;
 
 const ToggleSlider = styled.div<{ enabled: boolean }>`

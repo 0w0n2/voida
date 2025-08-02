@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import defaultProfile from '../../assets/profiles/defaultProfile.png';
-import { getUser } from '../../apis/userApi';
+import { getUser, updateUser } from '../../apis/userApi';
 import { useAuthStore } from '../../store/store';
+import UpdatePasswordModal from './UpdatePasswordModal';
+import GetOutModal from './GetOutModal';
 
 interface UserProfile {
   nickname: string;
@@ -11,12 +13,15 @@ interface UserProfile {
 }
 
 const ProfileTab = () => {
-  const { accessToken } = useAuthStore();
+  const { accessToken, user } = useAuthStore();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isGetOutModalOpen, setIsGetOutModalOpen] = useState(false);
 
-  // 유저 정보 불러오기
+  // 유저 정보 조회 API 호출 (변수에 사진, 닉네임, 이메일 할당)
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -46,6 +51,7 @@ const ProfileTab = () => {
     fetchUserProfile();
   }, [accessToken]);
 
+  // 변수에 입력받은 닉네임 할당
   const handleNicknameChange = (newNickname: string) => {
     if (userProfile) {
       setUserProfile({
@@ -55,16 +61,69 @@ const ProfileTab = () => {
     }
   };
 
-  // TODO: API 연동 시 구현
+  // 변수에 입력받은 사진 할당 (사진 보여주기도 포함)
   const handleProfileImageChange = () => {
-    console.log('프로필 이미지 변경');
-    // TODO: 이미지 업로드 API 호출
+    if (userProfile) {
+      // TODO: 이미지 파일 선택 및 미리보기
+      // const fileInput = document.createElement('input');
+      // fileInput.type = 'file';
+      // fileInput.accept = 'image/*';
+      // fileInput.onchange = (e) => {
+      //   const file = (e.target as HTMLInputElement).files?.[0];
+      //   if (file) {
+      //     // 이미지 미리보기 URL 생성
+      //     const imageUrl = URL.createObjectURL(file);
+      //     setUserProfile({
+      //       ...userProfile,
+      //       profileImage: imageUrl,
+      //     });
+      //   }
+      // };
+      // fileInput.click();
+
+      // 임시 시뮬레이션 - 이미지 변경
+      setSaving(true);
+      setTimeout(() => {
+        // 임시로 다른 이미지로 변경 (실제로는 파일 선택 후 변경)
+        setUserProfile({
+          ...userProfile,
+          profileImage: defaultProfile, // 실제로는 선택된 파일의 URL
+        });
+        setSaving(false);
+      }, 500);
+    }
+  };
+
+  // 수정하기 버튼 클릭 시 한번에 수정 API 호출
+  const handleSave = async () => {
+    if (userProfile) {
+      try {
+        setSaving(true);
+
+        // TODO: API 연동 시 주석 해제
+        // await updateUser(accessToken!, userProfile);
+        // console.log('유저 정보 업데이트 완료');
+
+        // 임시 저장 시뮬레이션
+        setTimeout(() => {
+          console.log('유저 정보 업데이트 완료');
+          setSaving(false);
+        }, 500);
+      } catch (err) {
+        console.error('유저 정보 업데이트 실패:', err);
+        setSaving(false);
+      }
+    }
   };
 
   // TODO: API 연동 시 구현
   const handlePasswordChange = () => {
-    console.log('비밀번호 변경');
-    // TODO: 비밀번호 변경 모달 또는 페이지로 이동
+    setIsPasswordModalOpen(true);
+  };
+
+  const handlePasswordUpdateSuccess = () => {
+    console.log('비밀번호 변경 완료');
+    // 필요한 경우 추가 처리
   };
 
   // TODO: API 연동 시 구현
@@ -74,15 +133,30 @@ const ProfileTab = () => {
   };
 
   // TODO: API 연동 시 구현
-  const handleSave = () => {
-    console.log('정보 저장');
-    // TODO: 유저 정보 업데이트 API 호출
+  const handleWithdraw = () => {
+    setIsGetOutModalOpen(true);
   };
 
-  // TODO: API 연동 시 구현
-  const handleWithdraw = () => {
-    console.log('탈퇴하기');
-    // TODO: 회원탈퇴 확인 모달 및 API 호출
+  const handleWithdrawConfirm = async () => {
+    try {
+      setSaving(true);
+
+      // TODO: API 연동 시 주석 해제
+      // await withdrawUser(accessToken!);
+      // console.log('회원탈퇴 완료');
+      // // 로그아웃 처리
+      // clearAuth();
+
+      // 임시 시뮬레이션
+      setTimeout(() => {
+        console.log('회원탈퇴 완료');
+        setSaving(false);
+        setIsGetOutModalOpen(false);
+      }, 500);
+    } catch (err) {
+      console.error('회원탈퇴 실패:', err);
+      setSaving(false);
+    }
   };
 
   if (loading) {
@@ -120,8 +194,8 @@ const ProfileTab = () => {
             alt="프로필 사진"
           />
         </ProfileImageContainer>
-        <ChangePhotoButton onClick={handleProfileImageChange}>
-          📷 사진 변경
+        <ChangePhotoButton onClick={handleProfileImageChange} disabled={saving}>
+          {saving ? '변경 중...' : '📷 사진 변경'}
         </ChangePhotoButton>
       </ProfilePanel>
 
@@ -129,8 +203,12 @@ const ProfileTab = () => {
         <InfoHeader>
           <PanelTitle>기본 정보</PanelTitle>
           <ActionButtons>
-            <WithdrawButton onClick={handleWithdraw}>탈퇴하기</WithdrawButton>
-            <SaveButton onClick={handleSave}>수정하기</SaveButton>
+            <WithdrawButton onClick={handleWithdraw} disabled={saving}>
+              {saving ? '처리 중...' : '탈퇴하기'}
+            </WithdrawButton>
+            <SaveButton onClick={handleSave} disabled={saving}>
+              {saving ? '저장 중...' : '수정하기'}
+            </SaveButton>
           </ActionButtons>
         </InfoHeader>
         <PanelSubtitle>개인 정보를 관리하세요.</PanelSubtitle>
@@ -144,6 +222,7 @@ const ProfileTab = () => {
             value={userProfile.nickname}
             onChange={(e) => handleNicknameChange(e.target.value)}
             placeholder="닉네임을 입력하세요"
+            disabled={saving}
           />
         </InfoSection>
 
@@ -165,7 +244,7 @@ const ProfileTab = () => {
             <LabelIcon>🔒</LabelIcon>
             비밀번호 수정
           </InfoLabel>
-          <ActionButton onClick={handlePasswordChange}>
+          <ActionButton onClick={handlePasswordChange} disabled={saving}>
             비밀번호 수정하기
           </ActionButton>
         </InfoSection>
@@ -175,12 +254,23 @@ const ProfileTab = () => {
             <LabelIcon>🌐</LabelIcon>
             소셜 연동 여부
           </InfoLabel>
-          <GoogleButton onClick={handleGoogleLink}>
+          <GoogleButton onClick={handleGoogleLink} disabled={saving}>
             <GoogleIcon>G</GoogleIcon>
             Google 계정 연동
           </GoogleButton>
         </InfoSection>
       </InfoPanel>
+      <UpdatePasswordModal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
+        onPasswordUpdateSuccess={handlePasswordUpdateSuccess}
+      />
+      <GetOutModal
+        isOpen={isGetOutModalOpen}
+        onClose={() => setIsGetOutModalOpen(false)}
+        onConfirm={handleWithdrawConfirm}
+        userName={user?.nickname || userProfile?.nickname || '사용자'}
+      />
     </>
   );
 };
@@ -247,6 +337,12 @@ const ChangePhotoButton = styled.button`
   &:hover {
     background-color: var(--color-primary-dark);
   }
+
+  &:disabled {
+    background-color: var(--color-gray-300);
+    color: var(--color-gray-500);
+    cursor: not-allowed;
+  }
 `;
 
 const InfoHeader = styled.div`
@@ -276,6 +372,12 @@ const WithdrawButton = styled.button`
   &:hover {
     background-color: var(--color-gray-600);
   }
+
+  &:disabled {
+    background-color: var(--color-gray-300);
+    color: var(--color-gray-500);
+    cursor: not-allowed;
+  }
 `;
 
 const SaveButton = styled.button`
@@ -292,6 +394,12 @@ const SaveButton = styled.button`
 
   &:hover {
     background-color: var(--color-primary-dark);
+  }
+
+  &:disabled {
+    background-color: var(--color-gray-300);
+    color: var(--color-gray-500);
+    cursor: not-allowed;
   }
 `;
 
@@ -363,6 +471,12 @@ const ActionButton = styled.button`
     border-color: var(--color-primary);
     color: var(--color-primary);
   }
+
+  &:disabled {
+    background-color: var(--color-gray-100);
+    color: var(--color-gray-500);
+    cursor: not-allowed;
+  }
 `;
 
 const GoogleButton = styled.button`
@@ -384,6 +498,12 @@ const GoogleButton = styled.button`
   &:hover {
     border-color: var(--color-primary);
     color: var(--color-primary);
+  }
+
+  &:disabled {
+    background-color: var(--color-gray-100);
+    color: var(--color-gray-500);
+    cursor: not-allowed;
   }
 `;
 

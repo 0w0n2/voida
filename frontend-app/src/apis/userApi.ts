@@ -4,6 +4,8 @@ export const postUserType = (type: 'general' | 'lip-reading') => {
   return apiInstance.post('/user/type', { type });
 };
 
+
+// 유저 정보 조회
 export const getUser = (accessToken: string) => {
   return apiInstance.get('/v1/members/me/profile', {
     headers: {
@@ -49,6 +51,14 @@ export const checkCurrentPassword = (accessToken: string, password: string) => {
       },
     },
   );
+};
+// 유저 정보 수정
+export const updateUser = (accessToken: string, nickname: string, profileImage: string) => {
+  return apiInstance.put('/v1/members/me/profile', { nickname, profileImage }, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
 };
 
 // 비밀번호 수정
@@ -122,4 +132,13 @@ export const updateQuickslots = (
       },
     },
   );
+};
+
+// 회원탈퇴
+export const deleteUser = (accessToken: string) => {
+  return apiInstance.delete('/v1/members/me', {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
 };

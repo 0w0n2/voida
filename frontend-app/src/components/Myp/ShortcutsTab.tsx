@@ -1,18 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { getUserQuickSlots } from '../../apis/userApi';
+import { getUserQuickSlots, updateQuickslots } from '../../apis/userApi';
 import { useAuthStore } from '../../store/store';
+import UpdateDoneModal from './UpdateDoneModal';
 
 interface Shortcut {
-  key: string;
-  text: string;
+  quickSlotId: number;
+  message: string;
+  hotkey: string;
+  url: string;
 }
 
 const ShortcutsTab = () => {
-  const { accessToken } = useAuthStore();
+  const { accessToken, user } = useAuthStore();
   const [shortcuts, setShortcuts] = useState<Shortcut[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [showDoneModal, setShowDoneModal] = useState(false);
 
   // 유저 단축키 불러오기
   useEffect(() => {
@@ -27,16 +32,30 @@ const ShortcutsTab = () => {
         // 임시 데이터 사용 (퍼블리싱용)
         setTimeout(() => {
           setShortcuts([
-            { key: '`+ 1', text: '안녕하세요.' },
-            { key: '`+ 2', text: '감사합니다.' },
-            { key: '`+ 3', text: '도움이 필요합니다.' },
-            { key: '`+ 4', text: '죄송합니다.' },
-            { key: '`+ 5', text: '잠시만 기다려주세요.' },
-            { key: '`+ 6', text: '좋은 하루 되세요.' },
+            { quickSlotId: 1, hotkey: '`+ 1', message: '안녕하세요.', url: '' },
+            { quickSlotId: 2, hotkey: '`+ 2', message: '감사합니다.', url: '' },
+            {
+              quickSlotId: 3,
+              hotkey: '`+ 3',
+              message: '도움이 필요합니다.',
+              url: '',
+            },
+            { quickSlotId: 4, hotkey: '`+ 4', message: '죄송합니다.', url: '' },
+            {
+              quickSlotId: 5,
+              hotkey: '`+ 5',
+              message: '잠시만 기다려주세요.',
+              url: '',
+            },
+            {
+              quickSlotId: 6,
+              hotkey: '`+ 6',
+              message: '좋은 하루 되세요.',
+              url: '',
+            },
           ]);
           setError(null);
         }, 500);
-        // 에러처리
       } catch (err) {
         console.error('유저 단축키 조회 실패:', err);
         setError('유저 단축키를 불러오는데 실패했습니다.');
@@ -50,45 +69,67 @@ const ShortcutsTab = () => {
 
   const handleShortcutChange = (index: number, value: string) => {
     const newShortcuts = [...shortcuts];
-    newShortcuts[index].text = value;
+    newShortcuts[index].message = value;
     setShortcuts(newShortcuts);
   };
-  ///////////
+
   // TODO: API 연동 시 구현
-  // const handleSave = () => {
-  //   console.log('단축키 저장');
-  //   // TODO: 단축키 업데이트 API 호출
-  // };
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      console.log('단축키 저장 시작');
 
-  // if (loading) {
-  //   return (
-  //     <LoadingContainer>
-  //       <LoadingText>유저 단축키를 불러오는 중...</LoadingText>
-  //     </LoadingContainer>
-  //   );
-  // }
+      // TODO: API 연동 시 주석 해제
+      // await updateQuickslots(accessToken!, shortcuts);
+      // console.log('단축키 저장 완료');
 
-  // if (error) {
-  //   return (
-  //     <ErrorContainer>
-  //       <ErrorText>{error}</ErrorText>
-  //     </ErrorContainer>
-  //   );
-  // }
+      // 임시 저장 시뮬레이션
+      setTimeout(() => {
+        console.log('단축키 저장 완료');
+        setShowDoneModal(true);
+        setSaving(false);
+      }, 1000);
+    } catch (err) {
+      console.error('단축키 저장 실패:', err);
+      setSaving(false);
+    }
+  };
 
-  // if (!shortcuts.length) {
-  //   return (
-  //     <ErrorContainer>
-  //       <ErrorText>단축키를 찾을 수 없습니다.</ErrorText>
-  //     </ErrorContainer>
-  //   );
-  // }
-  ///////////
+  const handleCloseModal = () => {
+    setShowDoneModal(false);
+  };
+
+  if (loading) {
+    return (
+      <LoadingContainer>
+        <LoadingText>유저 단축키를 불러오는 중...</LoadingText>
+      </LoadingContainer>
+    );
+  }
+
+  if (error) {
+    return (
+      <ErrorContainer>
+        <ErrorText>{error}</ErrorText>
+      </ErrorContainer>
+    );
+  }
+
+  if (!shortcuts.length) {
+    return (
+      <ErrorContainer>
+        <ErrorText>단축키를 찾을 수 없습니다.</ErrorText>
+      </ErrorContainer>
+    );
+  }
+
   return (
     <ShortcutsPanel>
       <ShortcutsHeader>
         <PanelTitle>단축키 설정</PanelTitle>
-        <SaveButton onClick={handleSave}>저장하기</SaveButton>
+        <SaveButton onClick={handleSave} disabled={saving}>
+          {saving ? '저장 중...' : '저장하기'}
+        </SaveButton>
       </ShortcutsHeader>
       <PanelSubtitle>
         실시간 게임 중 자주 사용하는 문구를 단축키로 등록하세요.
@@ -96,16 +137,22 @@ const ShortcutsTab = () => {
 
       <ShortcutsGrid>
         {shortcuts.map((shortcut, index) => (
-          <ShortcutItem key={index}>
-            <ShortcutKey>{shortcut.key}</ShortcutKey>
+          <ShortcutItem key={shortcut.quickSlotId}>
+            <ShortcutKey>{shortcut.hotkey}</ShortcutKey>
             <ShortcutInput
-              value={shortcut.text}
+              value={shortcut.message}
               onChange={(e) => handleShortcutChange(index, e.target.value)}
               placeholder="단축키 문구를 입력하세요"
             />
           </ShortcutItem>
         ))}
       </ShortcutsGrid>
+
+      <UpdateDoneModal
+        isOpen={showDoneModal}
+        onClose={handleCloseModal}
+        userName={user?.nickname || '사용자'}
+      />
     </ShortcutsPanel>
   );
 };
@@ -230,5 +277,4 @@ const ShortcutInput = styled.input`
     border-color: var(--color-primary);
   }
 `;
-
 export default ShortcutsTab;
