@@ -5,12 +5,12 @@ let win: BrowserWindow;
 
 app.whenReady().then(() => {
   win = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    width: 1920,
+    height: 1080,
     webPreferences: {
       nodeIntegration: false,
-      contextIsolation: true
-    }
+      contextIsolation: true,
+    },
   });
 
   win.loadURL('http://localhost:5173');

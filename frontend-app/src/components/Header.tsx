@@ -1,8 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import VoidaLogo from '@/assets/icon/voida-logo.png';
-import ProfileImage from '@/assets/icon/profile.png';
-
+import VoidaLogo from '@/assets/logo/voida-logo.png';
+import ProfileImage from '@/assets/profiles/profile1.png';
 
 export default function Header() {
   return (
@@ -11,7 +10,7 @@ export default function Header() {
       <div css={userInfoStyle}>
         <img src={ProfileImage} alt="프로필 이미지" css={avatarStyle} />
         <span>
-        <span css={{ fontFamily: 'NanumSquareEB' }}>진모리</span> 님
+          <span css={{ fontFamily: 'NanumSquareEB' }}>김싸피</span> 님
         </span>
       </div>
     </div>
@@ -26,7 +25,7 @@ const headerContainer = css`
 `;
 
 const logo = css`
-  width: 100px;
+  width: 120px;
 `;
 
 const userInfoStyle = css`
@@ -39,9 +38,8 @@ const userInfoStyle = css`
 `;
 
 const avatarStyle = css`
-  width: 40px;
-  height: 40px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   object-fit: cover;
 `;
-

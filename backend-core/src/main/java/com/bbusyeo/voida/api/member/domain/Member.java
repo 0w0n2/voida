@@ -39,4 +39,4 @@ public class Member {
 
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
-} 
+}

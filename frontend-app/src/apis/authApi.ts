@@ -1,4 +1,4 @@
-import apiInstance from './apiInstance';
+import apiInstance from '@/apis/apiInstance';
 
 // 로그인
 export const login = (email: string, password: string) => {
@@ -27,4 +27,9 @@ export const sendEmailVerification = (email: string) => {
 // 이메일 인증 코드 확인
 export const verifyEmailCode = (email: string, code: string) => {
   return apiInstance.post('/v1/auth/verify-email', { email, code });
+};
+
+// 회원가입 닉네임 랜덤 생성
+export const getRandomNickname = () => {
+  return apiInstance.get('/v1/auth/random-nickname');
 };

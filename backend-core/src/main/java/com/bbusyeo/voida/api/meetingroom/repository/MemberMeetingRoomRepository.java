@@ -17,6 +17,5 @@ public interface MemberMeetingRoomRepository extends JpaRepository<MemberMeeting
     Optional<MemberMeetingRoom> findByMemberAndMeetingRoomId(Member member, Long meetingRoomId);
 
     // JPA 규칙, 언더바로 필드 구분, JPA의 삭제 로직
-    @Transactional
     void deleteByMeetingRoom_Id(Long meetingRoomId);
 }
