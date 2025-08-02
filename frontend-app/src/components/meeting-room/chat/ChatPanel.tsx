@@ -3,34 +3,31 @@ import { css } from '@emotion/react';
 import { useRef, useEffect, useState } from 'react';
 import ChatHeader from './ChatHeader';
 import SendIcon from '@/assets/icons/send.png';
-import profile2 from '@/assets/profiles/profile2.png';
-import profile3 from '@/assets/profiles/profile3.png';
-import profile4 from '@/assets/profiles/profile4.png';
 import ScrollDown from '@/assets/icons/scroll-down.png';
-
-type ChatMessage = {
-  id: number;
-  writerNickname: string;
-  profileImageUrl?: string;
-  content: string;
-  createdAt: string;
-  isMine: boolean;
-};
-
-const dummyMessages: ChatMessage[] = [
-  { id: 1, writerNickname: '메롱', profileImageUrl: profile4, content: '안녕하세요!', createdAt: '2025-07-30T00:00:00', isMine: false },
-  { id: 2, writerNickname: '나', profileImageUrl: profile2, content: '안녕하세요~', createdAt: '2025-07-30T00:00:00', isMine: true },
-  { id: 3, writerNickname: '준호', profileImageUrl: profile3, content: '회의 준비되셨나요?', createdAt: '2025-07-30T00:00:00', isMine: false },
-];
+import { useMeetingRoomStore } from '@/store/meetingRoomStore';
+import { getRoomChatHistory, postChatMessage } from '@/apis/meetingRoomApi';
 
 const ChatPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
-  const [messages, setMessages] = useState<ChatMessage[]>(dummyMessages);
+  const { chatMessages, setChatMessages, addChatMessage } =
+    useMeetingRoomStore();
+
   const [input, setInput] = useState('');
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const chatBoxRef = useRef<HTMLDivElement>(null);
-  const lastMessageId = useRef<number | null>(null);
+  const lastMessageId = useRef<string | null>(null);
+  const cursorIdRef = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    const loadInitial = async () => {
+      const res = await getRoomChatHistory(meetingRoomId);
+      setChatMessages(res.chatHistory.content);
+      cursorIdRef.current = res.chatHistory.cursorId;
+      setHasMore(res.chatHistory.hasNext);
+    };
+    loadInitial();
+  }, [meetingRoomId, setChatMessages]);
 
   const fetchOldMessages = async () => {
     if (loading || !hasMore || !chatBoxRef.current) return;
@@ -38,34 +35,23 @@ const ChatPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
 
     const el = chatBoxRef.current;
     const prevScrollHeight = el.scrollHeight;
-    const oldestId = messages[0]?.id;
-    const res = {
-      data: [
-        {
-          id: oldestId - 1,
-          writerNickname: '이전 메시지',
-          profileImageUrl: profile4,
-          content: `이전 채팅 ${oldestId - 1}`,
-          createdAt: '2025-07-29T23:50:00',
-          isMine: false,
-        },
-      ],
-    };
+    const res = await getRoomChatHistory(meetingRoomId, cursorIdRef.current);
 
-    if (res.data.length === 0) {
+    if (res.chatHistory.content.length === 0) {
       setHasMore(false);
     } else {
-      setMessages(prev => {
-        const newMessages = [...res.data, ...prev];
+      setChatMessages(
+        [...res.chatHistory.content, ...chatMessages],
+        true, // reset X, prepend
+      );
+      cursorIdRef.current = res.chatHistory.cursorId;
+      setHasMore(res.chatHistory.hasNext);
 
-        requestAnimationFrame(() => {
-          if (chatBoxRef.current) {
-            const newScrollHeight = chatBoxRef.current.scrollHeight;
-            chatBoxRef.current.scrollTop = newScrollHeight - prevScrollHeight;
-          }
-        });
-
-        return newMessages;
+      requestAnimationFrame(() => {
+        if (chatBoxRef.current) {
+          const newScrollHeight = chatBoxRef.current.scrollHeight;
+          chatBoxRef.current.scrollTop = newScrollHeight - prevScrollHeight;
+        }
       });
     }
 
@@ -91,34 +77,31 @@ const ChatPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
     }
   };
 
-useEffect(() => {
-  if (loading || !chatBoxRef.current) return;
+  // 새 메시지가 도착하면 스크롤 처리
+  useEffect(() => {
+    if (loading || !chatBoxRef.current) return;
 
-  const lastMessage = messages[messages.length - 1];
-
-  if (lastMessage && lastMessage.id !== lastMessageId.current) {
-    if (lastMessage.isMine) {
-      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    const lastMessage = chatMessages[chatMessages.length - 1];
+    if (lastMessage && lastMessage.createdAt !== lastMessageId.current) {
+      if (lastMessage.isMine) {
+        chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+      }
     }
-  }
+    lastMessageId.current = lastMessage?.createdAt ?? null;
+  }, [chatMessages, loading]);
 
-  lastMessageId.current = lastMessage?.id ?? null;
-}, [messages, loading]);
-
-
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim()) return;
 
-    const newId = messages.length ? messages[messages.length - 1].id + 1 : 1;
-    const newMsg: ChatMessage = {
-      id: newId,
+    await postChatMessage(meetingRoomId, input);
+    addChatMessage({
+      senderId: 'me',
       writerNickname: '나',
+      profileImageUrl: '',
       content: input,
       createdAt: new Date().toISOString(),
       isMine: true,
-    };
-
-    setMessages(prev => [...prev, newMsg]);
+    });
     setInput('');
   };
 
@@ -126,10 +109,14 @@ useEffect(() => {
     <div css={panel}>
       <ChatHeader isLive={true} />
       <div css={chatBox} ref={chatBoxRef} onScroll={handleScroll}>
-        {messages.map((m) => (
-          <div key={m.id} css={[chatItem, m.isMine && myItem]}>
+        {chatMessages.map((m, index) => (
+          <div key={index} css={[chatItem, m.isMine && myItem]}>
             {!m.isMine && m.profileImageUrl && (
-              <img src={m.profileImageUrl} alt={m.writerNickname} css={avatar} />
+              <img
+                src={m.profileImageUrl}
+                alt={m.writerNickname}
+                css={avatar}
+              />
             )}
             <div css={contentBox}>
               {!m.isMine && (
@@ -137,7 +124,10 @@ useEffect(() => {
                   <span css={nickname}>{m.writerNickname}</span>
                   <span css={time}>
                     {new Date(m.createdAt).toLocaleString('ko-KR', {
-                      month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
                     })}
                   </span>
                 </div>
@@ -151,7 +141,7 @@ useEffect(() => {
             <img src={ScrollDown} alt="아래로 스크롤" css={scroll} />
           </button>
         )}
-      </div> 
+      </div>
       <div css={inputRow}>
         <div css={inputWrapper}>
           <input
@@ -182,7 +172,12 @@ const panel = css`
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: linear-gradient(135deg,#fff8ffff 0%,#f0eaffff 50%,#e0efffff 100%);
+  background: linear-gradient(
+    135deg,
+    #fff8ffff 0%,
+    #f0eaffff 50%,
+    #e0efffff 100%
+  );
 `;
 
 const chatBox = css`
@@ -197,7 +192,7 @@ const chatBox = css`
 
 const scrollButton = css`
   position: fixed;
-  bottom: 150px; 
+  bottom: 150px;
   align-self: center;
   transform: translateX(-50%);
   background: rgba(0, 0, 0, 0.5);
@@ -205,8 +200,10 @@ const scrollButton = css`
   border-radius: 50%;
   border: none;
   cursor: pointer;
-  z-index: 1000; 
-  &:hover { background: rgba(0, 0, 0, 0.7); }
+  z-index: 1000;
+  &:hover {
+    background: rgba(0, 0, 0, 0.7);
+  }
 `;
 
 const scroll = css`
@@ -269,7 +266,7 @@ const bubble = css`
 
 const mine = css`
   align-self: flex-end;
-  background: var(--color-parimary);
+  background: var(--color-primary);
   color: white;
 `;
 
@@ -326,6 +323,12 @@ const sendIconBtn = css`
   height: 40px;
   border-radius: 50%;
   transition: background-color 0.2s ease;
-  &:hover { background: #e0edff; }
-  img { width: 24px; height: 24px; object-fit: contain; }
+  &:hover {
+    background: #e0edff;
+  }
+  img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+  }
 `;
