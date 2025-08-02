@@ -1,8 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import VoidaLogo from '@/assets/logo/voida-logo.png';
-import Live from '@/assets/icons/live.png';
-import LiveSlash from '@/assets/icons/live-slash.png';
+import { Wifi, WifiOff } from 'lucide-react';
 
 interface ChatHeaderProps {
   isLive?: boolean;
@@ -13,11 +12,7 @@ const ChatHeader = ({ isLive = false }: ChatHeaderProps) => {
     <div css={header}>
       <img src={VoidaLogo} alt="VOIDA 로고" css={logo} />
       <button css={joinBtn}>
-        <img
-          src={isLive ? Live : LiveSlash}
-          alt="라이브 참여하기"
-          css={liveIcon}
-        />
+        {isLive ? <Wifi css={liveIcon} /> : <WifiOff css={liveIcon} />}
         <span>라이브 참여하기</span>
       </button>
     </div>
@@ -31,7 +26,7 @@ const header = css`
   justify-content: space-between;
   align-items: center;
   padding: 16px 24px;
-  background: transparent; 
+  background: transparent;
   padding: 2.5rem;
   padding-bottom: 1rem;
 `;
@@ -41,7 +36,7 @@ const logo = css`
 `;
 
 const joinBtn = css`
-  background: #22c55e;
+  background: var(--color-green);
   color: white;
   padding: 10px 16px;
   border: none;
@@ -53,12 +48,12 @@ const joinBtn = css`
   gap: 12px;
 
   &:hover {
-    background: #16a34a;
+    background: var(--color-green-dark);
   }
 `;
 
 const liveIcon = css`
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   object-fit: contain;
 `;

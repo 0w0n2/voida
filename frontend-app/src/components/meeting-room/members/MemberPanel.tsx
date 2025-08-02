@@ -1,65 +1,14 @@
 /** @jsxImportSource @emotion/react */
 import { css, keyframes } from '@emotion/react';
-import { useEffect, useState } from 'react';
-import type { RoomParticipant } from '@/apis/meetingRoomApi';
-import RoomSettingModal from './RoomSettingModal';
-import profile2 from '@/assets/profiles/profile2.png';
-import profile3 from '@/assets/profiles/profile3.png';
+import { useState } from 'react';
+import { useMeetingRoomStore } from '@/store/meetingRoomStore';
+import SettingModal from '@/components/meeting-room/modal/SettingModal';
+import InfoModal from '@/components/meeting-room/modal/InfoModal';
 import Lip from '@/assets/icons/lip-blue.png';
 import Setting from '@/assets/icons/room-setting.png';
+import Info from '@/assets/icons/info.png';
 import Home from '@/assets/icons/home-gray.png';
 import Crown from '@/assets/icons/crown.png';
-
-const dummyParticipants: RoomParticipant[] = [
-  {
-    memberId: 1,
-    nickname: '민희',
-    profileImageUrl: profile2,
-    state: 'HOST',
-    lipTalkMode: true,
-    isMine: true,
-  },
-  {
-    memberId: 2,
-    nickname: '준호',
-    profileImageUrl: profile3,
-    state: 'PARTICIPANT',
-    lipTalkMode: false,
-    isMine: false,
-  },
-  {
-    memberId: 2,
-    nickname: '준호',
-    profileImageUrl: profile3,
-    state: 'PARTICIPANT',
-    lipTalkMode: false,
-    isMine: false,
-  },
-  {
-    memberId: 2,
-    nickname: '준호',
-    profileImageUrl: profile3,
-    state: 'PARTICIPANT',
-    lipTalkMode: false,
-    isMine: false,
-  },
-  {
-    memberId: 2,
-    nickname: '준호',
-    profileImageUrl: profile3,
-    state: 'PARTICIPANT',
-    lipTalkMode: false,
-    isMine: false,
-  },
-  {
-    memberId: 2,
-    nickname: '준호',
-    profileImageUrl: profile3,
-    state: 'PARTICIPANT',
-    lipTalkMode: false,
-    isMine: false,
-  },
-];
 
 const pulse = keyframes`
   0% { transform: scale(1); opacity: 1; }
@@ -67,30 +16,38 @@ const pulse = keyframes`
   100% { transform: scale(1); opacity: 1; }
 `;
 
-const ParticipantsPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
-  const [participants, setParticipants] = useState<RoomParticipant[]>(dummyParticipants);
-  const [isRoomSettingOpen, setIsRoomSettingOpen] = useState(false);
+const MemberPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
+  const { participants, roomInfo } = useMeetingRoomStore();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    // API 연동
-    // getParticipants(meetingRoomId).then((res) => setParticipants(res.data));
-  }, [meetingRoomId]);
+  const memberList = participants?.participants ?? [];
+  // const myInfo = memberList.find((p) => p.isMine);
+  const myInfo = memberList[0];
+  const isHost = myInfo?.state === 'HOST';
 
   return (
     <aside css={panelStyle}>
       <div css={panelHeader}>
         <div>
           <h3>참여자</h3>
-          <p>현재 참여자를 확인해보세요.</p>
+          <p>{roomInfo?.title ?? '대기방'} 참여자</p>
         </div>
         <div css={headerIcons}>
-          <div css={iconWrapper} onClick={() => setIsRoomSettingOpen(true)}>
-            <img src={Setting} alt="설정" css={iconStyle} />
-            <span css={tooltip}>설정</span>
+          <div css={iconWrapper} onClick={() => setIsModalOpen(true)}>
+            <img
+              src={isHost ? Setting : Info}
+              alt={isHost ? '설정' : '정보'}
+              css={iconStyle}
+            />
+            <span css={tooltip}>{isHost ? '설정' : '정보'}</span>
           </div>
-          {isRoomSettingOpen && (
-            <RoomSettingModal onClose={() => setIsRoomSettingOpen(false)} />
-          )}
+          {isModalOpen &&
+            (isHost ? (
+              <SettingModal onClose={() => setIsModalOpen(false)} />
+            ) : (
+              <InfoModal onClose={() => setIsModalOpen(false)} />
+            ))}
+
           <div css={iconWrapper}>
             <img src={Home} alt="홈" css={iconStyle} />
             <span css={tooltip}>홈으로</span>
@@ -99,7 +56,7 @@ const ParticipantsPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
       </div>
 
       <div css={listStyle}>
-        {participants.map((p) => (
+        {memberList.map((p) => (
           <div key={p.memberId} css={[cardStyle, p.isMine && myCardStyle]}>
             <div css={avatarWrapper}>
               <img src={p.profileImageUrl} alt={p.nickname} css={avatarStyle} />
@@ -109,30 +66,26 @@ const ParticipantsPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
                 </div>
               )}
               <div css={activeBadge} />
-              {/*p.isActive && <div css={activeBadge} />*/}
             </div>
             <div css={infoBox}>
               <div css={nameRow}>
                 <span css={nicknameStyle}>{p.nickname}</span>
-                {p.lipTalkMode && 
-                <div css={lipIconWrapper}>
-                  <img src={Lip} alt="구화" css={lipIcon} />
-                  <span css={lipTooltip}>구화 사용자 입니다.</span>
-                </div>}
+                {p.lipTalkMode && (
+                  <div css={lipIconWrapper}>
+                    <img src={Lip} alt="구화" css={lipIcon} />
+                    <span css={lipTooltip}>구화 사용자</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         ))}
       </div>
-      <div css={roomInfoBox}>
-        <h4>{'모비노기 게임 레이드 같이해요!'}</h4>
-        <button css={roomButton}>게임</button>
-      </div>
     </aside>
   );
 };
 
-export default ParticipantsPanel;
+export default MemberPanel;
 
 const panelStyle = css`
   width: 450px;
@@ -235,7 +188,6 @@ const myCardStyle = css`
   background: #eef6ff;
   border: 1px solid #d0e2ff;
 `;
-
 
 const avatarStyle = css`
   width: 55px;

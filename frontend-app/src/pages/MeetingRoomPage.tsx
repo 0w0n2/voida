@@ -1,18 +1,37 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useState } from 'react';
-import ParticipantsPanel from '@/components/meeting-room/ParticipantsPanel';
-import ChatPanel from '@/components/meeting-room/ChatPanel';
+import { useEffect } from 'react';
+import MemberPanel from '@/components/meeting-room/members/MemberPanel';
+import ChatPanel from '@/components/meeting-room/chat/ChatPanel';
+import {
+  getRoomInfo,
+  getRoomMembers,
+  getRoomChatHistory,
+} from '@/apis/meetingRoomApi';
+import { useMeetingRoomStore } from '@/store/meetingRoomStore';
 
-const MeetingRoomPage = () => {
-  const [meetingRoomId] = useState('dummy-room-id'); // 추후 실제 ID로 변경
+const MeetingRoomPage = ({ meetingRoomId }: { meetingRoomId: string }) => {
+  const { setRoomInfo, setParticipants, setChatMessages } =
+    useMeetingRoomStore();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const room = await getRoomInfo(meetingRoomId);
+      const members = await getRoomMembers(meetingRoomId);
+      const chat = await getRoomChatHistory(meetingRoomId);
+
+      setRoomInfo(room);
+      // getRoomMembers API 응답이 배열이면 첫 번째 값 사용
+      setParticipants(Array.isArray(members) ? members[0] : members);
+      setChatMessages(chat.chatHistory.content);
+    };
+    fetchData();
+  }, [meetingRoomId, setRoomInfo, setParticipants, setChatMessages]);
 
   return (
     <div css={container}>
-      <ParticipantsPanel meetingRoomId={meetingRoomId} />
-      <div css={chatContainer}>
-        <ChatPanel meetingRoomId={meetingRoomId} />
-      </div>
+      <MemberPanel meetingRoomId={meetingRoomId} />
+      <ChatPanel meetingRoomId={meetingRoomId} />
     </div>
   );
 };
@@ -22,10 +41,4 @@ export default MeetingRoomPage;
 const container = css`
   display: flex;
   height: 100vh;
-`;
-
-const chatContainer = css`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
 `;
