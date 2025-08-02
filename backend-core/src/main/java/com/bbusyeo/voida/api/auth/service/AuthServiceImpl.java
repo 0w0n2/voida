@@ -2,10 +2,8 @@ package com.bbusyeo.voida.api.auth.service;
 
 import com.bbusyeo.voida.api.auth.domain.JwtToken;
 import com.bbusyeo.voida.api.auth.domain.VerificationCode;
-import com.bbusyeo.voida.api.auth.dto.SignInRequestDto;
-import com.bbusyeo.voida.api.auth.dto.SignInResponseDto;
-import com.bbusyeo.voida.api.auth.dto.VerifyEmailRequestDto;
-import com.bbusyeo.voida.api.auth.dto.VerifyEmailResponseDto;
+import com.bbusyeo.voida.api.auth.dto.*;
+import com.bbusyeo.voida.api.auth.repository.AuthRepository;
 import com.bbusyeo.voida.api.member.domain.Member;
 import com.bbusyeo.voida.global.redis.dao.RedisDao;
 import com.bbusyeo.voida.global.security.dto.UserDetailsDto;
@@ -38,6 +36,7 @@ public class AuthServiceImpl implements AuthService {
     private final TokenBlackListService tokenBlackListService;
     private final AuthenticationProvider authenticationProvider;
     private final JwtTokenService jwtTokenService;
+    private final AuthRepository authRepository;
 
     private static final String SIGNUP_CODE_PREFIX = "signup-code:";
 
@@ -116,5 +115,10 @@ public class AuthServiceImpl implements AuthService {
         }
         boolean isMatch = redisCode.toString().equals(requestDto.getCode());
         return VerifyEmailResponseDto.toDto(isMatch, false);
+    }
+
+    @Override
+    public CheckNicknameResponseDto checkNickname(CheckNicknameRequestDto requestDto) {
+        return CheckNicknameResponseDto.toDto(authRepository.existsByNickname(requestDto.getNickname()));
     }
 }

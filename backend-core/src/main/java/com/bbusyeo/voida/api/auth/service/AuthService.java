@@ -1,10 +1,7 @@
 package com.bbusyeo.voida.api.auth.service;
 
 import com.bbusyeo.voida.api.auth.domain.VerificationCode;
-import com.bbusyeo.voida.api.auth.dto.SignInRequestDto;
-import com.bbusyeo.voida.api.auth.dto.SignInResponseDto;
-import com.bbusyeo.voida.api.auth.dto.VerifyEmailRequestDto;
-import com.bbusyeo.voida.api.auth.dto.VerifyEmailResponseDto;
+import com.bbusyeo.voida.api.auth.dto.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Service;
@@ -20,4 +17,6 @@ public interface AuthService {
     VerificationCode generateVerificationCode(String email);
 
     VerifyEmailResponseDto verifyEmailCode(VerifyEmailRequestDto requestDto);
+
+    CheckNicknameResponseDto checkNickname(CheckNicknameRequestDto requestDto);
 }

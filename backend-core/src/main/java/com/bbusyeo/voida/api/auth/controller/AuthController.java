@@ -56,4 +56,9 @@ public class AuthController {
     public BaseResponse<VerifyEmailResponseDto> verifyEmail(@Valid @RequestBody VerifyEmailRequestDto requestDto) {
         return new BaseResponse<>(authService.verifyEmailCode(requestDto));
     }
+
+    @PostMapping("/check-nickname")
+    public BaseResponse<CheckNicknameResponseDto> checkNickname(@Valid @RequestBody CheckNicknameRequestDto requestDto) {
+        return new BaseResponse<>(authService.checkNickname(requestDto));
+    }
 }
