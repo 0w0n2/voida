@@ -1,6 +1,7 @@
 /** @jsxImportSource @emotion/react */
-import MainForm from '@/components/MainForm';
-import NoRoomMainForm from '@/components/NoRoomMainForm';
+import MainForm from '@/components/Main/MainForm';
+import NoRoomMainForm from '@/components/Main/NoRoomMainForm';
+import Header from '@/components/Header';
 import { css } from '@emotion/react';
 import { useRoomStore } from '@/store/store';
 import { useEffect } from 'react';
@@ -18,6 +19,7 @@ const MainPage = () => {
 
   return (
     <div css={wrapperStyle}>
+      <Header />
       {meetingRooms.length > 0 ? <MainForm /> : <NoRoomMainForm />}
     </div>
   );

@@ -22,7 +22,7 @@ const LoginForm = () => {
   //
 
   // 구글 로그인 리다이렉트 함수 !!
-  // 리다이렉트 페이지 새로 파야함 ;;
+  // 리다이렉트 페이지 : callback.tsx
   const handleGoogleLogin = () => {
     const provider = 'google';
     window.location.href = `${

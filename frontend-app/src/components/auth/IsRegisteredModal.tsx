@@ -6,6 +6,8 @@ import confetti from 'canvas-confetti';
 import tutorial from '@/assets/icons/tutorialButton.png';
 import home from '@/assets/icons/home-white.png';
 import congratu from '@/assets/icons/congratu.png';
+import { useAuthStore } from '@/store/store';
+import defaultProfile from '@/assets/profiles/defaultProfile.png';
 
 interface IsRegisteredModalProps {
   isOpen: boolean;
@@ -18,6 +20,8 @@ const IsRegisteredModal = ({
   onClose,
   nickname,
 }: IsRegisteredModalProps) => {
+  const { user } = useAuthStore();
+  const profileImage = user?.profileImage;
   const navigate = useNavigate();
 
   // 컨페티 효과 함수
@@ -70,14 +74,8 @@ const IsRegisteredModal = ({
     }
   }, [isOpen]);
 
-  const goToTutorial = () => {
-    onClose();
-    navigate('/tutorial');
-  };
-
-  const goToMain = () => {
-    onClose();
-    navigate('/rooms');
+  const goTologin = () => {
+    navigate('/login');
   };
 
   // 조건부 모달 렌더링
@@ -96,6 +94,11 @@ const IsRegisteredModal = ({
         </button>
 
         <div css={contentStyle}>
+          <img
+            src={profileImage ?? defaultProfile}
+            alt="회원가입 프로필"
+            css={userProfileStyle}
+          />
           <h3 css={titleStyle}>
             <div css={nameStyle}>{nickname}님</div>
             <div css={messageStyle}>
@@ -107,13 +110,8 @@ const IsRegisteredModal = ({
         </div>
 
         <div css={buttonContainerStyle}>
-          <button css={buttonStyle} onClick={goToTutorial}>
-            <img src={tutorial} alt="튜토리얼 보기" css={buttonIconStyle} />
-            튜토리얼 보기
-          </button>
-          <button css={grayButtonStyle} onClick={goToMain}>
-            <img src={home} alt="메인으로 가기" css={buttonIconStyle} />
-            메인으로 가기
+          <button css={buttonStyle} onClick={goTologin}>
+            로그인하러 가기
           </button>
         </div>
       </div>
@@ -140,8 +138,8 @@ const overlayStyle = css`
 const modalStyle = css`
   background: white;
   border-radius: 20px;
-  padding: 50px 40px;
-  width: 500px;
+  padding: 30px 40px;
+  width: 600px;
   max-width: 90vw;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   border: 1px solid rgba(0, 0, 0, 0.05);
@@ -270,34 +268,10 @@ const buttonStyle = css`
   }
 `;
 
-const grayButtonStyle = css`
-  background: var(--color-gray-500);
-  color: var(--color-text-white);
-  border: none;
-  border-radius: 12px;
-  padding: 12px 26px;
-  font-size: 14px;
-  font-family: 'NanumSquareB', sans-serif;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-
-  &:hover {
-    background: var(--color-gray-600);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(147, 147, 147, 0.3);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-`;
-
-const buttonIconStyle = css`
-  width: 18px;
-  height: 18px;
+const userProfileStyle = css`
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 20px;
 `;
