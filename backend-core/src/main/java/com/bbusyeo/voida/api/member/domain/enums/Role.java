@@ -1,5 +1,8 @@
 package com.bbusyeo.voida.api.member.domain.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum Role {
     ADMIN("ROLE_ADMIN"),
     USER("ROLE_USER");
@@ -11,7 +14,4 @@ public enum Role {
         this.roleName = roleName;
     }
 
-    public String getRoleName() {
-        return this.roleName;
-    }
 }

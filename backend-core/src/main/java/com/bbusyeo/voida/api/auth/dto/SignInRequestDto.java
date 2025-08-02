@@ -10,7 +10,6 @@ import lombok.ToString;
  * 로그인 요청 DTO
  */
 @Getter
-@Setter
 @ToString
 @NoArgsConstructor
 public class SignInRequestDto {

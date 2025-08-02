@@ -37,8 +37,8 @@ public enum BaseResponseStatus {
      */
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, false, 500, "서버에서 예기치 않은 오류가 발생했습니다."),
     DATABASE_CONSTRAINT_VIOLATION(HttpStatus.CONFLICT, false, 509, "데이터베이스 제약 조건을 위반했습니다. "
-        + "(유니크 키 중복, 외래 키 위반, NOT NULL 위반 등에서 발생합니다.)");
-
+        + "(유니크 키 중복, 외래 키 위반, NOT NULL 위반 등에서 발생합니다.)"),
+    EMAIL_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, false, 500, "메일 발송에 실패했습니다.");
 
     private final HttpStatus httpStatus;
     private final boolean isSuccess;

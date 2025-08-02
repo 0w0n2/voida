@@ -1,6 +1,8 @@
 package com.bbusyeo.voida.api.auth.service;
 
 import com.bbusyeo.voida.api.auth.domain.JwtToken;
+import com.bbusyeo.voida.api.auth.domain.VerificationCode;
+import com.bbusyeo.voida.api.auth.dto.EmailCodeResponseDto;
 import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.redis.dao.RedisDao;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
@@ -14,6 +16,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,8 +29,13 @@ public class AuthServiceImpl implements AuthService {
     private final RedisDao redisDao;
     private final TokenBlackListService tokenBlackListService;
 
+    private final String SIGNUP_CODE_PREFIX = "signup-code:";
+
     @Value("${jwt.expire-time.refresh}")
     private Duration refreshExpMin;
+
+    @Value("${voida.mail.expire-time.signup}")
+    private Duration signUpMailCodeExpMin;
 
     @Override
     public void refreshAccessToken(String refreshToken, HttpServletResponse response) {
@@ -65,5 +75,24 @@ public class AuthServiceImpl implements AuthService {
         tokenUtils.deleteRefreshToken(username); // Redis 에 저장된 refresh Token 삭제
         tokenBlackListService.addBlacklist(accessToken); // AccessToken 을 Redis 에 블랙리스트로 저장
         cookieUtils.setRefreshCookie(response, "", 0); // Refresh Token 쿠키 만료 처리
+    }
+
+    /**
+     *
+     * @param email
+     * @return 인증코드(UUID)
+     */
+    @Override
+    public VerificationCode generateVerificationCode(String email) {
+        String code = UUID.randomUUID().toString().substring(0, 6);
+        String key = SIGNUP_CODE_PREFIX + email;
+        redisDao.setValue(key, code, signUpMailCodeExpMin); // value: signup-code:email, key: code(UUID)
+
+        String expiredAt = LocalDateTime.now().plus(signUpMailCodeExpMin)
+                            .format(DateTimeFormatter.ISO_DATE_TIME);
+
+        return VerificationCode.builder()
+                .code(code)
+                .expiredAt(expiredAt).build();
     }
 }

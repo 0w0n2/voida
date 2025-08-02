@@ -23,7 +23,7 @@ public class TokenBlackListServiceImpl implements TokenBlackListService {
     public void addBlacklist(String token) {
         String key = BLACKLIST_PREFIX + token;
         Claims claims = tokenUtils.parseClaims(token);
-        Date expiration = (Date) claims.getExpiration();
+        Date expiration = claims.getExpiration();
         long now = new Date().getTime();
         long remainingExpiration = expiration.getTime() - now;
         if (remainingExpiration > 0) { // 남은 만료 시간만큼 블랙리스트로 관리
