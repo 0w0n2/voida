@@ -1,24 +1,97 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
+import { getUserSettings } from '../../apis/userApi';
+import { useAuthStore } from '../../store/store';
 
-interface SettingsTabProps {
+interface UserSettings {
   speechEnabled: boolean;
-  onSpeechToggle: (enabled: boolean) => void;
-  onSave: () => void;
-  onGuidebook: () => void;
+  // 필요한 다른 설정들 추가 가능
 }
 
-const SettingsTab: React.FC<SettingsTabProps> = ({
-  speechEnabled,
-  onSpeechToggle,
-  onSave,
-  onGuidebook,
-}) => {
+const SettingsTab = () => {
+  const { accessToken } = useAuthStore();
+  const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // 유저 설정 불러오기
+  useEffect(() => {
+    const fetchUserSettings = async () => {
+      try {
+        setLoading(true);
+
+        // TODO: API 연동 시 주석 해제
+        // const response = await getUserSettings(accessToken!);
+        // setUserSettings(response.data);
+
+        // 임시 데이터 사용 (퍼블리싱용)
+        setTimeout(() => {
+          setUserSettings({
+            speechEnabled: false,
+          });
+          setError(null);
+        }, 500);
+      } catch (err) {
+        console.error('유저 설정 조회 실패:', err);
+        setError('유저 설정을 불러오는데 실패했습니다.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserSettings();
+  }, [accessToken]);
+
+  const handleSpeechToggle = (enabled: boolean) => {
+    if (userSettings) {
+      setUserSettings({
+        ...userSettings,
+        speechEnabled: enabled,
+      });
+    }
+  };
+
+  // TODO: API 연동 시 구현
+  const handleSave = () => {
+    console.log('설정 저장');
+    // TODO: 유저 설정 업데이트 API 호출
+  };
+
+  // TODO: API 연동 시 구현
+  const handleGuidebook = () => {
+    console.log('가이드북 보기');
+    // TODO: 가이드북 페이지로 이동 또는 모달 표시
+  };
+
+  if (loading) {
+    return (
+      <LoadingContainer>
+        <LoadingText>유저 설정을 불러오는 중...</LoadingText>
+      </LoadingContainer>
+    );
+  }
+
+  if (error) {
+    return (
+      <ErrorContainer>
+        <ErrorText>{error}</ErrorText>
+      </ErrorContainer>
+    );
+  }
+
+  if (!userSettings) {
+    return (
+      <ErrorContainer>
+        <ErrorText>유저 설정을 찾을 수 없습니다.</ErrorText>
+      </ErrorContainer>
+    );
+  }
+
   return (
     <SettingsPanel>
       <SettingsHeader>
         <PanelTitle>설정</PanelTitle>
-        <SaveButton onClick={onSave}>저장하기</SaveButton>
+        <SaveButton onClick={handleSave}>저장하기</SaveButton>
       </SettingsHeader>
       <PanelSubtitle>구화 및 음성 관련 설정을 관리하세요.</PanelSubtitle>
 
@@ -31,10 +104,10 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
             </SettingsItemDescription>
           </SettingsItemLeft>
           <ToggleSwitch
-            enabled={speechEnabled}
-            onClick={() => onSpeechToggle(!speechEnabled)}
+            enabled={userSettings.speechEnabled}
+            onClick={() => handleSpeechToggle(!userSettings.speechEnabled)}
           >
-            <ToggleSlider enabled={speechEnabled} />
+            <ToggleSlider enabled={userSettings.speechEnabled} />
           </ToggleSwitch>
         </SettingsItem>
 
@@ -45,7 +118,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
               Volda의 AI가이드를 확인하세요.
             </SettingsItemDescription>
           </SettingsItemLeft>
-          <GuidebookButton onClick={onGuidebook}>
+          <GuidebookButton onClick={handleGuidebook}>
             📖 가이드북 보기
           </GuidebookButton>
         </SettingsItem>
@@ -55,6 +128,38 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
 };
 
 // 스타일 컴포넌트
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  background-color: var(--color-bg-white);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+`;
+
+const LoadingText = styled.p`
+  font-family: 'NanumSquareR', sans-serif;
+  font-size: 16px;
+  color: var(--color-gray-600);
+`;
+
+const ErrorContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  background-color: var(--color-bg-white);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+`;
+
+const ErrorText = styled.p`
+  font-family: 'NanumSquareR', sans-serif;
+  font-size: 16px;
+  color: var(--color-red);
+`;
+
 const SettingsPanel = styled.div`
   width: 100%;
   background-color: var(--color-bg-white);
@@ -174,4 +279,4 @@ const GuidebookButton = styled.button`
   }
 `;
 
-export default SettingsTab; 
+export default SettingsTab;

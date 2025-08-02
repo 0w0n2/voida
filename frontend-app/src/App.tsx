@@ -9,8 +9,6 @@ import TutorialGeneralPage from '@/pages/tutorial/TutorialGeneralPage';
 import TutorialLipReadingPage from '@/pages/tutorial/TutorialLipReadingPage';
 import TestGeneralPage from '@/pages/tutorial/TestGeneralPage';
 import TestLipReadingPage from '@/pages/tutorial/TestLipReadingPage';
-import RoomsPage from '@/pages/RoomsPage.tsx';
-import StartingPage from '@/pages/StartingPage.tsx';
 import CallbackPage from '@/components/auth/callback';
 // 테스트용
 import MainForm from '@/components/Main/MainForm';

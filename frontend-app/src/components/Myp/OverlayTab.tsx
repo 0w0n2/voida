@@ -1,30 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from '@emotion/styled';
 
-interface OverlayTabProps {
-  selectedPosition: number;
-  fontSize: number;
-  transparency: number;
-  onPositionChange: (position: number) => void;
-  onFontSizeChange: (size: number) => void;
-  onTransparencyChange: (transparency: number) => void;
-  onSave: () => void;
-}
+const OverlayTab = () => {
+  const [selectedPosition, setSelectedPosition] = useState(0);
+  const [fontSize, setFontSize] = useState(70);
+  const [transparency, setTransparency] = useState(100);
 
-const OverlayTab: React.FC<OverlayTabProps> = ({
-  selectedPosition,
-  fontSize,
-  transparency,
-  onPositionChange,
-  onFontSizeChange,
-  onTransparencyChange,
-  onSave,
-}) => {
+  const handlePositionChange = (position: number) => {
+    setSelectedPosition(position);
+  };
+
+  const handleFontSizeChange = (size: number) => {
+    setFontSize(size);
+  };
+
+  const handleTransparencyChange = (transparency: number) => {
+    setTransparency(transparency);
+  };
+
+  const handleSave = () => {
+    console.log('오버레이 설정 저장');
+  };
+
   return (
     <OverlayPanel>
       <OverlayHeader>
         <PanelTitle>오버레이 설정</PanelTitle>
-        <SaveButton onClick={onSave}>저장하기</SaveButton>
+        <SaveButton onClick={handleSave}>저장하기</SaveButton>
       </OverlayHeader>
       <PanelSubtitle>
         실시간 게임 중 오버레이 화면을 커스텀 해보세요.
@@ -40,7 +42,7 @@ const OverlayTab: React.FC<OverlayTabProps> = ({
             <PositionBox
               key={position}
               selected={selectedPosition === position}
-              onClick={() => onPositionChange(position)}
+              onClick={() => handlePositionChange(position)}
             />
           ))}
         </PositionGrid>
@@ -58,7 +60,7 @@ const OverlayTab: React.FC<OverlayTabProps> = ({
             min="12"
             max="48"
             value={fontSize}
-            onChange={(e) => onFontSizeChange(Number(e.target.value))}
+            onChange={(e) => handleFontSizeChange(Number(e.target.value))}
           />
           <SliderLabel style={{ fontSize: `${fontSize}px` }}>가</SliderLabel>
         </SliderContainer>
@@ -76,7 +78,7 @@ const OverlayTab: React.FC<OverlayTabProps> = ({
             min="0"
             max="100"
             value={transparency}
-            onChange={(e) => onTransparencyChange(Number(e.target.value))}
+            onChange={(e) => handleTransparencyChange(Number(e.target.value))}
           />
           <SliderLabel>{transparency}%</SliderLabel>
         </SliderContainer>
@@ -225,4 +227,4 @@ const Slider = styled.input`
   }
 `;
 
-export default OverlayTab; 
+export default OverlayTab;

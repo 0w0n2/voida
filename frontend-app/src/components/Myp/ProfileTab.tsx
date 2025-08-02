@@ -1,37 +1,126 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import defaultProfile from '../../assets/profiles/defaultProfile.png';
+import { getUser } from '../../apis/userApi';
+import { useAuthStore } from '../../store/store';
 
-interface ProfileTabProps {
+interface UserProfile {
   nickname: string;
   email: string;
-  onNicknameChange: (nickname: string) => void;
-  onSave: () => void;
-  onWithdraw: () => void;
-  onProfileImageChange: () => void;
-  onPasswordChange: () => void;
-  onGoogleLink: () => void;
+  profileImage?: string;
 }
 
-const ProfileTab: React.FC<ProfileTabProps> = ({
-  nickname,
-  email,
-  onNicknameChange,
-  onSave,
-  onWithdraw,
-  onProfileImageChange,
-  onPasswordChange,
-  onGoogleLink,
-}) => {
+const ProfileTab = () => {
+  const { accessToken } = useAuthStore();
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // 유저 정보 불러오기
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        setLoading(true);
+
+        // TODO: API 연동 시 주석 해제
+        // const response = await getUser(accessToken!);
+        // setUserProfile(response.data);
+
+        // 임시 데이터 사용 (퍼블리싱용)
+        setTimeout(() => {
+          setUserProfile({
+            nickname: '진모리',
+            email: 'minhe8564@gmail.com',
+            profileImage: defaultProfile,
+          });
+          setError(null);
+        }, 500);
+      } catch (err) {
+        console.error('유저 정보 조회 실패:', err);
+        setError('유저 정보를 불러오는데 실패했습니다.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, [accessToken]);
+
+  const handleNicknameChange = (newNickname: string) => {
+    if (userProfile) {
+      setUserProfile({
+        ...userProfile,
+        nickname: newNickname,
+      });
+    }
+  };
+
+  // TODO: API 연동 시 구현
+  const handleProfileImageChange = () => {
+    console.log('프로필 이미지 변경');
+    // TODO: 이미지 업로드 API 호출
+  };
+
+  // TODO: API 연동 시 구현
+  const handlePasswordChange = () => {
+    console.log('비밀번호 변경');
+    // TODO: 비밀번호 변경 모달 또는 페이지로 이동
+  };
+
+  // TODO: API 연동 시 구현
+  const handleGoogleLink = () => {
+    console.log('Google 계정 연동');
+    // TODO: Google OAuth 연동
+  };
+
+  // TODO: API 연동 시 구현
+  const handleSave = () => {
+    console.log('정보 저장');
+    // TODO: 유저 정보 업데이트 API 호출
+  };
+
+  // TODO: API 연동 시 구현
+  const handleWithdraw = () => {
+    console.log('탈퇴하기');
+    // TODO: 회원탈퇴 확인 모달 및 API 호출
+  };
+
+  if (loading) {
+    return (
+      <LoadingContainer>
+        <LoadingText>유저 정보를 불러오는 중...</LoadingText>
+      </LoadingContainer>
+    );
+  }
+
+  if (error) {
+    return (
+      <ErrorContainer>
+        <ErrorText>{error}</ErrorText>
+      </ErrorContainer>
+    );
+  }
+
+  if (!userProfile) {
+    return (
+      <ErrorContainer>
+        <ErrorText>유저 정보를 찾을 수 없습니다.</ErrorText>
+      </ErrorContainer>
+    );
+  }
+
   return (
     <>
       <ProfilePanel>
         <PanelTitle>프로필 사진</PanelTitle>
         <PanelSubtitle>클릭하여 사진을 변경하세요.</PanelSubtitle>
         <ProfileImageContainer>
-          <LargeProfileImage src={defaultProfile} alt="프로필 사진" />
+          <LargeProfileImage
+            src={userProfile.profileImage || defaultProfile}
+            alt="프로필 사진"
+          />
         </ProfileImageContainer>
-        <ChangePhotoButton onClick={onProfileImageChange}>
+        <ChangePhotoButton onClick={handleProfileImageChange}>
           📷 사진 변경
         </ChangePhotoButton>
       </ProfilePanel>
@@ -40,8 +129,8 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
         <InfoHeader>
           <PanelTitle>기본 정보</PanelTitle>
           <ActionButtons>
-            <WithdrawButton onClick={onWithdraw}>탈퇴하기</WithdrawButton>
-            <SaveButton onClick={onSave}>수정하기</SaveButton>
+            <WithdrawButton onClick={handleWithdraw}>탈퇴하기</WithdrawButton>
+            <SaveButton onClick={handleSave}>수정하기</SaveButton>
           </ActionButtons>
         </InfoHeader>
         <PanelSubtitle>개인 정보를 관리하세요.</PanelSubtitle>
@@ -52,8 +141,8 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
             닉네임
           </InfoLabel>
           <InputField
-            value={nickname}
-            onChange={(e) => onNicknameChange(e.target.value)}
+            value={userProfile.nickname}
+            onChange={(e) => handleNicknameChange(e.target.value)}
             placeholder="닉네임을 입력하세요"
           />
         </InfoSection>
@@ -64,7 +153,11 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
             이메일
             <CannotEditButton>수정불가</CannotEditButton>
           </InfoLabel>
-          <InputField value={email} disabled placeholder="이메일을 입력하세요" />
+          <InputField
+            value={userProfile.email}
+            disabled
+            placeholder="이메일을 입력하세요"
+          />
         </InfoSection>
 
         <InfoSection>
@@ -72,7 +165,9 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
             <LabelIcon>🔒</LabelIcon>
             비밀번호 수정
           </InfoLabel>
-          <ActionButton onClick={onPasswordChange}>비밀번호 수정하기</ActionButton>
+          <ActionButton onClick={handlePasswordChange}>
+            비밀번호 수정하기
+          </ActionButton>
         </InfoSection>
 
         <InfoSection>
@@ -80,7 +175,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
             <LabelIcon>🌐</LabelIcon>
             소셜 연동 여부
           </InfoLabel>
-          <GoogleButton onClick={onGoogleLink}>
+          <GoogleButton onClick={handleGoogleLink}>
             <GoogleIcon>G</GoogleIcon>
             Google 계정 연동
           </GoogleButton>
@@ -305,4 +400,36 @@ const GoogleIcon = styled.span`
   font-weight: bold;
 `;
 
-export default ProfileTab; 
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  background-color: var(--color-bg-white);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+`;
+
+const LoadingText = styled.p`
+  font-family: 'NanumSquareR', sans-serif;
+  font-size: 16px;
+  color: var(--color-gray-600);
+`;
+
+const ErrorContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  background-color: var(--color-bg-white);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+`;
+
+const ErrorText = styled.p`
+  font-family: 'NanumSquareR', sans-serif;
+  font-size: 16px;
+  color: var(--color-red);
+`;
+
+export default ProfileTab;
