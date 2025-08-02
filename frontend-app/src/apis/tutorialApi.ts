@@ -1,23 +1,27 @@
-import apiInstance from './apiInstance';
+import apiInstance from '@/apis/apiInstance';
 
-export const uploadLipTestVideo = (file: Blob) => {
+export const uploadLipTestVideo = async (file: Blob) => {
   const formData = new FormData();
   formData.append('file', file, 'lip-test.webm');
 
-  return apiInstance.post('/upload/lip-test', formData, {
+  const res = await apiInstance.post('/upload/lip-test', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
   });
+
+  return res.data;
 };
 
-export const uploadTutorialAudio = (file: Blob) => {
+export const uploadTutorialAudio = async (file: Blob) => {
   const formData = new FormData();
   formData.append('file', file, 'record.wav');
 
-  return apiInstance.post('/tutorial/audio', formData, {
+  const res = await apiInstance.post('/tutorial/audio', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
   });
+
+  return res.data;
 };

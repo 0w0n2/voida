@@ -1,36 +1,56 @@
 import apiInstance from '@/apis/apiInstance';
 
-// [메인] 참여 중인 방 조회
-export const getRooms = (pageNo: number, pageSize: number) => {
-  return apiInstance.get('/v1/members/meeting-rooms', {
+export interface MeetingRoom {
+  meetingRoomId: string;
+  title: string;
+  category: string;
+  memberCount: number;
+  thumbnailImageUrl: string;
+}
+
+// 참여 중인 방 조회
+export const getRooms = async (
+  pageNo: number,
+  pageSize: number,
+): Promise<MeetingRoom[]> => {
+  const res = await apiInstance.get('/v1/members/meeting-rooms', {
     params: { pageNo, pageSize },
   });
+  return res.data.meetingRooms;
 };
 
-// [메인] 참여 중인 방 제목기반 검색
-export const getRoomsByTitle = (title: string) => {
-  return apiInstance.get('/v1/members/meeting-rooms/search', {
+// 참여 중인 방 제목 기반 검색
+export const getRoomsByTitle = async (
+  title: string,
+): Promise<MeetingRoom[]> => {
+  const res = await apiInstance.get('/v1/members/meeting-rooms/search', {
     params: { title },
   });
+  return res.data.meetingRooms;
 };
 
-// [대기실 생성] 방 생성
-export const createRoom = (
+// 방 생성
+export const createRoom = async (
   title: string,
   category: string,
   thumbnailImageUrl: string,
-) => {
-  return apiInstance.post('/v1/meeting-rooms', {
-    params: { title, category, thumbnailImageUrl },
+): Promise<MeetingRoom> => {
+  const res = await apiInstance.post('/v1/meeting-rooms', {
+    title,
+    category,
+    thumbnailImageUrl,
   });
+  return res.data;
 };
 
 // [대기실 참여] 초대 코드 검증
-export const verifyInviteCode = (invitecode: string, meetingRoomId: number) => {
-  return apiInstance.post(
-    '/v1/meeting-rooms/{meetingRoomId}/verify-invite-code',
-    {
-      params: { invitecode, meetingRoomId },
-    },
+export const verifyInviteCode = async (
+  invitecode: string,
+  meetingRoomId: number,
+): Promise<{ valid: boolean }> => {
+  const res = await apiInstance.post(
+    `/v1/meeting-rooms/${meetingRoomId}/verify-invite-code`,
+    { invitecode },
   );
+  return res.data;
 };

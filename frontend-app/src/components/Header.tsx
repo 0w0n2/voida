@@ -25,7 +25,7 @@ const headerContainer = css`
 `;
 
 const logo = css`
-  width: 120px;
+  width: 130px;
 `;
 
 const userInfoStyle = css`
@@ -38,8 +38,8 @@ const userInfoStyle = css`
 `;
 
 const avatarStyle = css`
-  width: 60px;
-  height: 60px;
+  width: 55px;
+  height: 55px;
   border-radius: 50%;
   object-fit: cover;
 `;

@@ -144,14 +144,7 @@ const SettingModal = ({ onClose }: SettingModalProps) => {
               />
             </div>
 
-            <div
-              css={[
-                fieldRow,
-                category && {
-                  borderColor: '#ccc',
-                },
-              ]}
-            >
+            <div css={[fieldRow, category]}>
               <div
                 css={[
                   fieldIcon,
@@ -405,7 +398,7 @@ const fieldInput = css`
   padding: 8px 0;
 
   &::placeholder {
-    color: #aaa;
+    color: var(--color-gray-600);
   }
 `;
 

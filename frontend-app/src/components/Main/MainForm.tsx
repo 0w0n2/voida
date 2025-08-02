@@ -14,7 +14,7 @@ import VoidaLogo from '@/assets/logo/voida-logo.png';
 import mainHome from '@/assets/icons/main-home.png';
 import Header from '@/components/Header';
 import { getRooms } from '@/apis/roomApi';
-import { useRoomStore } from '@/store/store';
+import { useRoomStore } from '@/store/roomStore';
 import jinmo from '@/assets/test/jinmo.jpg';
 
 const MainForm = () => {

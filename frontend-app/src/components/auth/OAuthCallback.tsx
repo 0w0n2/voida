@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuthStore } from '@/store/store';
+import { useAuthStore } from '@/store/authStore';
 import { getUser } from '@/apis/userApi';
 
 const CallbackPage = () => {
@@ -41,6 +41,6 @@ const CallbackPage = () => {
       });
     }
   }, []);
-  return <></>
+  return <></>;
 };
 export default CallbackPage;

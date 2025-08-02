@@ -7,7 +7,7 @@ import VoidaLogo from '@/assets/logo/voida-logo.png';
 import GoogleLogo from '@/assets/icons/google-logo.png';
 import EyeIcon from '@/assets/icons/eye.png';
 import EyeCloseIcon from '@/assets/icons/crossed-eye.png';
-import { useAuthStore } from '@/store/store';
+import { useAuthStore } from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
 
 const LoginForm = () => {
@@ -19,7 +19,6 @@ const LoginForm = () => {
   const [passwordError, setPasswordError] = useState('');
   const { setAuth } = useAuthStore();
   const navigate = useNavigate();
-  //
 
   // 구글 로그인 리다이렉트 함수 !!
   // 리다이렉트 페이지 : callback.tsx
