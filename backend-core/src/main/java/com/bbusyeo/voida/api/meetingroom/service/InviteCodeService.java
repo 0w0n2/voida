@@ -3,6 +3,7 @@ package com.bbusyeo.voida.api.meetingroom.service;
 import com.bbusyeo.voida.api.meetingroom.domain.MeetingRoom;
 import com.bbusyeo.voida.api.meetingroom.domain.MemberMeetingRoom;
 import com.bbusyeo.voida.api.meetingroom.domain.enums.MemberMeetingRoomState;
+import com.bbusyeo.voida.api.meetingroom.dto.InviteCodeResponseDto;
 import com.bbusyeo.voida.api.meetingroom.repository.MeetingRoomRepository;
 import com.bbusyeo.voida.api.meetingroom.repository.MemberMeetingRoomRepository;
 import com.bbusyeo.voida.api.member.domain.Member;
@@ -21,17 +22,17 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class InviteCodeService {
 
-    public String createInviteCode(Long meetingRoomId) {
+    public InviteCodeResponseDto createInviteCode(Long meetingRoomId) {
         // 대기실 존재 여부 확인
         meetingRoomRepository.findById(meetingRoomId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NOT_FOUND_MEETING_ROOM));
 
-        // (확장성 고려) 재발급 시, 기존 발급된 초대 코드 있으면 찾아서 삭제
-        String oldRedisKey = ROOM_ID_TO_INVITE_CODE_PREFIX + meetingRoomId;
-        String oldInviteCode = (String) redisDao.getValue(oldRedisKey);
+        // 재발급시, 기존 발급된 초대 코드 있으면 찾아서 삭제
+        String roomToInviteCode = ROOM_ID_TO_INVITE_CODE_PREFIX + meetingRoomId;
+        String oldInviteCode = (String) redisDao.getValue(roomToInviteCode);
         if (oldInviteCode != null) {
+            // 기존 code -> room 정보 삭제
             redisDao.deleteValue(INVITE_CODE_TO_ROOM_ID_PREFIX + oldInviteCode);
-            redisDao.deleteValue(oldRedisKey);
         }
 
 
@@ -57,18 +58,17 @@ public class InviteCodeService {
         // 초대 코드 저장 (24시간 유효)
         Duration expiration = Duration.ofHours(INVITE_CODE_EXPIRATION_HOURS);
         String redisInviteKey = INVITE_CODE_TO_ROOM_ID_PREFIX + uniqueInviteCode;
-        String redisRoomKey = ROOM_ID_TO_INVITE_CODE_PREFIX + meetingRoomId;
 
         // 초대코드를 키로, 대기실 ID를 저장 (참여 시 사용)
         redisDao.setValue(redisInviteKey, meetingRoomId.toString(), expiration);
-        // 대기실 ID를 키로, 초대코드를 저장 (조회 시 사용)
-        redisDao.setValue(redisRoomKey, uniqueInviteCode, expiration);
+        // 대기실 ID를 키로, 초대코드를 저장 (조회 시 사용, 기존 값이 있다면 덮어쓰기)
+        redisDao.setValue(roomToInviteCode, uniqueInviteCode, expiration);
 
-        return uniqueInviteCode;
+        return new InviteCodeResponseDto(uniqueInviteCode);
     }
 
     @Transactional(readOnly = true)
-    public String getInviteCode(Long memberId, Long meetingRoomId) {
+    public InviteCodeResponseDto getInviteCode(Long memberId, Long meetingRoomId) {
         // 방장 권한 확인
         meetingRoomService.checkHostAuthority(memberId, meetingRoomId);
 
@@ -80,7 +80,7 @@ public class InviteCodeService {
         if (inviteCode == null) {
             throw new BaseException(BaseResponseStatus.EXPIRED_INVITE_CODE);
         }
-        return inviteCode;
+        return new InviteCodeResponseDto(inviteCode);
     }
 
     // 초대 코드 검증 및 참여

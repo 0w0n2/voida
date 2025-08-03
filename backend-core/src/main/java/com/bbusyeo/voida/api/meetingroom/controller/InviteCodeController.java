@@ -17,10 +17,7 @@ public class InviteCodeController {
 
     @PostMapping("/{meetingRoomId}/invite-code")
     public BaseResponse<InviteCodeResponseDto> createInviteCode(@PathVariable Long meetingRoomId) {
-        String inviteCode = inviteCodeService.createInviteCode(meetingRoomId);
-
-        InviteCodeResponseDto responseDto = new InviteCodeResponseDto(inviteCode);
-
+        InviteCodeResponseDto responseDto = inviteCodeService.createInviteCode(meetingRoomId);
         return new BaseResponse<>(responseDto);
     }
 
@@ -28,10 +25,7 @@ public class InviteCodeController {
     public BaseResponse<InviteCodeResponseDto> getInviteCode(@PathVariable Long meetingRoomId) {
         // todo: JWT 토큰에서 memberId 추출
         Long memberId = 1L;
-        String inviteCode = inviteCodeService.getInviteCode(memberId, meetingRoomId);
-
-        InviteCodeResponseDto responseDto = new InviteCodeResponseDto(inviteCode);
-
+        InviteCodeResponseDto responseDto = inviteCodeService.getInviteCode(memberId, meetingRoomId);
         return new BaseResponse<>(responseDto);
     }
 
