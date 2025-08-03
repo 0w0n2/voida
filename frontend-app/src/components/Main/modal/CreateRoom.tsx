@@ -26,7 +26,7 @@ const CreateRoomModal = ({ onClose }: CreateRoomModalProps) => {
   );
   const [isLoading, setIsLoading] = useState(false);
   const [inviteCode, setInviteCode] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false); // 복사 알림 상태
+  const [copied, setCopied] = useState(false);
 
   const handleThumbnailClick = () => {
     fileInputRef.current?.click();
@@ -65,13 +65,8 @@ const CreateRoomModal = ({ onClose }: CreateRoomModalProps) => {
     setIsLoading(true);
 
     try {
-      // 1. 방 생성
       const room = await createRoom(title, category, thumbnail);
-
-      // 2. 초대코드 요청
       const { inviteCode } = await getInviteCode(room.meetingRoomId);
-
-      // 3. 화면에 초대코드 표시
       setInviteCode(inviteCode);
     } catch (error) {
       console.error('방 생성 또는 초대코드 요청 실패:', error);
@@ -290,7 +285,7 @@ const modal = css`
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 25px;
 `;
 
 const closeButton = css`
@@ -415,7 +410,7 @@ const fieldInput = css`
   outline: none;
   font-size: 16px;
   color: #333;
-  padding: 8px 0;
+  padding: 12px 0;
 
   &::placeholder {
     color: var(--color-gray-600);
@@ -429,7 +424,7 @@ const selectStyle = css`
   outline: none;
   font-size: 16px;
   color: #333;
-  padding: 8px 0;
+  padding: 12px 0;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' fill='none' stroke='%23666' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
   background-repeat: no-repeat;
@@ -445,7 +440,7 @@ const buttonRow = css`
 `;
 
 const createButton = css`
-  padding: 12px 30px;
+  padding: 12px 26px;
   margin-top: 20px;
   border: none;
   border-radius: 8px;

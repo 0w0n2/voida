@@ -27,7 +27,7 @@ const MainPage = () => {
   return (
     <div css={wrapperStyle}>
       <Header />
-      {meetingRooms.length > 0 ? <MainForm /> : <NoRoomMainForm />}
+      {meetingRooms.length > 0 ? <NoRoomMainForm /> : <MainForm />}
     </div>
   );
 };

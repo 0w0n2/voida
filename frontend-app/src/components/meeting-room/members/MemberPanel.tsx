@@ -81,6 +81,10 @@ const MemberPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
           </div>
         ))}
       </div>
+      <div css={roomInfoBox}>
+        <h4>{'모비노기 게임 레이드 같이해요!'}</h4>
+        <button css={roomButton}>게임</button>
+      </div>
     </aside>
   );
 };
