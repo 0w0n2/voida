@@ -88,4 +88,16 @@ public class MeetingRoomController {
         meetingRoomService.changeHost(memberId, meetingRoomId, memberUuid);
         return new BaseResponse<>();
     }
+
+    // member 추방
+    @DeleteMapping("/{meetingRoomId}/members")
+    public BaseResponse<Void> kickMember(
+            @PathVariable Long meetingRoomId,
+            @RequestParam("memberUuid") String memberUuid) {
+
+        // todo: memberId 수정 필요
+        Long memberId = 1L;
+        meetingRoomService.kickMember(memberId, meetingRoomId, memberUuid);
+        return new BaseResponse<>();
+    }
 }

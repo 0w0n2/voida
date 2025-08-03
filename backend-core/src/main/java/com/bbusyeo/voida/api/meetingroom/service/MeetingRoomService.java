@@ -159,6 +159,7 @@ public class MeetingRoomService {
         return MeetingRoomParticipantListDto.of(participants);
     }
 
+    // 방장 위임
     public void changeHost(Long memberId, Long meetingRoomId, String newHostMemberUuid) {
         // todo: memberId는 인증 기능 구현 완료 후, JWT 토큰에서 추출한 값으로 변경 예정
         // 요청자가 방장인지 확인
@@ -183,6 +184,30 @@ public class MeetingRoomService {
         currentHostMemberMeetingRoom.updateState(MemberMeetingRoomState.PARTICIPANT);
         newHostMemberMeetingRoom.updateState(MemberMeetingRoomState.HOST);
     }
+
+    public void kickMember(Long memberId, Long meetingRoomId, String kickMemberUuid) {
+
+        // 요청자 방장인지 확인
+        checkHostAuthority(memberId, meetingRoomId);
+
+        // 방장 자기 자신 추방하려는지 확인
+        Member host = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NOT_FOUND_MEMBER));
+        if (host.getMemberUuid().equals(kickMemberUuid)) {
+            throw new BaseException(BaseResponseStatus.CANNOT_CHANGE_TO_SELF);
+        }
+
+        // 추방할 member가 방에 참여중인지 확인
+        MemberMeetingRoom memberMeetingRoom = memberMeetingRoomRepository
+                .findByMember_MemberUuidAndMeetingRoom_Id(kickMemberUuid, meetingRoomId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NOT_FOUND_MEMBER));
+
+        // 참여자 <-> 대기실 관계 제거, 대기실 인원 1 감소
+        MeetingRoom meetingRoom = memberMeetingRoom.getMeetingRoom();
+        meetingRoom.decreaseMemberCount();
+        memberMeetingRoomRepository.delete(memberMeetingRoom);
+    }
+
 
 
     // 방장 권한 확인 메서드
