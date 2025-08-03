@@ -28,7 +28,7 @@ public class InviteCodeService {
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NOT_FOUND_MEETING_ROOM));
 
         // 재발급시, 기존 발급된 초대 코드 있으면 찾아서 삭제
-        String roomToInviteCode = ROOM_ID_TO_INVITE_CODE_PREFIX + meetingRoomId;
+        String roomToInviteCode = MEETING_ROOM_ID_TO_INVITE_CODE_PREFIX + meetingRoomId;
         String oldInviteCode = (String) redisDao.getValue(roomToInviteCode);
         if (oldInviteCode != null) {
             // 기존 code -> room 정보 삭제
@@ -73,7 +73,7 @@ public class InviteCodeService {
         meetingRoomService.checkHostAuthority(memberId, meetingRoomId);
 
         // 대기실 ID를 키로 초대 코드 조회
-        String redisKey = ROOM_ID_TO_INVITE_CODE_PREFIX + meetingRoomId;
+        String redisKey = MEETING_ROOM_ID_TO_INVITE_CODE_PREFIX + meetingRoomId;
         String inviteCode = (String) redisDao.getValue(redisKey);
 
         // 초대 코드가 만료 됐으면 예외 처리
@@ -139,7 +139,7 @@ public class InviteCodeService {
     }
 
     // 비즈니스 로직의 가독성을 위해 의존성과 상수 요소 하단에 작성
-    private static final String ROOM_ID_TO_INVITE_CODE_PREFIX = "room-id:";
+    private static final String MEETING_ROOM_ID_TO_INVITE_CODE_PREFIX = "meeting-room-id:";
     private static final String INVITE_CODE_TO_ROOM_ID_PREFIX = "invite-code:";
     private static final long INVITE_CODE_EXPIRATION_HOURS = 24;
     private static final int MAX_RETRY_COUNT = 5;
