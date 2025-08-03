@@ -15,6 +15,7 @@ interface UserProfile {
 const ProfileTab = () => {
   const { accessToken, user } = useAuthStore();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -64,33 +65,37 @@ const ProfileTab = () => {
   // 변수에 입력받은 사진 할당 (사진 보여주기도 포함)
   const handleProfileImageChange = () => {
     if (userProfile) {
-      // TODO: 이미지 파일 선택 및 미리보기
-      // const fileInput = document.createElement('input');
-      // fileInput.type = 'file';
-      // fileInput.accept = 'image/*';
-      // fileInput.onchange = (e) => {
-      //   const file = (e.target as HTMLInputElement).files?.[0];
-      //   if (file) {
-      //     // 이미지 미리보기 URL 생성
-      //     const imageUrl = URL.createObjectURL(file);
-      //     setUserProfile({
-      //       ...userProfile,
-      //       profileImage: imageUrl,
-      //     });
-      //   }
-      // };
-      // fileInput.click();
+      // 이미지 파일 선택 및 미리보기
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      fileInput.onchange = (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (file) {
+          // 파일 크기 검증 (5MB 이하)
+          if (file.size > 5 * 1024 * 1024) {
+            alert('파일 크기는 5MB 이하여야 합니다.');
+            return;
+          }
 
-      // 임시 시뮬레이션 - 이미지 변경
-      setSaving(true);
-      setTimeout(() => {
-        // 임시로 다른 이미지로 변경 (실제로는 파일 선택 후 변경)
-        setUserProfile({
-          ...userProfile,
-          profileImage: defaultProfile, // 실제로는 선택된 파일의 URL
-        });
-        setSaving(false);
-      }, 500);
+          // 이미지 파일 타입 검증
+          if (!file.type.startsWith('image/')) {
+            alert('이미지 파일만 업로드 가능합니다.');
+            return;
+          }
+
+          // 이미지 미리보기 URL 생성
+          const imageUrl = URL.createObjectURL(file);
+          setUserProfile({
+            ...userProfile,
+            profileImage: imageUrl,
+          });
+
+          // File 객체 저장
+          setProfileImageFile(file);
+        }
+      };
+      fileInput.click();
     }
   };
 
@@ -101,7 +106,7 @@ const ProfileTab = () => {
         setSaving(true);
 
         // TODO: API 연동 시 주석 해제
-        // await updateUser(accessToken!, userProfile);
+        // await updateUser(accessToken!, userProfile.nickname, profileImageFile);
         // console.log('유저 정보 업데이트 완료');
 
         // 임시 저장 시뮬레이션

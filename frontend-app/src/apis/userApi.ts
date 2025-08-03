@@ -4,7 +4,6 @@ export const postUserType = (type: 'general' | 'lip-reading') => {
   return apiInstance.post('/user/type', { type });
 };
 
-
 // 유저 정보 조회
 export const getUser = (accessToken: string) => {
   return apiInstance.get('/v1/members/me/profile', {
@@ -53,10 +52,22 @@ export const checkCurrentPassword = (accessToken: string, password: string) => {
   );
 };
 // 유저 정보 수정
-export const updateUser = (accessToken: string, nickname: string, profileImage: string) => {
-  return apiInstance.put('/v1/members/me/profile', { nickname, profileImage }, {
+export const updateUser = (
+  accessToken: string,
+  nickname: string,
+  profileImage?: File | null,
+) => {
+  const formData = new FormData();
+  formData.append('nickname', nickname);
+
+  if (profileImage) {
+    formData.append('profileImage', profileImage);
+  }
+
+  return apiInstance.put('/v1/members/me/profile', formData, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'multipart/form-data',
     },
   });
 };
