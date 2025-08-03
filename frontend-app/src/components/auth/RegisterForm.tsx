@@ -40,6 +40,7 @@ const RegisterForm = () => {
 
   // 프로필 이미지 상태
   const [profileImage, setProfileImage] = useState<string>(defaultProfile);
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
 
   // 회원가입 완료 모달 닫기
   const handleCloseRegisteredModal = () => {
@@ -153,6 +154,9 @@ const RegisterForm = () => {
         }
       };
       reader.readAsDataURL(file);
+
+      // File 객체 저장
+      setProfileImageFile(file);
     }
   };
 
@@ -166,24 +170,25 @@ const RegisterForm = () => {
       setEmailError('올바른 이메일 형식이 아닙니다.');
       return;
     }
-
+    setIsEmailChecked(true);
     // try {
     //   const response = await checkEmailDuplicate(email);
     //   if (response.data.isAvailable) {
-    //     setEmailError("");
+    //     setEmailError('');
     //     setIsEmailChecked(true);
-    //     alert("사용 가능한 이메일입니다.");
+    //     alert('사용 가능한 이메일입니다.');
     //   } else {
-    //     setEmailError("이미 사용중인 이메일입니다.");
+    //     setEmailError('이미 사용중인 이메일입니다.');
     //     setIsEmailChecked(false);
     //   }
     // } catch (error) {
     //   if (error instanceof AxiosError) {
-    //     setEmailError(error.response?.data?.message || "중복확인 중 오류가 발생했습니다.");
+    //     setEmailError(
+    //       error.response?.data?.message || '중복확인 중 오류가 발생했습니다.',
+    //     );
     //   }
     //   setIsEmailChecked(false);
     // }
-    setIsEmailChecked(true);
   };
 
   // 닉네임 중복확인
@@ -237,55 +242,70 @@ const RegisterForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // // 모든 필수 필드 검증
-    // if (
-    //   !email.trim() ||
-    //   !password.trim() ||
-    //   !passwordCheck.trim() ||
-    //   !nickname.trim()
-    // ) {
-    //   alert('모든 필수 항목을 입력해주세요.');
-    //   return;
-    // }
+    // 모든 필수 필드 검증
+    if (
+      !email.trim() ||
+      !password.trim() ||
+      !passwordCheck.trim() ||
+      !nickname.trim()
+    ) {
+      alert('모든 필수 항목을 입력해주세요.');
+      return;
+    }
 
-    // if (!isEmailChecked) {
-    //   alert('이메일 중복확인을 해주세요.');
-    //   return;
-    // }
+    if (!isEmailChecked) {
+      alert('이메일 중복확인을 해주세요.');
+      return;
+    }
 
-    // if (!isEmailVerified) {
-    //   alert('이메일 인증을 완료해주세요.');
-    //   return;
-    // }
+    if (!isEmailVerified) {
+      alert('이메일 인증을 완료해주세요.');
+      return;
+    }
 
-    // if (!isNicknameChecked) {
-    //   alert('닉네임 중복확인을 해주세요.');
-    //   return;
-    // }
+    if (!isNicknameChecked) {
+      alert('닉네임 중복확인을 해주세요.');
+      return;
+    }
 
-    // if (!isPrivacyChecked) {
-    //   alert('개인정보 수집 및 이용동의에 체크해주세요.');
-    //   return;
-    // }
+    if (!isPrivacyChecked) {
+      alert('개인정보 수집 및 이용동의에 체크해주세요.');
+      return;
+    }
 
-    // if (password !== passwordCheck) {
-    //   alert('비밀번호가 일치하지 않습니다.');
-    //   return;
-    // }
+    if (password !== passwordCheck) {
+      alert('비밀번호가 일치하지 않습니다.');
+      return;
+    }
 
-    // setIsSubmitting(true);
-    setIsRegistered(true);
-    // try {
-    //   setIsRegistered(true);
-    // } catch (error) {
-    //   if (error instanceof AxiosError) {
-    //     alert(
-    //       error.response?.data?.message || '회원가입 중 오류가 발생했습니다.',
-    //     );
-    //   }
-    // } finally {
-    //   setIsSubmitting(false);
-    // }
+    setIsSubmitting(true);
+
+    try {
+      // 소셜 로그인 여부 확인
+      const isSocial = !!socialEmail;
+
+      // register API 호출
+      await register(
+        email,
+        password,
+        nickname,
+        isSocial,
+        profileImageFile,
+        isSocial ? 'GOOGLE' : undefined, // 소셜 로그인인 경우 providerName 추가
+      );
+
+      setIsRegistered(true);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        alert(
+          error.response?.data?.message || '회원가입 중 오류가 발생했습니다.',
+        );
+      } else {
+        alert('회원가입 중 오류가 발생했습니다.');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   //////////////////////////////////////////////////////
