@@ -100,4 +100,15 @@ public class MeetingRoomController {
         meetingRoomService.kickMember(memberId, meetingRoomId, memberUuid);
         return new BaseResponse<>();
     }
+
+    // 대기실 나가기 (participant)
+    @DeleteMapping("{meetingRoomId}/participants")
+    public BaseResponse<Void> leaveMeetingRoom(
+            @PathVariable Long meetingRoomId,
+            @RequestParam("memberUuid") String memberUuid) {
+
+        meetingRoomService.leaveMeetingRoom(meetingRoomId, memberUuid);
+        return new BaseResponse<>();
+    }
+
 }

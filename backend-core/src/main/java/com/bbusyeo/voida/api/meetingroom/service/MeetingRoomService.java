@@ -185,6 +185,7 @@ public class MeetingRoomService {
         newHostMemberMeetingRoom.updateState(MemberMeetingRoomState.HOST);
     }
 
+    // 유저 추방
     public void kickMember(Long memberId, Long meetingRoomId, String kickMemberUuid) {
 
         // 요청자 방장인지 확인
@@ -208,7 +209,24 @@ public class MeetingRoomService {
         memberMeetingRoomRepository.delete(memberMeetingRoom);
     }
 
+    // 대기실 나가기(탈퇴)
+    public void leaveMeetingRoom(Long meetingRoomId, String memberUuid) {
 
+        // 방에 참여중인지 확인
+        MemberMeetingRoom memberMeetingRoom = memberMeetingRoomRepository
+                .findByMember_MemberUuidAndMeetingRoom_Id(memberUuid, meetingRoomId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NOT_FOUND_MEMBER));
+
+        // 요청한 유저가 방장인지 확인
+        if (memberMeetingRoom.getState() == MemberMeetingRoomState.HOST) {
+            throw new BaseException(BaseResponseStatus.HOST_CANNOT_LEAVE);
+        }
+
+        // member <-> meetingRoom 관계 제거, 대기실 인원 1 감소
+        MeetingRoom meetingRoom = memberMeetingRoom.getMeetingRoom();
+        meetingRoom.decreaseMemberCount();
+        memberMeetingRoomRepository.delete(memberMeetingRoom);
+    }
 
     // 방장 권한 확인 메서드
     public void checkHostAuthority(Long memberId, Long meetingRoomId) {

@@ -43,7 +43,9 @@ public enum BaseResponseStatus {
     MEETING_ROOM_FULL(HttpStatus.CONFLICT, false, 705, "대기실 정원이 가득 찼습니다."),
     ALREADY_PARTICIPATING(HttpStatus.CONFLICT, false, 706, "이미 참여중인 방입니다."),
     INVITE_CODE_GENERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, false, 707, "참여코드 생성 오류. 잠시 후 다시 실행해주세요."),
-    CANNOT_CHANGE_TO_SELF(HttpStatus.BAD_REQUEST, false, 708, "자신에겐 불가능한 요청 입니다.");
+    CANNOT_CHANGE_TO_SELF(HttpStatus.BAD_REQUEST, false, 708, "자신에겐 불가능한 요청 입니다."),
+    HOST_CANNOT_LEAVE(HttpStatus.BAD_REQUEST, false, 709, "방장은 대기실을 탈퇴할 수 없습니다."),
+    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, false, 710, "해당 유저를 찾을 수 없습니다.");
 
 
     private final HttpStatus httpStatus;
