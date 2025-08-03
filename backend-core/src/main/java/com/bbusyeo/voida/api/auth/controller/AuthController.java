@@ -77,4 +77,14 @@ public class AuthController {
         authService.signUp(requestDto, profileImage);
         return new BaseResponse<>(BaseResponseStatus.SUCCESS);
     }
+
+    @PostMapping("/reset-password")
+    public BaseResponse<Void> resetPassword(@Valid @RequestBody ResetPasswordRequestDto requestDto) {
+        // TODO-AUTH: 비밀번호 재생성 플로우에 대해 담당 프론트 팀원과 논의 후 수정이 필요해보임, 이메일 코드 인증 후 발급하도록 해야할 듯
+        String tempPassword = authService.resetPassword(requestDto);
+        mailService.sendHtmlMail(requestDto.getEmail(),
+                MailType.PASSWORD_RESET,
+                Map.of("tempPassword", tempPassword));
+        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+    }
 }

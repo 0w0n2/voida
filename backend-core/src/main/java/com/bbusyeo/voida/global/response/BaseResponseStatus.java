@@ -43,7 +43,9 @@ public enum BaseResponseStatus {
     // 회원가입
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, false, 409, "이미 사용 중인 이메일입니다."),
     DUPLICATE_NICKNAME(HttpStatus.CONFLICT, false, 409, "이미 사용 중인 닉네임입니다."),
-    
+    // 비밀번호 재생성
+    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, false, 404, "존재하지 않는 회원입니다."),
+
     /**
      * 500: 기타 에러.
      */

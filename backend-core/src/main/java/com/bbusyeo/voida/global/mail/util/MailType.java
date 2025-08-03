@@ -56,7 +56,7 @@ public enum MailType {
                     Malgun Gothic, 돋움, Dotum, Arial, Tahoma, Geneva, Verdana;"><tbody>
                     <tr><td></td></tr><tr><td style="padding: 35px; border-top: 1px solid #000;
                     border-bottom: 1px solid #cfd5d8; color: #666; font-size: 15px; text-align: left;
-                    line-height: 1.86;"><h1 style="color: #000000">보이다 임시 비밀번호 안내</h1>안녕하세요, <strong>%s</strong>님.
+                    line-height: 1.86;"><h1 style="color: #000000">보이다 임시 비밀번호 안내</h1>안녕하세요, 회원님.
                     <br /><strong>비밀번호 재설정</strong>을 위해 임시 비밀번호를 발급했습니다.<br />
                     아래 발급된 임시 비밀번호를 복사하거나 직접 입력하여 로그인 후,<br />
                     <strong>마이페이지 &gt; 비밀번호 변경</strong>에서 새로운 비밀번호로 변경해주세요.<br /><br />
@@ -69,7 +69,7 @@ public enum MailType {
                     style="word-break: keep-all; font-weight: 500; font-size: 12px; line-height: 20px; color: #b2c0cc; margin: 0;">
                     Copyright ⓒ Voida. All Rights Reserved</h6></div></td></tr><tr><td height="80"></td>
                     </tr></tbody></table></div></body></html>
-                    """.formatted(values.get("username"), values.get("tempPassword"))
+                    """.formatted(values.get("tempPassword"))
     );
 
     private final String subject;

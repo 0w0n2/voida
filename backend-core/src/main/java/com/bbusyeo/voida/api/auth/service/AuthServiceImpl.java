@@ -40,6 +40,7 @@ import java.util.UUID;
 public class AuthServiceImpl implements AuthService {
 
     private final NicknameService nicknameService;
+    private final ResetPasswordService resetPasswordService;
 
     private final TokenUtils tokenUtils;
     private final CookieUtils cookieUtils;
@@ -197,4 +198,8 @@ public class AuthServiceImpl implements AuthService {
         return memberUuid;
     }
 
+    @Override
+    public String resetPassword(ResetPasswordRequestDto requestDto) {
+        return resetPasswordService.resetPassword(requestDto);
+    }
 }

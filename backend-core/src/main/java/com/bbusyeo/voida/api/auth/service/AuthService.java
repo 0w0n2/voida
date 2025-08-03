@@ -24,4 +24,6 @@ public interface AuthService {
     RandomNicknameResponseDto getRandomNickname();
 
     void signUp(SignUpRequestDto requestDto, MultipartFile profileImage);
+
+    String resetPassword(ResetPasswordRequestDto requestDto);
 }
