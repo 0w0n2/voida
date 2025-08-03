@@ -13,7 +13,7 @@ import { FiUser } from 'react-icons/fi';
 import VoidaLogo from '@/assets/logo/voida-logo.png';
 import mainHome from '@/assets/icons/main-home.png';
 import Header from '@/components/Header';
-import { getRooms } from '@/apis/roomApi';
+import { getRooms } from '@/apis/meetingRoomApi';
 import { useRoomStore } from '@/store/roomStore';
 import jinmo from '@/assets/test/jinmo.jpg';
 

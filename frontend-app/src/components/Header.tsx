@@ -2,11 +2,23 @@
 import { css } from '@emotion/react';
 import VoidaLogo from '@/assets/logo/voida-logo.png';
 import ProfileImage from '@/assets/profiles/profile1.png';
+import { useNavigate } from 'react-router-dom';
 
 export default function Header() {
+  const navigate = useNavigate();
+
+  const handleLogoClick = () => {
+    navigate('/main');
+  };
+
   return (
     <div css={headerContainer}>
-      <img src={VoidaLogo} alt="VOIDA 로고" css={logo} />
+      <img
+        src={VoidaLogo}
+        alt="VOIDA 로고"
+        css={logo}
+        onClick={handleLogoClick}
+      />
       <div css={userInfoStyle}>
         <img src={ProfileImage} alt="프로필 이미지" css={avatarStyle} />
         <span>
@@ -26,6 +38,7 @@ const headerContainer = css`
 
 const logo = css`
   width: 130px;
+  cursor: pointer;
 `;
 
 const userInfoStyle = css`

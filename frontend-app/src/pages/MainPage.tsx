@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import MainForm from '@/components/main/MainForm';
 import NoRoomMainForm from '@/components/main/NoRoomMainForm';
 import { useRoomStore } from '@/store/roomStore';
-import { getRooms } from '@/apis/roomApi';
+import { getRooms } from '@/apis/meetingRoomApi';
 
 const MainPage = () => {
   const meetingRooms = useRoomStore((state) => state.meetingRooms);

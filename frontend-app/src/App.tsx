@@ -10,11 +10,6 @@ import TutorialLipReadingPage from '@/pages/tutorial/TutorialLipReadingPage';
 import TestGeneralPage from '@/pages/tutorial/TestGeneralPage';
 import TestLipReadingPage from '@/pages/tutorial/TestLipReadingPage';
 import OAuthCallback from '@/components/auth/OAuthCallback';
-
-// 테스트용
-// import MainForm from '@/components/Main/MainForm';
-// import CodeCheck from '@/components/Main/CodeCheck';
-
 import MainPage from '@/pages/MainPage';
 import MyPage from '@/pages/MyPage';
 import MeetingRoomPage from '@/pages/MeetingRoomPage';
@@ -43,9 +38,6 @@ function App() {
         <Route path="/main" element={<MainPage />} />
         <Route path="/meeting-room" element={<MeetingRoomPage />} />
         <Route path="/mypage" element={<MyPage />} />
-
-        {/* <Route path="/main/room" element={<MainForm />} /> */}
-        {/* <Route path="/codecheck" element={<CodeCheck />} /> */}
       </Routes>
     </BrowserRouter>
   );

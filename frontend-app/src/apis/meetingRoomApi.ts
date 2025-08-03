@@ -37,6 +37,14 @@ export type ChatHistoryResponse = {
   };
 };
 
+export interface MeetingRoom {
+  meetingRoomId: string;
+  title: string;
+  category: string;
+  memberCount: number;
+  thumbnailImageUrl: string;
+}
+
 // 방 정보 조회
 export const getRoomInfo = async (meetingRoomId: string): Promise<RoomInfo> => {
   const res = await apiInstance.get(`/v1/meeting-rooms/${meetingRoomId}`);
@@ -104,7 +112,7 @@ export const getRoomChatHistory = async (
   return res.data;
 };
 
-// 대기실 채팅 히스토리 저장
+// 대기실 채팅 메시지 저장
 export const postChatMessage = async (
   meetingRoomId: string,
   content: string,
@@ -112,4 +120,61 @@ export const postChatMessage = async (
   return apiInstance.post(`/v1/meeting-rooms/${meetingRoomId}/chats`, {
     content,
   });
+};
+
+// 참여 중인 방 조회
+export const getRooms = async (
+  pageNo: number,
+  pageSize: number,
+): Promise<MeetingRoom[]> => {
+  const res = await apiInstance.get('/v1/members/meeting-rooms', {
+    params: { pageNo, pageSize },
+  });
+  return res.data.meetingRooms;
+};
+
+// 참여 중인 방 제목 기반 검색
+export const getRoomsByTitle = async (
+  title: string,
+): Promise<MeetingRoom[]> => {
+  const res = await apiInstance.get('/v1/members/meeting-rooms/search', {
+    params: { title },
+  });
+  return res.data.meetingRooms;
+};
+
+// 방 생성
+export const createRoom = async (
+  title: string,
+  category: string,
+  thumbnailImageUrl: string,
+): Promise<MeetingRoom> => {
+  const res = await apiInstance.post('/v1/meeting-rooms', {
+    title,
+    category,
+    thumbnailImageUrl,
+  });
+  return res.data;
+};
+
+// 초대 코드 요청
+export const getInviteCode = async (
+  meetingRoomId: string,
+): Promise<{ inviteCode: string }> => {
+  const res = await apiInstance.get(
+    `/v1/meeting-rooms/${meetingRoomId}/invite-code`,
+  );
+  return res.data;
+};
+
+// 초대 코드 검증
+export const verifyInviteCode = async (
+  invitecode: string,
+  meetingRoomId: number,
+): Promise<{ valid: boolean }> => {
+  const res = await apiInstance.post(
+    `/v1/meeting-rooms/${meetingRoomId}/verify-invite-code`,
+    { invitecode },
+  );
+  return res.data;
 };
