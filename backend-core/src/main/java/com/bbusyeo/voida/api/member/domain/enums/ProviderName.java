@@ -16,7 +16,7 @@ public enum ProviderName {
     KAKAO,
     NAVER;
 
-    public static ProviderName from(String providerName){
+    public static ProviderName from(String providerName) {
         if (providerName == null) throw new BaseException(BaseResponseStatus.UNSUPPORTED_SOCIAL_PROVIDER);
         try {
             return ProviderName.valueOf(providerName.toUpperCase(Locale.ROOT));

@@ -33,7 +33,7 @@ public enum BaseResponseStatus {
     ACCESS_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, false, 401, "토큰이 존재하지 않습니다."),
 
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, false, 401, "ID와 PW가 일치하지 않습니다."),
-    USER_NOT_FOUND(HttpStatus.UNAUTHORIZED, false, 401, "해당하는 ID를 찾을 수 없습니다."),
+    MEMBER_NOT_FOUND(HttpStatus.UNAUTHORIZED, false, 401, "존재하지 않는 회원입니다."),
     ACCESS_DENIED(HttpStatus.FORBIDDEN, false, 403, "접근 권한이 없습니다."),
     
     // 랜덤 닉네임 생성
@@ -43,8 +43,6 @@ public enum BaseResponseStatus {
     // 회원가입
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, false, 409, "이미 사용 중인 이메일입니다."),
     DUPLICATE_NICKNAME(HttpStatus.CONFLICT, false, 409, "이미 사용 중인 닉네임입니다."),
-    // 비밀번호 재생성
-    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, false, 404, "존재하지 않는 회원입니다."),
 
     /**
      * 500: 기타 에러.

@@ -27,7 +27,7 @@ public class ResetPasswordService {
         // 2. 임시 비밀번호 생성
         char[] charSet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@!&#".toCharArray();
         StringBuilder tempPw = new StringBuilder();
-        for (int i=0;i<10;i++){
+        for (int i = 0; i < 10; i++) {
             tempPw.append(charSet[random.nextInt(charSet.length)]);
         }
 

@@ -3,7 +3,6 @@ package com.bbusyeo.voida.global.exception;
 import com.bbusyeo.voida.global.response.BaseResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,7 +18,7 @@ public class SecurityExceptionHandler {
     @ExceptionHandler(UsernameNotFoundException.class)
     protected BaseResponse<Void> handleUsernameNotFoundException(UsernameNotFoundException e) {
         log.error("UsernameNotFoundException -> {}", e.getMessage());
-        return new BaseResponse<>(USER_NOT_FOUND, e.getMessage());
+        return new BaseResponse<>(MEMBER_NOT_FOUND, e.getMessage());
     }
 
     @ExceptionHandler(AuthenticationException.class)

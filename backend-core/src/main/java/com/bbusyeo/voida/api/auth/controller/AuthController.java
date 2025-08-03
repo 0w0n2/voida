@@ -65,7 +65,7 @@ public class AuthController {
     }
 
     @GetMapping("/random-nickname")
-    public BaseResponse<RandomNicknameResponseDto> randomNickname(){
+    public BaseResponse<RandomNicknameResponseDto> randomNickname() {
         return new BaseResponse<>(authService.getRandomNickname());
     }
 
@@ -73,7 +73,7 @@ public class AuthController {
     public BaseResponse<Void> signUp(
             @Valid @RequestPart SignUpRequestDto requestDto,
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
-    ){
+    ) {
         authService.signUp(requestDto, profileImage);
         return new BaseResponse<>(BaseResponseStatus.SUCCESS);
     }

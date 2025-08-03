@@ -1,5 +1,7 @@
 package com.bbusyeo.voida.api.auth.service;
 
+import com.bbusyeo.voida.api.auth.dto.CheckNicknameRequestDto;
+import com.bbusyeo.voida.api.auth.dto.CheckNicknameResponseDto;
 import com.bbusyeo.voida.api.auth.util.NicknameGenerator;
 import com.bbusyeo.voida.api.member.repository.MemberRepository;
 import com.bbusyeo.voida.global.exception.BaseException;
@@ -19,5 +21,9 @@ public class NicknameService {
             if (!memberRepository.existsByNickname(nickname)) return nickname;
         }
         throw new BaseException(BaseResponseStatus.NICKNAME_GENERATION_FAILED);
+    }
+
+    public CheckNicknameResponseDto checkNickname(CheckNicknameRequestDto requestDto) {
+        return CheckNicknameResponseDto.toDto(memberRepository.existsByNickname(requestDto.getNickname()));
     }
 }

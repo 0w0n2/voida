@@ -19,8 +19,4 @@ public class SignInResponseDto {
                 .isNewbie(member.getIsNewbie())
                 .build();
     }
-
-//    public static Member toEntity(String memberUuid, String profileImageUrl, ) {
-//
-//    }
 }

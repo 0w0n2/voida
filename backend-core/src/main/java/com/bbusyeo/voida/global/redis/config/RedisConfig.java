@@ -8,6 +8,7 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
@@ -42,11 +43,12 @@ public class RedisConfig {
 
         // key, value에 대한 직렬화 방법 설정
         redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(Object.class));
 
         // hash key, hash value에 대한 직렬화 방법 설정
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        redisTemplate.setHashValueSerializer(new StringRedisSerializer());
+        redisTemplate.setHashValueSerializer(new Jackson2JsonRedisSerializer<>(Object.class));
+        redisTemplate.setEnableTransactionSupport(true);
 
         return redisTemplate;
     }
