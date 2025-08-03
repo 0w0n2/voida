@@ -159,6 +159,32 @@ public class MeetingRoomService {
         return MeetingRoomParticipantListDto.of(participants);
     }
 
+    public void changeHost(Long memberId, Long meetingRoomId, String newHostMemberUuid) {
+        // todo: memberId는 인증 기능 구현 완료 후, JWT 토큰에서 추출한 값으로 변경 예정
+        // 요청자가 방장인지 확인
+        checkHostAuthority(memberId, meetingRoomId);
+
+        // 현재 방장 정보 조회 (일반 참여자로 변경해주기 위해 필요)
+        Member currentHost = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NOT_FOUND_MEMBER));
+        MemberMeetingRoom currentHostMemberMeetingRoom = memberMeetingRoomRepository.findByMemberAndMeetingRoomId(currentHost, meetingRoomId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR));
+
+        // 자기 자신에게 위임하는지 확인
+        if (currentHost.getMemberUuid().equals(newHostMemberUuid)) {
+            throw new BaseException(BaseResponseStatus.CANNOT_CHANGE_TO_SELF);
+        }
+
+        // 위임 받을 멤버가 방에 참여중인지 검사
+        MemberMeetingRoom newHostMemberMeetingRoom = memberMeetingRoomRepository.findByMember_MemberUuidAndMeetingRoom_Id(newHostMemberUuid, meetingRoomId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NOT_FOUND_MEMBER));
+
+        // 권한 변경
+        currentHostMemberMeetingRoom.updateState(MemberMeetingRoomState.PARTICIPANT);
+        newHostMemberMeetingRoom.updateState(MemberMeetingRoomState.HOST);
+    }
+
+
     // 방장 권한 확인 메서드
     public void checkHostAuthority(Long memberId, Long meetingRoomId) {
         // todo: memberId는 혜원 작업 완료 후, 인증(JWT 토큰)에서 가져와야함

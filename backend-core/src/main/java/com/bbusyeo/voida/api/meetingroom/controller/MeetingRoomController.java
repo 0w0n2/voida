@@ -76,4 +76,16 @@ public class MeetingRoomController {
         meetingRoomService.delete(memberId, meetingRoomId);
         return new BaseResponse<>();
     }
+
+    // 방장 위임
+    @PutMapping("/{meetingRoomId}/host")
+    public BaseResponse<Void> changeHost(
+            @PathVariable Long meetingRoomId,
+            @RequestParam("memberUuid") String memberUuid) {
+
+        // todo: memberId는 JWT 토큰에서 추출한 값으로 변경 예정
+        Long memberId = 1L;
+        meetingRoomService.changeHost(memberId, meetingRoomId, memberUuid);
+        return new BaseResponse<>();
+    }
 }
