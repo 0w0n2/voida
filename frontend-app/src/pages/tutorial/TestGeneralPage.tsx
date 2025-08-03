@@ -130,7 +130,7 @@ const TestGeneralPage = () => {
           setIsAnalyzing(false);
           setAnalysisResult(null);
         }}
-        onGoHome={() => navigate('/')}
+        onGoHome={() => navigate('/main')}
       />
     </div>
   );

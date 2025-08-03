@@ -1,6 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css, keyframes } from '@emotion/react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useMeetingRoomStore } from '@/store/meetingRoomStore';
 import SettingModal from '@/components/meeting-room/modal/SettingModal';
 import InfoModal from '@/components/meeting-room/modal/InfoModal';
@@ -16,10 +17,18 @@ const pulse = keyframes`
   100% { transform: scale(1); opacity: 1; }
 `;
 
+const categoryColors: Record<string, string> = {
+  게임: '#8e44ad',
+  일상: '#f1c40f',
+  학습: '#333333',
+  회의: '#27ae60',
+  자유: '#3498db',
+};
+
 const MemberPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
   const { participants, roomInfo } = useMeetingRoomStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const navigate = useNavigate();
   const memberList = participants?.participants ?? [];
   // const myInfo = memberList.find((p) => p.isMine);
   const myInfo = memberList[0];
@@ -48,7 +57,7 @@ const MemberPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
               <InfoModal onClose={() => setIsModalOpen(false)} />
             ))}
 
-          <div css={iconWrapper}>
+          <div css={iconWrapper} onClick={() => navigate('/main')}>
             <img src={Home} alt="홈" css={iconStyle} />
             <span css={tooltip}>홈으로</span>
           </div>
@@ -82,8 +91,18 @@ const MemberPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
         ))}
       </div>
       <div css={roomInfoBox}>
-        <h4>{'모비노기 게임 레이드 같이해요!'}</h4>
-        <button css={roomButton}>게임</button>
+        <h4>{roomInfo?.title}</h4>
+        <button
+          css={css`
+            ${roomButton};
+            color: ${categoryColors[roomInfo?.category || ''] || '#666'};
+            background-color: ${categoryColors[roomInfo?.category || ''] ||
+            '#999'}20;
+            border: none;
+          `}
+        >
+          {roomInfo?.category}
+        </button>
       </div>
     </aside>
   );

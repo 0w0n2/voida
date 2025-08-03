@@ -9,10 +9,9 @@ import {
   ArrowRight,
   User,
 } from 'lucide-react';
-import { useRoomStore } from '@/store/roomStore';
 import CreateRoomModal from '@/components/main/modal/CreateRoom';
 import JoinRoomModal from '@/components/main/modal/JoinRoom';
-import jinmo from '@/assets/test/jinmo.jpg';
+import type { MeetingRoom } from '@/apis/meetingRoomApi';
 
 const categoryColors: Record<string, string> = {
   게임: '#8e44ad',
@@ -22,75 +21,22 @@ const categoryColors: Record<string, string> = {
   자유: '#3498db',
 };
 
-const MainForm = () => {
-  const meetingRooms = useRoomStore((state) => state.meetingRooms);
-  const setMeetingRooms = useRoomStore((state) => state.setMeetingRooms);
+interface MainFormProps {
+  rooms: MeetingRoom[];
+}
 
+const MainForm = ({ rooms }: MainFormProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [searchTerm, setSearchTerm] = useState('');
-
-  // 모달 상태
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isJoinOpen, setIsJoinOpen] = useState(false);
 
   const itemsPerPage = 6;
 
-  const dummyRooms = [
-    {
-      id: 1,
-      title: '마비노기 싸피길드방',
-      category: '게임',
-      participants: 6,
-      thumbnail: jinmo,
-    },
-    {
-      id: 2,
-      title: '스터디 24시',
-      category: '학습',
-      participants: 4,
-      thumbnail: jinmo,
-    },
-    {
-      id: 3,
-      title: '업무 집중방',
-      category: '회의',
-      participants: 3,
-      thumbnail: jinmo,
-    },
-    {
-      id: 4,
-      title: '자유 대화',
-      category: '자유',
-      participants: 2,
-      thumbnail: jinmo,
-    },
-    {
-      id: 5,
-      title: '마비노기 길드',
-      category: '게임',
-      participants: 5,
-      thumbnail: jinmo,
-    },
-    {
-      id: 6,
-      title: '친구들 모임',
-      category: '일상',
-      participants: 6,
-      thumbnail: jinmo,
-    },
-    {
-      id: 7,
-      title: '모각코 방',
-      category: '학습',
-      participants: 7,
-      thumbnail: jinmo,
-    },
-  ];
-
   const categories = ['전체', ...Object.keys(categoryColors)];
 
-  const filteredRooms = dummyRooms.filter((room) => {
+  const filteredRooms = rooms.filter((room) => {
     const matchesCategory =
       selectedCategory === '전체' || room.category === selectedCategory;
     const matchesSearch = room.title
@@ -143,9 +89,9 @@ const MainForm = () => {
 
       <div css={cardGrid}>
         {currentRooms.map((room) => (
-          <div key={room.id} css={card}>
+          <div key={room.meetingRoomId} css={card}>
             <div css={thumbnailWrapper}>
-              <img src={room.thumbnail} alt={room.title} />
+              <img src={room.thumbnailImageUrl} alt={room.title} />
             </div>
 
             <div css={infoSection}>
@@ -163,7 +109,7 @@ const MainForm = () => {
                 </span>
                 <div css={participants}>
                   <User size={16} />
-                  <span>{room.participants}</span>
+                  <span>{room.memberCount}</span>
                 </div>
               </div>
             </div>
