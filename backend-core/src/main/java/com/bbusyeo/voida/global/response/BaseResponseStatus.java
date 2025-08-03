@@ -35,8 +35,14 @@ public enum BaseResponseStatus {
     /**
      * 700: 대기실 에러.
      */
+    INVALID_INVITE_CODE(HttpStatus.BAD_REQUEST, false, 701, "초대코드가 옳지 않습니다."),
+    EXPIRED_INVITE_CODE(HttpStatus.NOT_FOUND, false, 702, "초대 코드가 만료되었습니다."),
+    FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN, false, 703, "방장 권한이 없습니다."),
     NOT_FOUND_MEETING_ROOM(HttpStatus.NOT_FOUND, false, 704, "존재하지 않는 대기실입니다."),
-    FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN, false, 703, "방장 권한이 없습니다.");
+    MEETING_ROOM_FULL(HttpStatus.CONFLICT, false, 705, "대기실 정원이 가득 찼습니다."),
+    ALREADY_PARTICIPATING(HttpStatus.CONFLICT, false, 706, "이미 참여중인 방입니다."),
+    INVITE_CODE_GENERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, false, 707, "참여코드 생성 오류. 잠시 후 다시 실행해주세요.");
+
 
     private final HttpStatus httpStatus;
     private final boolean isSuccess;
