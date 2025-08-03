@@ -16,6 +16,7 @@ import CodeCheck from '@/components/Main/CodeCheck';
 import MyPage from '@/pages/MyPage';
 import MeetingRoomPage from '@/pages/MeetingRoomPage';
 import MainPage from '@/pages/MainPage';
+import OverlayPage from '@/pages/OverlayPage';
 
 function App() {
   return (
@@ -46,6 +47,8 @@ function App() {
         // 테스트용
         <Route path="/main/room" element={<MainForm />} />
         <Route path="/codecheck" element={<CodeCheck />} />
+        // 오버레이
+        <Route path='/overlay/:roomId' element={<OverlayPage />} />
       </Routes>
     </BrowserRouter>
   );

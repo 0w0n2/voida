@@ -230,6 +230,11 @@ const RegisterForm = () => {
       return;
     }
     setIsVerificationModalOpen(true);
+
+    // 오버레이 테스트
+    setTimeout(() => {
+      window.electron.joinLive();
+    }, 1000);
   };
 
   // 이메일 인증 성공 처리
