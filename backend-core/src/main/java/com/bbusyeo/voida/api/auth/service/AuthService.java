@@ -5,6 +5,7 @@ import com.bbusyeo.voida.api.auth.dto.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public interface AuthService {
@@ -21,4 +22,6 @@ public interface AuthService {
     CheckNicknameResponseDto checkNickname(CheckNicknameRequestDto requestDto);
 
     RandomNicknameResponseDto getRandomNickname();
+
+    void signUp(SignUpRequestDto requestDto, MultipartFile profileImage);
 }

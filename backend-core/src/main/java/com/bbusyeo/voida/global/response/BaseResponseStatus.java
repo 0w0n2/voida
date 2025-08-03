@@ -38,14 +38,25 @@ public enum BaseResponseStatus {
     
     // 랜덤 닉네임 생성
     NICKNAME_GENERATION_FAILED(HttpStatus.CONFLICT, false, 409, "랜덤 닉네임 생성을 실패했습니다."),
-
+    // 소셜 로그인
+    UNSUPPORTED_SOCIAL_PROVIDER(HttpStatus.BAD_REQUEST, false, 400, "지원하지 않는 소셜 로그인 타입입니다."),
+    // 회원가입
+    DUPLICATE_EMAIL(HttpStatus.CONFLICT, false, 409, "이미 사용 중인 이메일입니다."),
+    DUPLICATE_NICKNAME(HttpStatus.CONFLICT, false, 409, "이미 사용 중인 닉네임입니다."),
+    
     /**
      * 500: 기타 에러.
      */
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, false, 500, "서버에서 예기치 않은 오류가 발생했습니다."),
     DATABASE_CONSTRAINT_VIOLATION(HttpStatus.CONFLICT, false, 509, "데이터베이스 제약 조건을 위반했습니다. "
         + "(유니크 키 중복, 외래 키 위반, NOT NULL 위반 등에서 발생합니다.)"),
-    EMAIL_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, false, 500, "메일 발송에 실패했습니다.");
+    EMAIL_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, false, 500, "메일 발송에 실패했습니다."),
+
+    /**
+     * 600: S3 에러.
+     */
+    FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, false, 600, "파일 업로드에 실패했습니다.");
+
 
     private final HttpStatus httpStatus;
     private final boolean isSuccess;

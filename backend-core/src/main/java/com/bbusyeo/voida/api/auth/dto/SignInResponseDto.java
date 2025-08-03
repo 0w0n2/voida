@@ -14,9 +14,13 @@ import lombok.ToString;
 public class SignInResponseDto {
     private Boolean isNewbie;
 
-    static public SignInResponseDto toDto(Member member) {
+    public static SignInResponseDto toDto(Member member) {
         return SignInResponseDto.builder()
                 .isNewbie(member.getIsNewbie())
                 .build();
     }
+
+//    public static Member toEntity(String memberUuid, String profileImageUrl, ) {
+//
+//    }
 }

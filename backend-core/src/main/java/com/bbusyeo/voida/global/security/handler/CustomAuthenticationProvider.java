@@ -33,8 +33,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
         // UserDetailsService 를 통해 DB 에서 아이디로 사용자 조회
         UserDetailsDto userDetailsDto = (UserDetailsDto) userDetailsService.loadUserByUsername(id);
-
-        if (!(userDetailsDto.getPassword().equalsIgnoreCase(password))) {
+        
+        // 비밀번호 일치하는지 확인
+        if (!bCryptPasswordEncoder.matches(password, userDetailsDto.getPassword())) {
             throw new BadCredentialsException(userDetailsDto.getUsername() + "Invalid password");
         }
 

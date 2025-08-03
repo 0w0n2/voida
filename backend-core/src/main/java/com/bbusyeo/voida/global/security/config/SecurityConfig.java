@@ -64,7 +64,7 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)                          // HTTP Basic 인증 비활성화
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))   // 세션 인증 미사용 (JWT 사용)
 
-                // (2) 경로별 인가 설정 // TODO-SECURITY : 경로의 경우 yaml 로 분리
+                // (2) 경로별 인가 설정
                 // Swagger, API 문서 관련 경로, 그외 인증 없이 접근해야 하는 API 허용
                 .authorizeHttpRequests(auth -> {
                     whitelistProperties.getParsedWhitelist().forEach((method, urls) -> {

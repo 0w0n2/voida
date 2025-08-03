@@ -1,7 +1,7 @@
 package com.bbusyeo.voida.global.security.service;
 
 import com.bbusyeo.voida.api.auth.domain.JwtToken;
-import com.bbusyeo.voida.api.auth.repository.AuthRepository;
+import com.bbusyeo.voida.api.member.repository.MemberRepository;
 import com.bbusyeo.voida.api.member.domain.Member;
 import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.redis.dao.RedisDao;
@@ -26,7 +26,7 @@ public class JwtTokenServiceImpl implements JwtTokenService {
 
     private final TokenUtils tokenUtils;
     private final RedisDao redisDao;
-    private final AuthRepository authRepository;
+    private final MemberRepository memberRepository;
     private final TokenBlackListService tokenBlackListService;
 
     @Value("${jwt.expire-time.access}")
@@ -87,7 +87,7 @@ public class JwtTokenServiceImpl implements JwtTokenService {
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_JWT_TOKEN));
 
         // 사용자 정보 조회
-        Member member = authRepository.findByMemberUuid(redisMemberUuid)
+        Member member = memberRepository.findByMemberUuid(redisMemberUuid)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_JWT_TOKEN));
         UserDetailsDto userDetails = new UserDetailsDto(member);
 

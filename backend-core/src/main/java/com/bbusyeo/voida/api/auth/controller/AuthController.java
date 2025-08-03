@@ -3,16 +3,18 @@ package com.bbusyeo.voida.api.auth.controller;
 import com.bbusyeo.voida.api.auth.domain.VerificationCode;
 import com.bbusyeo.voida.api.auth.dto.*;
 import com.bbusyeo.voida.api.auth.service.AuthService;
+import com.bbusyeo.voida.api.member.domain.enums.ProviderName;
 import com.bbusyeo.voida.global.mail.service.MailService;
 import com.bbusyeo.voida.global.mail.util.MailType;
 import com.bbusyeo.voida.global.response.BaseResponse;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -65,5 +67,14 @@ public class AuthController {
     @GetMapping("/random-nickname")
     public BaseResponse<RandomNicknameResponseDto> randomNickname(){
         return new BaseResponse<>(authService.getRandomNickname());
+    }
+
+    @PostMapping(value = "/sign-up", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BaseResponse<Void> signUp(
+            @Valid @RequestPart SignUpRequestDto requestDto,
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
+    ){
+        authService.signUp(requestDto, profileImage);
+        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
     }
 }
