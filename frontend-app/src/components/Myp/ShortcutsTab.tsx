@@ -1,5 +1,6 @@
+/** @jsxImportSource @emotion/react */
+import { css } from '@emotion/react';
 import React, { useState, useEffect } from 'react';
-import styled from '@emotion/styled';
 import { getUserQuickSlots, updateQuickslots } from '../../apis/userApi';
 import { useAuthStore } from '../../store/store';
 import UpdateDoneModal from './UpdateDoneModal';
@@ -101,64 +102,73 @@ const ShortcutsTab = () => {
 
   if (loading) {
     return (
-      <LoadingContainer>
-        <LoadingText>유저 단축키를 불러오는 중...</LoadingText>
-      </LoadingContainer>
+      <div css={loadingContainerStyle}>
+        <p css={loadingTextStyle}>유저 단축키를 불러오는 중...</p>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <ErrorContainer>
-        <ErrorText>{error}</ErrorText>
-      </ErrorContainer>
+      <div css={errorContainerStyle}>
+        <p css={errorTextStyle}>{error}</p>
+      </div>
     );
   }
 
   if (!shortcuts.length) {
     return (
-      <ErrorContainer>
-        <ErrorText>단축키를 찾을 수 없습니다.</ErrorText>
-      </ErrorContainer>
+      <div css={errorContainerStyle}>
+        <p css={errorTextStyle}>단축키를 찾을 수 없습니다.</p>
+      </div>
     );
   }
 
   return (
-    <ShortcutsPanel>
-      <ShortcutsHeader>
-        <PanelTitle>단축키 설정</PanelTitle>
-        <SaveButton onClick={handleSave} disabled={saving}>
+    <div css={shortcutsPanelStyle}>
+      <div css={shortcutsHeaderStyle}>
+        <h2 css={panelTitleStyle}>단축키 설정</h2>
+        <button css={saveButtonStyle} onClick={handleSave} disabled={saving}>
           {saving ? '저장 중...' : '저장하기'}
-        </SaveButton>
-      </ShortcutsHeader>
-      <PanelSubtitle>
+        </button>
+      </div>
+      <p css={panelSubtitleStyle}>
         실시간 게임 중 자주 사용하는 문구를 단축키로 등록하세요.
-      </PanelSubtitle>
+      </p>
 
-      <ShortcutsGrid>
+      <div css={shortcutsGridStyle}>
         {shortcuts.map((shortcut, index) => (
-          <ShortcutItem key={shortcut.quickSlotId}>
-            <ShortcutKey>{shortcut.hotkey}</ShortcutKey>
-            <ShortcutInput
+          <div key={shortcut.quickSlotId} css={shortcutItemStyle}>
+            <div css={keyContainerStyle}>
+              <button css={backtickKeyStyle}>`</button>
+              <span css={plusSignStyle}>+</span>
+              <button css={numberKeyStyle}>
+                {shortcut.hotkey.split('+')[1].trim()}
+              </button>
+            </div>
+            <input
+              css={shortcutInputStyle}
               value={shortcut.message}
               onChange={(e) => handleShortcutChange(index, e.target.value)}
               placeholder="단축키 문구를 입력하세요"
             />
-          </ShortcutItem>
+          </div>
         ))}
-      </ShortcutsGrid>
+      </div>
 
       <UpdateDoneModal
         isOpen={showDoneModal}
         onClose={handleCloseModal}
         userName={user?.nickname || '사용자'}
       />
-    </ShortcutsPanel>
+    </div>
   );
 };
 
-// 스타일 컴포넌트
-const LoadingContainer = styled.div`
+export default ShortcutsTab;
+
+// CSS 스타일
+const loadingContainerStyle = css`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -168,13 +178,13 @@ const LoadingContainer = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
-const LoadingText = styled.p`
+const loadingTextStyle = css`
   font-family: 'NanumSquareR', sans-serif;
   font-size: 16px;
   color: var(--color-gray-600);
 `;
 
-const ErrorContainer = styled.div`
+const errorContainerStyle = css`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -184,13 +194,13 @@ const ErrorContainer = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
-const ErrorText = styled.p`
+const errorTextStyle = css`
   font-family: 'NanumSquareR', sans-serif;
   font-size: 16px;
   color: var(--color-red);
 `;
 
-const ShortcutsPanel = styled.div`
+const shortcutsPanelStyle = css`
   width: 100%;
   background-color: var(--color-bg-white);
   border-radius: 12px;
@@ -198,83 +208,143 @@ const ShortcutsPanel = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
-const ShortcutsHeader = styled.div`
+const shortcutsHeaderStyle = css`
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
 `;
 
-const PanelTitle = styled.h2`
+const panelTitleStyle = css`
   font-family: 'NanumSquareB', sans-serif;
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 900;
   color: var(--color-text);
   margin-bottom: 8px;
 `;
 
-const PanelSubtitle = styled.p`
+const panelSubtitleStyle = css`
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
   color: var(--color-gray-600);
   margin-bottom: 24px;
 `;
 
-const SaveButton = styled.button`
+const saveButtonStyle = css`
   padding: 8px 16px;
   background-color: var(--color-primary);
+  height: 40px;
   color: var(--color-text-white);
   border: none;
   border-radius: 6px;
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 300;
   cursor: pointer;
   transition: background-color 0.2s ease;
 
   &:hover {
     background-color: var(--color-primary-dark);
   }
+
+  &:disabled {
+    background-color: var(--color-gray-300);
+    color: var(--color-gray-500);
+    cursor: not-allowed;
+  }
 `;
 
-const ShortcutsGrid = styled.div`
+const shortcutsGridStyle = css`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 `;
 
-const ShortcutItem = styled.div`
+const shortcutItemStyle = css`
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+  padding: 16px;
+  background-color: var(--color-gray-50);
+  border-radius: 8px;
+  border: 1px solid var(--color-gray-200);
 `;
 
-const ShortcutKey = styled.button`
-  padding: 8px 12px;
+const keyContainerStyle = css`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+`;
+
+const backtickKeyStyle = css`
+  width: 40px;
+  height: 40px;
   background-color: var(--color-gray-600);
   color: var(--color-text-white);
   border: none;
   border-radius: 6px;
   font-family: 'NanumSquareR', sans-serif;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  min-width: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: var(--color-gray-700);
+  }
 `;
 
-const ShortcutInput = styled.input`
+const plusSignStyle = css`
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 4px;
+`;
+
+const numberKeyStyle = css`
+  width: 40px;
+  height: 40px;
+  background-color: var(--color-gray-600);
+  color: var(--color-text-white);
+  border: none;
+  border-radius: 6px;
+  font-family: 'NanumSquareR', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: var(--color-gray-700);
+  }
+`;
+
+const shortcutInputStyle = css`
   flex: 1;
-  padding: 8px 12px;
+  padding: 12px 16px;
   border: 1px solid var(--color-gray-300);
   border-radius: 6px;
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
+  font-weight: 600;
   background-color: var(--color-bg-white);
   color: var(--color-text);
+  min-height: 40px;
 
   &:focus {
     outline: none;
     border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  &::placeholder {
+    color: var(--color-gray-400);
   }
 `;
-export default ShortcutsTab;

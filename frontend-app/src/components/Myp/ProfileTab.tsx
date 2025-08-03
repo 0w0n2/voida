@@ -1,5 +1,6 @@
+/** @jsxImportSource @emotion/react */
+import { css } from '@emotion/react';
 import React, { useState, useEffect } from 'react';
-import styled from '@emotion/styled';
 import defaultProfile from '../../assets/profiles/defaultProfile.png';
 import { getUser, updateUser } from '../../apis/userApi';
 import { useAuthStore } from '../../store/store';
@@ -166,105 +167,139 @@ const ProfileTab = () => {
 
   if (loading) {
     return (
-      <LoadingContainer>
-        <LoadingText>유저 정보를 불러오는 중...</LoadingText>
-      </LoadingContainer>
+      <div css={loadingContainerStyle}>
+        <p css={loadingTextStyle}>유저 정보를 불러오는 중...</p>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <ErrorContainer>
-        <ErrorText>{error}</ErrorText>
-      </ErrorContainer>
+      <div css={errorContainerStyle}>
+        <p css={errorTextStyle}>{error}</p>
+      </div>
     );
   }
 
   if (!userProfile) {
     return (
-      <ErrorContainer>
-        <ErrorText>유저 정보를 찾을 수 없습니다.</ErrorText>
-      </ErrorContainer>
+      <div css={errorContainerStyle}>
+        <p css={errorTextStyle}>유저 정보를 찾을 수 없습니다.</p>
+      </div>
     );
   }
 
   return (
     <>
-      <ProfilePanel>
-        <PanelTitle>프로필 사진</PanelTitle>
-        <PanelSubtitle>클릭하여 사진을 변경하세요.</PanelSubtitle>
-        <ProfileImageContainer>
-          <LargeProfileImage
-            src={userProfile.profileImage || defaultProfile}
-            alt="프로필 사진"
-          />
-        </ProfileImageContainer>
-        <ChangePhotoButton onClick={handleProfileImageChange} disabled={saving}>
-          {saving ? '변경 중...' : '📷 사진 변경'}
-        </ChangePhotoButton>
-      </ProfilePanel>
+      <div css={containerStyle}>
+        {/* 좌측: 프로필 사진 섹션 */}
+        <div css={profilePanelStyle}>
+          <h2 css={panelTitleStyle}>프로필 사진</h2>
+          <p css={panelSubtitleStyle}>클릭하여 사진을 변경하세요.</p>
 
-      <InfoPanel>
-        <InfoHeader>
-          <PanelTitle>기본 정보</PanelTitle>
-          <ActionButtons>
-            <WithdrawButton onClick={handleWithdraw} disabled={saving}>
-              {saving ? '처리 중...' : '탈퇴하기'}
-            </WithdrawButton>
-            <SaveButton onClick={handleSave} disabled={saving}>
-              {saving ? '저장 중...' : '수정하기'}
-            </SaveButton>
-          </ActionButtons>
-        </InfoHeader>
-        <PanelSubtitle>개인 정보를 관리하세요.</PanelSubtitle>
+          <div css={profileImageContainerStyle}>
+            <img
+              src={userProfile.profileImage || defaultProfile}
+              alt="프로필 사진"
+              css={largeProfileImageStyle}
+            />
+          </div>
 
-        <InfoSection>
-          <InfoLabel>
-            <LabelIcon>👤</LabelIcon>
-            닉네임
-          </InfoLabel>
-          <InputField
-            value={userProfile.nickname}
-            onChange={(e) => handleNicknameChange(e.target.value)}
-            placeholder="닉네임을 입력하세요"
+          <button
+            onClick={handleProfileImageChange}
             disabled={saving}
-          />
-        </InfoSection>
+            css={changePhotoButtonStyle}
+          >
+            {saving ? '변경 중...' : '📷 사진 변경'}
+          </button>
+        </div>
 
-        <InfoSection>
-          <InfoLabel>
-            <LabelIcon>📧</LabelIcon>
-            이메일
-            <CannotEditButton>수정불가</CannotEditButton>
-          </InfoLabel>
-          <InputField
-            value={userProfile.email}
-            disabled
-            placeholder="이메일을 입력하세요"
-          />
-        </InfoSection>
+        {/* 우측: 기본 정보 섹션 */}
+        <div css={infoPanelStyle}>
+          <div css={infoHeaderStyle}>
+            <h2 css={panelTitleStyle}>기본 정보</h2>
+            <div css={actionButtonsStyle}>
+              <button
+                onClick={handleWithdraw}
+                disabled={saving}
+                css={withdrawButtonStyle}
+              >
+                {saving ? '처리 중...' : '탈퇴하기'}
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                css={saveButtonStyle}
+              >
+                {saving ? '저장 중...' : '수정하기'}
+              </button>
+            </div>
+          </div>
 
-        <InfoSection>
-          <InfoLabel>
-            <LabelIcon>🔒</LabelIcon>
-            비밀번호 수정
-          </InfoLabel>
-          <ActionButton onClick={handlePasswordChange} disabled={saving}>
-            비밀번호 수정하기
-          </ActionButton>
-        </InfoSection>
+          <p css={panelSubtitleStyle}>개인 정보를 관리하세요.</p>
 
-        <InfoSection>
-          <InfoLabel>
-            <LabelIcon>🌐</LabelIcon>
-            소셜 연동 여부
-          </InfoLabel>
-          <GoogleButton onClick={handleGoogleLink} disabled={saving}>
-            <GoogleIcon>G</GoogleIcon>
-            Google 계정 연동
-          </GoogleButton>
-        </InfoSection>
-      </InfoPanel>
+          <div css={infoSectionStyle}>
+            <label css={infoLabelStyle}>
+              <span css={labelIconStyle}>👤</span>
+              닉네임
+            </label>
+            <input
+              type="text"
+              value={userProfile.nickname}
+              onChange={(e) => handleNicknameChange(e.target.value)}
+              placeholder="닉네임을 입력하세요"
+              disabled={saving}
+              css={inputFieldStyle}
+            />
+          </div>
+
+          <div css={infoSectionStyle}>
+            <label css={infoLabelStyle}>
+              <span css={labelIconStyle}>📧</span>
+              이메일
+              <span css={cannotEditButtonStyle}>수정불가</span>
+            </label>
+            <input
+              type="email"
+              value={userProfile.email}
+              disabled
+              placeholder="이메일을 입력하세요"
+              css={inputFieldStyle}
+            />
+          </div>
+          <div css={horizontalContainerStyle}>
+            <div css={halfSectionStyle}>
+              <label css={infoLabelStyle}>
+                <span css={labelIconStyle}>🔒</span>
+                비밀번호 수정
+              </label>
+              <button
+                onClick={handlePasswordChange}
+                disabled={saving}
+                css={actionButtonStyle}
+              >
+                비밀번호 수정하기
+              </button>
+            </div>
+
+            <div css={halfSectionStyle}>
+              <label css={infoLabelStyle}>
+                <span css={labelIconStyle}>🌐</span>
+                소셜 연동 여부
+              </label>
+              <button
+                onClick={handleGoogleLink}
+                disabled={saving}
+                css={googleButtonStyle}
+              >
+                <span css={googleIconStyle}>G</span>
+                Google 계정 연동
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <UpdatePasswordModal
         isOpen={isPasswordModalOpen}
         onClose={() => setIsPasswordModalOpen(false)}
@@ -280,24 +315,37 @@ const ProfileTab = () => {
   );
 };
 
-// 스타일 컴포넌트
-const ProfilePanel = styled.div`
+export default ProfileTab;
+
+// CSS 스타일
+const containerStyle = css`
+  display: flex;
+  gap: 32px;
+  padding: 32px;
+  background-color: var(--color-bg-white);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+`;
+
+const profilePanelStyle = css`
   flex: 1;
   background-color: var(--color-bg-white);
   border-radius: 12px;
+  min-width: 400px;
   padding: 32px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
-const InfoPanel = styled.div`
+const infoPanelStyle = css`
   flex: 2;
   background-color: var(--color-bg-white);
+  min-width: 600px;
   border-radius: 12px;
   padding: 32px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
-const PanelTitle = styled.h2`
+const panelTitleStyle = css`
   font-family: 'NanumSquareB', sans-serif;
   font-size: 20px;
   font-weight: 700;
@@ -305,34 +353,34 @@ const PanelTitle = styled.h2`
   margin-bottom: 8px;
 `;
 
-const PanelSubtitle = styled.p`
+const panelSubtitleStyle = css`
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
   color: var(--color-gray-600);
   margin-bottom: 24px;
 `;
 
-const ProfileImageContainer = styled.div`
+const profileImageContainerStyle = css`
   display: flex;
   justify-content: center;
   margin-bottom: 24px;
 `;
 
-const LargeProfileImage = styled.img`
-  width: 120px;
-  height: 120px;
+const largeProfileImageStyle = css`
+  width: 180px;        
+  height: 180px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid var(--color-primary);
 `;
 
-const ChangePhotoButton = styled.button`
-  width: 100%;
+const changePhotoButtonStyle = css`
+  width: 40%;
   padding: 12px;
-  background-color: var(--color-primary);
-  color: var(--color-text-white);
+  background-color: var(--color-bg-white);
+  color: var(--color-text);
   border: none;
   border-radius: 8px;
+  margin-left: 30%;
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
   font-weight: 600;
@@ -350,19 +398,19 @@ const ChangePhotoButton = styled.button`
   }
 `;
 
-const InfoHeader = styled.div`
+const infoHeaderStyle = css`
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
 `;
 
-const ActionButtons = styled.div`
+const actionButtonsStyle = css`
   display: flex;
   gap: 12px;
 `;
 
-const WithdrawButton = styled.button`
+const withdrawButtonStyle = css`
   padding: 8px 16px;
   background-color: var(--color-gray-500);
   color: var(--color-text-white);
@@ -385,7 +433,7 @@ const WithdrawButton = styled.button`
   }
 `;
 
-const SaveButton = styled.button`
+const saveButtonStyle = css`
   padding: 8px 16px;
   background-color: var(--color-primary);
   color: var(--color-text-white);
@@ -408,11 +456,11 @@ const SaveButton = styled.button`
   }
 `;
 
-const InfoSection = styled.div`
+const infoSectionStyle = css`
   margin-bottom: 24px;
 `;
 
-const InfoLabel = styled.label`
+const infoLabelStyle = css`
   display: flex;
   align-items: center;
   gap: 8px;
@@ -423,11 +471,11 @@ const InfoLabel = styled.label`
   margin-bottom: 8px;
 `;
 
-const LabelIcon = styled.span`
+const labelIconStyle = css`
   font-size: 16px;
 `;
 
-const CannotEditButton = styled.span`
+const cannotEditButtonStyle = css`
   margin-left: auto;
   padding: 4px 8px;
   background-color: var(--color-gray-200);
@@ -437,7 +485,7 @@ const CannotEditButton = styled.span`
   font-weight: 400;
 `;
 
-const InputField = styled.input`
+const inputFieldStyle = css`
   width: 100%;
   padding: 12px 16px;
   border: 1px solid var(--color-gray-300);
@@ -459,7 +507,7 @@ const InputField = styled.input`
   }
 `;
 
-const ActionButton = styled.button`
+const actionButtonStyle = css`
   width: 100%;
   padding: 12px 16px;
   background-color: var(--color-bg-white);
@@ -484,7 +532,7 @@ const ActionButton = styled.button`
   }
 `;
 
-const GoogleButton = styled.button`
+const googleButtonStyle = css`
   display: flex;
   align-items: center;
   gap: 8px;
@@ -512,7 +560,7 @@ const GoogleButton = styled.button`
   }
 `;
 
-const GoogleIcon = styled.span`
+const googleIconStyle = css`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -525,7 +573,7 @@ const GoogleIcon = styled.span`
   font-weight: bold;
 `;
 
-const LoadingContainer = styled.div`
+const loadingContainerStyle = css`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -535,13 +583,13 @@ const LoadingContainer = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
-const LoadingText = styled.p`
+const loadingTextStyle = css`
   font-family: 'NanumSquareR', sans-serif;
   font-size: 16px;
   color: var(--color-gray-600);
 `;
 
-const ErrorContainer = styled.div`
+const errorContainerStyle = css`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -551,10 +599,18 @@ const ErrorContainer = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
-const ErrorText = styled.p`
+const errorTextStyle = css`
   font-family: 'NanumSquareR', sans-serif;
   font-size: 16px;
   color: var(--color-red);
 `;
 
-export default ProfileTab;
+const horizontalContainerStyle = css`
+  display: flex;
+  gap: 24px;
+  margin-top: 24px;
+`;
+
+const halfSectionStyle = css`
+  flex: 1;
+`;

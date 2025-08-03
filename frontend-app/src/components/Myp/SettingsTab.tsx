@@ -1,5 +1,6 @@
+/** @jsxImportSource @emotion/react */
+import { css } from '@emotion/react';
 import React, { useState, useEffect } from 'react';
-import styled from '@emotion/styled';
 import { getUserSettings, updateGuideMode } from '../../apis/userApi';
 import { useAuthStore } from '../../store/store';
 import { useNavigate } from 'react-router-dom';
@@ -111,79 +112,83 @@ const SettingsTab = () => {
 
   if (loading) {
     return (
-      <LoadingContainer>
-        <LoadingText>유저 설정을 불러오는 중...</LoadingText>
-      </LoadingContainer>
+      <div css={loadingContainerStyle}>
+        <p css={loadingTextStyle}>유저 설정을 불러오는 중...</p>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <ErrorContainer>
-        <ErrorText>{error}</ErrorText>
-      </ErrorContainer>
+      <div css={errorContainerStyle}>
+        <p css={errorTextStyle}>{error}</p>
+      </div>
     );
   }
 
   if (!userSettings) {
     return (
-      <ErrorContainer>
-        <ErrorText>유저 설정을 찾을 수 없습니다.</ErrorText>
-      </ErrorContainer>
+      <div css={errorContainerStyle}>
+        <p css={errorTextStyle}>유저 설정을 찾을 수 없습니다.</p>
+      </div>
     );
   }
 
   return (
-    <SettingsPanel>
-      <SettingsHeader>
-        <PanelTitle>설정</PanelTitle>
-        <SaveButton onClick={handleSave} disabled={saving}>
+    <div css={settingsPanelStyle}>
+      <div css={settingsHeaderStyle}>
+        <h2 css={panelTitleStyle}>설정</h2>
+        <button css={saveButtonStyle} onClick={handleSave} disabled={saving}>
           {saving ? '저장 중...' : '저장하기'}
-        </SaveButton>
-      </SettingsHeader>
-      <PanelSubtitle>구화 및 음성 관련 설정을 관리하세요.</PanelSubtitle>
+        </button>
+      </div>
+      <p css={panelSubtitleStyle}>구화 및 음성 관련 설정을 관리하세요.</p>
 
-      <SettingsSection>
-        <SettingsItem>
-          <SettingsItemLeft>
-            <SettingsItemTitle>구화 사용 여부</SettingsItemTitle>
-            <SettingsItemDescription>
-              구화를 텍스트로 변환할 수 있습니다.
-            </SettingsItemDescription>
-          </SettingsItemLeft>
-          <ToggleSwitch
-            enabled={userSettings.useLipTalkMode}
-            onClick={() => handleSpeechToggle(!userSettings.useLipTalkMode)}
-            disabled={saving}
-          >
-            <ToggleSlider enabled={userSettings.useLipTalkMode} />
-          </ToggleSwitch>
-        </SettingsItem>
+      <div css={settingsSectionStyle}>
+        <div css={horizontalContainerStyle}>
+          <div css={settingsItemStyle}>
+            <div css={settingsItemLeftStyle}>
+              <h3 css={settingsItemTitleStyle}>구화 사용 여부</h3>
+              <p css={settingsItemDescriptionStyle}>
+                구화를 텍스트로 변환할 수 있습니다.
+              </p>
+            </div>
+            <div
+              css={toggleSwitchStyle(userSettings.useLipTalkMode, saving)}
+              onClick={() =>
+                !saving && handleSpeechToggle(!userSettings.useLipTalkMode)
+              }
+            >
+              <div css={toggleSliderStyle(userSettings.useLipTalkMode)} />
+            </div>
+          </div>
 
-        <SettingsItem>
-          <SettingsItemLeft>
-            <SettingsItemTitle>가이드 북 보기</SettingsItemTitle>
-            <SettingsItemDescription>
-              Volda의 AI가이드를 확인하세요.
-            </SettingsItemDescription>
-          </SettingsItemLeft>
-          <GuidebookButton onClick={handleGuidebook}>
-            📖 가이드북 보기
-          </GuidebookButton>
-        </SettingsItem>
-      </SettingsSection>
+          <div css={settingsItemStyle}>
+            <div css={settingsItemLeftStyle}>
+              <h3 css={settingsItemTitleStyle}>가이드 북 보기</h3>
+              <p css={settingsItemDescriptionStyle}>
+                Volda의 AI가이드를 확인하세요.
+              </p>
+            </div>
+            <button css={guidebookButtonStyle} onClick={handleGuidebook}>
+              📖 가이드북 보기
+            </button>
+          </div>
+        </div>
+      </div>
 
       <UpdateDoneModal
         isOpen={showDoneModal}
         onClose={handleCloseModal}
         userName={user?.nickname || '사용자'}
       />
-    </SettingsPanel>
+    </div>
   );
 };
 
-// 스타일 컴포넌트
-const LoadingContainer = styled.div`
+export default SettingsTab;
+
+const loadingContainerStyle = css`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -193,13 +198,13 @@ const LoadingContainer = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
-const LoadingText = styled.p`
+const loadingTextStyle = css`
   font-family: 'NanumSquareR', sans-serif;
   font-size: 16px;
   color: var(--color-gray-600);
 `;
 
-const ErrorContainer = styled.div`
+const errorContainerStyle = css`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -209,13 +214,13 @@ const ErrorContainer = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
-const ErrorText = styled.p`
+const errorTextStyle = css`
   font-family: 'NanumSquareR', sans-serif;
   font-size: 16px;
   color: var(--color-red);
 `;
 
-const SettingsPanel = styled.div`
+const settingsPanelStyle = css`
   width: 100%;
   background-color: var(--color-bg-white);
   border-radius: 12px;
@@ -223,14 +228,14 @@ const SettingsPanel = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
-const SettingsHeader = styled.div`
+const settingsHeaderStyle = css`
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
 `;
 
-const PanelTitle = styled.h2`
+const panelTitleStyle = css`
   font-family: 'NanumSquareB', sans-serif;
   font-size: 20px;
   font-weight: 700;
@@ -238,14 +243,14 @@ const PanelTitle = styled.h2`
   margin-bottom: 8px;
 `;
 
-const PanelSubtitle = styled.p`
+const panelSubtitleStyle = css`
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
   color: var(--color-gray-600);
   margin-bottom: 24px;
 `;
 
-const SaveButton = styled.button`
+const saveButtonStyle = css`
   padding: 8px 16px;
   background-color: var(--color-primary);
   color: var(--color-text-white);
@@ -260,27 +265,40 @@ const SaveButton = styled.button`
   &:hover {
     background-color: var(--color-primary-dark);
   }
+
+  &:disabled {
+    background-color: var(--color-gray-300);
+    color: var(--color-gray-500);
+    cursor: not-allowed;
+  }
 `;
 
-const SettingsSection = styled.div`
+const settingsSectionStyle = css`
   display: flex;
   flex-direction: column;
   gap: 24px;
 `;
 
-const SettingsItem = styled.div`
+const horizontalContainerStyle = css`
+  display: flex;
+  gap: 40px;
+  width: 100%;
+`;
+
+const settingsItemStyle = css`
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 20px 0;
   border-bottom: 1px solid var(--color-gray-200);
-`;
-
-const SettingsItemLeft = styled.div`
   flex: 1;
 `;
 
-const SettingsItemTitle = styled.h3`
+const settingsItemLeftStyle = css`
+  flex: 1;
+`;
+
+const settingsItemTitleStyle = css`
   font-family: 'NanumSquareB', sans-serif;
   font-size: 16px;
   font-weight: 700;
@@ -288,37 +306,39 @@ const SettingsItemTitle = styled.h3`
   margin-bottom: 4px;
 `;
 
-const SettingsItemDescription = styled.p`
+const settingsItemDescriptionStyle = css`
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
   color: var(--color-gray-600);
 `;
 
-const ToggleSwitch = styled.div<{ enabled: boolean; disabled?: boolean }>`
+const toggleSwitchStyle = (enabled: boolean, disabled?: boolean) => css`
   width: 50px;
   height: 24px;
-  background-color: ${(props) =>
-    props.enabled ? 'var(--color-primary)' : 'var(--color-gray-200)'};
+  margin-right: 80px;
+  background-color: ${enabled
+    ? 'var(--color-primary)'
+    : 'var(--color-gray-200)'};
   border-radius: 12px;
   position: relative;
-  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
+  cursor: ${disabled ? 'not-allowed' : 'pointer'};
   transition: background-color 0.2s ease;
-  opacity: ${(props) => (props.disabled ? 0.6 : 1)};
+  opacity: ${disabled ? 0.6 : 1};
 `;
 
-const ToggleSlider = styled.div<{ enabled: boolean }>`
+const toggleSliderStyle = (enabled: boolean) => css`
   width: 20px;
   height: 20px;
   background-color: var(--color-bg-white);
   border-radius: 50%;
   position: absolute;
   top: 2px;
-  left: ${(props) => (props.enabled ? '28px' : '2px')};
+  left: ${enabled ? '28px' : '2px'};
   transition: left 0.2s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 `;
 
-const GuidebookButton = styled.button`
+const guidebookButtonStyle = css`
   padding: 8px 16px;
   background-color: var(--color-green);
   color: var(--color-text-white);
@@ -334,5 +354,3 @@ const GuidebookButton = styled.button`
     background-color: #1e8a5a;
   }
 `;
-
-export default SettingsTab;

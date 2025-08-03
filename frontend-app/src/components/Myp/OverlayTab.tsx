@@ -1,5 +1,6 @@
+/** @jsxImportSource @emotion/react */
+import { css } from '@emotion/react';
 import React, { useState, useEffect } from 'react';
-import styled from '@emotion/styled';
 import { getUserSettings, updateOverlay } from '../../apis/userApi';
 import { useAuthStore } from '../../store/store';
 import UpdateDoneModal from './UpdateDoneModal';
@@ -102,9 +103,9 @@ const OverlayTab = () => {
       //     userSettings.overlayTransparency,
       //     size
       //   );
-      //   console.log('폰트 크기 설정 완료');
+      //   console.log('글자 크기 설정 완료');
       // } catch (err) {
-      //   console.error('폰트 크기 설정 실패:', err);
+      //   console.error('글자 크기 설정 실패:', err);
       //   // 실패 시 원래 상태로 되돌리기
       //   setUserSettings({
       //     ...userSettings,
@@ -117,7 +118,7 @@ const OverlayTab = () => {
       // 임시 저장 시뮬레이션
       setSaving(true);
       setTimeout(() => {
-        console.log('폰트 크기 설정 완료');
+        console.log('글자 크기 설정 완료');
         setSaving(false);
       }, 500);
     }
@@ -164,12 +165,18 @@ const OverlayTab = () => {
   const handleSave = async () => {
     try {
       setSaving(true);
-      console.log('오버레이 설정 저장');
+      console.log('오버레이 설정 저장 시작');
 
-      // TODO: 오버레이 설정 업데이트 API 호출
-      // await updateOverlay(accessToken!, userSettings);
+      // TODO: API 연동 시 주석 해제
+      // await updateOverlay(
+      //   accessToken!,
+      //   userSettings.overlayPosition,
+      //   userSettings.overlayTransparency,
+      //   userSettings.liveFontSize
+      // );
+      // console.log('오버레이 설정 저장 완료');
 
-      // 임시 시뮬레이션
+      // 임시 저장 시뮬레이션
       setTimeout(() => {
         console.log('오버레이 설정 저장 완료');
         setShowDoneModal(true);
@@ -187,108 +194,127 @@ const OverlayTab = () => {
 
   if (loading) {
     return (
-      <LoadingContainer>
-        <LoadingText>오버레이 설정을 불러오는 중...</LoadingText>
-      </LoadingContainer>
+      <div css={loadingContainerStyle}>
+        <p css={loadingTextStyle}>오버레이 설정을 불러오는 중...</p>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <ErrorContainer>
-        <ErrorText>{error}</ErrorText>
-      </ErrorContainer>
+      <div css={errorContainerStyle}>
+        <p css={errorTextStyle}>{error}</p>
+      </div>
     );
   }
 
   if (!userSettings) {
     return (
-      <ErrorContainer>
-        <ErrorText>오버레이 설정을 찾을 수 없습니다.</ErrorText>
-      </ErrorContainer>
+      <div css={errorContainerStyle}>
+        <p css={errorTextStyle}>오버레이 설정을 찾을 수 없습니다.</p>
+      </div>
     );
   }
 
   return (
-    <OverlayPanel>
-      <OverlayHeader>
-        <PanelTitle>오버레이 설정</PanelTitle>
-        <SaveButton onClick={handleSave} disabled={saving}>
+    <div css={overlayPanelStyle}>
+      <div css={overlayHeaderStyle}>
+        <h2 css={panelTitleStyle}>오버레이 설정</h2>
+        <button css={saveButtonStyle} onClick={handleSave} disabled={saving}>
           {saving ? '저장 중...' : '저장하기'}
-        </SaveButton>
-      </OverlayHeader>
-      <PanelSubtitle>
+        </button>
+      </div>
+      <p css={panelSubtitleStyle}>
         실시간 게임 중 오버레이 화면을 커스텀 해보세요.
-      </PanelSubtitle>
+      </p>
 
-      <OverlaySection>
-        <OverlaySectionTitle>위치</OverlaySectionTitle>
-        <OverlaySectionDescription>
-          게임 중 채팅과 엔점이 보일 위치를 지정할 수 있습니다.
-        </OverlaySectionDescription>
-        <PositionGrid>
-          {[0, 1, 2, 3, 4, 5].map((position) => (
-            <PositionBox
-              key={position}
-              selected={parseInt(userSettings.overlayPosition) === position}
-              onClick={() => handlePositionChange(position)}
-              disabled={saving}
-            />
-          ))}
-        </PositionGrid>
-      </OverlaySection>
+      <div css={overlayContentStyle}>
+        <div css={leftSectionStyle}>
+          <div css={overlaySectionStyle}>
+            <h3 css={overlaySectionTitleStyle}>위치</h3>
+            <p css={overlaySectionDescriptionStyle}>
+              게임 중 채팅과 엔점이 보일 위치를 지정할 수 있습니다.
+            </p>
+            <div css={positionGridStyle}>
+              {[0, 1, 2, 3, 4, 5].map((position) => (
+                <div
+                  key={position}
+                  css={positionBoxStyle(
+                    parseInt(userSettings.overlayPosition) === position,
+                    saving,
+                  )}
+                  onClick={() => !saving && handlePositionChange(position)}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
 
-      <OverlaySection>
-        <OverlaySectionTitle>글자 크기</OverlaySectionTitle>
-        <OverlaySectionDescription>
-          게임 중 채팅의 글자 크기를 지정할 수 있습니다.
-        </OverlaySectionDescription>
-        <SliderContainer>
-          <SliderLabel>가</SliderLabel>
-          <Slider
-            type="range"
-            min="12"
-            max="48"
-            value={userSettings.liveFontSize}
-            onChange={(e) => handleFontSizeChange(Number(e.target.value))}
-            disabled={saving}
-          />
-          <SliderLabel style={{ fontSize: `${userSettings.liveFontSize}px` }}>
-            가
-          </SliderLabel>
-        </SliderContainer>
-      </OverlaySection>
+        <div css={rightSectionStyle}>
+          <div css={overlaySectionStyle}>
+            <h3 css={overlaySectionTitleStyle}>글자 크기</h3>
+            <p css={overlaySectionDescriptionStyle}>
+              게임 중 채팅의 글자 크기를 지정할 수 있습니다.
+            </p>
+            <div css={sliderContainerStyle}>
+              <span css={sliderLabelStyle}>가</span>
+              <input
+                css={sliderStyle}
+                type="range"
+                min="12"
+                max="48"
+                value={userSettings.liveFontSize}
+                onChange={(e) => handleFontSizeChange(Number(e.target.value))}
+                disabled={saving}
+              />
+              <span
+                css={sliderLabelStyle}
+                style={{ fontSize: `${userSettings.liveFontSize}px` }}
+              >
+                가
+              </span>
+            </div>
+          </div>
 
-      <OverlaySection>
-        <OverlaySectionTitle>투명도</OverlaySectionTitle>
-        <OverlaySectionDescription>
-          게임 중 채팅의 투명도를 지정할 수 있습니다.
-        </OverlaySectionDescription>
-        <SliderContainer>
-          <SliderLabel>0%</SliderLabel>
-          <Slider
-            type="range"
-            min="0"
-            max="100"
-            value={userSettings.overlayTransparency}
-            onChange={(e) => handleTransparencyChange(Number(e.target.value))}
-            disabled={saving}
-          />
-          <SliderLabel>{userSettings.overlayTransparency}%</SliderLabel>
-        </SliderContainer>
-      </OverlaySection>
+          <div css={overlaySectionStyle}>
+            <h3 css={overlaySectionTitleStyle}>투명도</h3>
+            <p css={overlaySectionDescriptionStyle}>
+              게임 중 채팅의 투명도를 지정할 수 있습니다.
+            </p>
+            <div css={sliderContainerStyle}>
+              <span css={sliderLabelStyle}>0%</span>
+              <input
+                css={sliderStyle}
+                type="range"
+                min="0"
+                max="100"
+                value={userSettings.overlayTransparency}
+                onChange={(e) =>
+                  handleTransparencyChange(Number(e.target.value))
+                }
+                disabled={saving}
+              />
+              <span css={sliderLabelStyle}>
+                {userSettings.overlayTransparency}%
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <UpdateDoneModal
         isOpen={showDoneModal}
         onClose={handleCloseModal}
         userName={user?.nickname || '사용자'}
       />
-    </OverlayPanel>
+    </div>
   );
 };
 
-// 스타일 컴포넌트
-const LoadingContainer = styled.div`
+export default OverlayTab;
+
+// CSS 스타일
+const loadingContainerStyle = css`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -298,13 +324,13 @@ const LoadingContainer = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
-const LoadingText = styled.p`
+const loadingTextStyle = css`
   font-family: 'NanumSquareR', sans-serif;
   font-size: 16px;
   color: var(--color-gray-600);
 `;
 
-const ErrorContainer = styled.div`
+const errorContainerStyle = css`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -314,13 +340,13 @@ const ErrorContainer = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
-const ErrorText = styled.p`
+const errorTextStyle = css`
   font-family: 'NanumSquareR', sans-serif;
   font-size: 16px;
   color: var(--color-red);
 `;
 
-const OverlayPanel = styled.div`
+const overlayPanelStyle = css`
   width: 100%;
   background-color: var(--color-bg-white);
   border-radius: 12px;
@@ -328,14 +354,14 @@ const OverlayPanel = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
-const OverlayHeader = styled.div`
+const overlayHeaderStyle = css`
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
 `;
 
-const PanelTitle = styled.h2`
+const panelTitleStyle = css`
   font-family: 'NanumSquareB', sans-serif;
   font-size: 20px;
   font-weight: 700;
@@ -343,14 +369,14 @@ const PanelTitle = styled.h2`
   margin-bottom: 8px;
 `;
 
-const PanelSubtitle = styled.p`
+const panelSubtitleStyle = css`
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
   color: var(--color-gray-600);
   margin-bottom: 24px;
 `;
 
-const SaveButton = styled.button`
+const saveButtonStyle = css`
   padding: 8px 16px;
   background-color: var(--color-primary);
   color: var(--color-text-white);
@@ -372,66 +398,83 @@ const SaveButton = styled.button`
   }
 `;
 
-const OverlaySection = styled.div`
-  margin-bottom: 32px;
+const overlayContentStyle = css`
+  display: flex;
+  gap: 40px;
+  max-width: 800px;
+  margin-top: 20px;
 `;
 
-const OverlaySectionTitle = styled.h3`
+const leftSectionStyle = css`
+  flex: 1;
+`;
+
+const rightSectionStyle = css`
+  flex: 1;
+`;
+
+const overlaySectionStyle = css`
+  margin-bottom: 40px;
+`;
+
+const overlaySectionTitleStyle = css`
   font-family: 'NanumSquareB', sans-serif;
   font-size: 16px;
   font-weight: 700;
   color: var(--color-text);
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 `;
 
-const OverlaySectionDescription = styled.p`
+const overlaySectionDescriptionStyle = css`
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
   color: var(--color-gray-600);
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 `;
 
-const PositionGrid = styled.div`
+const positionGridStyle = css`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  max-width: 300px;
+  gap: 16px;
+  max-width: 320px;
 `;
 
-const PositionBox = styled.div<{ selected: boolean; disabled?: boolean }>`
-  width: 80px;
-  height: 60px;
-  background-color: ${(props) =>
-    props.selected ? 'var(--color-primary)' : 'var(--color-gray-100)'};
+const positionBoxStyle = (selected: boolean, disabled?: boolean) => css`
+  width: 90px;
+  height: 70px;
+  background-color: ${selected
+    ? 'var(--color-primary)'
+    : 'var(--color-gray-100)'};
   border: 2px solid
-    ${(props) =>
-      props.selected ? 'var(--color-primary)' : 'var(--color-gray-200)'};
+    ${selected ? 'var(--color-primary)' : 'var(--color-gray-200)'};
   border-radius: 8px;
-  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
+  cursor: ${disabled ? 'not-allowed' : 'pointer'};
   transition: all 0.2s ease;
-  opacity: ${(props) => (props.disabled ? 0.6 : 1)};
+  opacity: ${disabled ? 0.6 : 1};
 
   &:hover {
-    border-color: ${(props) =>
-      props.disabled ? 'var(--color-gray-200)' : 'var(--color-primary)'};
+    border-color: ${disabled
+      ? 'var(--color-gray-200)'
+      : 'var(--color-primary)'};
   }
 `;
 
-const SliderContainer = styled.div`
+const sliderContainerStyle = css`
   display: flex;
   align-items: center;
-  gap: 16px;
-  max-width: 400px;
+  gap: 20px;
+  max-width: 450px;
 `;
 
-const SliderLabel = styled.span`
+const sliderLabelStyle = css`
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
   color: var(--color-text);
-  min-width: 30px;
+  min-width: 40px;
+  text-align: center;
 `;
 
-const Slider = styled.input`
+const sliderStyle = css`
   flex: 1;
   height: 6px;
   background: linear-gradient(
@@ -458,7 +501,7 @@ const Slider = styled.input`
     height: 18px;
     background: var(--color-primary);
     border-radius: 50%;
-    cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
+    cursor: pointer;
   }
 
   &::-moz-range-thumb {
@@ -466,9 +509,7 @@ const Slider = styled.input`
     height: 18px;
     background: var(--color-primary);
     border-radius: 50%;
-    cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
+    cursor: pointer;
     border: none;
   }
 `;
-
-export default OverlayTab;
