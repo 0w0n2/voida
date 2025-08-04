@@ -9,7 +9,8 @@ const apiInstance = axios.create({
 apiInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('accessToken');
-    if (token) {
+    const noAuthNeeded = ['/v1/auth/login', '/v1/auth/sign-up', '/v1/auth/email-code'];
+    if (token && !isPublic) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;

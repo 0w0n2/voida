@@ -87,18 +87,19 @@ const RegisterForm = () => {
     }
   };
 
-  // 닉네임 랜덤 생성
-  // useEffect(() => {
-  //   const fetchRandomNickname = async () => {
-  //     try {
-  //       const response = await getRandomNickname();
-  //       setNickname(response.data.nickname);
-  //     } catch (error) {
-  //       console.error('닉네임 랜덤 생성 중 오류 발생:', error);
-  //     }
-  //   };
-  //   fetchRandomNickname();
-  // }, []);
+  useEffect(() => {
+    const fetchRandomNickname = async () => {
+      try {
+        const response = await getRandomNickname();
+        const name = response.data?.result?.nickname??'';
+        setNickname(name);
+        console.log(name);
+      } catch (error) {
+        console.error('닉네임 랜덤 생성 중 오류 발생:', error);
+      }
+    };
+    fetchRandomNickname();
+  }, []);
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -388,7 +389,7 @@ const RegisterForm = () => {
                   checkButtonStyle,
                   isNicknameChecked && checkedButtonStyle,
                 ]}
-                disabled={!nickname.trim() || !!nicknameError}
+                disabled={!((nickname ?? '').trim()) || !!nicknameError}
               >
                 {isNicknameChecked ? '확인완료' : '중복확인'}
               </button>

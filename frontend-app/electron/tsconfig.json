@@ -11,5 +11,5 @@
     "resolveJsonModule": true,
     "noEmitOnError": true
   },
-  "include": ["main.ts"]
+  "include": ["main.ts", "preload.ts", "overlayWindow.ts"]
 }

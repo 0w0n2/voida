@@ -19,12 +19,12 @@ function createOverlay(roomId, dev) {
         focusable: false,
         webPreferences: {
             contextIsolation: true,
-            preload: path.join(__dirname, 'preload.js'),
+            preload: path.join(__dirname, 'preload.cjs'),
         },
     });
     overlayWin.setIgnoreMouseEvents(true, { forward: true }); // 클릭 통과
     overlayWin.setBackgroundColor('#00000000'); // 완전 투명
-    // 로컬 서버, 배포 서버에 따라 다르게 로드 
+    // 로컬 서버, 배포 서버에 따라 다르게 로드
     if (dev) {
         overlayWin.loadURL("http://localhost:5173/#/overlay");
     }

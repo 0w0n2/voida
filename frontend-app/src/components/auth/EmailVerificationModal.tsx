@@ -24,19 +24,40 @@ const EmailVerificationModal = ({
   const [error, setError] = useState('');
   const [countdown, setCountdown] = useState(0);
 
+  // 카운트다운 효과
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [countdown]);
+
+  // 모달이 열릴 때 인증 코드 자동 발송
+  useEffect(() => {
+    if (isOpen) {
+      if (email) {
+        console.log(email, isOpen);
+        sendVerificationCode();
+      }
+    }
+  }, [isOpen]);
+
   // 인증 코드 발송
   const sendVerificationCode = async () => {
     setIsLoading(true);
     setError('');
 
     try {
-      await sendEmailVerification(email);
+      const response = await sendEmailVerification(email);
+      console.log('[전체 응답]', response);
+      console.log(response.data.isSuccess);
+      // await sendEmailVerification(email);;
       setCountdown(180); // 3분 카운트다운
       alert('인증 코드가 이메일로 발송되었습니다.');
     } catch (error) {
       if (error instanceof AxiosError) {
         setError(
-          error.response?.data?.message || '인증 코드 발송에 실패했습니다.'
+          error.response?.data?.message || '인증 코드 발송에 실패했습니다.',
         );
       }
     } finally {
@@ -62,7 +83,7 @@ const EmailVerificationModal = ({
     } catch (error) {
       if (error instanceof AxiosError) {
         setError(
-          error.response?.data?.message || '인증 코드가 올바르지 않습니다.'
+          error.response?.data?.message || '인증 코드가 올바르지 않습니다.',
         );
       }
     } finally {
@@ -81,21 +102,6 @@ const EmailVerificationModal = ({
       setIsResending(false);
     }
   };
-
-  // 카운트다운 효과
-  useEffect(() => {
-    if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [countdown]);
-
-  // 모달이 열릴 때 인증 코드 자동 발송
-  useEffect(() => {
-    if (isOpen && email) {
-      sendVerificationCode();
-    }
-  }, [isOpen, email]);
 
   if (!isOpen) return null;
 

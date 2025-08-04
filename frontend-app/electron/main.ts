@@ -1,8 +1,8 @@
-const { app,BrowserWindow,ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
-const { createOverlay } = require('./overlayWindow.cjs'); 
+const { createOverlay } = require('./overlayWindow.cjs');
 
-import type {BrowserWindow as ElectronBrowserWindow} from 'electron'
+import type { BrowserWindow as ElectronBrowserWindow } from 'electron';
 
 let mainWin: ElectronBrowserWindow;
 let overlayWin: ElectronBrowserWindow | null = null;
@@ -12,11 +12,12 @@ function createMainWindow() {
   mainWin = new BrowserWindow({
     width: 1280,
     height: 800,
-    // 브라우저 관련 옵션 
+    // 브라우저 관련 옵션
     // 렌더러에서 사용할 api 등록하는 preload 파일 경로
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname,'dist','preload.cjs'),
       contextIsolation: true,
+      nodeIntegration: false,
     },
   });
 
