@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -57,4 +56,7 @@ public class Member implements Serializable {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    public void changePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
 }
