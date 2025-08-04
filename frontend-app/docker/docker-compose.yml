@@ -1,0 +1,15 @@
+version: '2'
+
+services:
+  openvidu:
+    image: openvidu/openvidu-dev:2.29.0
+    container_name: openvidu
+    ports:
+      - "4443:4443"
+    env_file:
+      - .env     
+    networks:
+      - openvidu-net
+
+networks:
+  openvidu-net:

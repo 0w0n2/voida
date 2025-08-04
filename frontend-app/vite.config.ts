@@ -17,4 +17,13 @@ export default defineConfig({
       "@": path.resolve(__dirname, "src"),
     },
   },
+  server: {
+    proxy: {
+      '/openvidu/api': {
+        target: 'http://localhost:4443',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
 });

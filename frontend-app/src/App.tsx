@@ -14,6 +14,7 @@ import MainPage from '@/pages/MainPage';
 import MyPage from '@/pages/MyPage';
 import MeetingRoomPage from '@/pages/MeetingRoomPage';
 import OverlayPage from '@/pages/OverlayPage';
+import VoiceRoom from '@/components/live-room/VoiceRoom';
 
 function App() {
   return (
@@ -27,20 +28,14 @@ function App() {
         <Route path="/tutorial" element={<TutorialMainPage />} />
         <Route path="/tutorial/user-type" element={<UserTypePage />} />
         <Route path="/tutorial/general" element={<TutorialGeneralPage />} />
-        <Route
-          path="/tutorial/lip-reading"
-          element={<TutorialLipReadingPage />}
-        />
+        <Route path="/tutorial/lip-reading" element={<TutorialLipReadingPage />} />
         <Route path="/tutorial/test/general" element={<TestGeneralPage />} />
-        <Route
-          path="/tutorial/test/lip-reading"
-          element={<TestLipReadingPage />}
-        />
+        <Route path="/tutorial/test/lip-reading" element={<TestLipReadingPage />} />
         <Route path="/main" element={<MainPage />} />
         <Route path="/meeting-room" element={<MeetingRoomPage />} />
         <Route path="/mypage" element={<MyPage />} />
-        // 오버레이
-        <Route path='/overlay/:roomId' element={<OverlayPage />} />
+        <Route path="/overlay/:roomId" element={<OverlayPage />} />
+        <Route path="/voice-test" element={<VoiceRoom />} />
       </Routes>
     </BrowserRouter>
   );
