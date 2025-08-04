@@ -8,11 +8,13 @@ import com.bbusyeo.voida.global.response.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ResetPasswordService {
 
     private final SecureRandom random = new SecureRandom();

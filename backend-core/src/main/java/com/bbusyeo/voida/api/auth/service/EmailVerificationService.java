@@ -15,6 +15,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class EmailVerificationService {
 
     private final String SIGNUP_CODE_PREFIX = "signup-code:";

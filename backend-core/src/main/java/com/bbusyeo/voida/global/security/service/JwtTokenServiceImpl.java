@@ -106,7 +106,6 @@ public class JwtTokenServiceImpl implements JwtTokenService {
 
         // Redis 저장
         redisDao.deleteValue(redisKey); // 기존 RefreshToken 폐기
-        redisDao.deleteValue(REFRESH_MAPPING_PREFIX + userDetails.getMemberUuid());
         redisDao.setValue(REFRESH_PREFIX + newRefreshUuid, userDetails.getMemberUuid(), refreshExpMin);
         redisDao.setValue(REFRESH_MAPPING_PREFIX + userDetails.getMemberUuid(), newRefreshUuid, refreshExpMin);
 

@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,6 +26,9 @@ import java.util.Map;
 @RequestMapping("v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
+
+    @Value("${voida.main-url}")
+    private String mainUrl;
 
     private final AuthService authService;
     private final MailService mailService;
@@ -52,7 +56,7 @@ public class AuthController {
 
         mailService.sendHtmlMail(requestDto.getEmail(),
                 MailType.SIGN_UP_EMAIL_VERIFICATION,
-                Map.of("code", verificationCode.getCode()));
+                Map.of("mainUrl", mainUrl, "code", verificationCode.getCode()));
 
         return new BaseResponse<>(EmailCodeResponseDto.toDto(verificationCode));
     }
@@ -87,7 +91,7 @@ public class AuthController {
         String tempPassword = authService.resetPassword(requestDto);
         mailService.sendHtmlMail(requestDto.getEmail(),
                 MailType.PASSWORD_RESET,
-                Map.of("tempPassword", tempPassword));
+                Map.of("mainUrl", mainUrl, "tempPassword", tempPassword));
         return new BaseResponse<>();
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 /**
@@ -17,8 +18,9 @@ import org.springframework.util.StringUtils;
 @Service
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
-    private final MemberRepository memberRepository;    // AuthService 로 의존하지 않고 바로 Repository 가져오게 했는데 맞는 건지 모르겠음
+    private final MemberRepository memberRepository;
 
+    @Transactional(readOnly = true)
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         if (!StringUtils.hasText(username)) {

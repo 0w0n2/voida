@@ -9,6 +9,7 @@ import com.bbusyeo.voida.global.support.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Random;
@@ -16,6 +17,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class SignUpService {
 
     private final MemberRepository memberRepository;
@@ -25,19 +27,13 @@ public class SignUpService {
     private final S3Uploader s3Uploader;
 
     public void signUp(SignUpRequestDto requestDto, MultipartFile profileImage) {
-        // 1. 닉네임, 이메일 중복 여부 한 번 더 체크
-        if (memberRepository.existsByEmail(requestDto.getEmail()))
-            throw new BaseException(BaseResponseStatus.DUPLICATE_EMAIL);
-        if (memberRepository.existsByNickname(requestDto.getNickname()))
-            throw new BaseException(BaseResponseStatus.DUPLICATE_NICKNAME);
-
-        // 2. 비밀번호 암호화
+        // 1. 비밀번호 암호화
         String encodedPassword = bCryptPasswordEncoder.encode(requestDto.getPassword());
 
-        // 3. memberUuid 생성
-        String memberUuid = generateUniqueMemberUuid();
+        // 2. memberUuid 생성
+        String memberUuid = UUID.randomUUID().toString();
 
-        // 4. 프로필 이미지 설정
+        // 3. 프로필 이미지 설정
         String profileImageUrl = null;
         try {
             final int DEFAULT_PROFILE_IMAGE_COUNT = 14;
@@ -46,10 +42,10 @@ public class SignUpService {
                     s3Uploader.upload(profileImage, s3_PROFILE_DIR) // 사용자 지정 이미지
                     : "%s/profile-images/default_%d.png".formatted(s3_PROFILE_DIR, random.nextInt(DEFAULT_PROFILE_IMAGE_COUNT)); // 디폴트 이미지
 
-            // 5. member 테이블 저장
+            // 4. member 테이블 저장
             Member member = memberRepository.save(requestDto.toMember(memberUuid, encodedPassword, profileImageUrl));
 
-            // 6. 소셜 회원가입 처리
+            // 5. 소셜 회원가입 처리
             if (Boolean.TRUE.equals(requestDto.getIsSocial())){
                 // TODO: 소셜 테이블, 레포지토리 생성 후 -> 소셜 테이블에 저장
             }
@@ -66,13 +62,5 @@ public class SignUpService {
                 throw new BaseException(BaseResponseStatus.DATABASE_CONSTRAINT_VIOLATION);
             }
         }
-    }
-
-    private String generateUniqueMemberUuid() {
-        String memberUuid;
-        do {
-            memberUuid = UUID.randomUUID().toString();
-        } while (memberRepository.existsByMemberUuid(memberUuid));
-        return memberUuid;
     }
 }

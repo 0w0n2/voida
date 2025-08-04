@@ -2,6 +2,7 @@ package com.bbusyeo.voida.global.mail.util;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -10,7 +11,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public enum MailType {
     SIGN_UP_EMAIL_VERIFICATION(
-            "[보이다] 이메일 인증을 완료해주세요 ✨",
+            "[Voida] 이메일 인증을 완료해주세요 ✨",
             values -> """
                     <html><body><div><table border="0" cellpadding="0"
                      cellspacing="0" style="width: 815px; margin: 55px
@@ -18,7 +19,13 @@ public enum MailType {
                      line-height: 1.5; text-align: left; font-family:
                      Roboto, Noto Sans KR, 나눔고딕, NanumGothic,
                      맑은고딕, Malgun Gothic, 돋움, Dotum, Arial,
-                     Tahoma, Geneva, Verdana;"><tbody><tr><td></td></
+                     Tahoma, Geneva, Verdana;"><tbody><tr><td style="padding-bottom: 24px;
+                     border-bottom: 2px solid #000">
+                    <a href="%s" target="_blank" title="새 창 열림"
+                    style="margin-left: 6px" rel="noreferrer noopener"
+                    ><img src="https://media.voida.site/voida_logo.png"
+                    alt="Voida" style="border: 0; vertical-align: top; height: 35px"
+                    loading="lazy"/></a></td></tr><tr><td></td></
                      tr><tr><td style="padding: 35px; border-top: 1px
                      solid #000; border-bottom: 1px solid #cfd5d8;
                      color: #666; font-size: 15px; text-align: left;
@@ -43,17 +50,24 @@ public enum MailType {
                      #b2c0cc; margin: 0;">Copyright ⓒ Voida. All
                      Rights Reserved</h6></div></td></tr><tr><td
                      height="80"></td></tr></tbody></table></div></body></html>
-                    """.formatted(values.get("code"))
+                    """.formatted(values.get("mainUrl"), values.get("code"))
     ),
 
     PASSWORD_RESET(
-            "[보이다] 임시 비밀번호가 발급되었습니다 👨‍🔧",
+            "[Voida] 임시 비밀번호가 발급되었습니다 👨‍🔧",
             values -> """
                     <html><body><div><table border="0" cellpadding="0"
                     cellspacing="0" style="width: 815px; margin: 55px auto;
                     border: 0; background-color: #fff; line-height: 1.5; text-align: left;
                     font-family: Roboto, Noto Sans KR, 나눔고딕, NanumGothic, 맑은고딕,
                     Malgun Gothic, 돋움, Dotum, Arial, Tahoma, Geneva, Verdana;"><tbody>
+                    <tr><td style="padding-bottom: 24px;
+                     border-bottom: 2px solid #000">
+                    <a href="%s" target="_blank" title="새 창 열림"
+                    style="margin-left: 6px" rel="noreferrer noopener"
+                    ><img src="https://media.voida.site/voida_logo.png"
+                    alt="Voida" style="border: 0; vertical-align: top; height: 35px"
+                    loading="lazy"/></a></td></tr>
                     <tr><td></td></tr><tr><td style="padding: 35px; border-top: 1px solid #000;
                     border-bottom: 1px solid #cfd5d8; color: #666; font-size: 15px; text-align: left;
                     line-height: 1.86;"><h1 style="color: #000000">보이다 임시 비밀번호 안내</h1>안녕하세요, 회원님.
@@ -69,7 +83,7 @@ public enum MailType {
                     style="word-break: keep-all; font-weight: 500; font-size: 12px; line-height: 20px; color: #b2c0cc; margin: 0;">
                     Copyright ⓒ Voida. All Rights Reserved</h6></div></td></tr><tr><td height="80"></td>
                     </tr></tbody></table></div></body></html>
-                    """.formatted(values.get("tempPassword"))
+                    """.formatted(values.get("mainUrl"), values.get("tempPassword"))
     );
 
     private final String subject;

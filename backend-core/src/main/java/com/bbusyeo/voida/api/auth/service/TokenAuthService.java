@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
 public class TokenAuthService {
 
