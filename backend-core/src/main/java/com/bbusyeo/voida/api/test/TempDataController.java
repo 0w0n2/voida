@@ -34,26 +34,26 @@ public class TempDataController {
             // 첫 번째 유저 (ID: 1)
             if (memberRepository.findByEmail("test@voida.com").isEmpty()) {
                 Member testMember1 = Member.builder()
-                        .memberUuid(UUID.randomUUID().toString())
-                        .nickname("테스트유저1")
-                        .email("test@voida.com")
-                        .password("password") // 실제로는 암호화 필요
-                        .profileImageUrl("default_profile.png")
-                        .role(Role.USER)
-                        .build();
+                    .memberUuid(UUID.randomUUID().toString())
+                    .nickname("테스트유저1")
+                    .email("test@voida.com")
+                    .password("password") // 실제로는 암호화 필요
+                    .profileImageUrl("default_profile.png")
+                    .role(Role.USER)
+                    .build();
                 memberRepository.save(testMember1);
             }
 
             // 두 번째 유저 (ID: 2)
             if (memberRepository.findByEmail("test2@voida.com").isEmpty()) {
                 Member testMember2 = Member.builder()
-                        .memberUuid(UUID.randomUUID().toString())
-                        .nickname("테스트유저2")
-                        .email("test2@voida.com")
-                        .password("password")
-                        .profileImageUrl("default_profile.png")
-                        .role(Role.USER)
-                        .build();
+                    .memberUuid(UUID.randomUUID().toString())
+                    .nickname("테스트유저2")
+                    .email("test2@voida.com")
+                    .password("password")
+                    .profileImageUrl("default_profile.png")
+                    .role(Role.USER)
+                    .build();
                 memberRepository.save(testMember2);
             }
         }

@@ -41,6 +41,11 @@ public class MeetingRoom {
         }
     }
 
+    // 참여자 수를 관리하는 메서드를 추가하여 객체의 상태 변경
+    public void increaseMemberCount() {
+        this.memberCount++;
+    }
+
     @Builder
     public MeetingRoom(String title, String categoryName, String thumbnailImageUrl, Integer memberCount) {
         this.title = title;

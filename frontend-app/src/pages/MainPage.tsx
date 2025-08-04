@@ -1,37 +1,35 @@
-/** @jsxImportSource @emotion/react */
-import MainForm from '@/components/Main/MainForm';
-import NoRoomMainForm from '@/components/Main/NoRoomMainForm';
+import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
-import { css } from '@emotion/react';
-import { useRoomStore } from '@/store/store';
-import { useEffect } from 'react';
-import { getRooms } from '@/apis/roomApi';
+import MainForm from '@/components/main/MainForm';
+import NoRoomMainForm from '@/components/main/NoRoomMainForm';
+import { getRooms, type MeetingRoom } from '@/apis/meetingRoomApi';
 
 const MainPage = () => {
-  const meetingRooms = useRoomStore((state) => state.meetingRooms);
-  const setMeetingRooms = useRoomStore((state) => state.setMeetingRooms);
+  const [meetingRooms, setMeetingRooms] = useState<MeetingRoom[]>([]);
 
   useEffect(() => {
-    getRooms(1, 10).then((res) => {
-      setMeetingRooms(res.data.meetingRooms);
-    });
+    const fetchRooms = async () => {
+      try {
+        const res = await getRooms(1, 10);
+        setMeetingRooms(res);
+      } catch (error) {
+        console.error('참여 중인 방 조회 실패:', error);
+      }
+    };
+
+    fetchRooms();
   }, []);
 
   return (
-    <div css={wrapperStyle}>
+    <div>
       <Header />
-      {meetingRooms.length > 0 ? <MainForm /> : <NoRoomMainForm />}
+      {meetingRooms.length > 0 ? (
+        <MainForm rooms={meetingRooms} />
+      ) : (
+        <NoRoomMainForm />
+      )}
     </div>
   );
 };
 
 export default MainPage;
-
-const wrapperStyle = css`
-  background-color: linear-gradient(
-    135deg,
-    #f8fbff 0%,
-    #eaeeffff 50%,
-    #e0efffff 100%
-  );
-`;
