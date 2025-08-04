@@ -13,6 +13,7 @@ import OAuthCallback from '@/components/auth/OAuthCallback';
 import MainPage from '@/pages/MainPage';
 import MyPage from '@/pages/MyPage';
 import MeetingRoomPage from '@/pages/MeetingRoomPage';
+import OverlayPage from '@/pages/OverlayPage';
 
 function App() {
   return (
@@ -38,6 +39,8 @@ function App() {
         <Route path="/main" element={<MainPage />} />
         <Route path="/meeting-room" element={<MeetingRoomPage />} />
         <Route path="/mypage" element={<MyPage />} />
+        // 오버레이
+        <Route path='/overlay/:roomId' element={<OverlayPage />} />
       </Routes>
     </BrowserRouter>
   );
