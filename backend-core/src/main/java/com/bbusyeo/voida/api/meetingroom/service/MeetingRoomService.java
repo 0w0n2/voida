@@ -50,11 +50,10 @@ public class MeetingRoomService {
 
 
     // 대기실 생성
-    public MeetingRoom create(Long memberId, MeetingRoomCreateRequestDto request, MultipartFile thumbnailImage) {
+    public MeetingRoom create(String memberUuid, MeetingRoomCreateRequestDto request, MultipartFile thumbnailImage) {
 
-        // Todo: memberId는 혜원 작업 완료 후, 인증(JWT 토큰)에서 가져와야함
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.ILLEGAL_ARGUMENT));
+        Member member = memberRepository.findByMemberUuid(memberUuid)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
 
         String thumbnailFileKey = null;
 
@@ -109,9 +108,9 @@ public class MeetingRoomService {
 
 
     // 방 기본 정보 수정
-    public MeetingRoom update(Long memberId, Long meetingRoomId, MeetingRoomUpdateRequestDto requestDto, MultipartFile newThumbnailImage) {
+    public MeetingRoom update(String memberUuid, Long meetingRoomId, MeetingRoomUpdateRequestDto requestDto, MultipartFile newThumbnailImage) {
         // 방장 권한 확인하기
-        checkHostAuthority(memberId, meetingRoomId);
+        checkHostAuthority(memberUuid, meetingRoomId);
 
         MeetingRoom meetingRoom = findById(meetingRoomId);
         String oldFileKey = meetingRoom.getThumbnailImageUrl();
@@ -148,9 +147,9 @@ public class MeetingRoomService {
     }
 
     // 대기실 삭제
-    public void delete(Long memberId, Long meetingRoomId) {
+    public void delete(String memberUuid, Long meetingRoomId) {
         // 방장 권한 확인
-        checkHostAuthority(memberId, meetingRoomId);
+        checkHostAuthority(memberUuid, meetingRoomId);
 
         // MeetingRoom 존재 확인
         MeetingRoom meetingRoom = findById(meetingRoomId);
@@ -170,11 +169,12 @@ public class MeetingRoomService {
 
 
     // 방장 권한 확인 메서드
-    public void checkHostAuthority(Long memberId, Long meetingRoomId) {
+    public void checkHostAuthority(String memberUuid, Long meetingRoomId) {
         // todo: memberId는 혜원 작업 완료 후, 인증(JWT 토큰)에서 가져와야함
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findByMemberUuid(memberUuid)
                 // 시스템에 존재하는 유저가 아닐때, 임시로 400 에러 => 추후 NOT_FOUND_MEMBER response로 바꿔야함
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.ILLEGAL_ARGUMENT));
+
         memberMeetingRoomRepository.findByMemberAndMeetingRoomId(member, meetingRoomId)
                 .filter(memberMeetingRoom -> memberMeetingRoom.getState() == MemberMeetingRoomState.HOST)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.FORBIDDEN_ACCESS));

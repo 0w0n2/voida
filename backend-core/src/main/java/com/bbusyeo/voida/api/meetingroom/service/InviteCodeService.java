@@ -21,8 +21,11 @@ import java.time.Duration;
 @Service
 @RequiredArgsConstructor
 public class InviteCodeService {
+    
+    public InviteCodeResponseDto createInviteCode(String memberUuid, Long meetingRoomId) {
+        // 방장 여부 확인
+        meetingRoomService.checkHostAuthority(memberUuid, meetingRoomId);
 
-    public InviteCodeResponseDto createInviteCode(Long meetingRoomId) {
         // 대기실 존재 여부 확인
         meetingRoomRepository.findById(meetingRoomId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NOT_FOUND_MEETING_ROOM));
@@ -68,9 +71,9 @@ public class InviteCodeService {
     }
 
     @Transactional(readOnly = true)
-    public InviteCodeResponseDto getInviteCode(Long memberId, Long meetingRoomId) {
+    public InviteCodeResponseDto getInviteCode(String memberUuid, Long meetingRoomId) {
         // 방장 권한 확인
-        meetingRoomService.checkHostAuthority(memberId, meetingRoomId);
+        meetingRoomService.checkHostAuthority(memberUuid, meetingRoomId);
 
         // 대기실 ID를 키로 초대 코드 조회
         String redisKey = MEETING_ROOM_ID_TO_INVITE_CODE_PREFIX + meetingRoomId;
@@ -85,7 +88,7 @@ public class InviteCodeService {
 
     // 초대 코드 검증 및 참여
     @Transactional
-    public void verifyInviteCodeAndJoin(Long memberId, String userInviteCode) {
+    public void verifyInviteCodeAndJoin(String memberUuid, String userInviteCode) {
         // member가 입력한 초대 코드를 키로 Redis에 대기실 ID 조회
         String redisInviteKey = INVITE_CODE_TO_ROOM_ID_PREFIX + userInviteCode;
         String roomIdStr = (String) redisDao.getValue(redisInviteKey);
@@ -97,8 +100,8 @@ public class InviteCodeService {
         Long meetingRoomId = Long.parseLong(roomIdStr);
 
         // 참여하려는 member가 존재하는지에 대해서와 참여 요청한 대기실이 존재하는지 확인
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.ILLEGAL_ARGUMENT));
+        Member member = memberRepository.findByMemberUuid(memberUuid)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
 
         MeetingRoom meetingRoom = meetingRoomRepository.findById(meetingRoomId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NOT_FOUND_MEETING_ROOM));
@@ -149,6 +152,6 @@ public class InviteCodeService {
     private final RedisDao redisDao;
     private final MeetingRoomRepository meetingRoomRepository;
     private final MemberMeetingRoomRepository memberMeetingRoomRepository;
-    private final MemberRepository memberRepository;
     private final MeetingRoomService meetingRoomService;
+    private final MemberRepository memberRepository;
 }

@@ -20,7 +20,7 @@ public class MemberMeetingRoom {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_uuid", referencedColumnName = "member_uuid")
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
