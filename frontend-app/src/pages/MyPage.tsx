@@ -5,6 +5,12 @@ import ProfileTab from '../components/Myp/ProfileTab';
 import SettingsTab from '../components/Myp/SettingsTab';
 import ShortcutsTab from '../components/Myp/ShortcutsTab';
 import OverlayTab from '../components/Myp/OverlayTab';
+import settings from '@/assets/icons/mp-setting.png';
+import shortcuts from '@/assets/icons/mp-shortcut.png';
+import overlay from '@/assets/icons/mp-overlay.png';
+import profile from '@/assets/icons/mp-profile.png';
+
+
 
 const MyPage = () => {
   const [activeTab, setActiveTab] = useState('profile');
@@ -39,28 +45,28 @@ const MyPage = () => {
           active={activeTab === 'profile'}
           onClick={() => handleTabClick('profile')}
         >
-          <TabIcon>👤</TabIcon>
+          <img src={profile} alt="profile" />
           <TabText>프로필</TabText>
         </NavTab>
         <NavTab
           active={activeTab === 'settings'}
           onClick={() => handleTabClick('settings')}
         >
-          <TabIcon>⚙️</TabIcon>
+          <img src={settings} alt="settings" />
           <TabText>설정</TabText>
         </NavTab>
         <NavTab
           active={activeTab === 'shortcuts'}
           onClick={() => handleTabClick('shortcuts')}
         >
-          <TabIcon>⌨️</TabIcon>
+          <img src={shortcuts} alt="shortcuts" />
           <TabText>단축키</TabText>
         </NavTab>
         <NavTab
           active={activeTab === 'overlay'}
           onClick={() => handleTabClick('overlay')}
         >
-          <TabIcon>⊞</TabIcon>
+          <img src={overlay} alt="overlay" />
           <TabText>오버레이</TabText>
         </NavTab>
       </Navigation>
@@ -74,7 +80,12 @@ const MyPage = () => {
 // 스타일 컴포넌트
 const Container = styled.div`
   min-height: 100vh;
-  background-color: var(--color-bg-blue);
+  background: linear-gradient(
+    135deg,
+    #f8fbff 0%,
+    #eaeeffff 50%,
+    #e0efffff 100%
+  );
   font-family: 'NanumSquareR', sans-serif;
 `;
 

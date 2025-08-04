@@ -1,9 +1,11 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
-import * as path from 'path';
-import { createOverlay } from './overlayWindow';
+const { app,BrowserWindow,ipcMain } = require('electron');
+const path = require('path');
+const { createOverlay } = require('./overlayWindow.cjs'); 
 
-let mainWin: BrowserWindow;
-let overlayWin: BrowserWindow | null = null;
+import type {BrowserWindow as ElectronBrowserWindow} from 'electron'
+
+let mainWin: ElectronBrowserWindow;
+let overlayWin: ElectronBrowserWindow | null = null;
 
 // 메인 창 만드는 함수
 function createMainWindow() {

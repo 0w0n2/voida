@@ -6,6 +6,12 @@ import { getUser, updateUser } from '../../apis/userApi';
 import { useAuthStore } from '../../store/store';
 import UpdatePasswordModal from './UpdatePasswordModal';
 import GetOutModal from './GetOutModal';
+import camera from '@/assets/icons/mp-camera.png';
+import global from '@/assets/icons/mp-global.png';
+import profile from '@/assets/icons/mp-profile.png';
+import mail from '@/assets/icons/mp-mail.png';
+import settings from '@/assets/icons/mp-setting.png';
+import google from '@/assets/icons/google-logo.png';
 
 interface UserProfile {
   nickname: string;
@@ -210,7 +216,7 @@ const ProfileTab = () => {
             disabled={saving}
             css={changePhotoButtonStyle}
           >
-            {saving ? '변경 중...' : '📷 사진 변경'}
+            {saving ? '변경 중...' : <img src={camera} alt="camera" />}
           </button>
         </div>
 
@@ -240,7 +246,7 @@ const ProfileTab = () => {
 
           <div css={infoSectionStyle}>
             <label css={infoLabelStyle}>
-              <span css={labelIconStyle}>👤</span>
+              <img src={profile} alt="profile" />
               닉네임
             </label>
             <input
@@ -255,7 +261,7 @@ const ProfileTab = () => {
 
           <div css={infoSectionStyle}>
             <label css={infoLabelStyle}>
-              <span css={labelIconStyle}>📧</span>
+              <img src={mail} alt="mail" />
               이메일
               <span css={cannotEditButtonStyle}>수정불가</span>
             </label>
@@ -270,7 +276,7 @@ const ProfileTab = () => {
           <div css={horizontalContainerStyle}>
             <div css={halfSectionStyle}>
               <label css={infoLabelStyle}>
-                <span css={labelIconStyle}>🔒</span>
+                <img src={settings} alt="settings" />
                 비밀번호 수정
               </label>
               <button
@@ -284,7 +290,7 @@ const ProfileTab = () => {
 
             <div css={halfSectionStyle}>
               <label css={infoLabelStyle}>
-                <span css={labelIconStyle}>🌐</span>
+                <img src={global} alt="global" />
                 소셜 연동 여부
               </label>
               <button
@@ -292,7 +298,7 @@ const ProfileTab = () => {
                 disabled={saving}
                 css={googleButtonStyle}
               >
-                <span css={googleIconStyle}>G</span>
+                <img src={google} alt="google" />
                 Google 계정 연동
               </button>
             </div>
@@ -367,7 +373,7 @@ const profileImageContainerStyle = css`
 `;
 
 const largeProfileImageStyle = css`
-  width: 180px;        
+  width: 180px;
   height: 180px;
   border-radius: 50%;
   object-fit: cover;
@@ -535,8 +541,9 @@ const actionButtonStyle = css`
 const googleButtonStyle = css`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
+  height: 46px;
   padding: 12px 16px;
   background-color: var(--color-bg-white);
   color: var(--color-text);

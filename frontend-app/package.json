@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "electron-build": "tsc electron/main.ts --outDir electron/dist --module commonjs && mv electron/dist/main.js electron/dist/main.cjs",
+    "electron-build": "tsc electron/main.ts electron/overlayWindow.ts --outDir electron/dist --module commonjs && mv electron/dist/main.js electron/dist/main.cjs && mv electron/dist/overlayWindow.js electron/dist/overlayWindow.cjs",
     "electron": "npm run electron-build && electron electron/dist/main.cjs",
     "start": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && npm run electron\"",
     "build": "tsc -b && vite build",

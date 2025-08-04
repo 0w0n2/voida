@@ -1,7 +1,8 @@
 import { BrowserWindow, screen } from 'electron';
 import * as path from 'path';
 
-export function createOverlay(roomId: string, dev = true): BrowserWindow {
+
+function createOverlay(roomId: string, dev = true): BrowserWindow {
   const { width: screenWidth } = screen.getPrimaryDisplay().workAreaSize;
 
   const overlayWin = new BrowserWindow({
@@ -38,3 +39,5 @@ export function createOverlay(roomId: string, dev = true): BrowserWindow {
 
   return overlayWin;
 }
+
+module.exports ={createOverlay}

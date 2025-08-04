@@ -75,7 +75,7 @@ export const deleteRoom = async (meetingRoomId: string): Promise<void> => {
 };
 
 // 방 탈퇴하기 (일반 사용자만)
-export const leaveRoom = async (meetingRoomId: string): Promise<void> => {
+export const leaveRoom = async (meetingRoomId: string, memberuuid:string): Promise<void> => {
   await apiInstance.delete(`/v1/meeting-rooms/${meetingRoomId}/leave`);
 };
 

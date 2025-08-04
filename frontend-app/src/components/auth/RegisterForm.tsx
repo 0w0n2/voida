@@ -88,17 +88,17 @@ const RegisterForm = () => {
   };
 
   // 닉네임 랜덤 생성
-  useEffect(() => {
-    const fetchRandomNickname = async () => {
-      try {
-        const response = await getRandomNickname();
-        setNickname(response.data.nickname);
-      } catch (error) {
-        console.error('닉네임 랜덤 생성 중 오류 발생:', error);
-      }
-    };
-    fetchRandomNickname();
-  }, []);
+  // useEffect(() => {
+  //   const fetchRandomNickname = async () => {
+  //     try {
+  //       const response = await getRandomNickname();
+  //       setNickname(response.data.nickname);
+  //     } catch (error) {
+  //       console.error('닉네임 랜덤 생성 중 오류 발생:', error);
+  //     }
+  //   };
+  //   fetchRandomNickname();
+  // }, []);
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -231,10 +231,10 @@ const RegisterForm = () => {
     }
     setIsVerificationModalOpen(true);
 
-    // 오버레이 테스트
-    setTimeout(() => {
-      window.electron.joinLive();
-    }, 1000);
+    // // 오버레이 테스트
+    // setTimeout(() => {
+    //   window.electron.joinLive();
+    // }, 1000);
   };
 
   // 이메일 인증 성공 처리

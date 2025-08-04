@@ -37,7 +37,7 @@ function App() {
           element={<TestLipReadingPage />}
         />
         <Route path="/main" element={<MainPage />} />
-        <Route path="/meeting-room" element={<MeetingRoomPage />} />
+        {/* <Route path="/meeting-room" element={<MeetingRoomPage />} /> */}
         <Route path="/mypage" element={<MyPage />} />
         // 오버레이
         <Route path='/overlay/:roomId' element={<OverlayPage />} />
