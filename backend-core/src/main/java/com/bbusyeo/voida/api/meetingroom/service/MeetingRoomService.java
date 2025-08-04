@@ -80,7 +80,7 @@ public class MeetingRoomService {
 
             // 생성자 = Host 설정하는 MemberMeetingRoom 객체 생성
             MemberMeetingRoom hostLink = MemberMeetingRoom.builder()
-                    .member(member)
+                    .memberUuid(memberUuid)
                     .meetingRoom(saveMeetingRoom)
                     .state(MemberMeetingRoomState.HOST)
                     .build();
@@ -170,12 +170,11 @@ public class MeetingRoomService {
 
     // 방장 권한 확인 메서드
     public void checkHostAuthority(String memberUuid, Long meetingRoomId) {
-        // todo: memberId는 혜원 작업 완료 후, 인증(JWT 토큰)에서 가져와야함
         Member member = memberRepository.findByMemberUuid(memberUuid)
                 // 시스템에 존재하는 유저가 아닐때, 임시로 400 에러 => 추후 NOT_FOUND_MEMBER response로 바꿔야함
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.ILLEGAL_ARGUMENT));
 
-        memberMeetingRoomRepository.findByMemberAndMeetingRoomId(member, meetingRoomId)
+        memberMeetingRoomRepository.findByMemberUuidAndMeetingRoomId(memberUuid, meetingRoomId)
                 .filter(memberMeetingRoom -> memberMeetingRoom.getState() == MemberMeetingRoomState.HOST)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.FORBIDDEN_ACCESS));
     }

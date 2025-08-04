@@ -107,7 +107,7 @@ public class InviteCodeService {
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NOT_FOUND_MEETING_ROOM));
 
         // member가 이미 해당 대기실에 참여하고 있는지 확인
-        memberMeetingRoomRepository.findByMemberAndMeetingRoomId(member, meetingRoomId)
+        memberMeetingRoomRepository.findByMemberUuidAndMeetingRoomId(memberUuid, meetingRoomId)
                 .ifPresent(m -> {
                     // 이미 참여중이라면 예외 처리
                     throw new BaseException(BaseResponseStatus.ALREADY_PARTICIPATING);
@@ -120,7 +120,7 @@ public class InviteCodeService {
 
         // 모든 로직 통과했다면 대기실에 member 추가
         MemberMeetingRoom newMember = MemberMeetingRoom.builder()
-                .member(member)
+                .memberUuid(memberUuid)
                 .meetingRoom(meetingRoom)
                 .state(MemberMeetingRoomState.PARTICIPANT)
                 .build();

@@ -3,6 +3,7 @@ package com.bbusyeo.voida.api.meetingroom.controller;
 import com.bbusyeo.voida.api.meetingroom.domain.MeetingRoom;
 import com.bbusyeo.voida.api.meetingroom.dto.*;
 import com.bbusyeo.voida.api.meetingroom.service.MeetingRoomService;
+import com.bbusyeo.voida.api.member.domain.Member;
 import com.bbusyeo.voida.global.response.BaseResponse;
 import com.bbusyeo.voida.global.security.dto.UserDetailsDto;
 import lombok.RequiredArgsConstructor;
@@ -22,15 +23,13 @@ public class MeetingRoomController {
     // 대기실 생성
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<MeetingRoomCreateResponseDto> create(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal(expression = "member") Member member,
             @RequestParam("title") String title,
             @RequestParam("category") String category,
             @RequestPart(value = "thumbnailImage", required = false) MultipartFile thumbnailImage) {
 
-        String memberUuid = ((UserDetailsDto) userDetails).getMemberUuid();
-
         MeetingRoomCreateRequestDto request = new MeetingRoomCreateRequestDto(title, category);
-        MeetingRoom newMeetingRoom = meetingRoomService.create(memberUuid, request, thumbnailImage);
+        MeetingRoom newMeetingRoom = meetingRoomService.create(member.getMemberUuid(), request, thumbnailImage);
         MeetingRoomCreateResponseDto response = MeetingRoomCreateResponseDto.from(newMeetingRoom);
         return new BaseResponse<>(response);
     }
@@ -48,16 +47,14 @@ public class MeetingRoomController {
     @PutMapping(value = "/{meetingRoomId}/settings", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     // 대기실 기본 정보 수정
     public BaseResponse<MeetingRoomUpdateResponseDto> update(
-        @AuthenticationPrincipal UserDetails userDetails,
+        @AuthenticationPrincipal(expression = "member") Member member,
         @PathVariable Long meetingRoomId,
         @RequestParam(value = "title", required = false) String title,
         @RequestParam(value = "category", required = false) String category,
         @RequestPart(value = "thumbnailImage", required = false)MultipartFile thumbnailImage) {
 
-        String memberUuid = ((UserDetailsDto) userDetails).getMemberUuid();
-
         MeetingRoomUpdateRequestDto request = new MeetingRoomUpdateRequestDto(title, category);
-        MeetingRoom updateMeetingRoom = meetingRoomService.update(memberUuid, meetingRoomId, request, thumbnailImage);
+        MeetingRoom updateMeetingRoom = meetingRoomService.update(member.getMemberUuid(), meetingRoomId, request, thumbnailImage);
         MeetingRoomUpdateResponseDto response = MeetingRoomUpdateResponseDto.from(updateMeetingRoom);
         return new BaseResponse<>(response);
     }
@@ -65,11 +62,10 @@ public class MeetingRoomController {
     @DeleteMapping("{meetingRoomId}")
     // 대기실 삭제
     public BaseResponse<Void> delete(
-        @AuthenticationPrincipal UserDetails userDetails,
+        @AuthenticationPrincipal(expression = "member") Member member,
         @PathVariable Long meetingRoomId) {
 
-        String memberUuid = ((UserDetailsDto) userDetails).getMemberUuid();
-        meetingRoomService.delete(memberUuid, meetingRoomId);
+        meetingRoomService.delete(member.getMemberUuid(), meetingRoomId);
         return new BaseResponse<>();
     }
 }
