@@ -1,46 +1,35 @@
-/** @jsxImportSource @emotion/react */
-import { css } from "@emotion/react";
-import VoidaLogo from "@/assets/icon/voida-logo.png";
+import { useState, useEffect } from 'react';
+import Header from '@/components/Header';
+import MainForm from '@/components/main/MainForm';
+import NoRoomMainForm from '@/components/main/NoRoomMainForm';
+import { getRooms, type MeetingRoom } from '@/apis/meetingRoomApi';
 
 const MainPage = () => {
+  const [meetingRooms, setMeetingRooms] = useState<MeetingRoom[]>([]);
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const res = await getRooms(1, 10);
+        setMeetingRooms(res);
+      } catch (error) {
+        console.error('참여 중인 방 조회 실패:', error);
+      }
+    };
+
+    fetchRooms();
+  }, []);
+
   return (
-    <div css={wrapper}>
-      <img src={VoidaLogo} alt="VOIDA 로고" css={logo} />
-      <h1 css={title}>모두가 함께하는 소통의 공간</h1>
-      <p css={desc}>
-        청각장애인과 비장애인이 함께 소통할 수 있도록,
-        <br />
-        입술의 움직임을 글자로 바꾸는 실시간 대화 플랫폼입니다.
-      </p>
+    <div>
+      <Header />
+      {meetingRooms.length > 0 ? (
+        <MainForm rooms={meetingRooms} />
+      ) : (
+        <NoRoomMainForm />
+      )}
     </div>
   );
 };
 
 export default MainPage;
-
-const wrapper = css`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background-color: var(--color-bg-blue);
-  text-align: center;
-`;
-
-const logo = css`
-  width: 230px;
-  margin-bottom: 32px;
-`;
-
-const title = css`
-  font-size: 30px;
-  font-family: 'NanumSquareEB';
-  margin-bottom: 16px;
-`;
-
-const desc = css`
-  font-size: 18px;
-  color: var(--color-gray-500);
-  line-height: 1.6;
-`;

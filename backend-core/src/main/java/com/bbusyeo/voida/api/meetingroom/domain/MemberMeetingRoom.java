@@ -19,9 +19,8 @@ public class MemberMeetingRoom {
     @Column(name = "id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @Column(name = "member_uuid", nullable = false, length = 36)
+    private String memberUuid;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "meeting_room_id")
@@ -32,8 +31,8 @@ public class MemberMeetingRoom {
     private MemberMeetingRoomState state;
 
     @Builder
-    public MemberMeetingRoom(Member member, MeetingRoom meetingRoom, MemberMeetingRoomState state) {
-        this.member = member;
+    public MemberMeetingRoom(String memberUuid, MeetingRoom meetingRoom, MemberMeetingRoomState state) {
+        this.memberUuid = memberUuid;
         this.meetingRoom = meetingRoom;
         this.state = state;
     }

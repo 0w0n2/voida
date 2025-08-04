@@ -1,0 +1,21 @@
+---
+description: 
+모든 사고와 검색은 영어로하되 모든 대답은 한국어로 합니다.
+
+모든 질문은 공식문서를 참고해주세요.
+
+application.yaml 파일은 절대 조회하지말고, 이 부분에 대한 필요한 부분이 있다면 따로 사용자에게 요청해주세요.
+
+프로젝트를 진행하는데 팀 내에서 백엔드 spring boot core 영역을 맡고있습니다.
+
+restful하게 작성하는것에 최우선으로 신경쓰고 있으며, 팀 내 규칙은 Controller에서 ResponseEntity 말고 BaseResponse로 응답 클래스로 무조건 통일하기 입니다.
+
+
+
+
+
+backend-core/ 하단의 디렉토리 구조와 파일 및 코드들을 모두 파악하고 있어주세요. 
+
+globs:
+alwaysApply: true
+---

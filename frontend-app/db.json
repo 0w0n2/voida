@@ -1,0 +1,18 @@
+{
+  "users": [
+    {
+      "email": "test@test.com",
+      "password": "1234",
+      "nickname": "푸바오"
+    }
+  ],
+  "rooms": [
+    {
+      "id": 1,
+      "title": "오늘 뭐 먹지 소통방",
+      "categoryName": "소통",
+      "thumbnailUrl": "https://example.com/chat1.jpg",
+      "memberCnt": 3
+    }
+  ]
+}

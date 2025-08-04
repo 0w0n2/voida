@@ -1,27 +1,36 @@
 package com.bbusyeo.voida.api.member.domain;
 
+import com.bbusyeo.voida.api.member.domain.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
+/**
+ * member 테이블과 매핑 객체
+ *
+ * @author : 이혜원
+ */
 @Entity
 @Getter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 @Table(name = "member")
-public class Member {
+public class Member implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id; // PK
 
-    @Column(name = "member_uuid", nullable = false, unique = true, length = 36)
+    @Column(name = "member_uuid", nullable = false, length = 36, unique = true)
     private String memberUuid;
 
-    @Column(nullable = false, unique = true, length = 10)
+    @Column(nullable = false, length = 10, unique = true)
     private String nickname;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(nullable = false, length = 50, unique = true)
     private String email;
 
     @Column(nullable = false, length = 60)
@@ -31,12 +40,23 @@ public class Member {
     private String profileImageUrl;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 10)
     private Role role;
 
-    @Column(name = "is_newbie", nullable = false)
-    private boolean isNewbie = true;
+    @Column(name = "is_newbie", nullable = false, columnDefinition = "TINYINT(1) DEFAULT 1")
+    private Boolean isNewbie;
 
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
-} 
+    @Column(name = "is_deleted", nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
+    private Boolean isDeleted;
+
+    // @CreatedDate
+    @Column(name = "created_at", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime createdAt;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    public void changePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+}

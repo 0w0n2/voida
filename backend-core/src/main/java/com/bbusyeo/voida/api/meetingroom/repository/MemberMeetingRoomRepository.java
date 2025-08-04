@@ -17,12 +17,9 @@ import java.util.Optional;
 @Repository
 public interface MemberMeetingRoomRepository extends JpaRepository<MemberMeetingRoom, Long> {
     // Member 객체와 meetingRoomId로 조회하기
-    Optional<MemberMeetingRoom> findByMemberAndMeetingRoomId(Member member, Long meetingRoomId);
-    // memberUuid를 이용해 MemberMeetingRoom 조회하기
-    Optional<MemberMeetingRoom> findByMember_MemberUuidAndMeetingRoom_Id(String memberUuid, Long meetingRoomId);
+    Optional<MemberMeetingRoom> findByMemberUuidAndMeetingRoomId(String memberUuid, Long meetingRoomId);
 
     // JPA 규칙, 언더바로 필드 구분, JPA의 삭제 로직
-    @Transactional
     void deleteByMeetingRoom_Id(Long meetingRoomId);
 
     // 탈퇴한 회원이 아니고, 대기실에 들어가있는 회원 목록 JPA로 조회
