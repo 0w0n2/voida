@@ -1,10 +1,23 @@
 import axios from 'axios';
 
 const apiInstance = axios.create({
-  baseURL: import.meta.env.JSON_SERVER || 'http://localhost:3003',
+  baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
   timeout: 5000,
 });
+
+apiInstance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);
 
 apiInstance.interceptors.response.use(
   (response) => response,

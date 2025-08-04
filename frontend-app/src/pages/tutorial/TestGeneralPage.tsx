@@ -6,7 +6,7 @@ import { uploadTutorialAudio } from '@/apis/tutorialApi';
 import { useMicVolume } from '@/hooks/useMicVolume';
 import Header from '@/components/Header';
 import TutorialFooter from '@/components/tutorial/TurtorialFooter';
-import TutorialModal from '@/components/tutorial/TutorialGeneralModel';
+import TutorialModal from '@/components/tutorial/modal/TutorialGeneralModel';
 import WaveVisualizer from '@/components/tutorial/WaveVisualizer';
 import RecordIcon from '@/assets/icons/record.png';
 
@@ -130,7 +130,7 @@ const TestGeneralPage = () => {
           setIsAnalyzing(false);
           setAnalysisResult(null);
         }}
-        onGoHome={() => navigate('/')}
+        onGoHome={() => navigate('/main')}
       />
     </div>
   );

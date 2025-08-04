@@ -9,7 +9,7 @@ import Profile from '@/assets/profiles/profile1.png';
 
 const dummyRoomInfo: RoomInfo = {
   title: '테스트 방',
-  category: 'ㅇ',
+  category: '게임',
   thumbnailImageUrl: CateGory,
 };
 

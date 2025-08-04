@@ -49,6 +49,7 @@ const SettingModal = ({ onClose }: SettingModalProps) => {
   const [thumbnailPreview, setThumbnailPreview] = useState(
     roomInfo?.thumbnailImageUrl || '',
   );
+  const [copied, setCopied] = useState(false); // 복사 알림 상태
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleThumbnailClick = () => {
@@ -74,13 +75,6 @@ const SettingModal = ({ onClose }: SettingModalProps) => {
     }
 
     await updateRoomInfo(roomInfo.id, { title, category });
-
-    // if (thumbnailFile) {
-    //   const formData = new FormData();
-    //   formData.append('thumbnail', thumbnailFile);
-    //   await uploadThumbnailApi(roomInfo.id, formData);
-    // }
-
     updateStore({ title, category });
     onClose();
   };
@@ -103,7 +97,8 @@ const SettingModal = ({ onClose }: SettingModalProps) => {
   const copyCode = () => {
     const code = '010857365321sd12';
     navigator.clipboard.writeText(code);
-    alert('초대코드가 복사되었습니다.');
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -133,7 +128,7 @@ const SettingModal = ({ onClose }: SettingModalProps) => {
             </div>
 
             <div css={fieldRow}>
-              <div css={[fieldIcon, { background: '#ccc' }]}>
+              <div css={fieldIcon}>
                 <Home />
               </div>
               <input
@@ -144,20 +139,16 @@ const SettingModal = ({ onClose }: SettingModalProps) => {
               />
             </div>
 
-            <div
-              css={[
-                fieldRow,
-                category && {
-                  borderColor: '#ccc',
-                },
-              ]}
-            >
+            <div css={[fieldRow, category]}>
               <div
                 css={[
                   fieldIcon,
-                  category
-                    ? { background: categoryColors[category], color: '#fff' }
-                    : { background: '#ccc' },
+                  {
+                    background: category
+                      ? categoryColors[category]
+                      : 'var(--color-primary)',
+                    color: '#fff',
+                  },
                 ]}
               >
                 <Grid />
@@ -177,7 +168,7 @@ const SettingModal = ({ onClose }: SettingModalProps) => {
             </div>
 
             <div css={fieldRow}>
-              <div css={[fieldIcon, { background: '#ccc' }]}>
+              <div css={fieldIcon}>
                 <UserPlus />
               </div>
               <input css={fieldInput} value={'010857365321sd12'} readOnly />
@@ -251,6 +242,8 @@ const SettingModal = ({ onClose }: SettingModalProps) => {
             </div>
           </div>
         </div>
+
+        {copied && <div css={toastAlert}>초대코드가 복사되었습니다!</div>}
       </div>
     </div>
   );
@@ -328,7 +321,6 @@ const thumbnailBox = css`
   overflow: hidden;
   display: flex;
   justify-content: center;
-
   aspect-ratio: 18/9;
 `;
 
@@ -374,6 +366,10 @@ const fieldRow = css`
     border-color: var(--color-primary);
   }
 
+  div {
+    background: #ccc;
+  }
+
   &:hover > div {
     background: var(--color-primary);
   }
@@ -405,7 +401,7 @@ const fieldInput = css`
   padding: 8px 0;
 
   &::placeholder {
-    color: #aaa;
+    color: var(--color-gray-600);
   }
 `;
 
@@ -577,5 +573,38 @@ const kickButton = css`
 
   svg {
     color: #e54848;
+  }
+`;
+
+const toastAlert = css`
+  position: fixed;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  font-size: 15px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  z-index: 5000;
+  animation: slideUp 2s forwards;
+
+  @keyframes slideUp {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, 20px);
+    }
+    15% {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+    85% {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-50%, 20px);
+    }
   }
 `;
