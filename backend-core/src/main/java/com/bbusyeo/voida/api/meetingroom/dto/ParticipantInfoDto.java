@@ -1,6 +1,7 @@
 package com.bbusyeo.voida.api.meetingroom.dto;
 
 import com.bbusyeo.voida.api.meetingroom.domain.MemberMeetingRoom;
+import com.bbusyeo.voida.api.member.domain.Member;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,13 +26,13 @@ public class ParticipantInfoDto {
         this.isMine = isMine;
     }
 
-    public static ParticipantInfoDto of(MemberMeetingRoom memberMeetingRoom, Long currentMemberId) {
-        boolean isMine = memberMeetingRoom.getMember().getId().equals(currentMemberId);
+    public static ParticipantInfoDto of(MemberMeetingRoom memberMeetingRoom, Member member, String currentMemberUuid) {
+        boolean isMine = member.getMemberUuid().equals(currentMemberUuid);
 
         // todo: lipTalkMode는 member 완성 후 실제 로직으로 변경
         return ParticipantInfoDto.builder()
-                .nickname(memberMeetingRoom.getMember().getNickname())
-                .profileImageUrl(memberMeetingRoom.getMember().getProfileImageUrl())
+                .nickname(member.getNickname())
+                .profileImageUrl(member.getProfileImageUrl())
                 .state(memberMeetingRoom.getState().name())
                 .lipTalkMode(false)
                 .isMine(isMine)

@@ -22,7 +22,7 @@ public interface MemberMeetingRoomRepository extends JpaRepository<MemberMeeting
     // JPA 규칙, 언더바로 필드 구분, JPA의 삭제 로직
     void deleteByMeetingRoom_Id(Long meetingRoomId);
 
-    // 탈퇴한 회원이 아니고, 대기실에 들어가있는 회원 목록 JPA로 조회
-    List<MemberMeetingRoom> findByMeetingRoomIdAndMember_IsDeletedFalse(Long meetingRoomId);
+    // 대기실에 들어가있는 회원 목록 JPA로 조회
+    List<MemberMeetingRoom> findByMeetingRoomId(Long meetingRoomId);
 
 }

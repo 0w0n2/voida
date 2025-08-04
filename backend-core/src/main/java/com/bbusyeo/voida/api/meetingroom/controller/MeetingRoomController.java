@@ -62,17 +62,16 @@ public class MeetingRoomController {
     // 대기실 참여자 정보 리스트 조회
     @GetMapping("/{meetingRoomId}/members")
     public BaseResponse<MeetingRoomParticipantListDto> getMeetingRoomMembers(
+            @AuthenticationPrincipal(expression = "member") Member member,
             @PathVariable Long meetingRoomId) {
-        // todo: memberId는 JWT 토큰 추출 값으로 변경 예정
-        Long memberId = 1L;
-        MeetingRoomParticipantListDto response = meetingRoomService.getMeetingRoomMembers(memberId, meetingRoomId);
+
+        MeetingRoomParticipantListDto response = meetingRoomService.getMeetingRoomMembers(member.getMemberUuid(), meetingRoomId);
         return new BaseResponse<>(response);
     }
 
 
     // 대기실 삭제
     @DeleteMapping("{meetingRoomId}")
-    // 대기실 삭제
     public BaseResponse<Void> delete(
         @AuthenticationPrincipal(expression = "member") Member member,
         @PathVariable Long meetingRoomId) {
@@ -84,34 +83,34 @@ public class MeetingRoomController {
     // 방장 위임
     @PutMapping("/{meetingRoomId}/host")
     public BaseResponse<Void> changeHost(
+            @AuthenticationPrincipal(expression = "member") Member member,
             @PathVariable Long meetingRoomId,
             @RequestParam("memberUuid") String memberUuid) {
 
-        // todo: memberId는 JWT 토큰에서 추출한 값으로 변경 예정
-        Long memberId = 1L;
-        meetingRoomService.changeHost(memberId, meetingRoomId, memberUuid);
+
+        meetingRoomService.changeHost(member.getMemberUuid(), meetingRoomId, memberUuid);
         return new BaseResponse<>();
     }
 
     // member 추방
     @DeleteMapping("/{meetingRoomId}/members")
     public BaseResponse<Void> kickMember(
+            @AuthenticationPrincipal(expression = "member") Member member,
             @PathVariable Long meetingRoomId,
-            @RequestParam("memberUuid") String memberUuid) {
+            @RequestParam("memberUuid") String kickMemberUuid) {
 
-        // todo: memberId 수정 필요
-        Long memberId = 1L;
-        meetingRoomService.kickMember(memberId, meetingRoomId, memberUuid);
+
+        meetingRoomService.kickMember(member.getMemberUuid(), meetingRoomId, kickMemberUuid);
         return new BaseResponse<>();
     }
 
     // 대기실 나가기 (participant)
     @DeleteMapping("{meetingRoomId}/participants")
     public BaseResponse<Void> leaveMeetingRoom(
-            @PathVariable Long meetingRoomId,
-            @RequestParam("memberUuid") String memberUuid) {
+            @AuthenticationPrincipal(expression = "member") Member member,
+            @PathVariable Long meetingRoomId) {
 
-        meetingRoomService.leaveMeetingRoom(meetingRoomId, memberUuid);
+        meetingRoomService.leaveMeetingRoom(member.getMemberUuid(), meetingRoomId);
         return new BaseResponse<>();
     }
 

@@ -172,40 +172,53 @@ public class MeetingRoomService {
 
     // 대기실 참여자 정보 리스트 조회
     @Transactional(readOnly = true)
-    public MeetingRoomParticipantListDto getMeetingRoomMembers(Long memberId, Long meetingRoomId) {
+    public MeetingRoomParticipantListDto getMeetingRoomMembers(String currentMemberUuid, Long meetingRoomId) {
 
-        // repository를 통해 탈퇴하지않은 유저들만 포함된 목록을 Page 형태로 조회
-        List<MemberMeetingRoom> memberMeetingRooms = memberMeetingRoomRepository.findByMeetingRoomIdAndMember_IsDeletedFalse(meetingRoomId);
+        // meetingRoomId로 모든 참여자 상태 조회
+        List<MemberMeetingRoom> allMemberMeetingRooms = memberMeetingRoomRepository.findByMeetingRoomId(meetingRoomId);
 
-        // Stream의 map 기능 사용하여 Dto로 변환
-        List<ParticipantInfoDto> participants = memberMeetingRooms.stream()
-                .map(memberMeetingRoom -> ParticipantInfoDto.of(memberMeetingRoom, memberId))
+        if (allMemberMeetingRooms.isEmpty()) {
+            return MeetingRoomParticipantListDto.of(Collections.emptyList());
+        }
+
+        // 참여 관계에서 memberUuid 목록 추출
+        List<String> memberUuids = allMemberMeetingRooms.stream()
+                .map(MemberMeetingRoom::getMemberUuid)
                 .collect(Collectors.toList());
 
-        // 최종 응답 DTO로 변환하여 반환 (memberCount는 getTotalElements 사용으로 계산됨)
+        // 추출된 memberUuid 목록으로 Member 정보들을 조회
+        Map<String, Member> memberByUuidMap = memberRepository.findByMemberUuidIn(memberUuids).stream()
+                .collect(Collectors.toMap(Member::getMemberUuid, member -> member));
+
+        // 참여 정보를 DTO로 변환
+        List<ParticipantInfoDto> participants = allMemberMeetingRooms.stream()
+                .map(memberMeetingRoom -> {
+                    Member member = memberByUuidMap.get(memberMeetingRoom.getMemberUuid());
+                    return ParticipantInfoDto.of(memberMeetingRoom, member, currentMemberUuid);
+                })
+                .collect(Collectors.toList());
+
         return MeetingRoomParticipantListDto.of(participants);
     }
 
     // 방장 위임
-    public void changeHost(Long memberId, Long meetingRoomId, String newHostMemberUuid) {
-        // todo: memberId는 인증 기능 구현 완료 후, JWT 토큰에서 추출한 값으로 변경 예정
-        // 요청자가 방장인지 확인
-        checkHostAuthority(memberId, meetingRoomId);
+    public void changeHost(String memberUuid, Long meetingRoomId, String newHostMemberUuid) {
 
-        // 현재 방장 정보 조회 (일반 참여자로 변경해주기 위해 필요)
-        Member currentHost = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.NOT_FOUND_MEMBER));
-        MemberMeetingRoom currentHostMemberMeetingRoom = memberMeetingRoomRepository.findByMemberAndMeetingRoomId(currentHost, meetingRoomId)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR));
+        // 요청자가 방장인지 확인
+        checkHostAuthority(memberUuid, meetingRoomId);
 
         // 자기 자신에게 위임하는지 확인
-        if (currentHost.getMemberUuid().equals(newHostMemberUuid)) {
+        if (memberUuid.equals(newHostMemberUuid)) {
             throw new BaseException(BaseResponseStatus.CANNOT_CHANGE_TO_SELF);
         }
 
+        // 현재 방장 정보 조회 (일반 참여자로 변경해주기 위해 필요)
+        MemberMeetingRoom currentHostMemberMeetingRoom = memberMeetingRoomRepository.findByMemberUuidAndMeetingRoomId(memberUuid, meetingRoomId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.MEETING_ROOM_MEMBER_NOT_FOUND));
+
         // 위임 받을 멤버가 방에 참여중인지 검사
-        MemberMeetingRoom newHostMemberMeetingRoom = memberMeetingRoomRepository.findByMember_MemberUuidAndMeetingRoom_Id(newHostMemberUuid, meetingRoomId)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.NOT_FOUND_MEMBER));
+        MemberMeetingRoom newHostMemberMeetingRoom = memberMeetingRoomRepository.findByMemberUuidAndMeetingRoomId(newHostMemberUuid, meetingRoomId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.MEETING_ROOM_MEMBER_NOT_FOUND));
 
         // 권한 변경
         currentHostMemberMeetingRoom.updateState(MemberMeetingRoomState.PARTICIPANT);
@@ -213,22 +226,20 @@ public class MeetingRoomService {
     }
 
     // 유저 추방
-    public void kickMember(Long memberId, Long meetingRoomId, String kickMemberUuid) {
+    public void kickMember(String memberUuid, Long meetingRoomId, String kickMemberUuid) {
 
         // 요청자 방장인지 확인
-        checkHostAuthority(memberId, meetingRoomId);
+        checkHostAuthority(memberUuid, meetingRoomId);
 
         // 방장 자기 자신 추방하려는지 확인
-        Member host = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.NOT_FOUND_MEMBER));
-        if (host.getMemberUuid().equals(kickMemberUuid)) {
+        if (memberUuid.equals(kickMemberUuid)) {
             throw new BaseException(BaseResponseStatus.CANNOT_CHANGE_TO_SELF);
         }
 
         // 추방할 member가 방에 참여중인지 확인
         MemberMeetingRoom memberMeetingRoom = memberMeetingRoomRepository
-                .findByMember_MemberUuidAndMeetingRoom_Id(kickMemberUuid, meetingRoomId)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.NOT_FOUND_MEMBER));
+                .findByMemberUuidAndMeetingRoomId(kickMemberUuid, meetingRoomId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.MEETING_ROOM_MEMBER_NOT_FOUND));
 
         // 참여자 <-> 대기실 관계 제거, 대기실 인원 1 감소
         MeetingRoom meetingRoom = memberMeetingRoom.getMeetingRoom();
@@ -237,12 +248,12 @@ public class MeetingRoomService {
     }
 
     // 대기실 나가기(탈퇴)
-    public void leaveMeetingRoom(Long meetingRoomId, String memberUuid) {
+    public void leaveMeetingRoom(String memberUuid, Long meetingRoomId) {
 
         // 방에 참여중인지 확인
         MemberMeetingRoom memberMeetingRoom = memberMeetingRoomRepository
-                .findByMember_MemberUuidAndMeetingRoom_Id(memberUuid, meetingRoomId)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.NOT_FOUND_MEMBER));
+                .findByMemberUuidAndMeetingRoomId(memberUuid, meetingRoomId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.MEETING_ROOM_MEMBER_NOT_FOUND));
 
         // 요청한 유저가 방장인지 확인
         if (memberMeetingRoom.getState() == MemberMeetingRoomState.HOST) {
@@ -257,9 +268,9 @@ public class MeetingRoomService {
 
     // 방장 권한 확인 메서드
     public void checkHostAuthority(String memberUuid, Long meetingRoomId) {
-        Member member = memberRepository.findByMemberUuid(memberUuid)
-                // 시스템에 존재하는 유저가 아닐때, 임시로 400 에러 => 추후 NOT_FOUND_MEMBER response로 바꿔야함
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.ILLEGAL_ARGUMENT));
+        memberRepository.findByMemberUuid(memberUuid)
+                // 시스템에 존재하는 유저가 아닐때
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
 
         memberMeetingRoomRepository.findByMemberUuidAndMeetingRoomId(memberUuid, meetingRoomId)
                 .filter(memberMeetingRoom -> memberMeetingRoom.getState() == MemberMeetingRoomState.HOST)
