@@ -12,7 +12,7 @@ import lombok.ToString;
 public class ResetPasswordRequestDto {
 
     @Email
-    @NotBlank
+    @NotBlank(message = "이메일을 입력해주세요.")
     private String email;
 
 }

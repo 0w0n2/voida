@@ -6,6 +6,7 @@ import com.bbusyeo.voida.api.auth.dto.VerifyEmailResponseDto;
 import com.bbusyeo.voida.global.redis.dao.RedisDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -35,6 +36,7 @@ public class EmailVerificationService {
                 .expiredAt(expiredAt).build();
     }
 
+    @Transactional(readOnly = true)
     public VerifyEmailResponseDto verifyEmailCode(VerifyEmailRequestDto requestDto) {
         String redisKey = SIGNUP_CODE_PREFIX + requestDto.getEmail();
         Object redisCode = redisDao.getValue(redisKey);

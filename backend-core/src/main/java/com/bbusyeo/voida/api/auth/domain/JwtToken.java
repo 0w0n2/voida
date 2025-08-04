@@ -2,10 +2,10 @@ package com.bbusyeo.voida.api.auth.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 
 @Builder
-@Data
+@Getter
 @AllArgsConstructor
 public class JwtToken {
     private String grantType;   // JWT에 대한 인증 타입(Bearer)

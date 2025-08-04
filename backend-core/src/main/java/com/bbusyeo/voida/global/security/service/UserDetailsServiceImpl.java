@@ -27,7 +27,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         
         // 서비스 호출하여 실제 DB 조회를 통해 사용자 정보 대조
         return memberRepository.findByEmail(username)
-                .map(UserDetailsDto::new) // etAuthorities() 내에서 이미 member.getRole() 를 통해 GrantedAuthority 객체(SimpleGrantedAuthority)를 생성하고 있으므로 외부에서 굳이 권한 주입 안 해줘도 됨
+                .map(UserDetailsDto::new) // getAuthorities() 내에서 이미 member.getRole() 를 통해 GrantedAuthority 객체(SimpleGrantedAuthority)를 생성하고 있으므로 외부에서 굳이 권한 주입 안 해줘도 됨
                 .orElseThrow(() -> new UsernameNotFoundException("해당하는 사용자를 찾을 수 없습니다."));
     }
 }

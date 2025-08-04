@@ -3,6 +3,7 @@ package com.bbusyeo.voida.api.auth.controller;
 import com.bbusyeo.voida.api.auth.domain.VerificationCode;
 import com.bbusyeo.voida.api.auth.dto.*;
 import com.bbusyeo.voida.api.auth.service.AuthService;
+import com.bbusyeo.voida.api.member.domain.Member;
 import com.bbusyeo.voida.api.member.domain.enums.ProviderName;
 import com.bbusyeo.voida.global.mail.service.MailService;
 import com.bbusyeo.voida.global.mail.util.MailType;
@@ -13,6 +14,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,17 +37,17 @@ public class AuthController {
     @PostMapping("/refresh")
     public BaseResponse<Void> refresh(@CookieValue(value = "refreshToken") String refreshToken, HttpServletResponse response) {
         authService.refreshAccessToken(refreshToken, response);
-        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        return new BaseResponse<>();
     }
 
     @PostMapping("/sign-out")
     public BaseResponse<Void> signOut(HttpServletRequest request, HttpServletResponse response) {
         authService.signOut(request, response);
-        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        return new BaseResponse<>();
     }
 
     @PostMapping("/email-code")
-    public BaseResponse<EmailCodeResponseDto> emailCode(@RequestBody EmailCodeRequestDto requestDto) {
+    public BaseResponse<EmailCodeResponseDto> emailCode(@Valid @RequestBody EmailCodeRequestDto requestDto) {
         VerificationCode verificationCode = authService.generateVerificationCode(requestDto.getEmail());
 
         mailService.sendHtmlMail(requestDto.getEmail(),
@@ -75,7 +78,7 @@ public class AuthController {
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
     ) {
         authService.signUp(requestDto, profileImage);
-        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        return new BaseResponse<>();
     }
 
     @PostMapping("/reset-password")
@@ -85,6 +88,6 @@ public class AuthController {
         mailService.sendHtmlMail(requestDto.getEmail(),
                 MailType.PASSWORD_RESET,
                 Map.of("tempPassword", tempPassword));
-        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        return new BaseResponse<>();
     }
 }

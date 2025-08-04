@@ -2,10 +2,13 @@ package com.bbusyeo.voida.global.security.util;
 
 import com.bbusyeo.voida.api.auth.domain.JwtToken;
 import com.bbusyeo.voida.api.auth.domain.RefreshToken;
+import com.bbusyeo.voida.api.member.domain.Member;
+import com.bbusyeo.voida.api.member.repository.MemberRepository;
 import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.redis.dao.RedisDao;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
 import com.bbusyeo.voida.global.security.dto.UserDetailsDto;
+import com.bbusyeo.voida.global.security.service.UserDetailsServiceImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -21,6 +24,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -37,9 +41,13 @@ import java.util.stream.Collectors;
 public class TokenUtils {
 
     private final SecretKey secretKey;
+    private final UserDetailsService userDetailsService;
+    private final MemberRepository memberRepository;
 
-    public TokenUtils(@Value("${jwt.secret}") String secretKey) {
+    public TokenUtils(@Value("${jwt.secret}") String secretKey, UserDetailsService userDetailsService, MemberRepository memberRepository) {
         this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
+        this.userDetailsService = userDetailsService;
+        this.memberRepository = memberRepository;
     }
 
     public String createAccessToken(String subject, String authorities, Date expireDate) {
@@ -124,7 +132,12 @@ public class TokenUtils {
                 .toList();
 
         // UserDetails 객체를 만들어서 Authentication return
-        UserDetails principal = new User(claims.getSubject(), "", authorities); // 사용자 식별자, credentials, 권한 목록
+        String memberUuid = claims.getSubject();
+        UserDetails principal = memberRepository.findByMemberUuid(memberUuid)
+                .map(UserDetailsDto::new)
+                .orElseThrow(() -> new UsernameNotFoundException("해당하는 사용자를 찾을 수 없습니다."));
+
+        // UserDetails principal = new User(claims.getSubject(), "", authorities); // 사용자 식별자, credentials, 권한 목록
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 

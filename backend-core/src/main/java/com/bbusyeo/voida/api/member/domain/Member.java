@@ -31,7 +31,7 @@ public class Member implements Serializable {
     @Column(nullable = false, length = 10, unique = true)
     private String nickname;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 50, unique = true)
     private String email;
 
     @Column(nullable = false, length = 60)
