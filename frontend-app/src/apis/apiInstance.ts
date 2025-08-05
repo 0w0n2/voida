@@ -9,8 +9,13 @@ const apiInstance = axios.create({
 apiInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('accessToken');
-    const noAuthNeeded = ['/v1/auth/login', '/v1/auth/sign-up', '/v1/auth/email-code'];
-    if (token && !isPublic) {
+    const excludedUrls = [
+      '/v1/auth/email-code',
+      '/v1/auth/verify-email',
+      '/v1/auth/check-nickname',
+      '/v1/auth/check-email',
+    ];
+    if (token && !excludedUrls.includes(config.url || '')) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
