@@ -2,16 +2,33 @@
 import { css } from '@emotion/react';
 import VoidaLogo from '@/assets/logo/voida-logo.png';
 import { Wifi, WifiOff } from 'lucide-react';
+// import { startVoiceSession } from '@/apis/voiceService';
+// import { connectStompChat } from '@/apis/chatService';
 
 interface ChatHeaderProps {
   isLive?: boolean;
 }
 
 const ChatHeader = ({ isLive = false }: ChatHeaderProps) => {
+    const handleJoinLive = async () => {
+    try {
+      // // 1. OpenVidu 연결
+      // await startVoiceSession(); // openvidu 연결
+
+      // // 2. STOMP 연결 + 채팅 불러오기
+      // await connectStompChat(); // stomp subscribe 및 초기 히스토리 로드
+
+      // 3. Electron 오버레이 실행
+      window.electronAPI.openOverlay(); // preload → main → overlayWindow.ts 흐름
+    } catch (err) {
+      console.error("라이브 참여 실패", err);
+    }
+  };
+
   return (
     <div css={header}>
       <img src={VoidaLogo} alt="VOIDA 로고" css={logo} />
-      <button css={joinBtn}>
+      <button css={joinBtn} onClick={handleJoinLive}>
         {isLive ? <Wifi css={liveIcon} /> : <WifiOff css={liveIcon} />}
         <span>라이브 참여하기</span>
       </button>
