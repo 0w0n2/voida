@@ -49,11 +49,11 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-impl:0.12.6'
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.6'
 
+	// OAuth
+	implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+
 	// Database
 	runtimeOnly 'com.mysql:mysql-connector-j'
-	// Redis
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-
 	// Redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
