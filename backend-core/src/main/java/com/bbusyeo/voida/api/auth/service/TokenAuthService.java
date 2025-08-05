@@ -3,6 +3,7 @@ package com.bbusyeo.voida.api.auth.service;
 import com.bbusyeo.voida.api.auth.domain.JwtToken;
 import com.bbusyeo.voida.api.auth.dto.SignInRequestDto;
 import com.bbusyeo.voida.api.auth.dto.SignInResponseDto;
+import com.bbusyeo.voida.api.auth.dto.SignUpRequestDto;
 import com.bbusyeo.voida.api.member.domain.Member;
 import com.bbusyeo.voida.global.security.dto.UserDetailsDto;
 import com.bbusyeo.voida.global.security.service.JwtTokenService;
@@ -36,23 +37,26 @@ public class TokenAuthService {
     @Value("${jwt.expire-time.refresh}")
     private Duration refreshExpMin;
 
+    // 일반 로그인
     public SignInResponseDto signIn(SignInRequestDto requestDto, HttpServletResponse response) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(requestDto.getEmail(), requestDto.getPassword());
 
-        // 인증 정보 기반으로 JWT token 생성
         Authentication authentication = authenticationProvider.authenticate(authenticationToken);
         UserDetailsDto userDetails = (UserDetailsDto) authentication.getPrincipal();
-        JwtToken jwtToken = jwtTokenService.generateToken(userDetails);
 
+        return issueJwtAndReturnDto(userDetails, response);
+    }
+
+    // 인증 정보 기반으로 JWT token 생성
+    // TODO: tokenUtils 에 넣을까?
+    public SignInResponseDto issueJwtAndReturnDto(UserDetailsDto userDetails, HttpServletResponse response) {
+        JwtToken jwtToken = jwtTokenService.generateToken(userDetails);
         // Access Token -> Header
         response.addHeader("Authorization", "Bearer " + jwtToken.getAccessToken());
         // Refresh Token -> Cookie
         cookieUtils.setRefreshCookie(response, jwtToken.getRefreshToken(), (int) refreshExpMin.getSeconds());
 
-        // member 정보 모두 조회
-        Member member = userDetails.getMember();
-
-        return SignInResponseDto.toDto(member);
+        return SignInResponseDto.toDto(userDetails.getMember());
     }
 
     public void refreshAccessToken(String refreshToken, HttpServletResponse response) {

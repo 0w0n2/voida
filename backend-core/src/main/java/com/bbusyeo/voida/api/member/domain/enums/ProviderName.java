@@ -10,11 +10,10 @@ import java.util.Locale;
 
 @Getter
 @ToString
-@NoArgsConstructor
 public enum ProviderName {
-    GOOGLE,
-    KAKAO,
-    NAVER;
+    GOOGLE("google"),
+    KAKAO("kakao"),
+    NAVER("naver");
 
     public static ProviderName from(String providerName) {
         if (providerName == null) throw new BaseException(BaseResponseStatus.UNSUPPORTED_SOCIAL_PROVIDER);
@@ -23,5 +22,11 @@ public enum ProviderName {
         } catch (IllegalArgumentException e) {
             throw new BaseException(BaseResponseStatus.UNSUPPORTED_SOCIAL_PROVIDER);
         }
+    }
+
+    private final String providerName;
+
+    ProviderName(String providerName) {
+        this.providerName = providerName;
     }
 }

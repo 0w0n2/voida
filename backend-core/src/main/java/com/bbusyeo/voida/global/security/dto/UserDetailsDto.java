@@ -8,21 +8,38 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * UserDetails 구현체 (Spring security 인증 주체 정의)
  */
 @Slf4j
 @Getter
-@AllArgsConstructor
-public class UserDetailsDto implements UserDetails {
+public class UserDetailsDto implements UserDetails, OAuth2User {
 
     @Delegate // Member 객체의 메소드를 이 클래스에서 직접 사용 가능
-    private Member member;
+    private final Member member;
+
+    private Map<String, Object> attributes;
+    private boolean isNeedSignUp; // 신규 소셜 로그인 여부
+    private OAuth2UserInfo oAuth2UserInfo;
+
+    // 일반 로그인 객체
+    public UserDetailsDto(Member member) {
+        this.member = member;
+    }
+
+    // OAuth 로그인 객체
+    public UserDetailsDto(Member member, OAuth2UserInfo oAuth2UserInfo, boolean isNeedSignUp) {
+        this.member = member;
+        this.oAuth2UserInfo = oAuth2UserInfo;
+        this.isNeedSignUp = isNeedSignUp;
+    }
 
     // 사용자 권한 목록 반환
     @Override
@@ -67,5 +84,10 @@ public class UserDetailsDto implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true; // TODO-SECURITY: 탈퇴/비활성 등 처리 필요시 custom
+    }
+
+    @Override
+    public String getName() {
+        return null;
     }
 }
