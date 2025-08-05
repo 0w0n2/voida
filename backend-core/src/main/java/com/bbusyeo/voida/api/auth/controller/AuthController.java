@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Map;
 
 @RestController
-@RequestMapping("v1/auth")
+@RequestMapping("/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -33,7 +33,7 @@ public class AuthController {
         return new BaseResponse<>(authService.signIn(requestDto, response));
     }
 
-    @PostMapping("/refresh")
+    @PostMapping("/reissue")
     public BaseResponse<Void> refresh(@CookieValue(value = "refreshToken") String refreshToken, HttpServletResponse response) {
         authService.refreshAccessToken(refreshToken, response);
         return new BaseResponse<>();
