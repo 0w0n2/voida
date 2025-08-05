@@ -5,6 +5,7 @@ import { getUserSettings, updateGuideMode } from '../../apis/userApi';
 import { useAuthStore } from '../../store/store';
 import { useNavigate } from 'react-router-dom';
 import UpdateDoneModal from './UpdateDoneModal';
+import guide from '@/assets/icons/mp-guide.png';
 
 interface UserSettings {
   useLipTalkMode: boolean; // API 스펙에 맞게 변경
@@ -171,7 +172,8 @@ const SettingsTab = () => {
               </p>
             </div>
             <button css={guidebookButtonStyle} onClick={handleGuidebook}>
-              📖 가이드북 보기
+              <img src={guide} alt="guide" />
+                가이드북 보기
             </button>
           </div>
         </div>
@@ -339,6 +341,9 @@ const toggleSliderStyle = (enabled: boolean) => css`
 `;
 
 const guidebookButtonStyle = css`
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 8px 16px;
   background-color: var(--color-green);
   color: var(--color-text-white);

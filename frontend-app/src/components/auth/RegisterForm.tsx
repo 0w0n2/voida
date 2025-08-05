@@ -47,7 +47,7 @@ const RegisterForm = () => {
     setIsRegistered(false);
   };
 
-  // 소셜 로그인
+  // 소셜 로그인시 이메일 자동 입력
   const location = useLocation();
   const socialEmail = location.state?.socialEmail;
 
@@ -92,7 +92,9 @@ const RegisterForm = () => {
     const fetchRandomNickname = async () => {
       try {
         const response = await getRandomNickname();
-        setNickname(response.data.nickname);
+        const name = response.data?.result?.nickname ?? '';
+        setNickname(name);
+        console.log(name);
       } catch (error) {
         console.error('닉네임 랜덤 생성 중 오류 발생:', error);
       }
@@ -170,25 +172,27 @@ const RegisterForm = () => {
       setEmailError('올바른 이메일 형식이 아닙니다.');
       return;
     }
-    setIsEmailChecked(true);
-    // try {
-    //   const response = await checkEmailDuplicate(email);
-    //   if (response.data.isAvailable) {
-    //     setEmailError('');
-    //     setIsEmailChecked(true);
-    //     alert('사용 가능한 이메일입니다.');
-    //   } else {
-    //     setEmailError('이미 사용중인 이메일입니다.');
-    //     setIsEmailChecked(false);
-    //   }
-    // } catch (error) {
-    //   if (error instanceof AxiosError) {
-    //     setEmailError(
-    //       error.response?.data?.message || '중복확인 중 오류가 발생했습니다.',
-    //     );
-    //   }
-    //   setIsEmailChecked(false);
-    // }
+
+    try {
+      const response = await checkEmailDuplicate(email);
+      const emailDuplicated = response.data.result.emailDuplicated;
+
+      if (!emailDuplicated) {
+        setEmailError('');
+        setIsEmailChecked(true);
+        alert('사용 가능한 이메일입니다.');
+      } else {
+        setEmailError('이미 사용중인 이메일입니다.');
+        setIsEmailChecked(false);
+      }
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        setEmailError(
+          error.response?.data?.message || '중복확인 중 오류가 발생했습니다.',
+        );
+      }
+      setIsEmailChecked(false);
+    }
   };
 
   // 닉네임 중복확인
@@ -205,7 +209,9 @@ const RegisterForm = () => {
 
     try {
       const response = await checkNicknameDuplicate(nickname);
-      if (response.data.isAvailable) {
+      const nicknameDuplicated = response.data.nicknameDuplicated;
+      console.log(response);
+      if (!nicknameDuplicated) {
         setNicknameError('');
         setIsNicknameChecked(true);
         alert('사용 가능한 닉네임입니다.');
@@ -645,7 +651,7 @@ const checkButtonStyle = css`
 
 const checkedButtonStyle = css`
   background: var(--color-green) !important;
-
+  pointer-events: none;
   &:hover {
     background: var(--color-green) !important;
   }
@@ -653,7 +659,7 @@ const checkedButtonStyle = css`
 
 const verifiedButtonStyle = css`
   background: var(--color-primary) !important;
-
+  pointer-events: none;
   &:hover {
     background: var(--color-primary-dark) !important;
   }
