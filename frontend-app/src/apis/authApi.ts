@@ -75,6 +75,7 @@ export const sendEmailVerification = (email: string) => {
   );
 };
 
+
 // 이메일 인증 코드 확인
 export const verifyEmailCode = (email: string, code: string) => {
   return apiInstance.post(

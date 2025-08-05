@@ -36,10 +36,14 @@ out/
 ### VS Code ###
 .vscode/
 
-### configuration files ###
+### Configuration files ###
 *.yaml
 *.yml
 *.properties
 
 ### Cursor ###
 .cursor/
+
+
+### Mac ###
+.DS_Store
