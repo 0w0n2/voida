@@ -91,7 +91,7 @@ public class AuthController {
     }
 
     @PostMapping("/check-email")
-    public BaseResponse<CheckEmailResponseDto> checkNickname(@Valid @RequestBody CheckEmailRequestDto requestDto) {
+    public BaseResponse<CheckEmailResponseDto> checkEmail(@Valid @RequestBody CheckEmailRequestDto requestDto) {
         return new BaseResponse<>(authService.checkEmail(requestDto));
     }
 }
