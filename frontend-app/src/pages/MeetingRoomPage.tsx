@@ -14,19 +14,25 @@ const MeetingRoomPage = ({ meetingRoomId }: { meetingRoomId: string }) => {
   const { setRoomInfo, setParticipants, setChatMessages } =
     useMeetingRoomStore();
 
-  useEffect(() => {
-    const fetchData = async () => {
+useEffect(() => {
+  const fetchData = async () => {
+    try {
       const room = await getRoomInfo(meetingRoomId);
       const members = await getRoomMembers(meetingRoomId);
       const chat = await getRoomChatHistory(meetingRoomId);
 
       setRoomInfo(room);
-      // getRoomMembers API 응답이 배열이면 첫 번째 값 사용
       setParticipants(Array.isArray(members) ? members[0] : members);
-      setChatMessages(chat.chatHistory.content);
-    };
-    fetchData();
-  }, [meetingRoomId, setRoomInfo, setParticipants, setChatMessages]);
+      const chatList = chat?.chatHistory?.content ?? [];
+      setChatMessages(chatList);
+    } catch (err) {
+      console.error('초기 데이터 로딩 실패:', err);
+    }
+  };
+
+  fetchData();
+}, [meetingRoomId, setRoomInfo, setParticipants, setChatMessages]);
+
 
   return (
     <div css={container}>

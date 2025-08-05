@@ -269,11 +269,30 @@ const modal = css`
   max-height: 90%;
   overflow-y: auto;
   position: relative;
+
+  @media (max-width: 1200px) {
+    width: 90%;
+    padding: 40px;
+  }
+
+  @media (max-width: 900px) {
+    width: 95%;
+    padding: 30px;
+  }
+
+  @media (max-width: 600px) {
+    padding: 20px;
+  }
 `;
 
 const modalContent = css`
   display: flex;
   gap: 40px;
+
+  @media (max-width: 900px) {
+    flex-direction: column;
+    gap: 24px;
+  }
 `;
 
 const leftSection = css`
@@ -328,6 +347,10 @@ const thumbnail = css`
   width: 80%;
   border-radius: 10px;
   object-fit: cover;
+
+  @media (max-width: 600px) {
+    width: 100%;
+  }
 `;
 
 const thumbnailOverlay = css`
@@ -403,6 +426,10 @@ const fieldInput = css`
   &::placeholder {
     color: var(--color-gray-600);
   }
+
+  @media (max-width: 600px) {
+    font-size: 15px;
+  }
 `;
 
 const selectStyle = css`
@@ -419,6 +446,10 @@ const selectStyle = css`
   background-position: right 8px center;
   background-size: 16px 16px;
   cursor: pointer;
+
+  @media (max-width: 600px) {
+    font-size: 15px;
+  }
 `;
 
 const codeButton = css`
@@ -493,6 +524,14 @@ const participantRow = css`
   justify-content: space-between;
   align-items: center;
   width: 80%;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 16px;
+  }
 `;
 
 const participantInfo = css`

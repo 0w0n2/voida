@@ -74,11 +74,37 @@ const headerContainer = css`
   align-items: center;
   padding: 1.5rem 2rem;
   position: relative;
+
+  @media (max-width: 1200px) {
+    padding: 1.2rem 1.5rem;
+  }
+
+  @media (max-width: 900px) {
+    padding: 1rem 1.2rem;
+  }
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
 `;
 
 const logo = css`
   width: 130px;
   cursor: pointer;
+
+  @media (max-width: 1200px) {
+    width: 110px;
+  }
+
+  @media (max-width: 900px) {
+    width: 100px;
+  }
+
+  @media (max-width: 600px) {
+    width: 90px;
+  }
 `;
 
 const userSection = css`
@@ -93,6 +119,18 @@ const userInfoStyle = css`
   font-family: 'NanumSquareB';
   color: #333;
   cursor: pointer;
+
+  @media (max-width: 1200px) {
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 900px) {
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 0.8rem;
+  }
 `;
 
 const avatarStyle = css`
@@ -100,6 +138,21 @@ const avatarStyle = css`
   height: 50px;
   border-radius: 50%;
   object-fit: cover;
+
+  @media (max-width: 1200px) {
+    width: 44px;
+    height: 44px;
+  }
+
+  @media (max-width: 900px) {
+    width: 40px;
+    height: 40px;
+  }
+
+  @media (max-width: 600px) {
+    width: 36px;
+    height: 36px;
+  }
 `;
 
 const dropdownMenu = css`
@@ -115,6 +168,11 @@ const dropdownMenu = css`
   flex-direction: column;
   align-items: center;
   z-index: 10;
+
+  @media (max-width: 600px) {
+    width: 180px;
+    padding: 16px;
+  }
 `;
 
 const dropdownAvatar = css`
@@ -123,11 +181,20 @@ const dropdownAvatar = css`
   border-radius: 50%;
   object-fit: cover;
   margin-bottom: 16px;
+
+  @media (max-width: 600px) {
+    width: 50px;
+    height: 50px;
+  }
 `;
 
 const dropdownTitle = css`
   font-size: 16px;
   text-align: center;
+
+  @media (max-width: 600px) {
+    font-size: 14px;
+  }
 `;
 
 const divider = css`

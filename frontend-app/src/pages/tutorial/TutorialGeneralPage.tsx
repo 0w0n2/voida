@@ -30,6 +30,25 @@ const contentWrapperStyle = css`
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  @media (max-width: 1400px) {
+    max-width: 84rem;
+    padding: 1.5rem 3rem;
+  }
+
+  @media (max-width: 1200px) {
+    max-width: 72rem;
+    padding: 1.5rem 2rem;
+  }
+
+  @media (max-width: 900px) {
+    max-width: 100%;
+    padding: 1.5rem 1.5rem;
+  }
+
+  @media (max-width: 600px) {
+    padding: 1rem;
+  }
 `;
 
 const titleStyle = css`
@@ -37,6 +56,22 @@ const titleStyle = css`
   font-family: 'NanumSquareEB';
   margin-bottom: 1rem;
   text-align: center;
+
+  @media (max-width: 1400px) {
+    font-size: 36px;
+  }
+
+  @media (max-width: 1200px) {
+    font-size: 32px;
+  }
+
+  @media (max-width: 900px) {
+    font-size: 28px;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 24px;
+  }
 `;
 
 const subtitleStyle = css`
@@ -44,4 +79,16 @@ const subtitleStyle = css`
   margin-bottom: 3rem;
   text-align: center;
   font-size: 20px;
+
+  @media (max-width: 1200px) {
+    font-size: 18px;
+  }
+
+  @media (max-width: 900px) {
+    font-size: 16px;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 15px;
+  }
 `;

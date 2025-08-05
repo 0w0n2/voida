@@ -41,7 +41,7 @@ const MainPage = () => {
                 src={DemoVideoIcon || '/placeholder.svg'}
                 alt="재생 아이콘"
               />
-              데모 보기
+              튜토리얼
             </button>
           </div>
         </div>
@@ -69,16 +69,20 @@ const wrapper = css`
   background: linear-gradient(135deg, #ffffff 0%, #eaf3ff 50%, #e0ecff 100%);
   overflow: hidden;
 
-  @container (max-width: 1400px) {
+  @media (max-width: 1400px) {
     min-height: 550px;
   }
 
-  @container (max-width: 1200px) {
+  @media (max-width: 1200px) {
     min-height: 500px;
   }
 
-  @container (max-width: 900px) {
+  @media (max-width: 900px) {
     min-height: 450px;
+  }
+
+  @media (max-width: 600px) {
+    min-height: 420px;
   }
 `;
 
@@ -91,6 +95,14 @@ const headerLogo = css`
   img {
     height: clamp(35px, 4vh, 50px);
     transition: all 0.3s ease;
+
+    @media (max-width: 900px) {
+      height: 40px;
+    }
+
+    @media (max-width: 600px) {
+      height: 36px;
+    }
   }
 `;
 
@@ -324,7 +336,7 @@ const chatImage = css`
   object-fit: contain;
 
   &:hover {
-    transform: rotate(-4deg) scale(1.02);
+    transform: rotate(-5deg) scale(1.1);
   }
 
   @media (max-width: 1400px) {
@@ -341,9 +353,15 @@ const chatImage = css`
 
   @media (max-width: 800px) {
     width: clamp(200px, 80vw, 400px);
+
     &:hover {
       transform: rotate(-1deg) scale(1.01);
     }
+  }
+
+  @media (max-width: 600px) {
+    width: 100%;
+    max-width: 380px;
   }
 `;
 
@@ -370,7 +388,7 @@ const decorCircle1 = css`
   ${decorBase};
   width: clamp(100px, 10vw, 150px);
   height: clamp(100px, 10vw, 150px);
-  background: linear-gradient(135deg, #eae8d5, #f5f3e0);
+  background: linear-gradient(135deg, #eae8d5, #f1edc6ff);
   top: clamp(30px, 8vh, 50px);
   left: clamp(20px, 4vw, 40px);
   animation-delay: 0s;
@@ -379,13 +397,20 @@ const decorCircle1 = css`
     top: 10%;
     left: 10%;
   }
+
+  @media (max-width: 600px) {
+    top: 12%;
+    left: 8%;
+    width: 80px;
+    height: 80px;
+  }
 `;
 
 const decorCircle2 = css`
   ${decorBase};
   width: clamp(60px, 8vw, 100px);
   height: clamp(60px, 8vw, 100px);
-  background: linear-gradient(135deg, #c4d8ff, #dae8ff);
+  background: linear-gradient(135deg, #b7cdf7ff, #b7d0f7ff);
   bottom: clamp(60px, 12vh, 90px);
   right: clamp(20px, 3vw, 30px);
   animation-delay: 1.3s;
@@ -394,13 +419,18 @@ const decorCircle2 = css`
     bottom: 15%;
     right: 15%;
   }
+
+  @media (max-width: 600px) {
+    width: 70px;
+    height: 70px;
+  }
 `;
 
 const decorCircle3 = css`
   ${decorBase};
   width: clamp(50px, 6vw, 80px);
   height: clamp(50px, 6vw, 80px);
-  background: linear-gradient(135deg, #dfccf7, #ede0ff);
+  background: linear-gradient(135deg, #dfccf7, #dbc6faff);
   top: 50%;
   right: clamp(40px, 6vw, 60px);
   animation-delay: 2.6s;
@@ -408,5 +438,10 @@ const decorCircle3 = css`
   @media (max-width: 800px) {
     top: 40%;
     right: 20%;
+  }
+
+  @media (max-width: 600px) {
+    width: 60px;
+    height: 60px;
   }
 `;

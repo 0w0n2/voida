@@ -25,14 +25,47 @@ const header = css`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 24px;
-  background: transparent;
   padding: 2.5rem;
   padding-bottom: 1rem;
+  background: transparent;
+
+  @media (max-width: 1400px) {
+    padding: 2rem;
+  }
+
+  @media (max-width: 1200px) {
+    padding: 1.5rem;
+  }
+
+  @media (max-width: 900px) {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.2rem;
+  }
+
+  @media (max-width: 600px) {
+    padding: 1rem;
+  }
 `;
 
 const logo = css`
   height: 40px;
+
+  @media (max-width: 1400px) {
+    height: 36px;
+  }
+
+  @media (max-width: 1200px) {
+    height: 32px;
+  }
+
+  @media (max-width: 900px) {
+    height: 28px;
+  }
+
+  @media (max-width: 600px) {
+    height: 24px;
+  }
 `;
 
 const joinBtn = css`
@@ -50,10 +83,51 @@ const joinBtn = css`
   &:hover {
     background: var(--color-green-dark);
   }
+
+  @media (max-width: 1400px) {
+    padding: 9px 14px;
+    font-size: 15px;
+  }
+
+  @media (max-width: 1200px) {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+
+  @media (max-width: 900px) {
+    padding: 8px 12px;
+    font-size: 14px;
+    width: 80%;
+    justify-content: center;
+  }
+
+  @media (max-width: 600px) {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
 `;
 
 const liveIcon = css`
   width: 22px;
   height: 22px;
-  object-fit: contain;
+
+  @media (max-width: 1400px) {
+    width: 20px;
+    height: 20px;
+  }
+
+  @media (max-width: 1200px) {
+    width: 18px;
+    height: 18px;
+  }
+
+  @media (max-width: 900px) {
+    width: 18px;
+    height: 18px;
+  }
+
+  @media (max-width: 600px) {
+    width: 16px;
+    height: 16px;
+  }
 `;

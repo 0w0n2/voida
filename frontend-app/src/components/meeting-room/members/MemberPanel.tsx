@@ -117,6 +117,24 @@ const panelStyle = css`
   border-right: 1px solid #ddd;
   display: flex;
   flex-direction: column;
+
+  @media (max-width: 1400px) {
+    width: 400px;
+  }
+  @media (max-width: 1200px) {
+    width: 350px;
+  }
+  @media (max-width: 900px) {
+    width: 100%;
+    border-right: none;
+    border-top: 1px solid #ddd;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  @media (max-width: 600px) {
+    padding: 1rem;
+  }
 `;
 
 const panelHeader = css`
@@ -205,6 +223,17 @@ const cardStyle = css`
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   width: 100%;
   max-width: 90%;
+
+  @media (max-width: 900px) {
+    max-width: 100%;
+    border-radius: 20px;
+    padding: 1rem;
+    gap: 16px;
+  }
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 `;
 
 const myCardStyle = css`
@@ -217,6 +246,23 @@ const avatarStyle = css`
   height: 55px;
   border-radius: 50%;
   object-fit: cover;
+
+  @media (max-width: 1400px) {
+    width: 48px;
+    height: 48px;
+  }
+  @media (max-width: 1200px) {
+    width: 42px;
+    height: 42px;
+  }
+  @media (max-width: 900px) {
+    width: 36px;
+    height: 36px;
+  }
+  @media (max-width: 600px) {
+    width: 32px;
+    height: 32px;
+  }
 `;
 
 const avatarWrapper = css`
@@ -249,6 +295,16 @@ const infoBox = css`
   display: flex;
   flex-direction: column;
   margin-left: 10px;
+
+  @media (max-width: 900px) {
+    height: auto;
+    padding: 1rem;
+  }
+  @media (max-width: 600px) {
+    h4 {
+      font-size: 16px;
+    }
+  }
 `;
 
 const nameRow = css`
@@ -260,6 +316,16 @@ const nameRow = css`
 const nicknameStyle = css`
   font-size: 18px;
   font-family: 'NanumSquareR';
+
+  @media (max-width: 1200px) {
+    font-size: 16px;
+  }
+  @media (max-width: 900px) {
+    font-size: 15px;
+  }
+  @media (max-width: 600px) {
+    font-size: 14px;
+  }
 `;
 
 const lipIcon = css`
@@ -321,24 +387,47 @@ const activeBadge = css`
 `;
 
 const roomInfoBox = css`
+  box-sizing: border-box;
   margin-top: auto;
   margin-left: -1.5rem;
   margin-right: -1.5rem;
   margin-bottom: -1.5rem;
   width: calc(100% + 3rem);
-  height: 120px;
   padding: 1.5rem;
   padding-left: 2.5rem;
+  height: 120px;
   background: white;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   text-align: left;
+  height: 120px;
 
   h4 {
     font-size: 18px;
-    font-family: 'NanumSquarEB';
+    font-family: 'NanumSquareEB';
     margin-bottom: 12px;
   }
+
+  @media (max-width: 1400px) {
+    height: 100px;
+    padding: 12px 40px;
+  }
+
+  @media (max-width: 1200px) {
+    height: 90px;
+    padding: 10px 30px;
+  }
+
+  @media (max-width: 900px) {
+    height: 80px;
+    padding: 8px 20px;
+  }
+
+  @media (max-width: 600px) {
+    height: 70px;
+    padding: 6px 12px;
+  }
 `;
+
 
 const roomButton = css`
   padding: 6px 12px;
