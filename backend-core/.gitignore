@@ -43,3 +43,7 @@ out/
 
 ### Cursor ###
 .cursor/
+
+
+### Mac ###
+.DS_Store

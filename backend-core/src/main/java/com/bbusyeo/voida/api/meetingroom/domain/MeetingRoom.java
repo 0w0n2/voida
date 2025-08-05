@@ -1,5 +1,7 @@
 package com.bbusyeo.voida.api.meetingroom.domain;
 
+import com.bbusyeo.voida.global.exception.BaseException;
+import com.bbusyeo.voida.global.response.BaseResponseStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -11,6 +13,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "meeting_room")
 public class MeetingRoom {
+
+    private static final int MAX_MEMBER_COUNT = 6;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,9 +45,19 @@ public class MeetingRoom {
         }
     }
 
-    // 참여자 수를 관리하는 메서드를 추가하여 객체의 상태 변경
+    // 참여자 증가하는 메서드
     public void increaseMemberCount() {
+        if (this.memberCount >= MAX_MEMBER_COUNT) {
+            throw new BaseException(BaseResponseStatus.MEETING_ROOM_FULL);
+        }
         this.memberCount++;
+    }
+
+    // 참여자 감소하는 메서드
+    public void decreaseMemberCount() {
+        if (this.memberCount > 0) {
+            this.memberCount--;
+        }
     }
 
     @Builder
