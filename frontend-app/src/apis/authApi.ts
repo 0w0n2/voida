@@ -2,8 +2,11 @@ import apiInstance from '@/apis/apiInstance';
 
 // 로그인
 export const login = (email: string, password: string) => {
-  return apiInstance.post('/v1/auth/sign-in', { email, password });
+  return apiInstance.post('/v1/auth/sign-in', { email, password },
+    { withCredentials: false }
+  );
 };
+
 // 회원가입
 // api/auth.ts
 export const register = (
