@@ -2,13 +2,14 @@
 import { css } from '@emotion/react';
 import { useState } from 'react';
 import { AxiosError } from 'axios';
+import { useNavigate, Link } from 'react-router-dom';
 import { login } from '@/apis/auth/authApi';
+import { getUser } from '@/apis/auth/userApi';
+import { useAuthStore } from '@/store/authStore';
 import VoidaLogo from '@/assets/logo/voida-logo.png';
 import GoogleLogo from '@/assets/icons/google-logo.png';
 import EyeIcon from '@/assets/icons/eye.png';
 import EyeCloseIcon from '@/assets/icons/crossed-eye.png';
-import { useAuthStore } from '@/store/authStore';
-import { useNavigate } from 'react-router-dom';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -68,16 +69,14 @@ const LoginForm = () => {
       const res = await login(email, password);
       const isNewbie = res.data.result.isNewbie;
       const accessToken = res.headers.authorization;
-      const { user } = res.data;
-      // 유저 정보 저장
-      setAuth(accessToken, user);
+      // const { user } = res.data;
+      // setAuth(accessToken, user);
       localStorage.setItem('accessToken', accessToken);
       if (isNewbie) {
         navigate('/tutorial');
       }
     } catch (err) {
       const axiosError = err as AxiosError<{ message: string }>;
-
       setError(axiosError.response?.data?.message || '로그인 실패');
     }
   };
@@ -137,9 +136,9 @@ const LoginForm = () => {
 
       <div css={footerStyle}>
         <div css={linkBoxStyle}>
-          <a href="/register">회원가입</a>
+          <Link to="/register">회원가입</Link>
           <span>|</span>
-          <a href="/forgot">비밀번호 찾기</a>
+          <Link to="/forgot">비밀번호 찾기</Link>
         </div>
         <button type="submit" css={loginBtnStyle}>
           로그인

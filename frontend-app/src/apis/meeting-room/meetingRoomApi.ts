@@ -133,38 +133,33 @@ export const getRooms = async (
   return res.data.meetingRooms;
 };
 
-// 참여 중인 방 제목 기반 검색
-export const getRoomsByTitle = async (
-  title: string,
-): Promise<MeetingRoom[]> => {
-  const res = await apiInstance.get('/v1/members/meeting-rooms/search', {
-    params: { title },
-  });
-  return res.data.meetingRooms;
-};
-
 // 방 생성
 export const createRoom = async (
   title: string,
   category: string,
-  thumbnailImageUrl: string,
+  thumbnailImageUrl: Blob,
 ): Promise<MeetingRoom> => {
-  const res = await apiInstance.post('/v1/meeting-rooms', {
-    title,
-    category,
-    thumbnailImageUrl,
-  });
-  return res.data;
+  const formData = new FormData();
+  const requestDto = { title, category };
+  const jsonBlob = new Blob([JSON.stringify(requestDto)], { type: 'application/json' });
+  formData.append('requestDto', jsonBlob);
+  if (thumbnailImageUrl && thumbnailImageUrl instanceof File) {
+    formData.append("thumbnailImageUrl", thumbnailImageUrl);
+  }
+  const res = await apiInstance.post('/v1/meeting-rooms', formData);
+  return res.data.result;
 };
 
 // 초대 코드 요청
 export const getInviteCode = async (
   meetingRoomId: string,
 ): Promise<{ inviteCode: string }> => {
+  console.log('meetingRoomId', meetingRoomId);
   const res = await apiInstance.get(
     `/v1/meeting-rooms/${meetingRoomId}/invite-code`,
   );
-  return res.data;
+  console.log('inviteCode', res.data.result);
+  return res.data.result;
 };
 
 // 초대 코드 검증

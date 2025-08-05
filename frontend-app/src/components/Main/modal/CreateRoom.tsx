@@ -21,9 +21,10 @@ const CreateRoomModal = ({ onClose }: CreateRoomModalProps) => {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
   const [isDragging, setIsDragging] = useState(false);
-  const [thumbnailImageUrl, setThumbnailImageUrl] = useState<string | null>(
+  const [thumbnailImageUrl, setThumbnailImageUrl] = useState<Blob | null>(
     null,
   );
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [inviteCode, setInviteCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -35,8 +36,9 @@ const CreateRoomModal = ({ onClose }: CreateRoomModalProps) => {
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const url = URL.createObjectURL(file);
-    setThumbnailImageUrl(url);
+    const previewUrl = URL.createObjectURL(file);
+    setPreviewImageUrl(previewUrl);
+    setThumbnailImageUrl(file);  
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -55,19 +57,21 @@ const CreateRoomModal = ({ onClose }: CreateRoomModalProps) => {
 
     const file = e.dataTransfer.files?.[0];
     if (file) {
-      const url = URL.createObjectURL(file);
-      setThumbnailImageUrl(url);
-    }
+      const previewUrl = URL.createObjectURL(file);
+      setPreviewImageUrl(previewUrl);   
+      setThumbnailImageUrl(file);    
+    } 
   };
 
   const handleCreate = async () => {
-    const thumbnail = thumbnailImageUrl ?? 'null';
+    if (!thumbnailImageUrl) return;
     setIsLoading(true);
 
     try {
-      const room = await createRoom(title, category, thumbnail);
+      const room = await createRoom(title, category, thumbnailImageUrl);
       const { inviteCode } = await getInviteCode(room.meetingRoomId);
       setInviteCode(inviteCode);
+      console.log('초대코드:', inviteCode);
     } catch (error) {
       console.error('방 생성 또는 초대코드 요청 실패:', error);
     } finally {
@@ -129,11 +133,13 @@ const CreateRoomModal = ({ onClose }: CreateRoomModalProps) => {
             >
               {thumbnailImageUrl ? (
                 <>
-                  <img
-                    src={thumbnailImageUrl}
-                    css={thumbnailImage}
-                    alt="썸네일"
-                  />
+                  {previewImageUrl && (
+                    <img
+                      src={previewImageUrl}
+                      css={thumbnailImage}
+                      alt="썸네일"
+                    />
+                  )}
                   <div
                     css={[
                       thumbnailOverlay,
@@ -204,11 +210,11 @@ const CreateRoomModal = ({ onClose }: CreateRoomModalProps) => {
                 onChange={(e) => setCategory(e.target.value)}
               >
                 <option value="">카테고리를 선택해주세요.</option>
-                <option value="게임">게임</option>
-                <option value="일상">일상</option>
-                <option value="학습">학습</option>
-                <option value="회의">회의</option>
-                <option value="자유">자유</option>
+                <option value="game">게임</option>
+                <option value="talk">일상</option>
+                <option value="study">학습</option>
+                <option value="meeting">회의</option>
+                <option value="free">자유</option>
               </select>
             </div>
 

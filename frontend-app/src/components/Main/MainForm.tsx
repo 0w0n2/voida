@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import CreateRoomModal from '@/components/main/modal/CreateRoom';
 import JoinRoomModal from '@/components/main/modal/JoinRoom';
-import type { MeetingRoom } from '@/apis/meetingRoomApi';
+import type { MeetingRoom } from '@/apis/meeting-room/meetingRoomApi';
 
 const categoryColors: Record<string, string> = {
   게임: '#8e44ad',
