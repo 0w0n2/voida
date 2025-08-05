@@ -11,16 +11,21 @@ export const register = (
   password: string,
   nickname: string,
   isSocial: boolean,
-  profileImage?: File | null,
   providerName?: string,
+  profileImage?: File | null,
 ) => {
   const formData = new FormData();
-
-  formData.append('email', email);
-  formData.append('password', password);
-  formData.append('nickname', nickname);
-  formData.append('isSocial', String(isSocial));
-
+  const requestDto = {
+    email,
+    password,
+    nickname,
+    isSocial,
+    providerName: providerName || null,
+  };
+  formData.append(
+    'requestDto',
+    new Blob([JSON.stringify(requestDto)], { type: 'application/json' }),
+  );
   if (isSocial && providerName) {
     formData.append('providerName', providerName);
   }
@@ -28,12 +33,9 @@ export const register = (
   if (profileImage) {
     formData.append('profileImage', profileImage);
   } else {
-    // 명세상 null을 보내야 하므로 빈 Blob 또는 그냥 null 가능
-    // null 쓰면 백에서 파싱필요해서 빈 Blob으로 보냄
-    formData.append(
-      'profileImage',
-      new Blob([], { type: 'application/octet-stream' }),
-    );
+    // default 이미지 사용하지 않을 경우 필수
+    // default 이미지 사용 시 null 값 보내 줌
+    formData.append('profileImage', 'null');
   }
 
   return apiInstance.post('/v1/auth/sign-up', formData, {

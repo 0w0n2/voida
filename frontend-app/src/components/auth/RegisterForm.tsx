@@ -47,7 +47,7 @@ const RegisterForm = () => {
     setIsRegistered(false);
   };
 
-  // 소셜 로그인
+  // 소셜 로그인시 이메일 자동 입력
   const location = useLocation();
   const socialEmail = location.state?.socialEmail;
 
@@ -176,9 +176,6 @@ const RegisterForm = () => {
     try {
       const response = await checkEmailDuplicate(email);
       const emailDuplicated = response.data.result.emailDuplicated;
-      console.log(response);
-      // console.log(emailDuplicated);
-      // console.log(response.data);
 
       if (!emailDuplicated) {
         setEmailError('');
