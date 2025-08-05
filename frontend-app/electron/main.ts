@@ -1,5 +1,6 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
+import { createOverlayWindow } from './overlayWindow';
 
 let win: BrowserWindow;
 
@@ -9,19 +10,25 @@ app.whenReady().then(() => {
     height: 900,
     icon: path.join(__dirname, 'assets', 'icon.ico'),
     webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
       devTools: true,
     },
   });
 
-  win.webContents.openDevTools();
+  // win.webContents.openDevTools();
 
-  // 개발용: Vite dev 서버 로드
-  if (process.env.ELECTRON_DEV) {
-    win.loadURL('http://localhost:5173');
+  const isDev = !!process.env.ELECTRON_DEV;
+
+  if (isDev) {
+    win.loadURL('http://localhost:5173/#/meeting-room');
   } else {
-    // 배포용: dist/index.html 로드
     win.loadFile(path.join(__dirname, '../../dist/index.html'));
   }
+
+  ipcMain.on('open-overlay', () => {
+    win?.hide();
+    createOverlayWindow(isDev);
+  });
 });

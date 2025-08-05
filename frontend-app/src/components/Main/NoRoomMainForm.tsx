@@ -1,10 +1,23 @@
 /** @jsxImportSource @emotion/react */
-import { css } from '@emotion/react';
+import { css,  Global } from '@emotion/react';
 import { useState } from 'react';
 import { Plus, ArrowRight } from 'lucide-react';
 import mainHome from '@/assets/icons/main-home.png';
 import CreateRoomModal from '@/components/main/modal/CreateRoom';
 import JoinRoomModal from '@/components/main/modal/JoinRoom';
+
+const globalFloatKeyframes = css`
+  @keyframes float1 {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+    100% { transform: translateY(0px); }
+  }
+  @keyframes float2 {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(20px); }
+    100% { transform: translateY(0px); }
+  }
+`;
 
 const NoRoomMainForm = () => {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -37,6 +50,9 @@ const NoRoomMainForm = () => {
         </div>
       </div>
 
+      <div css={blurBg1} />
+      <div css={blurBg2} /> 
+
       {isCreateOpen && (
         <CreateRoomModal onClose={() => setIsCreateOpen(false)} />
       )}
@@ -59,7 +75,7 @@ const iconWrapperStyle = css`
 const iconContainerStyle = css`
   width: 120px;
   height: 120px;
-  background-color: var(--color-gray-100);
+  background-color: var(--color-bg-white);
   border-radius: 16px;
   display: flex;
   align-items: center;
@@ -125,7 +141,7 @@ const roomButtonStyle = css`
   justify-content: center;
   gap: 1.5rem;
   min-width: 160px;
-  background-color: var(--color-gray-100);
+  background-color: var(--color-bg-white);
   color: var(--color-text);
 
   &:hover {
@@ -136,4 +152,28 @@ const roomButtonStyle = css`
   &:active {
     transform: translateY(1px);
   }
+`;
+
+const blurBg1 = css`
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, #b69cff, transparent 70%);
+  filter: blur(80px);
+  z-index: 0;
+  animation: float1 10s ease-in-out infinite;
+`;
+
+const blurBg2 = css`
+  position: absolute;
+  bottom: 15%;
+  right: 15%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, #82e9ff, transparent 70%);
+  filter: blur(100px);
+  z-index: 0;
+  animation: float2 12s ease-in-out infinite;
 `;

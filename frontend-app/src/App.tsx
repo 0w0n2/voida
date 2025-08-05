@@ -13,7 +13,7 @@ import OAuthCallback from '@/components/auth/OAuthCallback';
 import MainPage from '@/pages/MainPage';
 import MyPage from '@/pages/MyPage';
 import MeetingRoomPage from '@/pages/MeetingRoomPage';
-import OverlayPage from '@/pages/OverlayPage';
+import LiveRoomOverlay from '@/components/live-room/LiveOverlay';
 import VoiceRoom from '@/components/live-room/VoiceRoom';
 
 function App() {
@@ -34,8 +34,8 @@ function App() {
         <Route path="/main" element={<MainPage />} />
         <Route path="/meeting-room" element={<MeetingRoomPage />} />
         <Route path="/mypage" element={<MyPage />} />
-        <Route path="/overlay/:roomId" element={<OverlayPage />} />
         <Route path="/voice-test" element={<VoiceRoom />} />
+        <Route path="/live-overlay" element={<LiveRoomOverlay />} />
       </Routes>
     </HashRouter>
   );

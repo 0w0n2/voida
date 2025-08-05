@@ -1,4 +1,4 @@
-import apiInstance from './apiInstance';
+import apiInstance from '@/apis/core/apiInstance';
 
 export type RoomInfo = {
   title: string;

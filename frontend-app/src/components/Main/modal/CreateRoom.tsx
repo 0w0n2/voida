@@ -2,7 +2,7 @@
 import { css } from '@emotion/react';
 import { X, Camera, Grid, Home, Plus, UserRound, Copy } from 'lucide-react';
 import { useState, useRef } from 'react';
-import { createRoom, getInviteCode } from '@/apis/meetingRoomApi';
+import { createRoom, getInviteCode } from '@/apis/meeting-room/meetingRoomApi';
 
 interface CreateRoomModalProps {
   onClose: () => void;

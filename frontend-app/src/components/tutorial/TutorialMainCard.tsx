@@ -1,5 +1,4 @@
 /** @jsxImportSource @emotion/react */
-import React from 'react';
 import { css } from '@emotion/react';
 
 export default function TutorialMainCard({ step, title, image, items }: Props) {
@@ -49,12 +48,32 @@ const imageWrapperStyle = css`
 
 const imageStyle = css`
   height: 180px;
+
+  @media (max-width: 1200px) {
+    height: 160px;
+  }
+
+  @media (max-width: 900px) {
+    height: 140px;
+  }
+
+  @media (max-width: 600px) {
+    height: 120px;
+  }
 `;
 
 const contentBoxStyle = css`
   background-color: white;
-  padding: 2rem 2rem;
+  padding: 2rem;
   text-align: left;
+
+  @media (max-width: 900px) {
+    padding: 1.5rem;
+  }
+
+  @media (max-width: 600px) {
+    padding: 1.2rem;
+  }
 `;
 
 const headerStyle = css`
@@ -75,12 +94,26 @@ const stepCircleStyle = css`
   font-size: 22px;
   font-family: 'NanumSquareEB';
   color: var(--color-gray-600);
+
+  @media (max-width: 600px) {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
 `;
 
 const titleStyle = css`
   font-size: 24px;
   font-family: 'NanumSquareEB';
   color: black;
+
+  @media (max-width: 900px) {
+    font-size: 22px;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 20px;
+  }
 `;
 
 const listStyle = css`
@@ -94,12 +127,23 @@ const listItemStyle = css`
   align-items: flex-start;
   gap: 0.7rem;
   font-size: 16px;
-  color: ;
   margin-bottom: 1rem;
+
+  @media (max-width: 900px) {
+    font-size: 15px;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 14px;
+  }
 `;
 
 const checkIcon = css`
   color: black;
   font-size: 16px;
   margin-top: 2px;
+
+  @media (max-width: 600px) {
+    font-size: 14px;
+  }
 `;

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "electron:build": "esbuild electron/main.ts --bundle --platform=node --external:electron --outfile=electron/dist/main.cjs",
+    "electron:build": "esbuild electron/main.ts --bundle --platform=node --external:electron --outfile=electron/dist/main.cjs && esbuild electron/preload.ts electron/overlayWindow.ts --bundle --platform=node --external:electron --outdir=electron/dist",
     "electron": "cross-env ELECTRON_DEV=true electron electron/dist/main.cjs",
     "start": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && npm run electron:build && npm run electron\"",
     "build": "vite build",

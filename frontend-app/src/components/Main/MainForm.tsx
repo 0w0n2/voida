@@ -175,6 +175,14 @@ const container = css`
   padding: 20px;
   max-width: 1400px;
   margin: 0 auto;
+
+  @media (max-width: 1024px) {
+    padding: 16px;
+  }
+
+  @media (max-width: 600px) {
+    padding: 12px;
+  }
 `;
 
 const searchContainer = css`
@@ -197,6 +205,14 @@ const searchBox = css`
   &:focus-within {
     border: 2px solid var(--color-primary);
   }
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 12px 20px;
+    border-radius: 16px;
+  }
 `;
 
 const categorySelect = css`
@@ -215,6 +231,13 @@ const categorySelect = css`
   background-position: right center;
   background-size: 12px 12px;
   border-right: 1px solid #ccc;
+
+    @media (max-width: 600px) {
+    margin-right: 0;
+    border-right: none;
+    padding-right: 0;
+    background-position: right 8px center;
+  }
 `;
 
 const searchInput = css`
@@ -229,6 +252,10 @@ const searchInput = css`
 
   &::placeholder {
     color: #aaa;
+  }
+
+    @media (max-width: 600px) {
+    width: 100%;
   }
 `;
 
@@ -389,6 +416,13 @@ const floatBtns = css`
   @media (max-width: 1024px) {
     bottom: 20px;
     right: 20px;
+  }
+
+    @media (max-width: 600px) {
+    flex-direction: column;
+    bottom: 16px;
+    right: 16px;
+    gap: 12px;
   }
 `;
 

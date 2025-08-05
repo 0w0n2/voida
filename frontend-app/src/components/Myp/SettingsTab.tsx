@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import React, { useState, useEffect } from 'react';
-import { getUserSettings, updateGuideMode } from '../../apis/userApi';
+import { getUserSettings, updateGuideMode } from '../../apis/auth/userApi';
 import { useAuthStore } from '../../store/store';
 import { useNavigate } from 'react-router-dom';
 import UpdateDoneModal from './UpdateDoneModal';

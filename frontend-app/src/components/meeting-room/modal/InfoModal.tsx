@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useMeetingRoomStore } from '@/store/meetingRoomStore';
-import { leaveRoom } from '@/apis/meetingRoomApi';
+import { leaveRoom } from '@/apis/meeting-room/meetingRoomApi';
 import { Info, X, UserRoundSearch, Home, Grid } from 'lucide-react';
 import CrownIcon from '@/assets/icons/crown-yellow.png';
 
@@ -132,11 +132,35 @@ const modal = css`
   max-height: 90%;
   overflow-y: auto;
   position: relative;
+
+  @media (max-width: 1400px) {
+    width: 900px;
+  }
+
+  @media (max-width: 1200px) {
+    width: 760px;
+    padding: 40px;
+  }
+
+  @media (max-width: 900px) {
+    width: 90vw;
+    padding: 30px;
+  }
+
+  @media (max-width: 600px) {
+    padding: 20px;
+    width: 95vw;
+  }
 `;
 
 const modalContent = css`
   display: flex;
   gap: 40px;
+
+  @media (max-width: 900px) {
+    flex-direction: column;
+    gap: 20px;
+  }
 `;
 
 const leftSection = css`
@@ -192,6 +216,10 @@ const thumbnail = css`
   width: 80%;
   border-radius: 10px;
   object-fit: cover;
+
+  @media (max-width: 600px) {
+    width: 100%;
+  }
 `;
 
 const fieldRow = css`
@@ -232,6 +260,10 @@ const fieldInput = css`
 
   &::placeholder {
     color: #aaa;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 14px;
   }
 `;
 
@@ -279,6 +311,12 @@ const participantRow = css`
   justify-content: space-between;
   align-items: center;
   width: 80%;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
 `;
 
 const participantInfo = css`

@@ -6,11 +6,11 @@ import {
   register,
   checkEmailDuplicate,
   checkNicknameDuplicate,
-} from '@/apis/authApi';
+} from '@/apis/auth/authApi';
 import VoidaLogo from '@/assets/logo/voida-logo.png';
 import defaultProfile from '@/assets/profiles/defaultProfile.png';
 import EmailVerificationModal from './EmailVerificationModal';
-import { getRandomNickname } from '@/apis/authApi';
+import { getRandomNickname } from '@/apis/auth/authApi';
 import IsRegisteredModal from './IsRegisteredModal';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 

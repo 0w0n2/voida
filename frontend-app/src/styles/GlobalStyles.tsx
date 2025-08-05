@@ -68,7 +68,7 @@ const GlobalStyles = () => (
 
       body {
         font-family: 'NanumSquareR', sans-serif;
-        background-color: var(--color-background);
+        background-color: transparent !important; 
         color: var(--color-text);
         caret-color: transparent;
       }

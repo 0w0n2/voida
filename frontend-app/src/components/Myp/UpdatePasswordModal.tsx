@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useState } from 'react';
-import { checkCurrentPassword, updatePassword } from '@/apis/userApi';
+import { checkCurrentPassword, updatePassword } from '@/apis/auth/userApi';
 
 interface UpdatePasswordModalProps {
   isOpen: boolean;

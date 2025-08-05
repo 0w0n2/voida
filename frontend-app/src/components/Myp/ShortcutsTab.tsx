@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import React, { useState, useEffect } from 'react';
-import { getUserQuickSlots, updateQuickslots } from '../../apis/userApi';
+import { getUserQuickSlots, updateQuickslots } from '../../apis/auth/userApi';
 import { useAuthStore } from '../../store/store';
 import UpdateDoneModal from './UpdateDoneModal';
 
