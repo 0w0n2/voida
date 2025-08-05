@@ -4,6 +4,8 @@ import com.bbusyeo.voida.global.security.filter.JwtAuthorizationFilter;
 import com.bbusyeo.voida.global.security.handler.CustomAccessDeniedHandler;
 import com.bbusyeo.voida.global.security.handler.CustomAuthenticationEntryPoint;
 import com.bbusyeo.voida.global.security.handler.CustomAuthenticationProvider;
+import com.bbusyeo.voida.global.security.handler.OAuth2SuccessHandler;
+import com.bbusyeo.voida.global.security.service.CustomOauth2UserService;
 import com.bbusyeo.voida.global.security.service.TokenBlackListService;
 import com.bbusyeo.voida.global.security.util.TokenUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,6 +53,8 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final CorsProperties corsProperties;
+    private final CustomOauth2UserService customOauth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     // SecurityFilterChain : HTTP 요청에 대한 보안 설정
     // 필터를 통해 (인증) 방식과 절차에 대한 설정 수행
@@ -73,6 +77,13 @@ public class SecurityConfig {
                     // 그 외 모든 요청은 인증 필요
                     auth.anyRequest().authenticated();
                 })
+
+                // (3) OAuth2 로그인 설정
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOauth2UserService)) // OAuth2 로그인 성공 시 후속 조치를 처리
+                        .successHandler(oAuth2SuccessHandler) // 인증 성공 시 핸들러
+                )
 
                 // (3) JWT Filter 등록
                 .addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class)
@@ -98,12 +109,6 @@ public class SecurityConfig {
     JwtAuthorizationFilter authenticationFilter() {
         return new JwtAuthorizationFilter(tokenUtils, tokenBlackListService, objectMapper, whitelistProperties);
     }
-
-//    // PasswordEncoder : 비밀번호 암호화
-//    @Bean
-//    public PasswordEncoder passwordEncoder() {
-//        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-//    }
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {

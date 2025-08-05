@@ -1,10 +1,7 @@
 package com.bbusyeo.voida.api.auth.service;
 
 import com.bbusyeo.voida.api.auth.domain.JwtToken;
-import com.bbusyeo.voida.api.auth.dto.SignInRequestDto;
 import com.bbusyeo.voida.api.auth.dto.SignInResponseDto;
-import com.bbusyeo.voida.api.auth.dto.SignUpRequestDto;
-import com.bbusyeo.voida.api.member.domain.Member;
 import com.bbusyeo.voida.global.security.dto.UserDetailsDto;
 import com.bbusyeo.voida.global.security.service.JwtTokenService;
 import com.bbusyeo.voida.global.security.service.TokenBlackListService;
@@ -14,9 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +22,6 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class TokenAuthService {
 
-    private final AuthenticationProvider authenticationProvider;
     private final JwtTokenService jwtTokenService;
     private final TokenBlackListService tokenBlackListService;
 
@@ -37,18 +31,7 @@ public class TokenAuthService {
     @Value("${jwt.expire-time.refresh}")
     private Duration refreshExpMin;
 
-    // 일반 로그인
-    public SignInResponseDto signIn(SignInRequestDto requestDto, HttpServletResponse response) {
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(requestDto.getEmail(), requestDto.getPassword());
-
-        Authentication authentication = authenticationProvider.authenticate(authenticationToken);
-        UserDetailsDto userDetails = (UserDetailsDto) authentication.getPrincipal();
-
-        return issueJwtAndReturnDto(userDetails, response);
-    }
-
-    // 인증 정보 기반으로 JWT token 생성
-    // TODO: tokenUtils 에 넣을까?
+    // 인증된 사용자 정보 기반으로 JWT를 발급하고, 응답 헤더/쿠키에 담아 DTO를 반환
     public SignInResponseDto issueJwtAndReturnDto(UserDetailsDto userDetails, HttpServletResponse response) {
         JwtToken jwtToken = jwtTokenService.generateToken(userDetails);
         // Access Token -> Header

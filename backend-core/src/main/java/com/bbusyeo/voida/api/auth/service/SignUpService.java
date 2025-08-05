@@ -2,8 +2,11 @@ package com.bbusyeo.voida.api.auth.service;
 
 import com.bbusyeo.voida.api.auth.dto.SignUpRequestDto;
 import com.bbusyeo.voida.api.member.domain.Member;
+import com.bbusyeo.voida.api.member.domain.MemberSocial;
 import com.bbusyeo.voida.api.member.repository.MemberRepository;
+import com.bbusyeo.voida.api.member.repository.MemberSocialRepository;
 import com.bbusyeo.voida.global.exception.BaseException;
+import com.bbusyeo.voida.global.redis.dao.RedisDao;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
 import com.bbusyeo.voida.global.support.S3Uploader;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +29,10 @@ public class SignUpService {
 
     private final S3Uploader s3Uploader;
 
+    private final MemberSocialRepository memberSocialRepository;
+    private final RedisDao redisDao;
+    private static final String SIGNUP_TOKEN_PREFIX = "signup-token:";
+
     public void signUp(SignUpRequestDto requestDto, MultipartFile profileImage) {
         // 1. 비밀번호 암호화
         String encodedPassword = bCryptPasswordEncoder.encode(requestDto.getPassword());
@@ -46,8 +53,18 @@ public class SignUpService {
             Member member = memberRepository.save(requestDto.toMember(memberUuid, encodedPassword, profileImageUrl));
 
             // 5. 소셜 회원가입 처리
-            if (Boolean.TRUE.equals(requestDto.getIsSocial())){
-                // TODO: 소셜 테이블, 레포지토리 생성 후 -> 소셜 테이블에 저장
+            if (Boolean.TRUE.equals(requestDto.getIsSocial())) {
+                // Redis 에서 임시 정보 가져오기
+                String redisKey = SIGNUP_TOKEN_PREFIX + requestDto.getEmail();
+                Object providerId = redisDao.getValue(redisKey);
+                if (providerId == null) { // 소셜 회원가입 시간 만료
+                    throw new BaseException(BaseResponseStatus.EXPIRED_SOCIAL_SIGNUP);
+                }
+
+                MemberSocial memberSocial = requestDto.toMemberSocial(member, requestDto, providerId.toString());
+                memberSocialRepository.save(memberSocial);
+
+                redisDao.deleteValue(redisKey); // 사용 완료된 소셜 회원가입 데이터 삭제
             }
 
         } catch (Exception e) {
@@ -63,4 +80,5 @@ public class SignUpService {
             }
         }
     }
+
 }

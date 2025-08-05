@@ -1,13 +1,12 @@
 package com.bbusyeo.voida.global.security.handler;
 
-import com.bbusyeo.voida.api.auth.dto.NeedSignupResponseDto;
-import com.bbusyeo.voida.api.auth.dto.SignInResponseDto;
+import com.bbusyeo.voida.api.auth.service.SocialSignUpService;
 import com.bbusyeo.voida.api.auth.service.TokenAuthService;
+import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.response.BaseResponse;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
+import com.bbusyeo.voida.global.security.dto.GuestOAuth2UserDto;
 import com.bbusyeo.voida.global.security.dto.UserDetailsDto;
-import com.bbusyeo.voida.global.security.service.JwtTokenService;
-import com.bbusyeo.voida.global.security.util.CookieUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,16 +29,22 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final TokenAuthService tokenAuthService;
 
+    private final SocialSignUpService socialSignUpService;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
-        UserDetailsDto userDetails = (UserDetailsDto) authentication.getPrincipal();
+        Object principal = authentication.getPrincipal();
         BaseResponse<?> baseResponse;
 
-        if (userDetails.isNeedSignUp()) { // 최초 소셜 로그인 -> 추가 일반 회원가입 필요
-            baseResponse = new BaseResponse<>(NeedSignupResponseDto.toDto(userDetails.getOAuth2UserInfo()));
-        } else { // 기존 소셜 로그인 -> 서버 JWT 발급 후 응답
-            baseResponse = new BaseResponse<>(tokenAuthService.issueJwtAndReturnDto(userDetails, response));
+        if (principal instanceof UserDetailsDto) { // 기존 소셜 로그인 -> 서버 JWT 발급 후 응답
+            baseResponse = new BaseResponse<>(tokenAuthService.issueJwtAndReturnDto((UserDetailsDto) principal, response));
+        } else if (principal instanceof GuestOAuth2UserDto) { // 최초 소셜 로그인 -> 추가 일반 회원가입 필요
+            baseResponse = new BaseResponse<>(
+                    socialSignUpService.initialSocialSignUp(((GuestOAuth2UserDto) principal).getOAuth2UserInfo()),
+                    BaseResponseStatus.SOCIAL_NEED_SIGNUP);
+        } else {
+            throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
         }
 
         response.setContentType("application/json;charset=UTF-8");
@@ -48,4 +53,5 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String jsonResponse = objectMapper.writeValueAsString(baseResponse);
         response.getWriter().write(jsonResponse);
     }
+
 }

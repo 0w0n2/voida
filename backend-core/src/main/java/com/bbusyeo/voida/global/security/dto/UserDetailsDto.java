@@ -10,10 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * UserDetails 구현체 (Spring security 인증 주체 정의)
@@ -26,19 +23,10 @@ public class UserDetailsDto implements UserDetails, OAuth2User {
     private final Member member;
 
     private Map<String, Object> attributes;
-    private boolean isNeedSignUp; // 신규 소셜 로그인 여부
-    private OAuth2UserInfo oAuth2UserInfo;
 
     // 일반 로그인 객체
     public UserDetailsDto(Member member) {
         this.member = member;
-    }
-
-    // OAuth 로그인 객체
-    public UserDetailsDto(Member member, OAuth2UserInfo oAuth2UserInfo, boolean isNeedSignUp) {
-        this.member = member;
-        this.oAuth2UserInfo = oAuth2UserInfo;
-        this.isNeedSignUp = isNeedSignUp;
     }
 
     // 사용자 권한 목록 반환

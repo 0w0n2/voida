@@ -9,13 +9,11 @@ import lombok.Getter;
 public class NeedSignupResponseDto {
     private final String email;
     private final String providerName;
-    private final String signUpToken;
 
-    public static NeedSignupResponseDto toDto(OAuth2UserInfo oAuth2UserInfo, String signUpToken) {
+    public static NeedSignupResponseDto toDto(OAuth2UserInfo oAuth2UserInfo) {
         return NeedSignupResponseDto.builder()
                 .email(oAuth2UserInfo.getProviderEmail())
-                .providerName(oAuth2UserInfo.getProvider())
-                .signUpToken(signUpToken)
+                .providerName(oAuth2UserInfo.getProvideName())
                 .build();
     }
 }
