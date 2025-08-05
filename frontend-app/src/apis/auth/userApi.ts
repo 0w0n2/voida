@@ -51,6 +51,7 @@ export const checkCurrentPassword = (accessToken: string, password: string) => {
     },
   );
 };
+
 // 유저 정보 수정
 export const updateUser = (
   accessToken: string,

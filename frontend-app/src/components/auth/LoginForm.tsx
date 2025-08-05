@@ -66,12 +66,14 @@ const LoginForm = () => {
 
     try {
       const res = await login(email, password);
-      const { accessToken, user, isNewbie } = res.data;
+      const isNewbie = res.data.result.isNewbie;
+      const accessToken = res.headers.authorization;
+      const { user } = res.data;
+      // 유저 정보 저장
       setAuth(accessToken, user);
+      localStorage.setItem('accessToken', accessToken);
       if (isNewbie) {
         navigate('/tutorial');
-      } else {
-        navigate('/main');
       }
     } catch (err) {
       const axiosError = err as AxiosError<{ message: string }>;
