@@ -30,7 +30,9 @@ const EmailVerificationModal = ({
     setError('');
 
     try {
-      await sendEmailVerification(email);
+      console.log(email);
+      const res = await sendEmailVerification(email);
+      console.log(res);
       setCountdown(180); // 3분 카운트다운
       alert('인증 코드가 이메일로 발송되었습니다.');
     } catch (error) {

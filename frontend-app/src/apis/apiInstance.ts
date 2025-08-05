@@ -9,7 +9,8 @@ const apiInstance = axios.create({
 apiInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('accessToken');
-    if (token) {
+    const excludedUrls = ['/v1/auth/email-code', '/v1/auth/verify-email'];
+    if (token && !excludedUrls.includes(config.url || '')) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;

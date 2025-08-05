@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import StartingPage from '@/pages/StartingPage';
 import LoginPage from '@/pages/auth/LoginPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
@@ -18,7 +18,7 @@ import VoiceRoom from '@/components/live-room/VoiceRoom';
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route path="/" element={<StartingPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -37,7 +37,7 @@ function App() {
         <Route path="/overlay/:roomId" element={<OverlayPage />} />
         <Route path="/voice-test" element={<VoiceRoom />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 

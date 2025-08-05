@@ -53,12 +53,21 @@ export const checkNicknameDuplicate = (nickname: string) => {
 
 // 이메일 인증 코드 발송
 export const sendEmailVerification = (email: string) => {
-  return apiInstance.post('/v1/auth/email-code', { email });
+  const data = { email };
+
+  console.log('[이메일 인증 요청] POST /v1/auth/email-code');
+  console.log('전송 데이터:', data);
+
+  return apiInstance.post('/v1/auth/email-code', { email }
+  );
 };
+
 
 // 이메일 인증 코드 확인
 export const verifyEmailCode = (email: string, code: string) => {
-  return apiInstance.post('/v1/auth/verify-email', { email, code });
+  return apiInstance.post('/v1/auth/verify-email', { email, code },
+    { withCredentials: false }
+  );
 };
 
 // 회원가입 닉네임 랜덤 생성

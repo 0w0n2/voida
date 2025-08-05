@@ -36,7 +36,7 @@ const MainPage = () => {
               지금 시작하기
               <img src={StartIcon || '/placeholder.svg'} alt="화살표 아이콘" />
             </button>
-            <button css={demoButton}>
+            <button css={demoButton} onClick={() => navigate('/tutorial')}>
               <img
                 src={DemoVideoIcon || '/placeholder.svg'}
                 alt="재생 아이콘"
