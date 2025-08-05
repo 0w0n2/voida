@@ -65,4 +65,9 @@ public class AuthServiceImpl implements AuthService {
     public String resetPassword(ResetPasswordRequestDto requestDto) {
         return resetPasswordService.resetPassword(requestDto);
     }
+
+    @Override
+    public CheckEmailResponseDto checkEmail(CheckEmailRequestDto requestDto) {
+        return emailVerificationService.checkEmail(requestDto);
+    }
 }

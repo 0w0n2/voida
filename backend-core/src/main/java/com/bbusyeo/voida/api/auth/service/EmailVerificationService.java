@@ -1,8 +1,8 @@
 package com.bbusyeo.voida.api.auth.service;
 
 import com.bbusyeo.voida.api.auth.domain.VerificationCode;
-import com.bbusyeo.voida.api.auth.dto.VerifyEmailRequestDto;
-import com.bbusyeo.voida.api.auth.dto.VerifyEmailResponseDto;
+import com.bbusyeo.voida.api.auth.dto.*;
+import com.bbusyeo.voida.api.member.repository.MemberRepository;
 import com.bbusyeo.voida.global.redis.dao.RedisDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +22,7 @@ public class EmailVerificationService {
     private final Duration signUpMailCodeExpMin = Duration.ofMinutes(5);
 
     private final RedisDao redisDao;
+    private final MemberRepository memberRepository;
 
     public VerificationCode generateVerificationCode(String email) {
         String code = UUID.randomUUID().toString().substring(0, 6);
@@ -46,6 +47,11 @@ public class EmailVerificationService {
         }
         boolean isMatch = redisCode.toString().equals(requestDto.getCode());
         return VerifyEmailResponseDto.toDto(isMatch, false);
+    }
+
+    @Transactional(readOnly=true)
+    public CheckEmailResponseDto checkEmail(CheckEmailRequestDto requestDto) {
+        return CheckEmailResponseDto.toDto(memberRepository.existsByEmail(requestDto.getEmail()));
     }
 
 }
