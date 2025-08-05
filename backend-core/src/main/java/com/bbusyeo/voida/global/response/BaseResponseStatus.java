@@ -56,7 +56,7 @@ public enum BaseResponseStatus {
     INVITE_CODE_GENERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, false, 707, "참여코드 생성 오류. 잠시 후 다시 실행해주세요."),
     CANNOT_CHANGE_TO_SELF(HttpStatus.BAD_REQUEST, false, 708, "자신에겐 불가능한 요청 입니다."),
     HOST_CANNOT_LEAVE(HttpStatus.BAD_REQUEST, false, 709, "방장은 대기실을 탈퇴할 수 없습니다."),
-    MEETING_ROOM_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, false, 710, "해당 유저를 찾을 수 없습니다."),
+    MEETING_ROOM_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, false, 710, "대기실에서 해당 유저를 찾을 수 없습니다."),
 
     /**
      * 800: 이메일 에러.
