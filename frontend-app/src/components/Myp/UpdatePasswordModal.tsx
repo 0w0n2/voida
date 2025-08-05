@@ -61,9 +61,11 @@ const UpdatePasswordModal = ({
       const isMatched = res.data.isMatched;
       if (isMatched) {
         setCurrentPasswordError('');
+      }else{
+        setCurrentPasswordError('현재 비밀번호가 일치하지 않습니다.');
       }
     } catch {
-      setCurrentPasswordError('현재 비밀번호가 일치하지 않습니다.');
+      setCurrentPasswordError('오류가 발생하였습니다');
     }
   };
 

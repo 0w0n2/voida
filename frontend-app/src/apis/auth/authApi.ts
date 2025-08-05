@@ -2,8 +2,10 @@ import apiInstance from '@/apis/core/apiInstance';
 
 // 로그인
 export const login = (email: string, password: string) => {
-  return apiInstance.post('/v1/auth/sign-in', { email, password },
-    { withCredentials: false }
+  return apiInstance.post(
+    '/v1/auth/sign-in',
+    { email, password },
+    { withCredentials: false },
   );
 };
 
@@ -75,7 +77,6 @@ export const sendEmailVerification = (email: string) => {
   );
 };
 
-
 // 이메일 인증 코드 확인
 export const verifyEmailCode = (email: string, code: string) => {
   return apiInstance.post(
@@ -88,4 +89,9 @@ export const verifyEmailCode = (email: string, code: string) => {
 // 회원가입 닉네임 랜덤 생성
 export const getRandomNickname = () => {
   return apiInstance.get('/v1/auth/random-nickname');
+};
+
+// 토큰 재발급
+export const reissueToken = () => {
+  return apiInstance.post('/v1/auth/reissue');
 };

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { reissueToken } from '@/apis/auth/authApi';
 
 const apiInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -16,7 +17,7 @@ apiInstance.interceptors.request.use(
       '/v1/auth/check-email',
     ];
     if (token && !excludedUrls.includes(config.url || '')) {
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers.Authorization = `${token}`;
     }
     return config;
   },
@@ -50,10 +51,7 @@ apiInstance.interceptors.response.use(
           originalRequest._retry = true;
           // 에러 처리 넣어야 할지 ?
           try {
-            const refreshToken = localStorage.getItem('refreshToken');
-            const response = await apiInstance.post('/v1/auth/reissue', {
-              refreshToken,
-            });
+            const response = await reissueToken();
             localStorage.setItem('accessToken', response.data.accessToken);
             originalRequest.headers.Authorization = `Bearer ${response.data.accessToken}`;
             return apiInstance(originalRequest);

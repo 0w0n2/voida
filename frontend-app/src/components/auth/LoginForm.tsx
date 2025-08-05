@@ -9,6 +9,7 @@ import EyeIcon from '@/assets/icons/eye.png';
 import EyeCloseIcon from '@/assets/icons/crossed-eye.png';
 import { useAuthStore } from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
+import {Link} from 'react-router-dom';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -137,9 +138,9 @@ const LoginForm = () => {
 
       <div css={footerStyle}>
         <div css={linkBoxStyle}>
-          <a href="/register">회원가입</a>
+          <Link href="/#register">회원가입</Link>
           <span>|</span>
-          <a href="/forgot">비밀번호 찾기</a>
+          <Link href="/#forgot">비밀번호 찾기</Link>
         </div>
         <button type="submit" css={loginBtnStyle}>
           로그인
