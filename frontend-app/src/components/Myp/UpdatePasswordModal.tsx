@@ -1,8 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useState } from 'react';
-import { updatePassword } from '@/apis/userApi';
-import { useAuthStore } from '@/store/store';
+import { checkCurrentPassword, updatePassword } from '@/apis/userApi';
 
 interface UpdatePasswordModalProps {
   isOpen: boolean;
@@ -15,7 +14,6 @@ const UpdatePasswordModal = ({
   onClose,
   onPasswordUpdateSuccess,
 }: UpdatePasswordModalProps) => {
-  const { accessToken } = useAuthStore();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -24,15 +22,16 @@ const UpdatePasswordModal = ({
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+  const accessToken = localStorage.getItem('accessToken');
+
   // 개별 필드 에러 상태
   const [currentPasswordError, setCurrentPasswordError] = useState('');
   const [newPasswordError, setNewPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
 
-  // 비밀번호 수정 성공 시 모달 
+  // 비밀번호 수정 성공 시 모달
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
-  
+
   // 비밀번호 유효성 검사 함수
   const validatePassword = (password: string) => {
     const hasLetter = /[a-zA-Z]/.test(password);
@@ -47,12 +46,25 @@ const UpdatePasswordModal = ({
   };
 
   // 현재 비밀번호 변경 핸들러
-  const handleCurrentPasswordChange = (
+  const handleCurrentPasswordChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const value = e.target.value;
     setCurrentPassword(value);
     setCurrentPasswordError('');
+  };
+
+  // 현재 비밀번호 유효성 검사 핸들러
+  const isSameCurrentPassword = async () => {
+    try {
+      const res = await checkCurrentPassword(accessToken!, currentPassword);
+      const isMatched = res.data.isMatched;
+      if (isMatched) {
+        setCurrentPasswordError('');
+      }
+    } catch {
+      setCurrentPasswordError('현재 비밀번호가 일치하지 않습니다.');
+    }
   };
 
   // 새 비밀번호 변경 핸들러
@@ -126,7 +138,6 @@ const UpdatePasswordModal = ({
 
       // 임시 시뮬레이션
       setTimeout(() => {
-        console.log('비밀번호 변경 완료');
         setIsSuccessModalOpen(true);
         onPasswordUpdateSuccess();
         onClose();
@@ -139,7 +150,6 @@ const UpdatePasswordModal = ({
         setConfirmPasswordError('');
       }, 1000);
     } catch (err) {
-      console.error('비밀번호 변경 실패:', err);
       setCurrentPasswordError('현재 비밀번호가 일치하지 않습니다.');
     } finally {
       setIsLoading(false);
@@ -156,7 +166,7 @@ const UpdatePasswordModal = ({
     setConfirmPasswordError('');
     onClose();
   };
-  
+
   if (!isOpen) return null;
 
   return (
@@ -180,6 +190,7 @@ const UpdatePasswordModal = ({
                 type={showCurrentPassword ? 'text' : 'password'}
                 value={currentPassword}
                 onChange={handleCurrentPasswordChange}
+                onBlur={isSameCurrentPassword}
                 css={[inputStyle, !!currentPasswordError && inputErrorStyle]}
                 disabled={isLoading}
               />
@@ -497,10 +508,11 @@ const fieldErrorStyle = css`
   color: var(--color-red);
   font-size: 12px;
   margin-top: 4px;
-  text-align: left;
+  text-align: right;
   width: 100%;
   font-family: 'NanumSquareR', sans-serif;
   font-weight: 500;
+  min-height: 18px;
 `;
 
 const inputErrorStyle = css`
