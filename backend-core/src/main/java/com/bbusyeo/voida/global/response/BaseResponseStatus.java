@@ -47,7 +47,6 @@ public enum BaseResponseStatus {
     /**
      * 700: 대기실 에러.
      */
-    NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND, false, 700, "해당 유저를 찾을 수 없습니다."),
     INVALID_INVITE_CODE(HttpStatus.BAD_REQUEST, false, 701, "초대코드가 옳지 않습니다."),
     EXPIRED_INVITE_CODE(HttpStatus.NOT_FOUND, false, 702, "초대 코드가 만료되었습니다."),
     FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN, false, 703, "방장 권한이 없습니다."),

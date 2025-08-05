@@ -2,12 +2,15 @@ package com.bbusyeo.voida.api.meetingroom.dto;
 
 import com.bbusyeo.voida.api.meetingroom.domain.MemberMeetingRoom;
 import com.bbusyeo.voida.api.member.domain.Member;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ParticipantInfoDto {
     // 참여자 1명의 상세 정보를 담는 DTO
 
@@ -16,15 +19,6 @@ public class ParticipantInfoDto {
     private String state;
     private boolean lipTalkMode;
     private boolean isMine;
-
-    @Builder
-    private ParticipantInfoDto(String nickname, String profileImageUrl, String state, boolean lipTalkMode, boolean isMine) {
-        this.nickname = nickname;
-        this.profileImageUrl = profileImageUrl;
-        this.state = state;
-        this.lipTalkMode = lipTalkMode;
-        this.isMine = isMine;
-    }
 
     public static ParticipantInfoDto of(MemberMeetingRoom memberMeetingRoom, Member member, String currentMemberUuid) {
         boolean isMine = member.getMemberUuid().equals(currentMemberUuid);
