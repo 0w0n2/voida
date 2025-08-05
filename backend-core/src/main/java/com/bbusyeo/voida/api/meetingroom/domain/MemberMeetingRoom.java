@@ -36,4 +36,10 @@ public class MemberMeetingRoom {
         this.meetingRoom = meetingRoom;
         this.state = state;
     }
+
+    // 방장/참여자 상태 변경할 수 있는 메서드
+    public void updateState(MemberMeetingRoomState state) {
+        this.state = state;
+    }
+
 }
