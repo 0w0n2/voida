@@ -2,6 +2,8 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=react,visualstudiocode,macos,windows
 
 .env
+.env.local
+*.yml
 
 ### macOS ###
 # General

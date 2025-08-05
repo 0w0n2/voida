@@ -231,10 +231,10 @@ const RegisterForm = () => {
     }
     setIsVerificationModalOpen(true);
 
-    // 오버레이 테스트
-    setTimeout(() => {
-      window.electron.joinLive();
-    }, 1000);
+    // // 오버레이 테스트
+    // setTimeout(() => {
+    //   window.electron.joinLive();
+    // }, 1000);
   };
 
   // 이메일 인증 성공 처리
@@ -388,7 +388,7 @@ const RegisterForm = () => {
                   checkButtonStyle,
                   isNicknameChecked && checkedButtonStyle,
                 ]}
-                disabled={!nickname.trim() || !!nicknameError}
+                disabled={!nickname || !!nicknameError}
               >
                 {isNicknameChecked ? '확인완료' : '중복확인'}
               </button>
