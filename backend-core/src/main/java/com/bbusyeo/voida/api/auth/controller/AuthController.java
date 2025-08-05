@@ -89,4 +89,9 @@ public class AuthController {
                 Map.of("mainUrl", mainUrl, "tempPassword", tempPassword));
         return new BaseResponse<>();
     }
+
+    @PostMapping("/check-email")
+    public BaseResponse<CheckEmailResponseDto> checkEmail(@Valid @RequestBody CheckEmailRequestDto requestDto) {
+        return new BaseResponse<>(authService.checkEmail(requestDto));
+    }
 }
