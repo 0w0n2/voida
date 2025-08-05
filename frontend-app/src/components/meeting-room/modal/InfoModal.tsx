@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useMeetingRoomStore } from '@/store/meetingRoomStore';
-import { leaveRoom } from '@/apis/meetingRoomApi';
+import { leaveRoom } from '@/apis/meeting-room/meetingRoomApi';
 import { Info, X, UserRoundSearch, Home, Grid } from 'lucide-react';
 import CrownIcon from '@/assets/icons/crown-yellow.png';
 

@@ -7,7 +7,7 @@ import {
   getRoomInfo,
   getRoomMembers,
   getRoomChatHistory,
-} from '@/apis/meetingRoomApi';
+} from '@/apis/meeting-room/meetingRoomApi';
 import { useMeetingRoomStore } from '@/store/meetingRoomStore';
 
 const MeetingRoomPage = ({ meetingRoomId }: { meetingRoomId: string }) => {

@@ -21,8 +21,6 @@ const LiveOverlay = () => {
         {isExpanded && (
           <div css={body}>
             <p>이곳은 오버레이 투명 창입니다.</p>
-            <p>화면 우측 상단에 떠 있어요.</p>
-            <p>emotion 기반 스타일이 적용되어 있습니다.</p>
           </div>
         )}
 

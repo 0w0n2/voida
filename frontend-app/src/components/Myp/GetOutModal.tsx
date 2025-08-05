@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import React from 'react';
 import { css } from '@emotion/react';
-import { deleteUser } from '@/apis/userApi';
+import { deleteUser } from '@/apis/auth/userApi';
 import { useAuthStore } from '@/store/store';
 
 interface GetOutModalProps {

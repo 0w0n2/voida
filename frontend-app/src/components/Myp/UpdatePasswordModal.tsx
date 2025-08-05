@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useState } from 'react';
-import { updatePassword } from '@/apis/userApi';
+import { updatePassword } from '@/apis/auth/userApi';
 import { useAuthStore } from '@/store/store';
 
 interface UpdatePasswordModalProps {

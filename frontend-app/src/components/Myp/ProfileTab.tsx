@@ -2,7 +2,7 @@
 import { css } from '@emotion/react';
 import React, { useState, useEffect } from 'react';
 import defaultProfile from '../../assets/profiles/defaultProfile.png';
-import { getUser, updateUser } from '../../apis/userApi';
+import { getUser, updateUser } from '../../apis/auth/userApi';
 import { useAuthStore } from '../../store/store';
 import UpdatePasswordModal from './UpdatePasswordModal';
 import GetOutModal from './GetOutModal';

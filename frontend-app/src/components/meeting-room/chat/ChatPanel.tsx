@@ -5,7 +5,7 @@ import ChatHeader from './ChatHeader';
 import SendIcon from '@/assets/icons/send.png';
 import ScrollDown from '@/assets/icons/scroll-down.png';
 import { useMeetingRoomStore } from '@/store/meetingRoomStore';
-import { getRoomChatHistory, postChatMessage } from '@/apis/meetingRoomApi';
+import { getRoomChatHistory, postChatMessage } from '@/apis/meeting-room/meetingRoomApi';
 
 const ChatPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
   const { chatMessages, setChatMessages, addChatMessage } =

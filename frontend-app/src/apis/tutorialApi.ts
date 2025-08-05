@@ -1,4 +1,4 @@
-import apiInstance from '@/apis/apiInstance';
+import apiInstance from '@/apis/core/apiInstance';
 
 export const uploadLipTestVideo = async (file: Blob) => {
   const formData = new FormData();

@@ -2,7 +2,7 @@
 import { css } from '@emotion/react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { postUserType } from '@/apis/userApi';
+import { postUserType } from '@/apis/auth/userApi';
 import Header from '@/components/Header';
 import TutorialFooter from '@/components/tutorial/TurtorialFooter';
 import GeneralUserImg from '@/assets/images/general-user-gray.png';

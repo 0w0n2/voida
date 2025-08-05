@@ -7,7 +7,7 @@ import {
   deleteRoom,
   delegateHost,
   kickMember,
-} from '@/apis/meetingRoomApi';
+} from '@/apis/meeting-room/meetingRoomApi';
 import {
   MoreHorizontal,
   Settings,

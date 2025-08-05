@@ -74,6 +74,7 @@ const headerContainer = css`
   align-items: center;
   padding: 1.5rem 2rem;
   position: relative;
+  background-color: transparent !important; 
 
   @media (max-width: 1200px) {
     padding: 1.2rem 1.5rem;

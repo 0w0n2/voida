@@ -2,7 +2,7 @@
 import { css } from '@emotion/react';
 import { useState } from 'react';
 import { AxiosError } from 'axios';
-import { login } from '@/apis/authApi';
+import { login } from '@/apis/auth/authApi';
 import VoidaLogo from '@/assets/logo/voida-logo.png';
 import GoogleLogo from '@/assets/icons/google-logo.png';
 import EyeIcon from '@/assets/icons/eye.png';
