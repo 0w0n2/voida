@@ -26,4 +26,6 @@ public interface AuthService {
     void signUp(SignUpRequestDto requestDto, MultipartFile profileImage);
 
     String resetPassword(ResetPasswordRequestDto requestDto);
+
+    CheckEmailResponseDto checkEmail(CheckEmailRequestDto requestDto);
 }
