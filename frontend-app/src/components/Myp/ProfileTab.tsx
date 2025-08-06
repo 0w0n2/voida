@@ -253,6 +253,7 @@ const ProfileTab = () => {
         <div css={infoSectionStyle}>
           <label css={infoLabelStyle}>
             <img src={profile} alt="profile" />
+            닉네임
           </label>
           <input
             type="text"
