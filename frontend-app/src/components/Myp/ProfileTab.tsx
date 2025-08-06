@@ -155,7 +155,7 @@ const ProfileTab = () => {
       setSaving(true);
 
       // TODO: API 연동 시 주석 해제
-      // await withdrawUser(accessToken!);
+      // await withdrawUser();
       // console.log('회원탈퇴 완료');
       // // 로그아웃 처리
       // clearAuth();
@@ -330,19 +330,23 @@ export default ProfileTab;
 
 // CSS 스타일
 const containerStyle = css`
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+
   display: flex;
-  gap: 32px;
-  padding: 32px;
-  background-color: var(--color-bg-white);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  justify-content: flex-start;
+  align-items: center;
+  gap: 16px;
+  padding: 0 24px;
 `;
 
 const profilePanelStyle = css`
-  flex: 1;
   background-color: var(--color-bg-white);
   border-radius: 12px;
   min-width: 400px;
+  justify-content: center;
+  align-items: center;
   padding: 32px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;

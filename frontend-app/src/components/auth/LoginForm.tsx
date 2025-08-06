@@ -94,14 +94,16 @@ const LoginForm = () => {
         setError('예상치 못한 오류가 발생하였습니다.');
         return;
       }
-
       // 유저 정보 조회
-      const response = await getUser(accessToken);
-      const user: User = {
-        email: response.data.member.email,
-        nickname: response.data.member.nickname,
-        profileImage: response.data.member.profileImage || '',
-      }
+      // const response = await getUser(accessToken);
+      // const user: User = {
+      //   email: response.data.member.email,
+      //   nickname: response.data.member.nickname,
+      //   profileImage: response.data.member.profileImage || '',
+      // }
+
+      // 로그인 시도용 코드
+      const user = null
 
       // 유저 정보 저장
       setAuth(accessToken, user);

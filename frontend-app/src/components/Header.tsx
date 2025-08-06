@@ -31,6 +31,7 @@ export default function Header() {
     const confirmLogout = window.confirm('로그아웃 하시겠습니까?');
     if (confirmLogout) {
       await logout();
+      console.log('로그아웃 성공');
       localStorage.removeItem('accessToken');
       navigate('/login');
     }
