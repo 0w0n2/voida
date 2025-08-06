@@ -1,22 +1,15 @@
 package com.bbusyeo.voida.global.security.util;
 
-import com.bbusyeo.voida.api.auth.domain.JwtToken;
-import com.bbusyeo.voida.api.auth.domain.RefreshToken;
-import com.bbusyeo.voida.api.member.domain.Member;
 import com.bbusyeo.voida.api.member.repository.MemberRepository;
 import com.bbusyeo.voida.global.exception.BaseException;
-import com.bbusyeo.voida.global.redis.dao.RedisDao;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
 import com.bbusyeo.voida.global.security.dto.UserDetailsDto;
-import com.bbusyeo.voida.global.security.service.UserDetailsServiceImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -41,12 +34,10 @@ import java.util.stream.Collectors;
 public class TokenUtils {
 
     private final SecretKey secretKey;
-    private final UserDetailsService userDetailsService;
     private final MemberRepository memberRepository;
 
-    public TokenUtils(@Value("${jwt.secret}") String secretKey, UserDetailsService userDetailsService, MemberRepository memberRepository) {
+    public TokenUtils(@Value("${jwt.secret}") String secretKey, MemberRepository memberRepository) {
         this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
-        this.userDetailsService = userDetailsService;
         this.memberRepository = memberRepository;
     }
 
@@ -85,14 +76,14 @@ public class TokenUtils {
     // 토큰 정보 검증
     public boolean isTokenInvalid(String token) {
         if (!StringUtils.hasText(token)) {
-            log.info("JWT token is null or empty");
+            log.debug("JWT token is null or empty");
             return true;
         }
         try {
             parseClaims(token);
             return false;
         } catch (SecurityException | MalformedJwtException e) {
-            log.info("Invalid JWT Token", e);
+            log.debug("Invalid JWT Token", e);
         } catch (ExpiredJwtException e) {
             log.info("Expired JWT Token", e);
         } catch (UnsupportedJwtException e) {

@@ -2,12 +2,11 @@ package com.bbusyeo.voida.global.security.config;
 
 import com.bbusyeo.voida.global.security.filter.JwtAuthorizationFilter;
 import com.bbusyeo.voida.global.security.handler.*;
-import com.bbusyeo.voida.global.security.service.CustomOauth2UserService;
-import com.bbusyeo.voida.global.security.service.TokenBlackListService;
+import com.bbusyeo.voida.global.security.service.oauth2.CustomOauth2UserService;
+import com.bbusyeo.voida.global.security.service.jwt.TokenBlackListService;
 import com.bbusyeo.voida.global.security.util.TokenUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -27,8 +26,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
-
 /**
  * 인증/인가 환경 클래스 - JWT 기반 REST API 보호 (/v1/** 경로(헤더 기반 토큰 인증))
  * - Spring Security 환경설정 구성
@@ -36,7 +33,6 @@ import java.util.List;
  * - 사용자에 대한 Authentication/Authorization 에 대한 구성을 Bean 메서드로 주입
  */
 @Configuration
-@Slf4j
 @EnableWebSecurity
 @EnableConfigurationProperties({SecurityWhitelistProperties.class, CorsProperties.class})
 @RequiredArgsConstructor
@@ -84,11 +80,12 @@ public class SecurityConfig {
                         .failureHandler(oAuth2FailureHandler)
                 )
 
-                // (3) JWT Filter 등록
+                // (4) JWT Filter 등록
                 .addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class)
 
-                // (4) ExceptionHandling
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint) // 토큰 없이 인증 필요한 API 요청 → 401 응답
+                // (5) ExceptionHandling
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(authenticationEntryPoint) // 토큰 없이 인증 필요한 API 요청 → 401 응답
                         .accessDeniedHandler(accessDeniedHandler) // 토큰은 있는데 권한이 없는 경우 → 403 응답
                 )
 

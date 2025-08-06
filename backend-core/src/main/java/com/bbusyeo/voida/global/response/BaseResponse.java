@@ -15,10 +15,6 @@ public record BaseResponse<T>(HttpStatus httpStatus, Boolean isSuccess, String m
         this(HttpStatus.OK, true, SUCCESS.getMessage(), SUCCESS.getCode(), null);
     }
 
-    public BaseResponse(T result, BaseResponseStatus status) {
-        this(status.getHttpStatus(), true, status.getMessage(), status.getCode(), result);
-    }
-
     public BaseResponse(BaseResponseStatus status) {
         this(status.getHttpStatus(), false, status.getMessage(), status.getCode(),
             TypeCaster.castMessage(status.getMessage()));

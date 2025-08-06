@@ -1,4 +1,4 @@
-package com.bbusyeo.voida.global.security.service;
+package com.bbusyeo.voida.global.security.service.jwt;
 
 import org.springframework.stereotype.Service;
 
