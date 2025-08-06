@@ -38,7 +38,7 @@ const MeetingRoomPage = () => {
   return (
     <div css={container}>
       <MemberPanel />
-      <ChatPanel meetingRoomId={meetingRoomId!} />
+      {/* <ChatPanel meetingRoomId={meetingRoomId!} /> */}
     </div>
   );
 };

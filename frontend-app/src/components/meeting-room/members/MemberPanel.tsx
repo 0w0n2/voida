@@ -39,7 +39,7 @@ const MemberPanel = () => {
       <div css={panelHeader}>
         <div>
           <h3>참여자</h3>
-          <p>{roomInfo?.title ?? '대기방'} 참여자</p>
+          <p>{roomInfo?.title ?? '대기방'}</p>
         </div>
         <div css={headerIcons}>
           <div css={iconWrapper} onClick={() => setIsModalOpen(true)}>

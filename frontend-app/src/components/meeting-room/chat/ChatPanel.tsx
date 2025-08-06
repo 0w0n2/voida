@@ -35,8 +35,10 @@ const ChatPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
         const res = await getRoomChatHistory(meetingRoomId);
         const chatHistory = res?.chatHistory;
         setChatMessages(chatHistory?.content ?? []);
+
         cursorIdRef.current = chatHistory?.cursorId ?? null;
         setHasMore(chatHistory?.hasNext ?? false);
+        
       } catch (error) {
         console.error('채팅 기록 초기 로딩 실패:', error);
         setChatMessages([]);
@@ -110,7 +112,7 @@ const ChatPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
   const handleSend = () => {
     if (!input.trim()) return;
 
-    publishMessage(meetingRoomId, input); // 🔥 실시간 전송 (자동 저장)
+    publishMessage(meetingRoomId, input); 
 
     addChatMessage({
       senderId: 'me',

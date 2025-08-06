@@ -8,6 +8,8 @@ export const connectStomp = (
 ) => {
   if (stompClient && stompClient.connected) return;
 
+
+  // 요청 보낼 때 헤더에 accessToken 넣어서 보내야함
   stompClient = new Client({
     brokerURL: 'ws://localhost:8080/ws', // 백엔드 서버 포트 들어가야 함
     reconnectDelay: 5000,

@@ -1,9 +1,11 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useMeetingRoomStore } from '@/store/meetingRoomStore';
-import { getInviteCode,postInviteCode, updateRoomInfo, deleteRoom, delegateHost, kickMember } from '@/apis/meeting-room/meetingRoomApi';
+import { getInviteCode, postInviteCode, getRoomInfo, updateRoomInfo, deleteRoom, delegateHost, kickMember } from '@/apis/meeting-room/meetingRoomApi';
 import { MoreHorizontal, Settings, Camera, X, UserRoundSearch, Crown, UserMinus, Home, Grid, UserPlus, Copy } from 'lucide-react';
+import DeleteConfirmModal from '@/components/meeting-room/modal/DeleteConfimModal';
 import CrownIcon from '@/assets/icons/crown-yellow.png';
 
 type SettingModalProps = {
@@ -19,22 +21,36 @@ const categoryColors: Record<string, string> = {
 };
 
 const SettingModal = ({ onClose }: SettingModalProps) => {
-  const { roomInfo, participants, updateRoomInfo: updateStore } = useMeetingRoomStore();
+  const { roomInfo, participants, setRoomInfo } = useMeetingRoomStore();
   const [title, setTitle] = useState(roomInfo?.title ?? '');
   const [category, setCategory] = useState(roomInfo?.category ?? '');
   const [menuOpenId, setMenuOpenId] = useState<number | null>(null);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
-  // const [thumbnailPreview, setThumbnailPreview] = useState(
-  //   roomInfo?.thumbnailImageUrl || '',
-  // );
+  const [thumbnailPreview, setThumbnailPreview] = useState<string>(roomInfo?.thumbnailImageUrl?.toString() || '');
   const [inviteCode, setInviteCode] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false); // 복사 알림 상태
+  const [copied, setCopied] = useState(false); 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const navigate = useNavigate();
+
+  const fetchInviteCode = useCallback(async () => {
+  if (!roomInfo?.meetingRoomId) return;
+
+  try {
+    const res = await getInviteCode(roomInfo.meetingRoomId);
+    if (typeof res.inviteCode !== 'string' || res.inviteCode.includes('만료')) {
+      throw new Error('초대코드가 만료되었거나 유효하지 않음');
+    }
+    setInviteCode(res.inviteCode);
+    } catch {
+      const res = await postInviteCode(roomInfo.meetingRoomId);
+      setInviteCode(res.inviteCode);
+    }
+  }, [roomInfo?.meetingRoomId]);
 
   useEffect(() => {
-  fetchInviteCode();
-}, [roomInfo?.meetingRoomId]);
-
+    fetchInviteCode();
+  }, [fetchInviteCode]);
 
   const handleThumbnailClick = () => {
     fileInputRef.current?.click();
@@ -44,46 +60,54 @@ const SettingModal = ({ onClose }: SettingModalProps) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setThumbnailFile(file);
-    // const previewUrl = URL.createObjectURL(file);
-    // setThumbnailPreview(previewUrl);
-  };
-
-  const fetchInviteCode = async () => {
-    if (!roomInfo?.meetingRoomId) {
-      return;
-    }
-
-    try {
-      const res = await getInviteCode(roomInfo.meetingRoomId);
-      if (typeof res.inviteCode !== 'string' || res.inviteCode.includes('만료')) {
-        throw new Error('초대코드가 만료되었거나 유효하지 않음');
-      }
-      setInviteCode(res.inviteCode);
-    } catch {
-      const res = await postInviteCode(roomInfo.meetingRoomId);
-      setInviteCode(res.inviteCode);
-    }
+    const previewUrl = URL.createObjectURL(file);
+    setThumbnailPreview(previewUrl);
   };
 
   const handleSave = async () => {
     if (!roomInfo) return;
 
-    if (!title.trim() && !category.trim() && !thumbnailFile) {
-      alert(
-        '방 제목, 썸네일, 카테고리 중 하나는 반드시 입력 또는 변경해야 합니다.',
-      );
+    const isTitleChanged = title.trim() !== roomInfo.title;
+    const isCategoryChanged = category.trim() !== roomInfo.category;
+    const isThumbnailChanged = !!thumbnailFile;
+
+    if (!isTitleChanged && !isCategoryChanged && !isThumbnailChanged) {
+      alert('변경된 내용이 없습니다.');
       return;
     }
 
-    await updateRoomInfo(roomInfo.meetingRoomId, { title, category });
-    updateStore({ title, category });
-    onClose();
+    try {
+      await updateRoomInfo(roomInfo.meetingRoomId, {
+        title,
+        category,
+        thumbnailImageUrl: thumbnailFile ?? undefined,
+      });
+
+      const updatedRoomInfo = await getRoomInfo(roomInfo.meetingRoomId);
+      setRoomInfo({
+        ...updatedRoomInfo,
+        meetingRoomId: roomInfo.meetingRoomId,
+      });
+
+      onClose(); 
+      window.location.reload(); 
+    } catch {
+      alert('방 정보 저장에 실패했습니다.');
+    }
   };
 
-  const handleDelete = async () => {
-    if (!roomInfo) return;
+const handleDelete = async () => {
+  if (!roomInfo) return;
+
+  try {
     await deleteRoom(roomInfo.meetingRoomId);
-  };
+    setShowDeleteModal(false);
+    onClose(); 
+    navigate('/main');
+  } catch {
+    alert('방 삭제에 실패했습니다.');
+  }
+};
 
   const handleDelegate = async (memberId: number) => {
     if (!roomInfo) return;
@@ -96,8 +120,8 @@ const SettingModal = ({ onClose }: SettingModalProps) => {
   };
 
   const copyCode = () => {
-    const code = '010857365321sd12';
-    navigator.clipboard.writeText(code);
+    if (!inviteCode) return; 
+    navigator.clipboard.writeText(inviteCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -114,7 +138,17 @@ const SettingModal = ({ onClose }: SettingModalProps) => {
             </div>
 
             <div css={thumbnailBox} onClick={handleThumbnailClick}>
-              <img src="{`${import.meta.env.VITE_API_CDN_URL}${roomInfo?.thumbnailImageUrl}`}" alt="{roomInfo?.category}" css={thumbnail}/>
+              <img
+                src={
+                  thumbnailPreview
+                    ? thumbnailPreview.startsWith('blob:')
+                      ? thumbnailPreview
+                      : `${import.meta.env.VITE_CDN_URL}/${thumbnailPreview.replace(/^\/+/, '')}`
+                    : '/default-thumbnail.png'
+                }
+                alt={roomInfo?.category || 'thumbnail'}
+                css={thumbnail}
+              />
               <div css={thumbnailOverlay}>
                 <Camera />
                 <span>이미지 변경</span>
@@ -160,11 +194,11 @@ const SettingModal = ({ onClose }: SettingModalProps) => {
                 onChange={(e) => setCategory(e.target.value)}
               >
                 <option value="">카테고리를 선택해주세요.</option>
-                <option value="게임">게임</option>
-                <option value="일상">일상</option>
-                <option value="학습">학습</option>
-                <option value="회의">회의</option>
-                <option value="자유">자유</option>
+                <option value="game">게임</option>
+                <option value="talk">일상</option>
+                <option value="study">학습</option>
+                <option value="meeting">회의</option>
+                <option value="free">자유</option>
               </select>
             </div>
 
@@ -172,7 +206,7 @@ const SettingModal = ({ onClose }: SettingModalProps) => {
               <div css={fieldIcon}>
                 <UserPlus />
               </div>
-              <input css={fieldInput} value={inviteCode} readOnly />
+              <input css={fieldInput} value={inviteCode ?? ''} readOnly />
               <button css={codeButton} onClick={copyCode}>
                 <Copy />
               </button>
@@ -182,9 +216,15 @@ const SettingModal = ({ onClose }: SettingModalProps) => {
               <button css={saveButton} onClick={handleSave}>
                 설정 저장
               </button>
-              <button css={deleteButton} onClick={handleDelete}>
-                방 삭제하기
-              </button>
+             <button css={deleteButton} onClick={() => setShowDeleteModal(true)}>
+              방 삭제하기
+            </button>
+            <DeleteConfirmModal
+              isOpen={showDeleteModal}
+              onClose={() => setShowDeleteModal(false)}
+              onConfirm={handleDelete}
+            />
+
             </div>
           </div>
 
@@ -644,3 +684,7 @@ const toastAlert = css`
     }
   }
 `;
+function setRoomInfo(arg0: { title: string; category: string; thumbnailImageUrl: Blob; meetingRoomId: string; }) {
+  throw new Error('Function not implemented.');
+}
+

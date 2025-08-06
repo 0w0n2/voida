@@ -69,8 +69,18 @@ export const getRoomMembers = async (meetingRoomId: string): Promise<RoomPartici
 export const updateRoomInfo = async (
   meetingRoomId: string,
   data: Partial<RoomInfo>,
-): Promise<void> => {
-  await apiInstance.put(`/v1/meeting-rooms/${meetingRoomId}/settings`, data);
+): Promise<RoomInfo> => {
+  const formData = new FormData();
+  const { title, category, thumbnailImageUrl } = data;
+  const requestDto = { title, category };
+  const jsonBlob = new Blob([JSON.stringify(requestDto)], { type: 'application/json' });
+  formData.append('requestDto', jsonBlob);
+  if (thumbnailImageUrl && thumbnailImageUrl instanceof File) {
+    formData.append('thumbnailImage', thumbnailImageUrl);
+  }
+
+  const res = await apiInstance.put(`/v1/meeting-rooms/${meetingRoomId}/settings`, formData);
+  return res.data.result;
 };
 
 // 방 삭제 (방장만)
@@ -79,7 +89,7 @@ export const deleteRoom = async (meetingRoomId: string): Promise<void> => {
 };
 
 // 방 탈퇴하기 (일반 사용자만)
-export const leaveRoom = async (meetingRoomId: string, memberuuid:string): Promise<void> => {
+export const leaveRoom = async (meetingRoomId: string): Promise<void> => {
   await apiInstance.delete(`/v1/meeting-rooms/${meetingRoomId}/leave`);
 };
 
@@ -135,7 +145,7 @@ export const getRooms = async (): Promise<MeetingRoom[]> => {
   // 하드코딩된 테스트 데이터
   return [
     {
-      meetingRoomId: '11',
+      meetingRoomId: '15',
       title: '테스트 회의방',
       category: 'game',
       memberCount: 3,
