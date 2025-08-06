@@ -3,7 +3,7 @@ import apiInstance from '@/apis/core/apiInstance';
 export type RoomInfo = {
   title: string;
   category: string;
-  thumbnailImageUrl: string;
+  thumbnailImageUrl: Blob;
 };
 
 export type RoomParticipant = {
@@ -14,7 +14,7 @@ export type RoomParticipant = {
 export type Participant = {
   memberId: number;
   nickname: string;
-  profileImageUrl?: string;
+  profileImageUrl?: Blob;
   state: 'HOST' | 'PARTICIPANT';
   lipTalkMode: boolean;
   isMine: boolean;
@@ -23,7 +23,7 @@ export type Participant = {
 export type ChatMessage = {
   senderId: string;
   writerNickname: string;
-  profileImageUrl: string;
+  profileImageUrl: Blob;
   content: string;
   createdAt: string;
   isMine: boolean;
@@ -43,6 +43,13 @@ export interface MeetingRoom {
   category: string;
   memberCount: number;
   thumbnailImageUrl: string;
+}
+
+export interface CreateRoomRequest {
+  meetingRoomId: string;
+  title: string;
+  category: string;
+  thumbnailImageUrl: Blob | File | null;
 }
 
 // 방 정보 조회
@@ -123,22 +130,65 @@ export const postChatMessage = async (
 };
 
 // 참여 중인 방 조회
-export const getRooms = async (
-  pageNo: number,
-  pageSize: number,
-): Promise<MeetingRoom[]> => {
-  const res = await apiInstance.get('/v1/members/meeting-rooms', {
-    params: { pageNo, pageSize },
-  });
-  return res.data.meetingRooms;
+// export const getRooms = async (): Promise<MeetingRoom[]> => {
+//   const res = await apiInstance.get('/v1/meeting-rooms');
+//   return res.data.result;
+// };
+export const getRooms = async (): Promise<MeetingRoom[]> => {
+  // 하드코딩된 테스트 데이터
+  return [
+    {
+      meetingRoomId: '1',
+      title: '테스트 회의방',
+      category: 'game',
+      memberCount: 3,
+      thumbnailImageUrl: '',
+    },
+    {
+      meetingRoomId: '2',
+      title: 'React 스터디',
+      category: 'game',
+      memberCount: 5,
+      thumbnailImageUrl: '',
+    },
+    {
+      meetingRoomId: '3',
+      title: 'React 스터디',
+      category: 'game',
+      memberCount: 5,
+      thumbnailImageUrl: '',
+    },
+    {
+      meetingRoomId: '4',
+      title: 'React 스터디',
+      category: 'game',
+      memberCount: 5,
+      thumbnailImageUrl: '',
+    },
+    {
+      meetingRoomId: '5',
+      title: 'React 스터디',
+      category: 'game',
+      memberCount: 5,
+      thumbnailImageUrl: '',
+    },
+    {
+      meetingRoomId: '6',
+      title: 'React 스터디',
+      category: 'game',
+      memberCount: 5,
+      thumbnailImageUrl: '',
+    },
+  ];
 };
+
 
 // 방 생성
 export const createRoom = async (
   title: string,
   category: string,
-  thumbnailImageUrl: Blob,
-): Promise<MeetingRoom> => {
+  thumbnailImageUrl: Blob | null,
+): Promise<CreateRoomRequest> => {
   const formData = new FormData();
   const requestDto = { title, category };
   const jsonBlob = new Blob([JSON.stringify(requestDto)], { type: 'application/json' });
@@ -150,26 +200,33 @@ export const createRoom = async (
   return res.data.result;
 };
 
-// 초대 코드 요청
+// 초대 코드 조회
 export const getInviteCode = async (
   meetingRoomId: string,
 ): Promise<{ inviteCode: string }> => {
-  console.log('meetingRoomId', meetingRoomId);
   const res = await apiInstance.get(
     `/v1/meeting-rooms/${meetingRoomId}/invite-code`,
   );
-  console.log('inviteCode', res.data.result);
+  return res.data.result;
+};
+
+// 초대 코드 생성
+export const postInviteCode = async (
+  meetingRoomId: string,
+): Promise<{ inviteCode: string }> => {
+  const res = await apiInstance.post(
+    `/v1/meeting-rooms/${meetingRoomId}/invite-code`,
+  );
   return res.data.result;
 };
 
 // 초대 코드 검증
 export const verifyInviteCode = async (
-  invitecode: string,
-  meetingRoomId: number,
+  inviteCode: string,
 ): Promise<{ valid: boolean }> => {
   const res = await apiInstance.post(
-    `/v1/meeting-rooms/${meetingRoomId}/verify-invite-code`,
-    { invitecode },
+    `/v1/meeting-rooms/verify-invite-code`,
+    { inviteCode },
   );
   return res.data;
 };

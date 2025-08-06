@@ -1,20 +1,19 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import MemberPanel from '@/components/meeting-room/members/MemberPanel';
 import ChatPanel from '@/components/meeting-room/chat/ChatPanel';
-import {
-  getRoomInfo,
-  getRoomMembers,
-  getRoomChatHistory,
-} from '@/apis/meeting-room/meetingRoomApi';
+import { getRoomInfo, getRoomMembers, getRoomChatHistory } from '@/apis/meeting-room/meetingRoomApi';
 import { useMeetingRoomStore } from '@/store/meetingRoomStore';
 
-const MeetingRoomPage = ({ meetingRoomId }: { meetingRoomId: string }) => {
+const MeetingRoomPage = () => {
+  const { meetingRoomId } = useParams<{ meetingRoomId: string }>();
   const { setRoomInfo, setParticipants, setChatMessages } =
     useMeetingRoomStore();
 
 useEffect(() => {
+  if (!meetingRoomId) return;
   const fetchData = async () => {
     try {
       const room = await getRoomInfo(meetingRoomId);
@@ -36,8 +35,8 @@ useEffect(() => {
 
   return (
     <div css={container}>
-      <MemberPanel meetingRoomId={meetingRoomId} />
-      <ChatPanel meetingRoomId={meetingRoomId} />
+      <MemberPanel meetingRoomId={meetingRoomId!} />
+      <ChatPanel meetingRoomId={meetingRoomId!} />
     </div>
   );
 };

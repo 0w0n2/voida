@@ -2,18 +2,18 @@
 import { css } from '@emotion/react';
 import { X, Camera, Grid, Home, Plus, UserRound, Copy } from 'lucide-react';
 import { useState, useRef } from 'react';
-import { createRoom, getInviteCode } from '@/apis/meeting-room/meetingRoomApi';
+import { createRoom, postInviteCode, getInviteCode } from '@/apis/meeting-room/meetingRoomApi';
 
 interface CreateRoomModalProps {
   onClose: () => void;
 }
 
 const categoryColors: Record<string, string> = {
-  게임: '#8e44ad',
-  일상: '#f1c40f',
-  학습: '#333333',
-  회의: '#27ae60',
-  자유: '#3498db',
+  game: '#8e44ad',
+  talk: '#f1c40f',
+  study: '#333333',
+  meeting: '#27ae60',
+  free: '#3498db',
 };
 
 const CreateRoomModal = ({ onClose }: CreateRoomModalProps) => {
@@ -21,9 +21,7 @@ const CreateRoomModal = ({ onClose }: CreateRoomModalProps) => {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
   const [isDragging, setIsDragging] = useState(false);
-  const [thumbnailImageUrl, setThumbnailImageUrl] = useState<Blob | null>(
-    null,
-  );
+  const [thumbnailImageUrl, setThumbnailImageUrl] = useState<Blob | null>(null);
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [inviteCode, setInviteCode] = useState<string | null>(null);
@@ -64,14 +62,13 @@ const CreateRoomModal = ({ onClose }: CreateRoomModalProps) => {
   };
 
   const handleCreate = async () => {
-    if (!thumbnailImageUrl) return;
     setIsLoading(true);
 
     try {
       const room = await createRoom(title, category, thumbnailImageUrl);
+      await postInviteCode(room.meetingRoomId);
       const { inviteCode } = await getInviteCode(room.meetingRoomId);
       setInviteCode(inviteCode);
-      console.log('초대코드:', inviteCode);
     } catch (error) {
       console.error('방 생성 또는 초대코드 요청 실패:', error);
     } finally {
@@ -496,13 +493,13 @@ const codeDisplay = css`
     display: block;
     font-size: 16px;
     color: var(--color-gray-600);
-    margin-bottom: 12px;
+    margin-bottom: 20px;
     letter-spacing: normal;
   }
 
   p {
     font-size: 36px;
-    letter-spacing: 4px;
+    letter-spacing: 6px;
     margin: 0;
   }
 `;
@@ -571,6 +568,7 @@ const infoList = css`
   flex-direction: column;
   align-items: center;
   gap: 12px;
+  margin-bottom: 20px;
 
   li {
     position: relative;

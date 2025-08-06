@@ -32,7 +32,7 @@ function App() {
         <Route path="/tutorial/test/general" element={<TestGeneralPage />} />
         <Route path="/tutorial/test/lip-reading" element={<TestLipReadingPage />} />
         <Route path="/main" element={<MainPage />} />
-        <Route path="/meeting-room" element={<MeetingRoomPage />} />
+        <Route path="/meeting-room/:meetingRoomId" element={<MeetingRoomPage />} />
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/voice-test" element={<VoiceRoom />} />
         <Route path="/live-overlay" element={<LiveRoomOverlay />} />
