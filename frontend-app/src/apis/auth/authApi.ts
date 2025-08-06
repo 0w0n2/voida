@@ -9,6 +9,11 @@ export const login = (email: string, password: string) => {
   );
 };
 
+// 로그아웃
+export const logout = () => {
+  return apiInstance.post('/v1/auth/sign-out');
+};
+
 // 회원가입
 // api/auth.ts
 export const register = (

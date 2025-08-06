@@ -3,13 +3,14 @@ import { css } from '@emotion/react';
 import { useState } from 'react';
 import { AxiosError } from 'axios';
 import { login } from '@/apis/auth/authApi';
+import { getUser } from '@/apis/auth/userApi';
 import VoidaLogo from '@/assets/logo/voida-logo.png';
 import GoogleLogo from '@/assets/icons/google-logo.png';
 import EyeIcon from '@/assets/icons/eye.png';
 import EyeCloseIcon from '@/assets/icons/crossed-eye.png';
-import { useAuthStore } from '@/store/authStore';
+import { useAuthStore, type User } from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
-import {Link} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -31,6 +32,7 @@ const LoginForm = () => {
   };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmailError('');
     const value = e.target.value;
     setEmail(value);
 
@@ -41,6 +43,12 @@ const LoginForm = () => {
     } else {
       setEmailError('');
     }
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPasswordError('');
+    const value = e.target.value;
+    setPassword(value);
   };
 
   const validate = () => {
@@ -67,15 +75,43 @@ const LoginForm = () => {
 
     try {
       const res = await login(email, password);
+
+      // 에러처리
+      if (res.data.code === 901) {
+        setEmailError('아이디 또는 비밀번호가 올바르지 않습니다');
+        setPasswordError('아이디 또는 비밀번호가 올바르지 않습니다');
+        return;
+      }
+      if (res.data.code === 902) {
+        setEmailError('존재하지 않는 이메일입니다.');
+        return;
+      }
+
       const isNewbie = res.data.result.isNewbie;
       const accessToken = res.headers.authorization;
-      const { user } = res.data;
+
+      if (!accessToken) {
+        setError('예상치 못한 오류가 발생하였습니다.');
+        return;
+      }
+
+      // 유저 정보 조회
+      const response = await getUser(accessToken);
+      const user: User = {
+        email: response.data.member.email,
+        nickname: response.data.member.nickname,
+        profileImage: response.data.member.profileImage || '',
+      }
+
       // 유저 정보 저장
       setAuth(accessToken, user);
       localStorage.setItem('accessToken', accessToken);
       if (isNewbie) {
         navigate('/tutorial');
       }
+
+      // 비밀번호 틀릴  때
+      setPasswordError('비밀번호가 일치하지 않습니다.');
     } catch (err) {
       const axiosError = err as AxiosError<{ message: string }>;
 
@@ -121,7 +157,7 @@ const LoginForm = () => {
             type={showPassword ? 'text' : 'password'}
             placeholder="비밀번호"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={handlePasswordChange}
             css={[inputStyle, passwordError && inputErrorStyle]}
           />
           <img
@@ -138,9 +174,9 @@ const LoginForm = () => {
 
       <div css={footerStyle}>
         <div css={linkBoxStyle}>
-          <Link href="/#register">회원가입</Link>
+          <Link to="/register">회원가입</Link>
           <span>|</span>
-          <Link href="/#forgot">비밀번호 찾기</Link>
+          <Link to="/forgot">비밀번호 찾기</Link>
         </div>
         <button type="submit" css={loginBtnStyle}>
           로그인

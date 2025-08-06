@@ -1,15 +1,19 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useState } from 'react';
+import { use, useState } from 'react';
 import VoidaLogo from '@/assets/logo/voida-logo.png';
-import ProfileImage from '@/assets/profiles/profile1.png';
 import { useNavigate } from 'react-router-dom';
 import { User, LogOut } from 'lucide-react';
+import { logout } from '@/apis/auth/authApi';
+import {useAuthStore} from '@/store/authStore';
 
 export default function Header() {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-
+  const user = useAuthStore((state) => state.user);
+  console.log('user', user);
+  const ProfileImage = user?.profileImage 
+  const ProfileName = user?.nickname || '사용자';
   const handleLogoClick = () => {
     navigate('/main');
   };
@@ -23,11 +27,12 @@ export default function Header() {
     setIsOpen(false);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     const confirmLogout = window.confirm('로그아웃 하시겠습니까?');
     if (confirmLogout) {
+      await logout();
       localStorage.removeItem('accessToken');
-      // navigate('/login');
+      navigate('/login');
     }
   };
 
@@ -43,7 +48,7 @@ export default function Header() {
         <div css={userInfoStyle} onClick={toggleMenu}>
           <img src={ProfileImage} alt="프로필 이미지" css={avatarStyle} />
           <span>
-            <span css={{ fontFamily: 'NanumSquareEB' }}>진모리</span> 님
+            <span css={{ fontFamily: 'NanumSquareEB' }}>{ProfileName}</span> 님
           </span>
         </div>
 
@@ -51,7 +56,7 @@ export default function Header() {
           <div css={dropdownMenu}>
             <img src={ProfileImage} alt="프로필" css={dropdownAvatar} />
             <div css={dropdownTitle}>
-              <strong>진모리</strong> 님, 안녕하세요!
+              <strong>{ProfileName}</strong> 님, 안녕하세요!
             </div>
             <hr css={divider} />
             <button css={menuButton} onClick={handleEditProfile}>
@@ -74,7 +79,7 @@ const headerContainer = css`
   align-items: center;
   padding: 1.5rem 2rem;
   position: relative;
-  background-color: transparent !important; 
+  background-color: transparent !important;
 
   @media (max-width: 1200px) {
     padding: 1.2rem 1.5rem;

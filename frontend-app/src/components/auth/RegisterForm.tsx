@@ -12,7 +12,7 @@ import defaultProfile from '@/assets/profiles/defaultProfile.png';
 import EmailVerificationModal from './EmailVerificationModal';
 import { getRandomNickname } from '@/apis/auth/authApi';
 import IsRegisteredModal from './IsRegisteredModal';
-import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
+import { useSearchParams, useNavigate, useLocation, Link } from 'react-router-dom';
 
 const RegisterForm = () => {
   const [email, setEmail] = useState('');
@@ -449,9 +449,9 @@ const RegisterForm = () => {
           </div>
           <div css={bottomRowStyle}>
             <span css={checkIdStyle}>이미 계정이 있으신가요?&nbsp;</span>
-            <a href="/login" css={loginLinkStyle}>
+            <Link to="/login" css={loginLinkStyle}>
               로그인
-            </a>
+            </Link>
             <button
               type="submit"
               css={submitButtonStyle}
