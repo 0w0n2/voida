@@ -1,10 +1,7 @@
 package com.bbusyeo.voida.global.security.config;
 
 import com.bbusyeo.voida.global.security.filter.JwtAuthorizationFilter;
-import com.bbusyeo.voida.global.security.handler.CustomAccessDeniedHandler;
-import com.bbusyeo.voida.global.security.handler.CustomAuthenticationEntryPoint;
-import com.bbusyeo.voida.global.security.handler.CustomAuthenticationProvider;
-import com.bbusyeo.voida.global.security.handler.OAuth2SuccessHandler;
+import com.bbusyeo.voida.global.security.handler.*;
 import com.bbusyeo.voida.global.security.service.CustomOauth2UserService;
 import com.bbusyeo.voida.global.security.service.TokenBlackListService;
 import com.bbusyeo.voida.global.security.util.TokenUtils;
@@ -55,6 +52,7 @@ public class SecurityConfig {
     private final CorsProperties corsProperties;
     private final CustomOauth2UserService customOauth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final OAuth2FailureHandler oAuth2FailureHandler;
 
     // SecurityFilterChain : HTTP 요청에 대한 보안 설정
     // 필터를 통해 (인증) 방식과 절차에 대한 설정 수행
@@ -83,6 +81,7 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOauth2UserService)) // OAuth2 로그인 성공 시 후속 조치를 처리
                         .successHandler(oAuth2SuccessHandler) // 인증 성공 시 핸들러
+                        .failureHandler(oAuth2FailureHandler)
                 )
 
                 // (3) JWT Filter 등록

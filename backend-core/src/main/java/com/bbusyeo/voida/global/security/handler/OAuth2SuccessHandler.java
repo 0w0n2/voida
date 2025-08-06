@@ -35,22 +35,21 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
         Object principal = authentication.getPrincipal();
-        BaseResponse<?> baseResponse;
+        BaseResponse<?> result;
 
         if (principal instanceof UserDetailsDto) { // 기존 소셜 로그인 -> 서버 JWT 발급 후 응답
-            baseResponse = new BaseResponse<>(tokenAuthService.issueJwtAndReturnDto((UserDetailsDto) principal, response));
+            result = new BaseResponse<>(
+                    tokenAuthService.issueJwtAndReturnDto((UserDetailsDto) principal, response));
         } else if (principal instanceof GuestOAuth2UserDto) { // 최초 소셜 로그인 -> 추가 일반 회원가입 필요
-            baseResponse = new BaseResponse<>(
-                    socialSignUpService.initialSocialSignUp(((GuestOAuth2UserDto) principal).getOAuth2UserInfo()),
-                    BaseResponseStatus.SOCIAL_NEED_SIGNUP);
+            result = new BaseResponse<>(
+                    socialSignUpService.initialSocialSignUp(((GuestOAuth2UserDto) principal).getOAuth2UserInfo()), BaseResponseStatus.SOCIAL_NEED_SIGNUP);
         } else {
             throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
         }
 
         response.setContentType("application/json;charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
-
-        String jsonResponse = objectMapper.writeValueAsString(baseResponse);
+        String jsonResponse = objectMapper.writeValueAsString(result);
         response.getWriter().write(jsonResponse);
     }
 

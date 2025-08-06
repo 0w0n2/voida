@@ -21,8 +21,6 @@ public class SocialSignUpService {
 
     // 소셜 로그인 시도 시 신규 회원일 경우, 회원가입 절차를 시작하는 메서드
     public NeedSignupResponseDto initialSocialSignUp(OAuth2UserInfo oAuth2UserInfo) {
-        // String signUpToken = UUID.randomUUID().toString();
-
         // 이메일을 key로 redis에 OAuth 정보 저장
         String redisKey = SIGNUP_TOKEN_PREFIX + oAuth2UserInfo.getProviderEmail();
         redisDao.setValue(redisKey, oAuth2UserInfo.getProviderId(), socialSignUpExpMin);

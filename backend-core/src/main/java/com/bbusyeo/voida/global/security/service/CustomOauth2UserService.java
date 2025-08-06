@@ -15,8 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -29,6 +31,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
     private final MemberRepository memberRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
         OAuth2User oAuth2User = super.loadUser(userRequest);
@@ -39,22 +42,30 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         // Provider 별로 OAuth2UserInfo 구현체 선택
         OAuth2UserInfo oAuth2UserInfo = switch (providerName) {
             case GOOGLE -> new GoogleUserInfo(oAuth2User.getAttributes());
-            default -> throw new BaseException(BaseResponseStatus.UNSUPPORTED_SOCIAL_PROVIDER);
+            default -> throw oauth2Exception(BaseResponseStatus.UNSUPPORTED_SOCIAL_PROVIDER);
         };
 
+        // Handler 에 내려줄 유저 정보 객체 생성
         String providerEmail = oAuth2UserInfo.getProviderEmail();
 
-        // 소셜 테이블 정보 조회
-        Optional<MemberSocial> memberSocial = memberSocialRepository.findByEmail(providerEmail);
-
-        if (memberSocial.isPresent()) {
-            // 기존에 가입한 소셜 계정 -> 로그인 진행
-            return new UserDetailsDto(memberSocial.get().getMember());
-        } else if (memberRepository.existsByEmail(providerEmail)) {
-            // 최초 로그인이나 동일한 이메일 주소로 일반 회원가입이 되어 있음 -> Exception
-            throw new BaseException(BaseResponseStatus.ALREADY_REGISTERED_EMAIL);
-        } else { // 최초 소셜 로그인 사용자 -> 해당 이메일 주소로 일반 회원가입 진행
-            return new GuestOAuth2UserDto(oAuth2UserInfo);
+        // 1. 요청 실패 (CustomOAuth2FailureHandler 에서 처리)
+        // 최초 로그인이나 동일한 이메일 주소로 일반 회원가입이 되어 있음
+        if (memberRepository.existsByEmail(providerEmail)) {
+            throw oauth2Exception(BaseResponseStatus.ALREADY_REGISTERED_EMAIL);
         }
+
+        // 2. 요청 성공 (CustomOAuth2SuccessHandler 에서 처리)
+        Optional<MemberSocial> memberSocial = memberSocialRepository.findByEmail(providerEmail);
+        if (memberSocial.isPresent()) { // 1. 기존에 가입한 소셜 계정 -> 로그인 진행
+            return new UserDetailsDto(memberSocial.get().getMember());
+        }
+        return new GuestOAuth2UserDto(oAuth2UserInfo); // 2. 최초 소셜 로그인 사용자 -> 해당 이메일 주소로 일반 회원가입 진행
+    }
+
+    private OAuth2AuthenticationException oauth2Exception(BaseResponseStatus status) {
+        return new OAuth2AuthenticationException(
+                new OAuth2Error(status.name().toLowerCase()),
+                new BaseException(status)
+        );
     }
 }

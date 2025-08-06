@@ -3,6 +3,7 @@ package com.bbusyeo.voida.api.auth.service;
 import com.bbusyeo.voida.api.auth.dto.SignUpRequestDto;
 import com.bbusyeo.voida.api.member.domain.Member;
 import com.bbusyeo.voida.api.member.domain.MemberSocial;
+import com.bbusyeo.voida.api.member.domain.enums.ProviderName;
 import com.bbusyeo.voida.api.member.repository.MemberRepository;
 import com.bbusyeo.voida.api.member.repository.MemberSocialRepository;
 import com.bbusyeo.voida.global.exception.BaseException;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Random;
@@ -54,6 +56,7 @@ public class SignUpService {
 
             // 5. 소셜 회원가입 처리
             if (Boolean.TRUE.equals(requestDto.getIsSocial())) {
+
                 // Redis 에서 임시 정보 가져오기
                 String redisKey = SIGNUP_TOKEN_PREFIX + requestDto.getEmail();
                 Object providerId = redisDao.getValue(redisKey);
