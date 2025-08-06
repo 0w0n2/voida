@@ -1,26 +1,9 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useMeetingRoomStore } from '@/store/meetingRoomStore';
-import {
-  updateRoomInfo,
-  deleteRoom,
-  delegateHost,
-  kickMember,
-} from '@/apis/meeting-room/meetingRoomApi';
-import {
-  MoreHorizontal,
-  Settings,
-  Camera,
-  X,
-  UserRoundSearch,
-  Crown,
-  UserMinus,
-  Home,
-  Grid,
-  UserPlus,
-  Copy,
-} from 'lucide-react';
+import { getInviteCode,postInviteCode, updateRoomInfo, deleteRoom, delegateHost, kickMember } from '@/apis/meeting-room/meetingRoomApi';
+import { MoreHorizontal, Settings, Camera, X, UserRoundSearch, Crown, UserMinus, Home, Grid, UserPlus, Copy } from 'lucide-react';
 import CrownIcon from '@/assets/icons/crown-yellow.png';
 
 type SettingModalProps = {
@@ -28,29 +11,30 @@ type SettingModalProps = {
 };
 
 const categoryColors: Record<string, string> = {
-  게임: '#8e44ad',
-  일상: '#f1c40f',
-  학습: '#333333',
-  회의: '#27ae60',
-  자유: '#3498db',
+  game: '#8e44ad',
+  talk: '#f1c40f',
+  study: '#333333',
+  meeting: '#27ae60',
+  free: '#3498db',
 };
 
 const SettingModal = ({ onClose }: SettingModalProps) => {
-  const {
-    roomInfo,
-    participants,
-    updateRoomInfo: updateStore,
-  } = useMeetingRoomStore();
-
+  const { roomInfo, participants, updateRoomInfo: updateStore } = useMeetingRoomStore();
   const [title, setTitle] = useState(roomInfo?.title ?? '');
   const [category, setCategory] = useState(roomInfo?.category ?? '');
   const [menuOpenId, setMenuOpenId] = useState<number | null>(null);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
-  const [thumbnailPreview, setThumbnailPreview] = useState(
-    roomInfo?.thumbnailImageUrl || '',
-  );
+  // const [thumbnailPreview, setThumbnailPreview] = useState(
+  //   roomInfo?.thumbnailImageUrl || '',
+  // );
+  const [inviteCode, setInviteCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false); // 복사 알림 상태
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+  fetchInviteCode();
+}, [roomInfo?.meetingRoomId]);
+
 
   const handleThumbnailClick = () => {
     fileInputRef.current?.click();
@@ -60,8 +44,25 @@ const SettingModal = ({ onClose }: SettingModalProps) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setThumbnailFile(file);
-    const previewUrl = URL.createObjectURL(file);
-    setThumbnailPreview(previewUrl);
+    // const previewUrl = URL.createObjectURL(file);
+    // setThumbnailPreview(previewUrl);
+  };
+
+  const fetchInviteCode = async () => {
+    if (!roomInfo?.meetingRoomId) {
+      return;
+    }
+
+    try {
+      const res = await getInviteCode(roomInfo.meetingRoomId);
+      if (typeof res.inviteCode !== 'string' || res.inviteCode.includes('만료')) {
+        throw new Error('초대코드가 만료되었거나 유효하지 않음');
+      }
+      setInviteCode(res.inviteCode);
+    } catch {
+      const res = await postInviteCode(roomInfo.meetingRoomId);
+      setInviteCode(res.inviteCode);
+    }
   };
 
   const handleSave = async () => {
@@ -74,24 +75,24 @@ const SettingModal = ({ onClose }: SettingModalProps) => {
       return;
     }
 
-    await updateRoomInfo(roomInfo.id, { title, category });
+    await updateRoomInfo(roomInfo.meetingRoomId, { title, category });
     updateStore({ title, category });
     onClose();
   };
 
   const handleDelete = async () => {
     if (!roomInfo) return;
-    await deleteRoom(roomInfo.id);
+    await deleteRoom(roomInfo.meetingRoomId);
   };
 
   const handleDelegate = async (memberId: number) => {
     if (!roomInfo) return;
-    await delegateHost(roomInfo.id, String(memberId));
+    await delegateHost(roomInfo.meetingRoomId, String(memberId));
   };
 
   const handleKick = async (memberId: number) => {
     if (!roomInfo) return;
-    await kickMember(roomInfo.id, String(memberId));
+    await kickMember(roomInfo.meetingRoomId, String(memberId));
   };
 
   const copyCode = () => {
@@ -113,7 +114,7 @@ const SettingModal = ({ onClose }: SettingModalProps) => {
             </div>
 
             <div css={thumbnailBox} onClick={handleThumbnailClick}>
-              <img src={thumbnailPreview} alt="썸네일" css={thumbnail} />
+              <img src="{`${import.meta.env.VITE_API_CDN_URL}${roomInfo?.thumbnailImageUrl}`}" alt="{roomInfo?.category}" css={thumbnail}/>
               <div css={thumbnailOverlay}>
                 <Camera />
                 <span>이미지 변경</span>
@@ -171,7 +172,7 @@ const SettingModal = ({ onClose }: SettingModalProps) => {
               <div css={fieldIcon}>
                 <UserPlus />
               </div>
-              <input css={fieldInput} value={'010857365321sd12'} readOnly />
+              <input css={fieldInput} value={inviteCode} readOnly />
               <button css={codeButton} onClick={copyCode}>
                 <Copy />
               </button>
@@ -197,11 +198,7 @@ const SettingModal = ({ onClose }: SettingModalProps) => {
               {participants?.participants.map((p) => (
                 <div key={p.memberId} css={participantRow}>
                   <div css={participantInfo}>
-                    <img
-                      src={p.profileImageUrl}
-                      alt={p.nickname}
-                      css={avatar}
-                    />
+                    <img src={`${import.meta.env.VITE_CDN_URL}${p.profileImageUrl}`} alt={p.nickname} css={avatar} />
                     <span>{p.nickname}</span>
                     {p.state === 'HOST' && (
                       <img src={CrownIcon} css={hostIcon} />

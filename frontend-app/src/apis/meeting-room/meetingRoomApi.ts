@@ -1,6 +1,7 @@
 import apiInstance from '@/apis/core/apiInstance';
 
 export type RoomInfo = {
+  meetingRoomId: string;
   title: string;
   category: string;
   thumbnailImageUrl: Blob;
@@ -55,17 +56,13 @@ export interface CreateRoomRequest {
 // 방 정보 조회
 export const getRoomInfo = async (meetingRoomId: string): Promise<RoomInfo> => {
   const res = await apiInstance.get(`/v1/meeting-rooms/${meetingRoomId}`);
-  return res.data;
+  return res.data.result;
 };
 
 // 방 참여자 조회
-export const getRoomMembers = async (
-  meetingRoomId: string,
-): Promise<RoomParticipant[]> => {
-  const res = await apiInstance.get(
-    `/v1/meeting-rooms/${meetingRoomId}/members`,
-  );
-  return res.data;
+export const getRoomMembers = async (meetingRoomId: string): Promise<RoomParticipant> => {
+  const res = await apiInstance.get(`/v1/meeting-rooms/${meetingRoomId}/members`);
+  return res.data.result;
 };
 
 // 방 정보 수정 (방장만)
@@ -138,7 +135,7 @@ export const getRooms = async (): Promise<MeetingRoom[]> => {
   // 하드코딩된 테스트 데이터
   return [
     {
-      meetingRoomId: '1',
+      meetingRoomId: '11',
       title: '테스트 회의방',
       category: 'game',
       memberCount: 3,

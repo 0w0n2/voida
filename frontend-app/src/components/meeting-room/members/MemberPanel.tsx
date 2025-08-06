@@ -18,14 +18,14 @@ const pulse = keyframes`
 `;
 
 const categoryColors: Record<string, string> = {
-  게임: '#8e44ad',
-  일상: '#f1c40f',
-  학습: '#333333',
-  회의: '#27ae60',
-  자유: '#3498db',
+  game: '#8e44ad',
+  talk: '#f1c40f',
+  study: '#333333',
+  meeting: '#27ae60',
+  free: '#3498db',
 };
 
-const MemberPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
+const MemberPanel = () => {
   const { participants, roomInfo } = useMeetingRoomStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
@@ -68,7 +68,11 @@ const MemberPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
         {memberList.map((p) => (
           <div key={p.memberId} css={[cardStyle, p.isMine && myCardStyle]}>
             <div css={avatarWrapper}>
-              <img src={p.profileImageUrl} alt={p.nickname} css={avatarStyle} />
+              <img
+                src={`${import.meta.env.VITE_CDN_URL}${p.profileImageUrl}`}
+                alt={p.nickname}
+                css={avatarStyle}
+              />
               {p.state === 'HOST' && (
                 <div css={hostBadge}>
                   <img src={Crown} alt="방장" css={crownIcon} />
