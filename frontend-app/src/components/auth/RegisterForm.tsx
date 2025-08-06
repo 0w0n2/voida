@@ -12,7 +12,12 @@ import defaultProfile from '@/assets/profiles/defaultProfile.png';
 import EmailVerificationModal from './EmailVerificationModal';
 import { getRandomNickname } from '@/apis/auth/authApi';
 import IsRegisteredModal from './IsRegisteredModal';
-import { useSearchParams, useNavigate, useLocation, Link } from 'react-router-dom';
+import {
+  useSearchParams,
+  useNavigate,
+  useLocation,
+  Link,
+} from 'react-router-dom';
 
 const RegisterForm = () => {
   const [email, setEmail] = useState('');
@@ -525,7 +530,7 @@ const inputStyle = css`
   padding: 0 14px;
   font-size: 15px;
   font-family: 'NanumSquareR', sans-serif;
-  background: var(--color-gray-100);
+  background: #ffffffff;
   outline: none;
   &:focus {
     border-color: var(--color-primary);

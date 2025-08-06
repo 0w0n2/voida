@@ -57,19 +57,19 @@ const UpdatePasswordModal = ({
   };
 
   // 현재 비밀번호 유효성 검사 핸들러
-  // const isSameCurrentPassword = async () => {
-  //   try {
-  //     const res = await checkCurrentPassword(accessToken!, currentPassword);
-  //     const isMatched = res.data.isMatched;
-  //     if (isMatched) {
-  //       setCurrentPasswordError('');
-  //     }else{
-  //       setCurrentPasswordError('현재 비밀번호가 일치하지 않습니다.');
-  //     }
-  //   } catch {
-  //     setCurrentPasswordError('오류가 발생하였습니다');
-  //   }
-  // };
+  const isSameCurrentPassword = async () => {
+    try {
+      const res = await checkCurrentPassword(accessToken!, currentPassword);
+      const isMatched = res.data.isMatched;
+      if (isMatched) {
+        setCurrentPasswordError('');
+      } else {
+        setCurrentPasswordError('현재 비밀번호가 일치하지 않습니다.');
+      }
+    } catch {
+      setCurrentPasswordError('오류가 발생하였습니다');
+    }
+  };
 
   // 새 비밀번호 변경 핸들러
   const handleNewPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -197,7 +197,7 @@ const UpdatePasswordModal = ({
                 type={showCurrentPassword ? 'text' : 'password'}
                 value={currentPassword}
                 onChange={handleCurrentPasswordChange}
-                // onBlur={isSameCurrentPassword}
+                onBlur={isSameCurrentPassword}
                 css={[inputStyle, !!currentPasswordError && inputErrorStyle]}
                 disabled={isLoading}
               />
