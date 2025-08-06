@@ -39,6 +39,16 @@ export const getUserSocialAccounts = (accessToken: string) => {
   });
 };
 
+// 유저 소셜 계정 연동
+// GET,POST 결정 안 됨
+export const linksocialAccount = (accessToken: string) => {
+  return apiInstance.post('/v1/members/me/social-accounts/link', {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+};
+
 // 현재 비밀번호 일치 확인
 export const checkCurrentPassword = (accessToken: string, password: string) => {
   return apiInstance.post(
