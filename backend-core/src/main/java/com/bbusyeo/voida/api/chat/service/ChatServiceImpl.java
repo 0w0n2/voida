@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ChatServiceImpl implements ChatService {
 
     private final MeetingChatRepository meetingChatRepository;
@@ -40,7 +41,6 @@ public class ChatServiceImpl implements ChatService {
 
     // 실시간 채팅 메시지 처리, MongoDB에 저장 및 구독 중인 member들에게 브로드캐스팅
     @Override
-    @Transactional
     public void saveAndSend(Long meetingRoomId, ChatMessageRequestDto requestDto, Member sender) {
 
         MeetingChat chat = MeetingChat.builder()
