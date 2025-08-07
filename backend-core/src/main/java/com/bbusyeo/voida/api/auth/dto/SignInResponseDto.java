@@ -19,4 +19,11 @@ public class SignInResponseDto {
                 .isNewbie(member.getIsNewbie())
                 .build();
     }
+
+    public SocialSignInResponseDto toSocialSignInResponseDto() {
+        return SocialSignInResponseDto.builder()
+                .isNewbie(this.isNewbie)
+                .isFirstLogin(false)
+                .build();
+    }
 }

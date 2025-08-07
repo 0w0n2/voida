@@ -6,13 +6,21 @@ import {
   register,
   checkEmailDuplicate,
   checkNicknameDuplicate,
-} from '@/apis/authApi';
+} from '@/apis/auth/authApi';
 import VoidaLogo from '@/assets/logo/voida-logo.png';
 import defaultProfile from '@/assets/profiles/defaultProfile.png';
 import EmailVerificationModal from './EmailVerificationModal';
-import { getRandomNickname } from '@/apis/authApi';
+import { getRandomNickname } from '@/apis/auth/authApi';
 import IsRegisteredModal from './IsRegisteredModal';
-import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
+import {
+  useSearchParams,
+  useNavigate,
+  useLocation,
+  Link,
+} from 'react-router-dom';
+
+import EyeIcon from '@/assets/icons/eye.png';
+import EyeCloseIcon from '@/assets/icons/crossed-eye.png';
 
 const RegisterForm = () => {
   const [email, setEmail] = useState('');
@@ -47,10 +55,12 @@ const RegisterForm = () => {
     setIsRegistered(false);
   };
 
-  // 소셜 로그인
+  // 소셜 로그인시 이메일 자동 입력
   const location = useLocation();
   const socialEmail = location.state?.socialEmail;
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showCheckPassword, setShowCheckPassword] = useState(false);
   useEffect(() => {
     if (socialEmail) {
       setEmail(socialEmail);
@@ -92,7 +102,9 @@ const RegisterForm = () => {
     const fetchRandomNickname = async () => {
       try {
         const response = await getRandomNickname();
-        setNickname(response.data.nickname);
+        const name = response.data?.result?.nickname ?? '';
+        setNickname(name);
+        console.log(name);
       } catch (error) {
         console.error('닉네임 랜덤 생성 중 오류 발생:', error);
       }
@@ -170,25 +182,27 @@ const RegisterForm = () => {
       setEmailError('올바른 이메일 형식이 아닙니다.');
       return;
     }
-    setIsEmailChecked(true);
-    // try {
-    //   const response = await checkEmailDuplicate(email);
-    //   if (response.data.isAvailable) {
-    //     setEmailError('');
-    //     setIsEmailChecked(true);
-    //     alert('사용 가능한 이메일입니다.');
-    //   } else {
-    //     setEmailError('이미 사용중인 이메일입니다.');
-    //     setIsEmailChecked(false);
-    //   }
-    // } catch (error) {
-    //   if (error instanceof AxiosError) {
-    //     setEmailError(
-    //       error.response?.data?.message || '중복확인 중 오류가 발생했습니다.',
-    //     );
-    //   }
-    //   setIsEmailChecked(false);
-    // }
+
+    try {
+      const response = await checkEmailDuplicate(email);
+      const emailDuplicated = response.data.result.emailDuplicated;
+
+      if (!emailDuplicated) {
+        setEmailError('');
+        setIsEmailChecked(true);
+        alert('사용 가능한 이메일입니다.');
+      } else {
+        setEmailError('이미 사용중인 이메일입니다.');
+        setIsEmailChecked(false);
+      }
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        setEmailError(
+          error.response?.data?.message || '중복확인 중 오류가 발생했습니다.',
+        );
+      }
+      setIsEmailChecked(false);
+    }
   };
 
   // 닉네임 중복확인
@@ -205,7 +219,9 @@ const RegisterForm = () => {
 
     try {
       const response = await checkNicknameDuplicate(nickname);
-      if (response.data.isAvailable) {
+      const nicknameDuplicated = response.data.nicknameDuplicated;
+      console.log(response);
+      if (!nicknameDuplicated) {
         setNicknameError('');
         setIsNicknameChecked(true);
         alert('사용 가능한 닉네임입니다.');
@@ -231,10 +247,10 @@ const RegisterForm = () => {
     }
     setIsVerificationModalOpen(true);
 
-    // 오버레이 테스트
-    setTimeout(() => {
-      window.electron.joinLive();
-    }, 1000);
+    // // 오버레이 테스트
+    // setTimeout(() => {
+    //   window.electron.joinLive();
+    // }, 1000);
   };
 
   // 이메일 인증 성공 처리
@@ -348,7 +364,7 @@ const RegisterForm = () => {
                 type="email"
                 value={email}
                 onChange={handleEmailChange}
-                css={[inputStyle, emailError && errorInputStyle]}
+                css={[emailInputStyle, emailError && errorInputStyle]}
                 disabled={!!socialEmail}
                 required
               />
@@ -378,17 +394,17 @@ const RegisterForm = () => {
                 type="text"
                 value={nickname}
                 onChange={handleNicknameChange}
-                css={[inputStyle, nicknameError && errorInputStyle]}
+                css={[nicknameInputStyle, nicknameError && errorInputStyle]}
                 required
               />
               <button
                 type="button"
                 onClick={handleNicknameCheck}
                 css={[
-                  checkButtonStyle,
+                  checkNickButtonStyle,
                   isNicknameChecked && checkedButtonStyle,
                 ]}
-                disabled={!nickname.trim() || !!nicknameError}
+                disabled={!nickname || !!nicknameError}
               >
                 {isNicknameChecked ? '확인완료' : '중복확인'}
               </button>
@@ -399,32 +415,48 @@ const RegisterForm = () => {
             <label css={labelStyle}>
               비밀번호 <span css={requiredStyle}>*</span>
             </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => {
-                handlePasswordChange(e);
-                validatePassword(e.target.value);
-              }}
-              css={[inputStyle, passwordError && errorInputStyle]}
-              required
-            />
+            <div css={passwordBoxStyle}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => {
+                  handlePasswordChange(e);
+                  validatePassword(e.target.value);
+                }}
+                css={[inputStyle, passwordError && errorInputStyle]}
+                required
+              />
+              <img
+                src={showPassword ? EyeCloseIcon : EyeIcon}
+                alt="비밀번호 보기"
+                onClick={() => setShowPassword(!showPassword)}
+                css={eyeIconStyle}
+              />
+            </div>
             {passwordError && <span css={errorMsgStyle}>{passwordError}</span>}
           </div>
           <div css={inputRowStyle}>
             <label css={labelStyle}>
               비밀번호 확인 <span css={requiredStyle}>*</span>
             </label>
-            <input
-              type="password"
-              value={passwordCheck}
-              onChange={(e) => {
-                setPasswordCheck(e.target.value);
-                validatePasswordCheck(e.target.value);
-              }}
-              css={[inputStyle, passwordCheckError && errorInputStyle]}
-              required
-            />
+            <div css={passwordBoxStyle}>
+              <input
+                type={showCheckPassword ? 'text' : 'password'}
+                value={passwordCheck}
+                onChange={(e) => {
+                  setPasswordCheck(e.target.value);
+                  validatePasswordCheck(e.target.value);
+                }}
+                css={[inputStyle, passwordCheckError && errorInputStyle]}
+                required
+              />
+              <img
+                src={showCheckPassword ? EyeCloseIcon : EyeIcon}
+                alt="체크 비밀번호 보기"
+                onClick={() => setShowCheckPassword(!showCheckPassword)}
+                css={eyeIconStyle}
+              />
+            </div>
             {passwordCheckError && (
               <span css={errorMsgStyle}>{passwordCheckError}</span>
             )}
@@ -443,9 +475,9 @@ const RegisterForm = () => {
           </div>
           <div css={bottomRowStyle}>
             <span css={checkIdStyle}>이미 계정이 있으신가요?&nbsp;</span>
-            <a href="/login" css={loginLinkStyle}>
+            <Link to="/login" css={loginLinkStyle}>
               로그인
-            </a>
+            </Link>
             <button
               type="submit"
               css={submitButtonStyle}
@@ -506,6 +538,10 @@ const requiredStyle = css`
   font-family: 'NanumSquareR', sans-serif;
 `;
 
+const passwordBoxStyle = css`
+  position: relative;
+`;
+
 const inputRowStyle = css`
   display: flex;
   flex-direction: column;
@@ -514,17 +550,56 @@ const inputRowStyle = css`
 
 const inputStyle = css`
   height: 44px;
+  width: 100%;
   border: 1px solid var(--color-gray-200);
   border-radius: 8px;
   padding: 0 14px;
   font-size: 15px;
   font-family: 'NanumSquareR', sans-serif;
-  background: var(--color-gray-100);
+  background: #ffffffff;
   outline: none;
   &:focus {
     border-color: var(--color-primary);
     background: var(--color-bg-white);
   }
+`;
+
+const emailInputStyle = css`
+  height: 44px;
+  width: 225px;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 8px;
+  padding: 0 14px;
+  font-size: 15px;
+  font-family: 'NanumSquareR', sans-serif;
+  background: #ffffffff;
+  outline: none;
+  &:focus {
+    border-color: var(--color-primary);
+    background: var(--color-bg-white);
+  }
+`;
+
+const nicknameInputStyle = css`
+  height: 44px;
+  width: 320px;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 8px;
+  padding: 0 14px;
+  margin-right: 15px;
+  font-size: 15px;
+  font-family: 'NanumSquareR', sans-serif;
+  background: #ffffffff;
+  outline: none;
+  &:focus {
+    border-color: var(--color-primary);
+    background: var(--color-bg-white);
+  }
+`;
+
+const inputWithButtonStyle = css`
+  gap: 10px;
+  align-items: center;
 `;
 
 const profileImageWrapperStyle = css`
@@ -586,15 +661,13 @@ const loginLinkStyle = css`
 const submitButtonStyle = css`
   margin-left: auto;
   background: var(--color-primary);
-  color: var(--color-text-white);
+  color: white;
+  padding: 0.75rem;
+  font-family: 'NanumSquareR';
   border: none;
   border-radius: 8px;
-  padding: 10px 24px;
-  font-size: 16px;
-  font-family: 'NanumSquareB', sans-serif;
-  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  width: 80px;
   &:hover {
     background: var(--color-primary-dark);
   }
@@ -615,23 +688,36 @@ const errorMsgStyle = css`
   display: block;
 `;
 
-const inputWithButtonStyle = css`
-  display: flex;
-  gap: 10px;
-  align-items: center;
-`;
-
 const checkButtonStyle = css`
   background: var(--color-primary);
-  color: var(--color-text-white);
+  color: white;
+  padding: 0.75rem;
+  margin-left: 15px;
+  font-family: 'NanumSquareR';
   border: none;
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 13px;
-  font-family: 'NanumSquareB', sans-serif;
+  border-radius: 8px;
   cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.2s;
+  width: 80px;
+
+  &:hover:not(:disabled) {
+    background: var(--color-primary-dark);
+  }
+
+  &:disabled {
+    background: var(--color-gray-300);
+    cursor: not-allowed;
+  }
+`;
+
+const checkNickButtonStyle = css`
+  background: var(--color-primary);
+  color: white;
+  padding: 0.75rem;
+  font-family: 'NanumSquareR';
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 80px;
 
   &:hover:not(:disabled) {
     background: var(--color-primary-dark);
@@ -645,7 +731,7 @@ const checkButtonStyle = css`
 
 const checkedButtonStyle = css`
   background: var(--color-green) !important;
-
+  pointer-events: none;
   &:hover {
     background: var(--color-green) !important;
   }
@@ -653,8 +739,23 @@ const checkedButtonStyle = css`
 
 const verifiedButtonStyle = css`
   background: var(--color-primary) !important;
-
+  pointer-events: none;
   &:hover {
     background: var(--color-primary-dark) !important;
+  }
+`;
+
+const eyeIconStyle = css`
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  opacity: 0.6;
+
+  &:hover {
+    opacity: 1;
   }
 `;

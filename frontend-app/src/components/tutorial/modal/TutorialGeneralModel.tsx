@@ -99,40 +99,42 @@ const overlayStyle = css`
 
 const modalStyle = css`
   background: #fff;
-  width: 600px;
-  min-height: 400px;
+  width: clamp(320px, 90vw, 600px);
+  min-height: clamp(300px, 60vh, 450px);
   border-radius: 24px;
-  padding: 2.5rem 3rem;
+  padding: clamp(1.5rem, 4vw, 3rem);
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
 
   h3 {
-    font-size: 26px;
+    font-size: clamp(20px, 4vw, 26px);
     font-family: 'NanumSquareEB';
-    margin-top: 1rem;
-    margin-bottom: 2.5rem;
+    margin: 1rem 0 3rem;
   }
 
   p {
-    font-size: 18px;
-    margin-top: 0.5rem;
-    line-height: 1.8;
+    font-size: clamp(14px, 1.8vw, 18px);
+    line-height: 1.7;
     color: var(--color-gray-600);
+    margin: 0.5rem 0 0;
+  }
+
+  .status-text.success,
+  .status-text.fail {
+    font-family: 'NanumSquareEB';
+    font-size: clamp(16px, 2vw, 20px);
+    margin-bottom: 0.5rem;
   }
 
   .status-text.success {
     color: #10b981;
-    font-family: 'NanumSquareEB';
-    font-size: 20px;
-    margin-bottom: 0.5rem;
   }
+
   .status-text.fail {
     color: #ef4444;
-    font-family: 'NanumSquareEB';
-    font-size: 20px;
-    margin-bottom: 0.5rem;
   }
 `;
 
@@ -189,11 +191,12 @@ const contentRow = css`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 2rem;
-`;
+  gap: clamp(1rem, 4vw, 2rem);
+  flex-wrap: wrap;
 
-const textCol = css`
-  text-align: left;
+  @media (max-width: 900px) {
+    flex-direction: column;
+  }
 `;
 
 const iconWrapper = css`
@@ -201,48 +204,44 @@ const iconWrapper = css`
   display: inline-block;
 
   img {
-    width: 150px;
-    height: 140px;
-    margin-right: 2.5rem;
+    width: clamp(100px, 30vw, 150px);
+    height: auto;
+    margin-right: 0;
+    @media (max-width: 900px) {
+      margin: 0 auto;
+    }
   }
+`;
 
-  .status {
-    position: absolute;
-    bottom: -6px;
-    right: -6px;
-    font-size: 18px;
-    font-weight: bold;
-    border-radius: 50%;
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-  }
-  .status.success {
-    background: #10b981;
-  }
-  .status.fail {
-    background: #ef4444;
+const textCol = css`
+  text-align: left;
+
+  @media (max-width: 900px) {
+    text-align: center;
   }
 `;
 
 const buttonGroup = css`
-  margin-top: 3rem;
+  margin-top: clamp(2rem, 5vh, 3rem);
   display: flex;
   justify-content: center;
-  gap: 1.7rem;
+  flex-wrap: wrap;
+  gap: clamp(0.8rem, 2vw, 1.7rem);
 
   button {
-    padding: 0.8rem 1.7rem;
+    padding: clamp(10px, 1.2vw, 14px) clamp(18px, 4vw, 28px);
     border-radius: 30px;
     border: none;
-    font-size: 15px;
+    font-size: clamp(14px, 1.5vw, 16px);
     font-family: 'NanumSquareEB';
     cursor: pointer;
     transition: background 0.2s ease;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
+
+    @media (max-width: 600px) {
+      width: 100%;
+      max-width: 300px;
+    }
   }
 
   .disabled {

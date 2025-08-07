@@ -1,15 +1,19 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useState } from 'react';
+import { use, useState } from 'react';
 import VoidaLogo from '@/assets/logo/voida-logo.png';
-import ProfileImage from '@/assets/profiles/profile1.png';
 import { useNavigate } from 'react-router-dom';
 import { User, LogOut } from 'lucide-react';
+import { logout } from '@/apis/auth/authApi';
+import {useAuthStore} from '@/store/authStore';
 
 export default function Header() {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-
+  const user = useAuthStore((state) => state.user);
+  console.log('user', user);
+  const ProfileImage = user?.profileImage 
+  const ProfileName = user?.nickname || '사용자';
   const handleLogoClick = () => {
     navigate('/main');
   };
@@ -23,11 +27,13 @@ export default function Header() {
     setIsOpen(false);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     const confirmLogout = window.confirm('로그아웃 하시겠습니까?');
     if (confirmLogout) {
+      await logout();
+      console.log('로그아웃 성공');
       localStorage.removeItem('accessToken');
-      // navigate('/login');
+      navigate('/login');
     }
   };
 
@@ -43,7 +49,7 @@ export default function Header() {
         <div css={userInfoStyle} onClick={toggleMenu}>
           <img src={ProfileImage} alt="프로필 이미지" css={avatarStyle} />
           <span>
-            <span css={{ fontFamily: 'NanumSquareEB' }}>진모리</span> 님
+            <span css={{ fontFamily: 'NanumSquareEB' }}>{ProfileName}</span> 님
           </span>
         </div>
 
@@ -51,7 +57,7 @@ export default function Header() {
           <div css={dropdownMenu}>
             <img src={ProfileImage} alt="프로필" css={dropdownAvatar} />
             <div css={dropdownTitle}>
-              <strong>진모리</strong> 님, 안녕하세요!
+              <strong>{ProfileName}</strong> 님, 안녕하세요!
             </div>
             <hr css={divider} />
             <button css={menuButton} onClick={handleEditProfile}>
@@ -74,11 +80,38 @@ const headerContainer = css`
   align-items: center;
   padding: 1.5rem 2rem;
   position: relative;
+  background-color: transparent !important;
+
+  @media (max-width: 1200px) {
+    padding: 1.2rem 1.5rem;
+  }
+
+  @media (max-width: 900px) {
+    padding: 1rem 1.2rem;
+  }
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
 `;
 
 const logo = css`
   width: 130px;
   cursor: pointer;
+
+  @media (max-width: 1200px) {
+    width: 110px;
+  }
+
+  @media (max-width: 900px) {
+    width: 100px;
+  }
+
+  @media (max-width: 600px) {
+    width: 90px;
+  }
 `;
 
 const userSection = css`
@@ -93,6 +126,18 @@ const userInfoStyle = css`
   font-family: 'NanumSquareB';
   color: #333;
   cursor: pointer;
+
+  @media (max-width: 1200px) {
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 900px) {
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 0.8rem;
+  }
 `;
 
 const avatarStyle = css`
@@ -100,6 +145,21 @@ const avatarStyle = css`
   height: 50px;
   border-radius: 50%;
   object-fit: cover;
+
+  @media (max-width: 1200px) {
+    width: 44px;
+    height: 44px;
+  }
+
+  @media (max-width: 900px) {
+    width: 40px;
+    height: 40px;
+  }
+
+  @media (max-width: 600px) {
+    width: 36px;
+    height: 36px;
+  }
 `;
 
 const dropdownMenu = css`
@@ -115,6 +175,11 @@ const dropdownMenu = css`
   flex-direction: column;
   align-items: center;
   z-index: 10;
+
+  @media (max-width: 600px) {
+    width: 180px;
+    padding: 16px;
+  }
 `;
 
 const dropdownAvatar = css`
@@ -123,11 +188,20 @@ const dropdownAvatar = css`
   border-radius: 50%;
   object-fit: cover;
   margin-bottom: 16px;
+
+  @media (max-width: 600px) {
+    width: 50px;
+    height: 50px;
+  }
 `;
 
 const dropdownTitle = css`
   font-size: 16px;
   text-align: center;
+
+  @media (max-width: 600px) {
+    font-size: 14px;
+  }
 `;
 
 const divider = css`
