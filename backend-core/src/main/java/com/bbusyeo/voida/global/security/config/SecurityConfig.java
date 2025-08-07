@@ -49,6 +49,7 @@ public class SecurityConfig {
     private final CustomOauth2UserService customOauth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final OAuthProperties oAuthProperties;
+    private final OAuth2FailureHandler oAuth2FailureHandler;
 
     // SecurityFilterChain : HTTP 요청에 대한 보안 설정
     // 필터를 통해 (인증) 방식과 절차에 대한 설정 수행
@@ -82,6 +83,7 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfo -> userInfo          // Provider 로부터 획득한 유저정보를 다룰 service class를 지정
                                 .userService(customOauth2UserService))  // OAuth2 로그인 성공 시 후속 조치를 처리
                         .successHandler(oAuth2SuccessHandler)           // OAuth2 로그인 성공 시 호출되는 handler
+                        .failureHandler(oAuth2FailureHandler)
                 )
 
                 // (4) JWT Filter 등록
