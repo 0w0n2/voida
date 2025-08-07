@@ -1,6 +1,7 @@
 package com.bbusyeo.voida.api.member.service;
 
 import com.bbusyeo.voida.api.member.domain.Member;
+import com.bbusyeo.voida.api.member.dto.MeProfileResponseDto;
 import com.bbusyeo.voida.api.member.repository.MemberRepository;
 import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
@@ -21,7 +22,10 @@ public class MyPageServiceImpl implements MyPageService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
         member.changeIsNewbie(false);
-    };
+    }
 
-
+    @Override
+    public MeProfileResponseDto getMeProfile(Member member) {
+        return MeProfileResponseDto.toDto(member);
+    }
 }
