@@ -11,4 +11,5 @@ public class OAuthProperties {
     String authorizationEndpoint;
     String redirectionEndpoint;
     String clientEndpoint;
+    String clientEndpointFail;
 }
