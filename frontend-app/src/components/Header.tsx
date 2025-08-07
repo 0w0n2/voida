@@ -11,7 +11,7 @@ export default function Header() {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
-  console.log('user', user);
+  // console.log('user', user);
   const ProfileImage = user?.profileImage 
   const ProfileName = user?.nickname || '사용자';
   const handleLogoClick = () => {

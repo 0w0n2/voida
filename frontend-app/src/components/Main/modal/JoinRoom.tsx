@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { X, ArrowRight, Plus } from 'lucide-react';
 import CreateRoomModal from '@/components/main/modal/CreateRoom';
 import { verifyInviteCode } from '@/apis/meeting-room/meetingRoomApi';
-import { on } from 'events';
 
 interface JoinRoomModalProps {
   onClose: () => void;
@@ -67,8 +66,15 @@ const JoinRoomModal = ({ onClose }: JoinRoomModalProps) => {
 
   const handleEnter = async () => {
     const inviteCode = codeValues.join('');
+
     try {
-      await verifyInviteCode(inviteCode);
+      const res = await verifyInviteCode(inviteCode);
+
+      if (!res.isSuccess) {
+        alert('유효하지 않은 초대코드입니다.');
+        return;
+      }
+
       onClose();
       navigate('/main');
     } catch (error) {
