@@ -346,7 +346,7 @@ const footerStyle = css`
 `;
 
 const linkBoxStyle = css`
-  font-size: 0.8rem;
+  font-size: 14px;
   color: #888;
 
   a {
