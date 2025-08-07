@@ -2,9 +2,9 @@
 import { css } from '@emotion/react';
 import { useState } from 'react';
 import { Settings, Users, AlertTriangle, X } from 'lucide-react';
-import SettingRoom from '@/components/meeting-room/modal/SettingRoom';
-import MemberRoom from '@/components/meeting-room/modal/MemberRoom';
-import DeleteRoom from '@/components/meeting-room/modal/DeleteRoom';
+import SettingRoom from '@/components/meeting-room/modal/Setting/SettingRoom';
+import MemberRoom from '@/components/meeting-room/modal/Setting/MemberRoom';
+import DeleteRoom from '@/components/meeting-room/modal/Setting/DeleteRoom';
 
 type SettingModalProps = {
   onClose: () => void;
@@ -23,7 +23,7 @@ const SettingModal = ({ onClose }: SettingModalProps) => {
             <Settings size={18} style={{ marginTop: 3}} /> 일반 설정
           </button>
           <button className={activeTab === 'members' ? 'active' : ''} onClick={() => setActiveTab('members')}>
-            <Users size={18} style={{ marginTop: 4}} /> 멤버 관리
+            <Users size={18} style={{ marginTop: 4}} /> 참여자 관리
           </button>
           <button className={activeTab === 'danger' ? 'active' : ''} onClick={() => setActiveTab('danger')}>
             <AlertTriangle size={18} style={{ marginTop: 2}} /> 방 삭제

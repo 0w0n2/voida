@@ -31,7 +31,7 @@ const MemberRoom = () => {
         {participants?.participants.map((user) => (
           <div
             key={user.memberId}
-            css={[memberCard, user.isMine && myCardStyle]}
+            css={[memberCard, user.mine && myCardStyle]}
           >
             <div css={profileArea}>
               <img
@@ -58,7 +58,7 @@ const MemberRoom = () => {
               </div>
             </div>
 
-            {!user.isMine && user.state !== 'HOST' && (
+            {!user.mine && user.state !== 'HOST' && (
               <div css={buttonArea}>
                 <button
                   css={changeRoleButton}

@@ -18,7 +18,7 @@ export type Participant = {
   profileImageUrl?: Blob;
   state: 'HOST' | 'PARTICIPANT';
   lipTalkMode: boolean;
-  isMine: boolean;
+  mine: boolean;
 };
 
 export type ChatMessage = {
@@ -27,7 +27,7 @@ export type ChatMessage = {
   profileImageUrl: Blob;
   content: string;
   createdAt: string;
-  isMine: boolean;
+  mine: boolean;
 };
 
 export type ChatHistoryResponse = {
@@ -62,6 +62,7 @@ export const getRoomInfo = async (meetingRoomId: string): Promise<RoomInfo> => {
 // 방 참여자 조회
 export const getRoomMembers = async (meetingRoomId: string): Promise<RoomParticipant> => {
   const res = await apiInstance.get(`/v1/meeting-rooms/${meetingRoomId}/members`);
+  console.log(res);
   return res.data.result;
 };
 
@@ -90,7 +91,8 @@ export const deleteRoom = async (meetingRoomId: string): Promise<void> => {
 
 // 방 탈퇴하기 (일반 사용자만)
 export const leaveRoom = async (meetingRoomId: string): Promise<void> => {
-  await apiInstance.delete(`/v1/meeting-rooms/${meetingRoomId}/leave`);
+  console.log('meetingRoomId', meetingRoomId);
+  await apiInstance.delete(`/v1/meeting-rooms/${meetingRoomId}/participants`);
 };
 
 // 방장 위임 (방장만)
@@ -147,7 +149,7 @@ export const getRooms = async (): Promise<MeetingRoom[]> => {
   // 하드코딩된 테스트 데이터
   return [
     {
-      meetingRoomId: '18',
+      meetingRoomId: '23',
       title: '테스트 회의방',
       category: 'game',
       memberCount: 3,
@@ -206,6 +208,7 @@ export const createRoom = async (
     formData.append("thumbnailImageUrl", thumbnailImageUrl);
   }
   const res = await apiInstance.post('/v1/meeting-rooms', formData);
+  console.log(res.data);
   return res.data.result;
 };
 

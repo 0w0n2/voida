@@ -294,8 +294,9 @@ const headerRow = css`
   margin-bottom: 16px;
 
   h2 {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
+    margin-bottom: 8px;
   }
 `;
 

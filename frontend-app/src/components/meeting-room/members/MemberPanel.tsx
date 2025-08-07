@@ -3,8 +3,8 @@ import { css } from '@emotion/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMeetingRoomStore } from '@/store/meetingRoomStore';
-import SettingModal from '@/components/meeting-room/modal/SettingModal';
-import InfoModal from '@/components/meeting-room/modal/InfoModal';
+import SettingModal from '@/components/meeting-room/modal/Setting/SettingModal';
+import InfoModal from '@/components/meeting-room/modal/Info/InfoModal';
 import Lip from '@/assets/icons/lip-blue.png';
 import Setting from '@/assets/icons/room-setting.png';
 import Info from '@/assets/icons/info.png';
@@ -16,9 +16,8 @@ const MemberPanel = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   const memberList = participants?.participants ?? [];
-  // const myInfo = memberList.find((p) => p.isMine);
-  const myInfo = memberList[0];
-  const isHost = myInfo?.state === 'HOST';
+  const myInfo = memberList.find((p) => p.mine);
+  const isHost = myInfo ? myInfo.state === 'HOST' : false;
 
   return (
     <aside css={panelStyle}>
@@ -42,7 +41,6 @@ const MemberPanel = () => {
             ) : (
               <InfoModal onClose={() => setIsModalOpen(false)} />
             ))}
-
           <div css={iconWrapper} onClick={() => navigate('/main')}>
             <img src={Home} alt="홈" css={iconStyle} />
             <span css={tooltip}>홈으로</span>
@@ -52,7 +50,7 @@ const MemberPanel = () => {
 
       <div css={listStyle}>
         {memberList.map((p) => (
-          <div key={p.memberId} css={[cardStyle, p.isMine && myCardStyle]}>
+          <div key={p.memberId} css={[cardStyle, p.mine && myCardStyle]}>
             <div css={avatarWrapper}>
               <img
                 src={`${import.meta.env.VITE_CDN_URL}${p.profileImageUrl}`}
@@ -234,8 +232,8 @@ const cardStyle = css`
 `;
 
 const myCardStyle = css`
-  background: #eef6ff;
-  border: 1px solid #d0e2ff;
+  background: linear-gradient(135deg, #eaf4ff 40%, #f3edff 70%, #e5dfff 100%);
+  border: 1px solid #f3edff;
 `;
 
 const avatarStyle = css`
