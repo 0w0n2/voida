@@ -96,20 +96,22 @@ export const leaveRoom = async (meetingRoomId: string): Promise<void> => {
 // 방장 위임 (방장만)
 export const delegateHost = async (
   meetingRoomId: string,
-  targetId: string,
+  memberUuid: string,
 ): Promise<void> => {
-  await apiInstance.put(`/v1/meeting-rooms/${meetingRoomId}/host`, {
-    targetId,
-  });
+  console.log('memberUuid', memberUuid);
+  console.log('meetingRoomId', meetingRoomId);
+  // await apiInstance.put(`/v1/meeting-rooms/${meetingRoomId}/host`, {
+  //   memberUuid,
+  // });
 };
 
 // 참여자 강퇴 (방장만)
 export const kickMember = async (
   meetingRoomId: string,
-  targetId: string,
+  kickMemberUuid: string,
 ): Promise<void> => {
-  await apiInstance.post(`/v1/meeting-rooms/${meetingRoomId}/kick`, {
-    targetId,
+  await apiInstance.delete(`/v1/meeting-rooms/${meetingRoomId}/kick`, {
+    kickMemberUuid,
   });
 };
 
@@ -145,7 +147,7 @@ export const getRooms = async (): Promise<MeetingRoom[]> => {
   // 하드코딩된 테스트 데이터
   return [
     {
-      meetingRoomId: '15',
+      meetingRoomId: '18',
       title: '테스트 회의방',
       category: 'game',
       memberCount: 3,

@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { css, keyframes } from '@emotion/react';
+import { css } from '@emotion/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMeetingRoomStore } from '@/store/meetingRoomStore';
@@ -10,20 +10,6 @@ import Setting from '@/assets/icons/room-setting.png';
 import Info from '@/assets/icons/info.png';
 import Home from '@/assets/icons/home-gray.png';
 import Crown from '@/assets/icons/crown.png';
-
-const pulse = keyframes`
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.4); opacity: 0.4; }
-  100% { transform: scale(1); opacity: 1; }
-`;
-
-const categoryColors: Record<string, string> = {
-  game: '#8e44ad',
-  talk: '#f1c40f',
-  study: '#333333',
-  meeting: '#27ae60',
-  free: '#3498db',
-};
 
 const MemberPanel = () => {
   const { participants, roomInfo } = useMeetingRoomStore();
@@ -78,7 +64,6 @@ const MemberPanel = () => {
                   <img src={Crown} alt="방장" css={crownIcon} />
                 </div>
               )}
-              <div css={activeBadge} />
             </div>
             <div css={infoBox}>
               <div css={nameRow}>
@@ -113,6 +98,14 @@ const MemberPanel = () => {
 };
 
 export default MemberPanel;
+
+const categoryColors: Record<string, string> = {
+  game: '#8e44ad',
+  talk: '#f1c40f',
+  study: '#333333',
+  meeting: '#27ae60',
+  free: '#3498db',
+};
 
 const panelStyle = css`
   width: 450px;
@@ -376,18 +369,6 @@ const lipTooltip = css`
   pointer-events: none;
   transition: all 0.2s ease;
   z-index: 10;
-`;
-
-const activeBadge = css`
-  position: absolute;
-  bottom: -5px;
-  right: -12px;
-  width: 15px;
-  height: 15px;
-  background-color: var(--color-green);
-  border: 2px solid white;
-  border-radius: 50%;
-  animation: ${pulse} 4s infinite;
 `;
 
 const roomInfoBox = css`
