@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class ParticipantInfoDto {
     // 참여자 1명의 상세 정보를 담는 DTO
 
+    private String memberUuid;
     private String nickname;
     private String profileImageUrl;
     private String state;
@@ -25,6 +26,7 @@ public class ParticipantInfoDto {
 
         // todo: lipTalkMode는 member 완성 후 실제 로직으로 변경
         return ParticipantInfoDto.builder()
+                .memberUuid(member.getMemberUuid())
                 .nickname(member.getNickname())
                 .profileImageUrl(member.getProfileImageUrl())
                 .state(memberMeetingRoom.getState().name())
