@@ -173,7 +173,7 @@ const SettingsTab = () => {
             </div>
             <button css={guidebookButtonStyle} onClick={handleGuidebook}>
               <img src={guide} alt="guide" />
-                가이드북 보기
+              가이드북 보기
             </button>
           </div>
         </div>
@@ -345,7 +345,7 @@ const guidebookButtonStyle = css`
   align-items: center;
   gap: 10px;
   padding: 8px 16px;
-  background-color: var(--color-green);
+  background: linear-gradient(90deg, #6e8efb, #a777e3);
   color: var(--color-text-white);
   border: none;
   border-radius: 6px;
