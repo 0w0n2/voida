@@ -59,4 +59,8 @@ public class Member implements Serializable {
     public void changePassword(String encodedPassword) {
         this.password = encodedPassword;
     }
+
+    public void changeIsNewbie(Boolean isNewbie) {
+        this.isNewbie = isNewbie;
+    }
 }

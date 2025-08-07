@@ -20,7 +20,9 @@ public class MyPageController {
     private final MyPageService myPageService;
     
     @PatchMapping("/newbie")
-    public BaseResponse<Void> isNewbie(@AuthenticationPrincipal(expression = "member") Member member) {
+    public BaseResponse<Void> isNewbie(
+            @AuthenticationPrincipal(expression = "member") Member member) {
+        myPageService.updateIsNewbie(member.getId());
         return new BaseResponse<>();
     }
 }
