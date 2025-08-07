@@ -4,13 +4,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.List;
+
 @ToString
 @Getter
 @Builder
 public class MeResponseDto {
     private MeProfileResponseDto member;
     private MeSettingResponseDto setting;
-    private MeQuickSlotsResponseDto quickSlots;
+    private List<MeQuickSlotsResponseDto> quickSlots;
 
     public static MeResponseDto toMeResponseDto(MeProfileResponseDto profileDto) {
         return MeResponseDto.builder()
@@ -24,7 +26,7 @@ public class MeResponseDto {
                 .build();
     }
 
-    public static MeResponseDto toMeResponseDto(MeQuickSlotsResponseDto quickSlotsDto) {
+    public static MeResponseDto toMeResponseDto(List<MeQuickSlotsResponseDto> quickSlotsDto) {
         return MeResponseDto.builder()
                 .quickSlots(quickSlotsDto)
                 .build();

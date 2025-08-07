@@ -40,9 +40,9 @@ public class MyPageController {
         return new BaseResponse<>(MeResponseDto.toMeResponseDto(myPageService.getMeSetting(member.getId())));
     }
 
-//    @GetMapping("/quick-slots")
-//    public BaseResponse<MeResponseDto> getQuickSlots(
-//            @AuthenticationPrincipal(expression = "member") Member member) {
-//        return new BaseResponse<>(MeResponseDto.toMeResponseDto());
-//    }
+    @GetMapping("/quick-slots")
+    public BaseResponse<MeResponseDto> getQuickSlots(
+            @AuthenticationPrincipal(expression = "member") Member member) {
+        return new BaseResponse<>(MeResponseDto.toMeResponseDto(myPageService.getMeQuickSlots(member.getId())));
+    }
 }

@@ -1,5 +1,6 @@
 package com.bbusyeo.voida.api.member.dto;
 
+import com.bbusyeo.voida.api.member.domain.MemberQuickSlot;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -8,4 +9,17 @@ import lombok.ToString;
 @Getter
 @Builder
 public class MeQuickSlotsResponseDto {
+    private Long quickSlotId;
+    private String message;
+    private String hotkey;
+    private String url;
+
+    public static MeQuickSlotsResponseDto toDto(MemberQuickSlot memberQuickSlot) {
+        return MeQuickSlotsResponseDto.builder()
+                .quickSlotId(memberQuickSlot.getId())
+                .message(memberQuickSlot.getMessage())
+                .hotkey(memberQuickSlot.getHotkey())
+                .url(memberQuickSlot.getUrl())
+                .build();
+    }
 }
