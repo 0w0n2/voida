@@ -1,30 +1,17 @@
 /** @jsxImportSource @emotion/react */
-import { css,  Global } from '@emotion/react';
+import { css,  keyframes } from '@emotion/react';
 import { useState } from 'react';
 import { Plus, ArrowRight } from 'lucide-react';
 import mainHome from '@/assets/icons/main-home.png';
 import CreateRoomModal from '@/components/main/modal/CreateRoom';
 import JoinRoomModal from '@/components/main/modal/JoinRoom';
 
-const globalFloatKeyframes = css`
-  @keyframes float1 {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-20px); }
-    100% { transform: translateY(0px); }
-  }
-  @keyframes float2 {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(20px); }
-    100% { transform: translateY(0px); }
-  }
-`;
-
 const NoRoomMainForm = () => {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isJoinOpen, setIsJoinOpen] = useState(false);
 
   return (
-    <div>
+    <div css={mainWrapper}>
       <div css={iconWrapperStyle}>
         <div css={iconContainerStyle}>
           <img src={mainHome} alt="mainHome" css={iconStyle} />
@@ -52,6 +39,7 @@ const NoRoomMainForm = () => {
 
       <div css={blurBg1} />
       <div css={blurBg2} /> 
+      <div css={blurBg3} />
 
       {isCreateOpen && (
         <CreateRoomModal onClose={() => setIsCreateOpen(false)} />
@@ -62,6 +50,14 @@ const NoRoomMainForm = () => {
 };
 
 export default NoRoomMainForm;
+
+const mainWrapper = css`
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  overflow: hidden;
+`;
 
 const iconWrapperStyle = css`
   display: flex;
@@ -154,26 +150,50 @@ const roomButtonStyle = css`
   }
 `;
 
+const float1 = keyframes`
+  0%   { transform: translateY(0px) translateX(0px); }
+  50%  { transform: translateY(-100px) translateX(800px); }
+  100% { transform: translateY(0px) translateX(0px); }
+`;
+
+const float2 = keyframes`
+  0%   { transform: translateY(0px) translateX(0px); }
+  50%  { transform: translateY(100px) translateX(-800px); }
+  100% { transform: translateY(0px) translateX(0px); }
+`;
+
 const blurBg1 = css`
   position: absolute;
-  top: 10%;
-  left: 10%;
-  width: 200px;
-  height: 200px;
+  top: 15%;
+  left: 5%;
+  width: 280px;
+  height: 280px;
   background: radial-gradient(circle, #b69cff, transparent 70%);
   filter: blur(80px);
-  z-index: 0;
-  animation: float1 10s ease-in-out infinite;
+  z-index: -1;
+  animation: ${float1} 30s ease-in-out infinite;
 `;
 
 const blurBg2 = css`
   position: absolute;
-  bottom: 15%;
-  right: 15%;
-  width: 300px;
-  height: 300px;
+  bottom: 10%;
+  right: 10%;
+  width: 380px;
+  height: 380px;
   background: radial-gradient(circle, #82e9ff, transparent 70%);
   filter: blur(100px);
-  z-index: 0;
-  animation: float2 12s ease-in-out infinite;
+  z-index: -1;
+  animation: ${float2} 28s ease-in-out infinite;
+`;
+
+const blurBg3 = css`
+  position: absolute;
+  top: 50%;
+  left: 30%;
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, #ff8fa3, transparent 70%);
+  filter: blur(90px);
+  z-index: -1;
+  animation: ${float1} 24s ease-in-out infinite;
 `;

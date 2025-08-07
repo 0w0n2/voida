@@ -5,7 +5,8 @@ import ChatHeader from './ChatHeader';
 import SendIcon from '@/assets/icons/send.png';
 import ScrollDown from '@/assets/icons/scroll-down.png';
 import { useMeetingRoomStore } from '@/store/meetingRoomStore';
-import { getRoomChatHistory, postChatMessage } from '@/apis/meeting-room/meetingRoomApi';
+import { getRoomChatHistory } from '@/apis/meeting-room/meetingRoomApi';
+import { connectStomp, disconnectStomp, publishMessage } from '@/apis/core/stompClient';
 
 const ChatPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
   const { chatMessages, setChatMessages, addChatMessage } =
@@ -18,23 +19,35 @@ const ChatPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
   const lastMessageId = useRef<string | null>(null);
   const cursorIdRef = useRef<string | null>(null);
 
-useEffect(() => {
-  const loadInitial = async () => {
-    try {
-      const res = await getRoomChatHistory(meetingRoomId);
-      const chatHistory = res?.chatHistory;
-      setChatMessages(chatHistory?.content ?? []);
-      cursorIdRef.current = chatHistory?.cursorId ?? null;
-      setHasMore(chatHistory?.hasNext ?? false);
-    } catch (error) {
-      console.error('채팅 기록 초기 로딩 실패:', error);
-      setChatMessages([]);
-      setHasMore(false);
-    }
-  };
+  useEffect(() => {
+    connectStomp(meetingRoomId, (msg) => {
+      addChatMessage({ ...msg, isMine: false });
+    });
 
-  loadInitial();
-}, [meetingRoomId, setChatMessages]);
+    return () => {
+      disconnectStomp();
+    };
+  }, [meetingRoomId, addChatMessage]);
+
+  useEffect(() => {
+    const loadInitial = async () => {
+      try {
+        const res = await getRoomChatHistory(meetingRoomId);
+        const chatHistory = res?.chatHistory;
+        setChatMessages(chatHistory?.content ?? []);
+
+        cursorIdRef.current = chatHistory?.cursorId ?? null;
+        setHasMore(chatHistory?.hasNext ?? false);
+        
+      } catch (error) {
+        console.error('채팅 기록 초기 로딩 실패:', error);
+        setChatMessages([]);
+        setHasMore(false);
+      }
+    };
+
+    loadInitial();
+  }, [meetingRoomId, setChatMessages]);
 
   const fetchOldMessages = async () => {
     if (loading || !hasMore || !chatBoxRef.current) return;
@@ -84,7 +97,6 @@ useEffect(() => {
     }
   };
 
-  // 새 메시지가 도착하면 스크롤 처리
   useEffect(() => {
     if (loading || !chatBoxRef.current) return;
 
@@ -97,10 +109,11 @@ useEffect(() => {
     lastMessageId.current = lastMessage?.createdAt ?? null;
   }, [chatMessages, loading]);
 
-  const handleSend = async () => {
+  const handleSend = () => {
     if (!input.trim()) return;
 
-    await postChatMessage(meetingRoomId, input);
+    publishMessage(meetingRoomId, input); 
+
     addChatMessage({
       senderId: 'me',
       writerNickname: '나',
@@ -109,6 +122,7 @@ useEffect(() => {
       createdAt: new Date().toISOString(),
       isMine: true,
     });
+
     setInput('');
   };
 

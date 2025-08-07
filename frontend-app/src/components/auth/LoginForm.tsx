@@ -2,6 +2,7 @@
 import { css } from '@emotion/react';
 import { useState } from 'react';
 import { AxiosError } from 'axios';
+import { useNavigate, Link } from 'react-router-dom';
 import { login } from '@/apis/auth/authApi';
 import { getUser } from '@/apis/auth/userApi';
 import VoidaLogo from '@/assets/logo/voida-logo.png';
@@ -9,8 +10,6 @@ import GoogleLogo from '@/assets/icons/google-logo.png';
 import EyeIcon from '@/assets/icons/eye.png';
 import EyeCloseIcon from '@/assets/icons/crossed-eye.png';
 import { useAuthStore, type User } from '@/store/authStore';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -107,6 +106,8 @@ const LoginForm = () => {
 
       // 유저 정보 저장
       setAuth(accessToken, user);
+      // const { user } = res.data;
+      // setAuth(accessToken, user);
       localStorage.setItem('accessToken', accessToken);
       if (isNewbie) {
         navigate('/tutorial');
@@ -116,7 +117,6 @@ const LoginForm = () => {
       setPasswordError('비밀번호가 일치하지 않습니다.');
     } catch (err) {
       const axiosError = err as AxiosError<{ message: string }>;
-
       setError(axiosError.response?.data?.message || '로그인 실패');
     }
   };
@@ -177,7 +177,9 @@ const LoginForm = () => {
       <div css={footerStyle}>
         <div css={linkBoxStyle}>
           <Link to="/register">회원가입</Link>
+          <Link to="/register">회원가입</Link>
           <span>|</span>
+          <Link to="/forgot">비밀번호 찾기</Link>
           <Link to="/forgot">비밀번호 찾기</Link>
         </div>
         <button type="submit" css={loginBtnStyle}>
