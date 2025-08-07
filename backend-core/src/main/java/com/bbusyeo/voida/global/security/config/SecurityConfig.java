@@ -34,7 +34,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
  */
 @Configuration
 @EnableWebSecurity
-@EnableConfigurationProperties({SecurityWhitelistProperties.class, CorsProperties.class})
+@EnableConfigurationProperties({SecurityWhitelistProperties.class, CorsProperties.class, OAuthProperties.class})
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -48,6 +48,7 @@ public class SecurityConfig {
     private final CorsProperties corsProperties;
     private final CustomOauth2UserService customOauth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final OAuthProperties oAuthProperties;
 
     // SecurityFilterChain : HTTP 요청에 대한 보안 설정
     // 필터를 통해 (인증) 방식과 절차에 대한 설정 수행
@@ -74,10 +75,9 @@ public class SecurityConfig {
                 // (3) OAuth2 로그인 설정
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(endpoint -> endpoint     // 인가 URI: 사용자가 구글 로그인 페이지로 리다이렉트될 때 쓰는 엔드포인트
-                                .baseUri("/oauth2/authorization"))
-                                //.baseUri("/v1/auth/social/redirect/"))
+                                .baseUri(oAuthProperties.getAuthorizationEndpoint()))
                         .redirectionEndpoint(endpoint -> endpoint       // 콜백 URI: 구글이 code를 돌려줄 때 호출되는 엔드포인트
-                                .baseUri("/login/oauth2/code/*")
+                                .baseUri(oAuthProperties.getRedirectionEndpoint())
                         )
                         .userInfoEndpoint(userInfo -> userInfo          // Provider 로부터 획득한 유저정보를 다룰 service class를 지정
                                 .userService(customOauth2UserService))  // OAuth2 로그인 성공 시 후속 조치를 처리

@@ -24,7 +24,7 @@ public class GuestOAuth2UserDtoSuccessHandlerStrategy implements OAuth2SuccessHa
 
     private final SocialSignUpService socialSignUpService;
 
-    @Value("${security.oauth.client.redirect-uri}")
+    @Value("${security.oauth.client-endpoint}")
     private String redirectUri;
 
     @Override

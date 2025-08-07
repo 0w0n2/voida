@@ -27,7 +27,7 @@ public class UserDetailsDtoSuccessHandlerStrategy implements OAuth2SuccessHandle
 
     private final TokenAuthService tokenAuthService;
 
-    @Value("${security.oauth.client.redirect-uri}")
+    @Value("${security.oauth.client-endpoint}")
     private String redirectUri;
 
     @Override

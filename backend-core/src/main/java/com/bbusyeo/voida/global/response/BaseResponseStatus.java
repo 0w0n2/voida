@@ -72,7 +72,6 @@ public enum BaseResponseStatus {
      * 1000: 소셜 에러.
      */
     UNSUPPORTED_SOCIAL_PROVIDER(HttpStatus.BAD_REQUEST, false, 1000, "지원하지 않는 소셜 로그인 타입입니다."),
-    SOCIAL_NEED_SIGNUP(HttpStatus.OK, true, 1001, "최초 로그인 사용자입니다. 회원가입을 진행해주세요."),
     EXPIRED_SOCIAL_SIGNUP(HttpStatus.NOT_FOUND, false, 1002, "회원가입 시간이 만료되었습니다. 다시 시도해주세요."),
     ALREADY_REGISTERED_EMAIL(HttpStatus.CONFLICT, false, 1003, "이미 가입된 계정입니다. 이메일 로그인 방식을 사용해주세요.");
 
