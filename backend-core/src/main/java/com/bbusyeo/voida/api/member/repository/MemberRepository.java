@@ -2,6 +2,8 @@ package com.bbusyeo.voida.api.member.repository;
 
 import com.bbusyeo.voida.api.member.domain.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.querydsl.binding.QuerydslPredicate;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,5 +20,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> { // <ì—”í
     boolean existsByMemberUuid(String memberUuid);
 
     boolean existsByEmail(String email);
-
+    
 }
