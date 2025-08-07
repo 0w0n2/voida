@@ -1,7 +1,11 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { X, ArrowRight, Plus } from 'lucide-react';
+import CreateRoomModal from '@/components/main/modal/CreateRoom';
+import { verifyInviteCode } from '@/apis/meeting-room/meetingRoomApi';
+import { on } from 'events';
 
 interface JoinRoomModalProps {
   onClose: () => void;
@@ -9,21 +13,67 @@ interface JoinRoomModalProps {
 
 const JoinRoomModal = ({ onClose }: JoinRoomModalProps) => {
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
+  const [codeValues, setCodeValues] = useState<string[]>(Array(9).fill(''));
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleInput = (e: React.FormEvent<HTMLInputElement>, index: number) => {
-    const value = e.currentTarget.value;
+    const input = e.currentTarget;
+    const value = input.value.toUpperCase();
+    input.value = value;
+
+    setCodeValues((prev) => {
+      const updated = [...prev];
+      updated[index] = value;
+      return updated;
+    });
 
     if (value.length === 1 && index < 8) {
       inputsRef.current[index + 1]?.focus();
     }
+  };
 
-    if (
-      value.length === 0 &&
-      index > 0 &&
-      e.nativeEvent instanceof InputEvent &&
-      e.nativeEvent.inputType === 'deleteContentBackward'
-    ) {
-      inputsRef.current[index - 1]?.focus();
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (e.key === 'Backspace') {
+      const input = e.currentTarget;
+      if (input.value === '') {
+        if (index > 0) {
+          const prevInput = inputsRef.current[index - 1];
+          if (prevInput) {
+            prevInput.value = '';
+            prevInput.focus();
+            setCodeValues((prev) => {
+              const updated = [...prev];
+              updated[index - 1] = '';
+              return updated;
+            });
+          }
+        }
+      } else {
+        setCodeValues((prev) => {
+          const updated = [...prev];
+          updated[index] = '';
+          return updated;
+        });
+      }
+    }
+  };
+
+  const isCodeComplete = codeValues.every((v) => v.trim() !== '');
+
+  const handleCreate = () => {
+    setIsCreateModalOpen(true);
+  };
+
+  const handleEnter = async () => {
+    const inviteCode = codeValues.join('');
+    try {
+      await verifyInviteCode(inviteCode);
+      onClose();
+      navigate('/main');
+    } catch (error) {
+      console.error('초대코드 검증 실패:', error);
+      alert('유효하지 않은 초대코드입니다.');
     }
   };
 
@@ -48,18 +98,27 @@ const JoinRoomModal = ({ onClose }: JoinRoomModalProps) => {
               css={codeBox}
               type="text"
               onInput={(e) => handleInput(e, i)}
-              ref={(el) => (inputsRef.current[i] = el)}
+              onKeyDown={(e) => handleKeyDown(e, i)}
+              ref={(el: HTMLInputElement | null) => {
+                inputsRef.current[i] = el;
+              }}
             />
           ))}
         </div>
 
-        <button css={joinButtonStyle}>
+        <button
+          css={[joinButtonStyle, !isCodeComplete && disabledStyle]}
+          disabled={!isCodeComplete}
+          onClick={handleEnter}
+        >
           <ArrowRight size={30} />방 입장하기
         </button>
 
-        <button css={createLinkButtonStyle}>
+        <button css={createLinkButtonStyle} onClick={handleCreate}>
           <Plus size={30} />방 생성하기
         </button>
+
+        {isCreateModalOpen && <CreateRoomModal onClose={() => setIsCreateModalOpen(false)} />}
       </div>
     </div>
   );
@@ -129,6 +188,7 @@ const codeBox = css`
   font-size: 24px;
   border: 1px solid #ccc;
   border-radius: 8px;
+  text-transform: uppercase;
 `;
 
 const joinButtonStyle = css`
@@ -138,7 +198,6 @@ const joinButtonStyle = css`
   border-radius: 8px;
   font-size: 18px;
   font-family: 'NanumSquareB';
-  cursor: pointer;
   background: var(--color-primary);
   color: white;
   display: flex;
@@ -147,10 +206,18 @@ const joinButtonStyle = css`
   gap: 10px;
   align-self: center;
   width: auto;
+  cursor: pointer;
+  transition: background 0.2s;
 
   &:hover {
     background: var(--color-primary-dark);
   }
+`;
+
+const disabledStyle = css`
+  background: var(--color-gray-100) !important;
+  color: var(--color-text) !important;
+  cursor: not-allowed !important;
 `;
 
 const createLinkButtonStyle = css`

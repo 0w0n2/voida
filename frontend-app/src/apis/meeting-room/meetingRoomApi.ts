@@ -1,9 +1,10 @@
 import apiInstance from '@/apis/core/apiInstance';
 
 export type RoomInfo = {
+  meetingRoomId: string;
   title: string;
   category: string;
-  thumbnailImageUrl: string;
+  thumbnailImageUrl: Blob;
 };
 
 export type RoomParticipant = {
@@ -14,19 +15,19 @@ export type RoomParticipant = {
 export type Participant = {
   memberId: number;
   nickname: string;
-  profileImageUrl?: string;
+  profileImageUrl?: Blob;
   state: 'HOST' | 'PARTICIPANT';
   lipTalkMode: boolean;
-  isMine: boolean;
+  mine: boolean;
 };
 
 export type ChatMessage = {
   senderId: string;
   writerNickname: string;
-  profileImageUrl: string;
+  profileImageUrl: Blob;
   content: string;
   createdAt: string;
-  isMine: boolean;
+  mine: boolean;
 };
 
 export type ChatHistoryResponse = {
@@ -45,28 +46,42 @@ export interface MeetingRoom {
   thumbnailImageUrl: string;
 }
 
+export interface CreateRoomRequest {
+  meetingRoomId: string;
+  title: string;
+  category: string;
+  thumbnailImageUrl: Blob | File | null;
+}
+
 // 방 정보 조회
 export const getRoomInfo = async (meetingRoomId: string): Promise<RoomInfo> => {
   const res = await apiInstance.get(`/v1/meeting-rooms/${meetingRoomId}`);
-  return res.data;
+  return res.data.result;
 };
 
 // 방 참여자 조회
-export const getRoomMembers = async (
-  meetingRoomId: string,
-): Promise<RoomParticipant[]> => {
-  const res = await apiInstance.get(
-    `/v1/meeting-rooms/${meetingRoomId}/members`,
-  );
-  return res.data;
+export const getRoomMembers = async (meetingRoomId: string): Promise<RoomParticipant> => {
+  const res = await apiInstance.get(`/v1/meeting-rooms/${meetingRoomId}/members`);
+  console.log(res);
+  return res.data.result;
 };
 
 // 방 정보 수정 (방장만)
 export const updateRoomInfo = async (
   meetingRoomId: string,
   data: Partial<RoomInfo>,
-): Promise<void> => {
-  await apiInstance.put(`/v1/meeting-rooms/${meetingRoomId}/settings`, data);
+): Promise<RoomInfo> => {
+  const formData = new FormData();
+  const { title, category, thumbnailImageUrl } = data;
+  const requestDto = { title, category };
+  const jsonBlob = new Blob([JSON.stringify(requestDto)], { type: 'application/json' });
+  formData.append('requestDto', jsonBlob);
+  if (thumbnailImageUrl && thumbnailImageUrl instanceof File) {
+    formData.append('thumbnailImage', thumbnailImageUrl);
+  }
+
+  const res = await apiInstance.put(`/v1/meeting-rooms/${meetingRoomId}/settings`, formData);
+  return res.data.result;
 };
 
 // 방 삭제 (방장만)
@@ -75,27 +90,30 @@ export const deleteRoom = async (meetingRoomId: string): Promise<void> => {
 };
 
 // 방 탈퇴하기 (일반 사용자만)
-export const leaveRoom = async (meetingRoomId: string, memberuuid:string): Promise<void> => {
-  await apiInstance.delete(`/v1/meeting-rooms/${meetingRoomId}/leave`);
+export const leaveRoom = async (meetingRoomId: string): Promise<void> => {
+  console.log('meetingRoomId', meetingRoomId);
+  await apiInstance.delete(`/v1/meeting-rooms/${meetingRoomId}/participants`);
 };
 
 // 방장 위임 (방장만)
 export const delegateHost = async (
   meetingRoomId: string,
-  targetId: string,
+  memberUuid: string,
 ): Promise<void> => {
-  await apiInstance.put(`/v1/meeting-rooms/${meetingRoomId}/host`, {
-    targetId,
-  });
+  console.log('memberUuid', memberUuid);
+  console.log('meetingRoomId', meetingRoomId);
+  // await apiInstance.put(`/v1/meeting-rooms/${meetingRoomId}/host`, {
+  //   memberUuid,
+  // });
 };
 
 // 참여자 강퇴 (방장만)
 export const kickMember = async (
   meetingRoomId: string,
-  targetId: string,
+  kickMemberUuid: string,
 ): Promise<void> => {
-  await apiInstance.post(`/v1/meeting-rooms/${meetingRoomId}/kick`, {
-    targetId,
+  await apiInstance.delete(`/v1/meeting-rooms/${meetingRoomId}/kick`, {
+    kickMemberUuid,
   });
 };
 
@@ -123,58 +141,104 @@ export const postChatMessage = async (
 };
 
 // 참여 중인 방 조회
-export const getRooms = async (
-  pageNo: number,
-  pageSize: number,
-): Promise<MeetingRoom[]> => {
-  const res = await apiInstance.get('/v1/members/meeting-rooms', {
-    params: { pageNo, pageSize },
-  });
-  return res.data.meetingRooms;
+// export const getRooms = async (): Promise<MeetingRoom[]> => {
+//   const res = await apiInstance.get('/v1/meeting-rooms');
+//   return res.data.result;
+// };
+export const getRooms = async (): Promise<MeetingRoom[]> => {
+  // 하드코딩된 테스트 데이터
+  return [
+    {
+      meetingRoomId: '23',
+      title: '테스트 회의방',
+      category: 'game',
+      memberCount: 3,
+      thumbnailImageUrl: '',
+    },
+    {
+      meetingRoomId: '2',
+      title: 'React 스터디',
+      category: 'game',
+      memberCount: 5,
+      thumbnailImageUrl: '',
+    },
+    {
+      meetingRoomId: '3',
+      title: 'React 스터디',
+      category: 'game',
+      memberCount: 5,
+      thumbnailImageUrl: '',
+    },
+    {
+      meetingRoomId: '4',
+      title: 'React 스터디',
+      category: 'game',
+      memberCount: 5,
+      thumbnailImageUrl: '',
+    },
+    {
+      meetingRoomId: '5',
+      title: 'React 스터디',
+      category: 'game',
+      memberCount: 5,
+      thumbnailImageUrl: '',
+    },
+    {
+      meetingRoomId: '6',
+      title: 'React 스터디',
+      category: 'game',
+      memberCount: 5,
+      thumbnailImageUrl: '',
+    },
+  ];
 };
 
-// 참여 중인 방 제목 기반 검색
-export const getRoomsByTitle = async (
-  title: string,
-): Promise<MeetingRoom[]> => {
-  const res = await apiInstance.get('/v1/members/meeting-rooms/search', {
-    params: { title },
-  });
-  return res.data.meetingRooms;
-};
 
 // 방 생성
 export const createRoom = async (
   title: string,
   category: string,
-  thumbnailImageUrl: string,
-): Promise<MeetingRoom> => {
-  const res = await apiInstance.post('/v1/meeting-rooms', {
-    title,
-    category,
-    thumbnailImageUrl,
-  });
-  return res.data;
+  thumbnailImageUrl: Blob | null,
+): Promise<CreateRoomRequest> => {
+  const formData = new FormData();
+  const requestDto = { title, category };
+  const jsonBlob = new Blob([JSON.stringify(requestDto)], { type: 'application/json' });
+  formData.append('requestDto', jsonBlob);
+  if (thumbnailImageUrl && thumbnailImageUrl instanceof File) {
+    formData.append("thumbnailImageUrl", thumbnailImageUrl);
+  }
+  const res = await apiInstance.post('/v1/meeting-rooms', formData);
+  console.log(res.data);
+  return res.data.result;
 };
 
-// 초대 코드 요청
+// 초대 코드 조회
 export const getInviteCode = async (
   meetingRoomId: string,
 ): Promise<{ inviteCode: string }> => {
   const res = await apiInstance.get(
     `/v1/meeting-rooms/${meetingRoomId}/invite-code`,
   );
-  return res.data;
+  return res.data.result;
+};
+
+// 초대 코드 생성
+export const postInviteCode = async (
+  meetingRoomId: string,
+): Promise<{ inviteCode: string }> => {
+  const res = await apiInstance.post(
+    `/v1/meeting-rooms/${meetingRoomId}/invite-code`,
+  );
+  return res.data.result;
 };
 
 // 초대 코드 검증
 export const verifyInviteCode = async (
-  invitecode: string,
-  meetingRoomId: number,
+  inviteCode: string,
 ): Promise<{ valid: boolean }> => {
   const res = await apiInstance.post(
-    `/v1/meeting-rooms/${meetingRoomId}/verify-invite-code`,
-    { invitecode },
+    `/v1/meeting-rooms/verify-invite-code`,
+    { inviteCode },
   );
   return res.data;
 };

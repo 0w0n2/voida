@@ -2,10 +2,10 @@
 import { css } from '@emotion/react';
 import { useRef, useState, useEffect } from 'react';
 import Header from '../components/Header';
-import ProfileTab from '../components/Myp/ProfileTab';
-import SettingsTab from '../components/Myp/SettingsTab';
-import ShortcutsTab from '../components/Myp/ShortcutsTab';
-import OverlayTab from '../components/Myp/OverlayTab';
+import ProfileTab from '../components/my-page/ProfileTab';
+import SettingsTab from '../components/my-page/SettingsTab';
+import ShortcutsTab from '../components/my-page/ShortcutsTab';
+import OverlayTab from '../components/my-page/OverlayTab';
 import settings from '@/assets/icons/mp-setting.png';
 import shortcuts from '@/assets/icons/mp-shortcut.png';
 import overlay from '@/assets/icons/mp-overlay.png';
