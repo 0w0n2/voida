@@ -12,7 +12,7 @@ public class MeProfileResponseDto {
     private String nickname;
     private String profileImageUrl;
     private String email;
-    
+
     public static MeProfileResponseDto toDto(Member member){
         return MeProfileResponseDto.builder()
                 .nickname(member.getNickname())

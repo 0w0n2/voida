@@ -9,10 +9,24 @@ import lombok.ToString;
 @Builder
 public class MeResponseDto {
     private MeProfileResponseDto member;
+    private MeSettingResponseDto setting;
+    private MeQuickSlotsResponseDto quickSlots;
 
-    public static MeResponseDto fromMeProfileResponseDto(MeProfileResponseDto profileDto) {
+    public static MeResponseDto toMeResponseDto(MeProfileResponseDto profileDto) {
         return MeResponseDto.builder()
                 .member(profileDto)
+                .build();
+    }
+
+    public static MeResponseDto toMeResponseDto(MeSettingResponseDto settingDto) {
+        return MeResponseDto.builder()
+                .setting(settingDto)
+                .build();
+    }
+
+    public static MeResponseDto toMeResponseDto(MeQuickSlotsResponseDto quickSlotsDto) {
+        return MeResponseDto.builder()
+                .quickSlots(quickSlotsDto)
                 .build();
     }
 }

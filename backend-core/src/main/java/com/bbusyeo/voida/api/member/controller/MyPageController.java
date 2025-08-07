@@ -31,6 +31,18 @@ public class MyPageController {
     @GetMapping("/profile")
     public BaseResponse<MeResponseDto> getProfile(
             @AuthenticationPrincipal(expression = "member") Member member) {
-        return new BaseResponse<>(MeResponseDto.fromMeProfileResponseDto(myPageService.getMeProfile(member)));
+        return new BaseResponse<>(MeResponseDto.toMeResponseDto(myPageService.getMeProfile(member)));
     }
+
+    @GetMapping("/setting")
+    public BaseResponse<MeResponseDto> getSetting(
+            @AuthenticationPrincipal(expression = "member") Member member) {
+        return new BaseResponse<>(MeResponseDto.toMeResponseDto(myPageService.getMeSetting(member.getId())));
+    }
+
+//    @GetMapping("/quick-slots")
+//    public BaseResponse<MeResponseDto> getQuickSlots(
+//            @AuthenticationPrincipal(expression = "member") Member member) {
+//        return new BaseResponse<>(MeResponseDto.toMeResponseDto());
+//    }
 }

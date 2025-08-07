@@ -1,8 +1,11 @@
 package com.bbusyeo.voida.api.member.service;
 
 import com.bbusyeo.voida.api.member.domain.Member;
+import com.bbusyeo.voida.api.member.domain.MemberSetting;
 import com.bbusyeo.voida.api.member.dto.MeProfileResponseDto;
+import com.bbusyeo.voida.api.member.dto.MeSettingResponseDto;
 import com.bbusyeo.voida.api.member.repository.MemberRepository;
+import com.bbusyeo.voida.api.member.repository.MemberSettingRepository;
 import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MyPageServiceImpl implements MyPageService {
 
     private final MemberRepository memberRepository;
+    private final MemberSettingRepository memberSettingRepository;
 
     @Transactional
     @Override
@@ -27,5 +31,11 @@ public class MyPageServiceImpl implements MyPageService {
     @Override
     public MeProfileResponseDto getMeProfile(Member member) {
         return MeProfileResponseDto.toDto(member);
+    }
+
+    @Override
+    public MeSettingResponseDto getMeSetting(Long memberId) {
+        MemberSetting memberSetting = memberSettingRepository.findMemberSettingsByMemberId(memberId);
+        return MeSettingResponseDto.toDto(memberSetting);
     }
 }
