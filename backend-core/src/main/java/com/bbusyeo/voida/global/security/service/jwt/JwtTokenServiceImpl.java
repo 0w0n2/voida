@@ -1,4 +1,4 @@
-package com.bbusyeo.voida.global.security.service;
+package com.bbusyeo.voida.global.security.service.jwt;
 
 import com.bbusyeo.voida.api.auth.domain.JwtToken;
 import com.bbusyeo.voida.api.member.repository.MemberRepository;

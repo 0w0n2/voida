@@ -1,4 +1,4 @@
-package com.bbusyeo.voida.global.security.service;
+package com.bbusyeo.voida.global.security.service.jwt;
 
 import com.bbusyeo.voida.global.redis.dao.RedisDao;
 import com.bbusyeo.voida.global.security.util.TokenUtils;
