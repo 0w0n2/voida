@@ -17,6 +17,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Map;
 
 @RestController
@@ -35,16 +36,13 @@ public class AuthController {
     private final SignUpService signUpService;
     private final EmailVerificationService emailVerificationService;
 
-    @GetMapping("/social/redirect/")
-
-
     @PostMapping("/sign-in")
     public BaseResponse<SignInResponseDto> signIn(@Valid @RequestBody SignInRequestDto requestDto, HttpServletResponse response) {
         UserDetailsDto userDetails = authenticationService.authenticate(requestDto.getEmail(), requestDto.getPassword());
         return new BaseResponse<>(tokenAuthService.issueJwtAndReturnDto(userDetails, response));
     }
 
-    @PostMapping("/reissue")
+    @GetMapping("/reissue")
     public BaseResponse<Void> refresh(@CookieValue(value = "refreshToken") String refreshToken, HttpServletResponse response) {
         tokenAuthService.refreshAccessToken(refreshToken, response);
         return new BaseResponse<>();

@@ -27,8 +27,6 @@ public class UserDetailsDtoSuccessHandlerStrategy implements OAuth2SuccessHandle
 
     private final TokenAuthService tokenAuthService;
 
-    private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
-
     @Value("${security.oauth.client.redirect-uri}")
     private String redirectUri;
 
@@ -41,15 +39,12 @@ public class UserDetailsDtoSuccessHandlerStrategy implements OAuth2SuccessHandle
     public void handle(Authentication authentication, HttpServletRequest request, HttpServletResponse response) throws IOException {
         UserDetailsDto userDetailsDto = (UserDetailsDto) authentication.getPrincipal();
         SignInResponseDto signInResponseDto = tokenAuthService.issueJwtAndReturnDto(userDetailsDto, response);
-        
-        // 리다이렉트할 URI 구성
 
-        String targetUri = UriComponentsBuilder.fromUriString(redirectUri)
-                .queryParam("isFirstLogin", false)
-                .queryParam("isNewbie", signInResponseDto.getIsNewbie())
-                .build().toString();
-        
         // 지정 리다이렉트 경로로 로그인 정보를 쿼리 파라미터에, RefreshToken은 Cookie 에 담아 리턴(리다이렉트라 AccessToken은 응답되지 않음)
-        redirectStrategy.sendRedirect(request, response, targetUri);
+        response.sendRedirect(UriComponentsBuilder.fromUriString(redirectUri)
+                        .queryParam("isFirstLogin", false)
+                        .queryParam("isNewbie", signInResponseDto.getIsNewbie())
+                        .build().toString()
+        );
     }
 }
