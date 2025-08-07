@@ -240,7 +240,7 @@ const settingsHeaderStyle = css`
 const panelTitleStyle = css`
   font-family: 'NanumSquareB', sans-serif;
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--color-text);
   margin-bottom: 8px;
 `;
@@ -260,7 +260,7 @@ const saveButtonStyle = css`
   border-radius: 6px;
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s ease;
 
@@ -351,7 +351,7 @@ const guidebookButtonStyle = css`
   border-radius: 6px;
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s ease;
 
