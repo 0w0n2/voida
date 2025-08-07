@@ -176,11 +176,9 @@ const LoginForm = () => {
 
       <div css={footerStyle}>
         <div css={linkBoxStyle}>
+          <span>Voida가 처음이시라면 |</span>
           <Link to="/register">회원가입</Link>
-          <Link to="/register">회원가입</Link>
-          <span>|</span>
-          <Link to="/forgot">비밀번호 찾기</Link>
-          <Link to="/forgot">비밀번호 찾기</Link>
+          {/* <Link to="/forgot">비밀번호 찾기</Link> */}
         </div>
         <button type="submit" css={loginBtnStyle}>
           로그인
