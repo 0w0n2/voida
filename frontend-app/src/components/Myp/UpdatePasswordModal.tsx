@@ -2,7 +2,9 @@
 import { css } from '@emotion/react';
 import { useState } from 'react';
 import { checkCurrentPassword, updatePassword } from '@/apis/auth/userApi';
-
+import EyeIcon from '@/assets/icons/eye.png';
+import EyeCloseIcon from '@/assets/icons/crossed-eye.png';
+import { Eye } from 'lucide-react';
 interface UpdatePasswordModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -61,9 +63,11 @@ const UpdatePasswordModal = ({
       const isMatched = res.data.isMatched;
       if (isMatched) {
         setCurrentPasswordError('');
+      } else {
+        setCurrentPasswordError('현재 비밀번호가 일치하지 않습니다.');
       }
     } catch {
-      setCurrentPasswordError('현재 비밀번호가 일치하지 않습니다.');
+      setCurrentPasswordError('오류가 발생하였습니다');
     }
   };
 
@@ -136,6 +140,9 @@ const UpdatePasswordModal = ({
       // });
       // console.log('비밀번호 변경 완료');
 
+      // response data에 따라 성공 모달 표시 로직 구현 필요
+      // 실패 시 에러 메시지 표시
+
       // 임시 시뮬레이션
       setTimeout(() => {
         setIsSuccessModalOpen(true);
@@ -200,7 +207,11 @@ const UpdatePasswordModal = ({
                 css={eyeButtonStyle}
                 disabled={isLoading}
               >
-                {showCurrentPassword ? '👁️' : '👁️‍🗨️'}
+                {showCurrentPassword ? (
+                  <img src={EyeIcon} alt="열린 눈" css={eyeButtonStyle} />
+                ) : (
+                  <img src={EyeCloseIcon} alt="닫힌 눈" css={eyeButtonStyle} />
+                )}
               </button>
             </div>
             {currentPasswordError && (
@@ -226,7 +237,11 @@ const UpdatePasswordModal = ({
                 css={eyeButtonStyle}
                 disabled={isLoading}
               >
-                {showNewPassword ? '👁️' : '👁️‍🗨️'}
+                {showNewPassword ? (
+                  <img src={EyeIcon} alt="열린 눈" css={eyeButtonStyle} />
+                ) : (
+                  <img src={EyeCloseIcon} alt="닫힌 눈" css={eyeButtonStyle} />
+                )}
               </button>
             </div>
             {newPasswordError && (
@@ -252,11 +267,15 @@ const UpdatePasswordModal = ({
                 css={eyeButtonStyle}
                 disabled={isLoading}
               >
-                {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
+                {showConfirmPassword ? (
+                  <img src={EyeIcon} alt="열린 눈" css={eyeButtonStyle} />
+                ) : (
+                  <img src={EyeCloseIcon} alt="닫힌 눈" css={eyeButtonStyle} />
+                )}
               </button>
             </div>
             {confirmPasswordError && (
-              <p css={fieldErrorStyle}>{confirmPasswordError}</p>
+              <p css={fieldErrorStyle}>{confirmPasswordError || ''}</p>
             )}
           </div>
         </div>
@@ -425,21 +444,28 @@ const inputStyle = css`
 
 const eyeButtonStyle = css`
   position: absolute;
-  right: 12px;
   top: 50%;
+  right: 12px;
   transform: translateY(-50%);
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 16px;
+
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 18px;
+
   color: var(--color-gray-500);
-  padding: 4px;
-  border-radius: 4px;
-  transition: all 0.2s ease;
+  padding: 0;
 
   &:hover:not(:disabled) {
     background: var(--color-gray-200);
     color: var(--color-text);
+    border-radius: 4px;
   }
 
   &:disabled {

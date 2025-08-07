@@ -384,7 +384,7 @@ const saveButtonStyle = css`
   border-radius: 6px;
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s ease;
 
