@@ -22,7 +22,7 @@ app.whenReady().then(() => {
   const isDev = !!process.env.ELECTRON_DEV;
 
   if (isDev) {
-    win.loadURL('http://localhost:5173/#/meeting-room');
+    win.loadURL('http://localhost:5173');
   } else {
     win.loadFile(path.join(__dirname, '../../dist/index.html'));
   }
