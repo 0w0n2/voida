@@ -1,7 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import React, { useState } from 'react';
-import styled from '@emotion/styled';
+import { useRef, useState, useEffect } from 'react';
 import Header from '../components/Header';
 import ProfileTab from '../components/Myp/ProfileTab';
 import SettingsTab from '../components/Myp/SettingsTab';
@@ -39,6 +38,7 @@ const MyPage = () => {
       <Header />
       <nav css={navigationStyle}>
         <div css={selectorBoxStyle}>
+          
           <button
             css={navTabStyle(activeTab === 'profile')}
             onClick={() => handleTabClick('profile')}
@@ -81,7 +81,7 @@ export const navigationStyle = css`
   margin: 0 auto;
 
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
   gap: 16px;
   padding: 0 24px;
@@ -92,14 +92,14 @@ export const selectorBoxStyle = css`
   max-width: 1200px;
   display: flex;
   align-items: center;
+  margin: 0 auto;
   gap: 16px;
   padding: 0 24px;
 `;
 
 export const navTabStyle = (active: boolean) => css`
   position: relative;
-  z-index: 1; // ✅ selectorBox 위로 올라오게
-
+  z-index: 1; 
   display: flex;
   align-items: center;
   gap: 6px;
@@ -111,6 +111,7 @@ export const navTabStyle = (active: boolean) => css`
   cursor: pointer;
   font-size: 14px;
   border-radius: 12px;
+
 `;
 
 export const tabTextStyle = css`
@@ -123,6 +124,7 @@ export const mainContentStyle = css`
   padding: 40px;
   max-width: 1200px;
   width: 100%;
+  margin: auto;
 `;
 
 export default MyPage;

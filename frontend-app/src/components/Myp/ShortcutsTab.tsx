@@ -231,15 +231,14 @@ const panelSubtitleStyle = css`
 `;
 
 const saveButtonStyle = css`
-  padding: 8px 16px;
+   padding: 8px 16px;
   background-color: var(--color-primary);
-  height: 40px;
   color: var(--color-text-white);
   border: none;
   border-radius: 6px;
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
-  font-weight: 300;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s ease;
 

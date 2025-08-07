@@ -328,19 +328,6 @@ const ProfileTab = () => {
 
 export default ProfileTab;
 
-// CSS 스타일
-const containerStyle = css`
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 16px;
-  padding: 0 24px;
-`;
-
 const profilePanelStyle = css`
   background-color: var(--color-bg-white);
   border-radius: 12px;
@@ -357,6 +344,7 @@ const infoPanelStyle = css`
   min-width: 600px;
   border-radius: 12px;
   padding: 32px;
+  margin: 0 auto;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
@@ -456,7 +444,7 @@ const withdrawButtonStyle = css`
   border-radius: 6px;
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 00;
   cursor: pointer;
   transition: background-color 0.2s ease;
 
@@ -479,7 +467,7 @@ const saveButtonStyle = css`
   border-radius: 6px;
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s ease;
 
@@ -569,6 +557,7 @@ const actionButtonStyle = css`
 const googleButtonStyle = css`
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   width: 100%;
   height: 46px;
@@ -593,19 +582,6 @@ const googleButtonStyle = css`
     color: var(--color-gray-500);
     cursor: not-allowed;
   }
-`;
-
-const googleIconStyle = css`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  background-color: #4285f4;
-  color: var(--color-text-white);
-  border-radius: 50%;
-  font-size: 12px;
-  font-weight: bold;
 `;
 
 const loadingContainerStyle = css`
@@ -659,5 +635,9 @@ const gradientBorderStyle = css`
 `;
 
 const iconStyle = css`
-  margin-left: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 25px;
 `;
