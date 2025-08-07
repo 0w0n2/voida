@@ -1,10 +1,11 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import React, { useState, useEffect } from 'react';
-import { getUserSettings, updateGuideMode } from '../../apis/userApi';
+import { getUserSettings, updateGuideMode } from '../../apis/auth/userApi';
 import { useAuthStore } from '../../store/store';
 import { useNavigate } from 'react-router-dom';
 import UpdateDoneModal from './UpdateDoneModal';
+import guide from '@/assets/icons/mp-guide.png';
 
 interface UserSettings {
   useLipTalkMode: boolean; // API 스펙에 맞게 변경
@@ -171,7 +172,8 @@ const SettingsTab = () => {
               </p>
             </div>
             <button css={guidebookButtonStyle} onClick={handleGuidebook}>
-              📖 가이드북 보기
+              <img src={guide} alt="guide" />
+                가이드북 보기
             </button>
           </div>
         </div>
@@ -238,7 +240,7 @@ const settingsHeaderStyle = css`
 const panelTitleStyle = css`
   font-family: 'NanumSquareB', sans-serif;
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--color-text);
   margin-bottom: 8px;
 `;
@@ -258,7 +260,7 @@ const saveButtonStyle = css`
   border-radius: 6px;
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s ease;
 
@@ -339,6 +341,9 @@ const toggleSliderStyle = (enabled: boolean) => css`
 `;
 
 const guidebookButtonStyle = css`
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 8px 16px;
   background-color: var(--color-green);
   color: var(--color-text-white);
@@ -346,7 +351,7 @@ const guidebookButtonStyle = css`
   border-radius: 6px;
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s ease;
 

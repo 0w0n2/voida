@@ -2,7 +2,7 @@
 import { css } from '@emotion/react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { postUserType } from '@/apis/userApi';
+import { postUserType } from '@/apis/auth/userApi';
 import Header from '@/components/Header';
 import TutorialFooter from '@/components/tutorial/TurtorialFooter';
 import GeneralUserImg from '@/assets/images/general-user-gray.png';
@@ -118,6 +118,24 @@ const contentWrapperStyle = css`
   margin: 0 auto;
   text-align: center;
   margin-bottom: 4.7rem;
+  padding: 0 2rem;
+
+  @media (max-width: 1400px) {
+    max-width: 56rem;
+  }
+
+  @media (max-width: 1200px) {
+    max-width: 52rem;
+  }
+
+  @media (max-width: 900px) {
+    max-width: 100%;
+    padding: 0 1.5rem;
+  }
+
+  @media (max-width: 600px) {
+    padding: 0 1rem;
+  }
 `;
 
 const titleStyle = css`
@@ -125,12 +143,40 @@ const titleStyle = css`
   font-family: 'NanumSquareEB';
   margin-top: 2rem;
   margin-bottom: 1rem;
+
+  @media (max-width: 1400px) {
+    font-size: 36px;
+  }
+
+  @media (max-width: 1200px) {
+    font-size: 32px;
+  }
+
+  @media (max-width: 900px) {
+    font-size: 28px;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 24px;
+  }
 `;
 
 const subtitleStyle = css`
   color: var(--color-gray-600);
   margin-bottom: 3rem;
   font-size: 20px;
+
+  @media (max-width: 1200px) {
+    font-size: 18px;
+  }
+
+  @media (max-width: 900px) {
+    font-size: 16px;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 15px;
+  }
 `;
 
 const cardGridStyle = css`
@@ -139,6 +185,15 @@ const cardGridStyle = css`
   justify-content: center;
   grid-template-columns: repeat(auto-fit, minmax(280px, 410px));
   margin-bottom: 4rem;
+
+  @media (max-width: 1200px) {
+    gap: 2rem;
+  }
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
 `;
 
 const cardStyle = css`

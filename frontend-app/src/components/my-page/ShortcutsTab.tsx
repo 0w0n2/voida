@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import React, { useState, useEffect } from 'react';
-import { getUserQuickSlots, updateQuickslots } from '../../apis/userApi';
+import { getUserQuickSlots, updateQuickslots } from '../../apis/auth/userApi';
 import { useAuthStore } from '../../store/store';
 import UpdateDoneModal from './UpdateDoneModal';
 
@@ -231,15 +231,14 @@ const panelSubtitleStyle = css`
 `;
 
 const saveButtonStyle = css`
-  padding: 8px 16px;
+   padding: 8px 16px;
   background-color: var(--color-primary);
-  height: 40px;
   color: var(--color-text-white);
   border: none;
   border-radius: 6px;
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
-  font-weight: 300;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s ease;
 

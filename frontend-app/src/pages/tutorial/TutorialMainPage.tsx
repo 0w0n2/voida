@@ -1,5 +1,4 @@
 /** @jsxImportSource @emotion/react */
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { css } from '@emotion/react';
 import TutorialMainCard from '@/components/tutorial/TutorialMainCard';
@@ -52,7 +51,7 @@ export default function TutorialMainPage() {
         </div>
 
         <div css={buttonWrapperStyle}>
-          <button css={skipButtonStyle} onClick={() => navigate('/rooms')}>
+          <button css={skipButtonStyle} onClick={() => navigate('/main')}>
             튜토리얼 건너뛰기
           </button>
           <button
@@ -73,36 +72,107 @@ const pageWrapperStyle = css`
 `;
 
 const cardWrapperStyle = css`
-  max-width: 84rem;
+  max-width: 86rem;
   margin: 0 auto;
+  padding: 0 2rem;
+
+  @media (max-width: 1400px) {
+    max-width: 72rem;
+  }
+
+  @media (max-width: 1200px) {
+    max-width: 64rem; 
+  }
+
+  @media (max-width: 900px) {
+    max-width: 80%;
+    padding: 0 1.5rem;
+  }
+
+  @media (max-width: 600px) {
+    max-width: 80%;
+    padding: 0 1rem;
+  }
 `;
 
+
 const titleStyle = css`
-  font-size: 40px;
+  font-size: 2.5rem;
   font-family: 'NanumSquareEB';
   margin-bottom: 1rem;
   text-align: center;
+
+  @media (max-width: 1400px) {
+    font-size: 2.2rem;
+  }
+
+  @media (max-width: 1200px) {
+    font-size: 2rem;
+  }
+
+  @media (max-width: 900px) {
+    font-size: 1.8rem;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 1.6rem;
+  }
 `;
 
 const subtitleStyle = css`
   color: var(--color-gray-600);
   margin-bottom: 3rem;
   text-align: center;
-  font-size: 20px;
+  font-size: 1.25rem;
+
+  @media (max-width: 1200px) {
+    font-size: 1.15rem;
+  }
+
+  @media (max-width: 900px) {
+    font-size: 1.05rem;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 0.95rem;
+  }
 `;
 
 const cardGridStyle = css`
   display: grid;
   gap: 2rem;
-  grid-template-columns: repeat(auto-fit, minmax(380px, 420px));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   justify-content: center;
+
+  @media (max-width: 1200px) {
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
 `;
 
 const buttonWrapperStyle = css`
   margin-top: 4rem;
   display: flex;
-  justify-content: right;
+  justify-content: flex-end;
   gap: 1rem;
+
+  @media (max-width: 1200px) {
+    justify-content: center;
+  }
+
+  @media (max-width: 900px) {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  @media (max-width: 600px) {
+    width: 100%;
+    gap: 0.8rem;
+  }
 `;
 
 const buttonStyle = css`
@@ -112,13 +182,24 @@ const buttonStyle = css`
   font-weight: 600;
   font-size: 1rem;
   font-family: 'NanumSquareB';
+  cursor: pointer;
+
+  @media (max-width: 900px) {
+    width: 80%;
+  }
+
+  @media (max-width: 600px) {
+    width: 100%;
+    padding: 0.8rem 1.5rem;
+    font-size: 0.95rem;
+  }
 `;
+
 
 const skipButtonStyle = css`
   ${buttonStyle};
   background-color: var(--color-gray-400);
   color: var(--color-text-white);
-  cursor: pointer;
 
   &:hover {
     background-color: var(--color-gray-500);
@@ -129,9 +210,9 @@ const startButtonStyle = css`
   ${buttonStyle};
   background-color: var(--color-primary);
   color: var(--color-text-white);
-  cursor: pointer;
 
   &:hover {
     background-color: var(--color-primary-dark);
   }
 `;
+

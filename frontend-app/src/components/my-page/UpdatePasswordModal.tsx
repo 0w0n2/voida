@@ -1,9 +1,10 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useState } from 'react';
-import { updatePassword } from '@/apis/userApi';
-import { useAuthStore } from '@/store/store';
-
+import { checkCurrentPassword, updatePassword } from '@/apis/auth/userApi';
+import EyeIcon from '@/assets/icons/eye.png';
+import EyeCloseIcon from '@/assets/icons/crossed-eye.png';
+import { Eye } from 'lucide-react';
 interface UpdatePasswordModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -15,7 +16,6 @@ const UpdatePasswordModal = ({
   onClose,
   onPasswordUpdateSuccess,
 }: UpdatePasswordModalProps) => {
-  const { accessToken } = useAuthStore();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -24,15 +24,16 @@ const UpdatePasswordModal = ({
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+  const accessToken = localStorage.getItem('accessToken');
+
   // 개별 필드 에러 상태
   const [currentPasswordError, setCurrentPasswordError] = useState('');
   const [newPasswordError, setNewPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
 
-  // 비밀번호 수정 성공 시 모달 
+  // 비밀번호 수정 성공 시 모달
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
-  
+
   // 비밀번호 유효성 검사 함수
   const validatePassword = (password: string) => {
     const hasLetter = /[a-zA-Z]/.test(password);
@@ -47,12 +48,27 @@ const UpdatePasswordModal = ({
   };
 
   // 현재 비밀번호 변경 핸들러
-  const handleCurrentPasswordChange = (
+  const handleCurrentPasswordChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const value = e.target.value;
     setCurrentPassword(value);
     setCurrentPasswordError('');
+  };
+
+  // 현재 비밀번호 유효성 검사 핸들러
+  const isSameCurrentPassword = async () => {
+    try {
+      const res = await checkCurrentPassword(accessToken!, currentPassword);
+      const isMatched = res.data.isMatched;
+      if (isMatched) {
+        setCurrentPasswordError('');
+      } else {
+        setCurrentPasswordError('현재 비밀번호가 일치하지 않습니다.');
+      }
+    } catch {
+      setCurrentPasswordError('오류가 발생하였습니다');
+    }
   };
 
   // 새 비밀번호 변경 핸들러
@@ -124,9 +140,11 @@ const UpdatePasswordModal = ({
       // });
       // console.log('비밀번호 변경 완료');
 
+      // response data에 따라 성공 모달 표시 로직 구현 필요
+      // 실패 시 에러 메시지 표시
+
       // 임시 시뮬레이션
       setTimeout(() => {
-        console.log('비밀번호 변경 완료');
         setIsSuccessModalOpen(true);
         onPasswordUpdateSuccess();
         onClose();
@@ -139,7 +157,6 @@ const UpdatePasswordModal = ({
         setConfirmPasswordError('');
       }, 1000);
     } catch (err) {
-      console.error('비밀번호 변경 실패:', err);
       setCurrentPasswordError('현재 비밀번호가 일치하지 않습니다.');
     } finally {
       setIsLoading(false);
@@ -156,7 +173,7 @@ const UpdatePasswordModal = ({
     setConfirmPasswordError('');
     onClose();
   };
-  
+
   if (!isOpen) return null;
 
   return (
@@ -180,6 +197,7 @@ const UpdatePasswordModal = ({
                 type={showCurrentPassword ? 'text' : 'password'}
                 value={currentPassword}
                 onChange={handleCurrentPasswordChange}
+                onBlur={isSameCurrentPassword}
                 css={[inputStyle, !!currentPasswordError && inputErrorStyle]}
                 disabled={isLoading}
               />
@@ -189,7 +207,11 @@ const UpdatePasswordModal = ({
                 css={eyeButtonStyle}
                 disabled={isLoading}
               >
-                {showCurrentPassword ? '👁️' : '👁️‍🗨️'}
+                {showCurrentPassword ? (
+                  <img src={EyeIcon} alt="열린 눈" css={eyeButtonStyle} />
+                ) : (
+                  <img src={EyeCloseIcon} alt="닫힌 눈" css={eyeButtonStyle} />
+                )}
               </button>
             </div>
             {currentPasswordError && (
@@ -215,7 +237,11 @@ const UpdatePasswordModal = ({
                 css={eyeButtonStyle}
                 disabled={isLoading}
               >
-                {showNewPassword ? '👁️' : '👁️‍🗨️'}
+                {showNewPassword ? (
+                  <img src={EyeIcon} alt="열린 눈" css={eyeButtonStyle} />
+                ) : (
+                  <img src={EyeCloseIcon} alt="닫힌 눈" css={eyeButtonStyle} />
+                )}
               </button>
             </div>
             {newPasswordError && (
@@ -241,11 +267,15 @@ const UpdatePasswordModal = ({
                 css={eyeButtonStyle}
                 disabled={isLoading}
               >
-                {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
+                {showConfirmPassword ? (
+                  <img src={EyeIcon} alt="열린 눈" css={eyeButtonStyle} />
+                ) : (
+                  <img src={EyeCloseIcon} alt="닫힌 눈" css={eyeButtonStyle} />
+                )}
               </button>
             </div>
             {confirmPasswordError && (
-              <p css={fieldErrorStyle}>{confirmPasswordError}</p>
+              <p css={fieldErrorStyle}>{confirmPasswordError || ''}</p>
             )}
           </div>
         </div>
@@ -414,21 +444,28 @@ const inputStyle = css`
 
 const eyeButtonStyle = css`
   position: absolute;
-  right: 12px;
   top: 50%;
+  right: 12px;
   transform: translateY(-50%);
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 16px;
+
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 18px;
+
   color: var(--color-gray-500);
-  padding: 4px;
-  border-radius: 4px;
-  transition: all 0.2s ease;
+  padding: 0;
 
   &:hover:not(:disabled) {
     background: var(--color-gray-200);
     color: var(--color-text);
+    border-radius: 4px;
   }
 
   &:disabled {
@@ -497,10 +534,11 @@ const fieldErrorStyle = css`
   color: var(--color-red);
   font-size: 12px;
   margin-top: 4px;
-  text-align: left;
+  text-align: right;
   width: 100%;
   font-family: 'NanumSquareR', sans-serif;
   font-weight: 500;
+  min-height: 18px;
 `;
 
 const inputErrorStyle = css`
