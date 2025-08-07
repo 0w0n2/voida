@@ -49,8 +49,7 @@ public class SignUpService {
             final String s3_PROFILE_DIR = "members/profiles";
             profileImageUrl = (profileImage != null && !profileImage.isEmpty()) ?
                     s3Uploader.upload(profileImage, s3_PROFILE_DIR) // 사용자 지정 이미지
-                    : "%s/profile-images/default_%d.png".formatted(s3_PROFILE_DIR, random.nextInt(DEFAULT_PROFILE_IMAGE_COUNT)); // 디폴트 이미지
-
+                    : "%s/default_profile%d.png".formatted(s3_PROFILE_DIR, random.nextInt(DEFAULT_PROFILE_IMAGE_COUNT)); // 디폴트 이미지
             // 4. member 테이블 저장
             Member member = memberRepository.save(requestDto.toMember(memberUuid, encodedPassword, profileImageUrl));
 
