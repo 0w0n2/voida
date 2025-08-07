@@ -29,8 +29,6 @@ public enum BaseResponseStatus {
     TOKEN_USERNAME_NOT_FOUND(HttpStatus.UNAUTHORIZED, false, 401, "토큰 내에 userName이 존재하지 않습니다."),
     ACCESS_DENIED(HttpStatus.FORBIDDEN, false, 403, "접근 권한이 없습니다."),
 
-    // 소셜 로그인
-
 
     /**
      * 500: 기타 에러.

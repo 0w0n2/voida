@@ -35,6 +35,9 @@ public class AuthController {
     private final SignUpService signUpService;
     private final EmailVerificationService emailVerificationService;
 
+    @GetMapping("/social/redirect/")
+
+
     @PostMapping("/sign-in")
     public BaseResponse<SignInResponseDto> signIn(@Valid @RequestBody SignInRequestDto requestDto, HttpServletResponse response) {
         UserDetailsDto userDetails = authenticationService.authenticate(requestDto.getEmail(), requestDto.getPassword());

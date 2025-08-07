@@ -31,20 +31,15 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
         Object principal = authentication.getPrincipal();
-        BaseResponse<?> result = null;
 
         for (OAuth2SuccessHandlerStrategy strategy : strategies) {
             if (strategy.supports(principal)) {
-                result = strategy.handle(authentication, response);
-                break;
+                strategy.handle(authentication, request, response);
+                return;
             }
         }
 
-        if (result == null) {
-            throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        ResponseWriter.writeResponse(response, objectMapper, result);
+        throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

@@ -74,9 +74,15 @@ public class SecurityConfig {
 
                 // (3) OAuth2 로그인 설정
                 .oauth2Login(oauth2 -> oauth2
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOauth2UserService)) // OAuth2 로그인 성공 시 후속 조치를 처리
-                        .successHandler(oAuth2SuccessHandler) // 인증 성공 시 핸들러
+                        .authorizationEndpoint(endpoint -> endpoint     // 인가 URI: 사용자가 구글 로그인 페이지로 리다이렉트될 때 쓰는 엔드포인트
+                                // .baseUri("/oauth2/authorization"))
+                                .baseUri("/v1/auth/social/redirect/"))
+                        .redirectionEndpoint(endpoint -> endpoint       // 콜백 URI: 구글이 code를 돌려줄 때 호출되는 엔드포인트
+                                .baseUri("/login/oauth2/code/*")
+                        )
+                        .userInfoEndpoint(userInfo -> userInfo          // Provider 로부터 획득한 유저정보를 다룰 service class를 지정
+                                .userService(customOauth2UserService))  // OAuth2 로그인 성공 시 후속 조치를 처리
+                        .successHandler(oAuth2SuccessHandler)           // OAuth2 로그인 성공 시 호출되는 handler
                         .failureHandler(oAuth2FailureHandler)
                 )
 
