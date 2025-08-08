@@ -2,7 +2,7 @@
 import React from 'react';
 import { css } from '@emotion/react';
 import { deleteUser } from '@/apis/auth/userApi';
-import { useAuthStore } from '@/store/store';
+import { useAuthStore } from '@/stores/store';
 
 interface GetOutModalProps {
   isOpen: boolean;

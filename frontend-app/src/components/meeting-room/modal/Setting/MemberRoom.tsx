@@ -2,7 +2,7 @@
 import { css } from '@emotion/react';
 import { CrownIcon, UserMinus } from 'lucide-react';
 import { delegateHost, kickMember } from '@/apis/meeting-room/meetingRoomApi';
-import { useMeetingRoomStore } from '@/store/meetingRoomStore';
+import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
 import Lip from '@/assets/icons/lip-blue.png';
 import Crown from '@/assets/icons/crown.png';
 

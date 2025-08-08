@@ -3,7 +3,7 @@ import { css } from '@emotion/react';
 import React, { useState, useEffect } from 'react';
 import defaultProfile from '../../assets/profiles/defaultProfile.png';
 import { getUser, updateUser, linksocialAccount } from '@/apis/auth/userApi';
-import { useAuthStore } from '@/store/authStore';
+import { useAuthStore } from '@/stores/authStore';
 import UpdatePasswordModal from './UpdatePasswordModal';
 import GetOutModal from './GetOutModal';
 import camera from '@/assets/icons/mp-camera.png';

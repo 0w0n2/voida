@@ -2,7 +2,7 @@
 import { css } from '@emotion/react';
 import React, { useState, useEffect } from 'react';
 import { getUserSettings, updateOverlay } from '../../apis/auth/userApi';
-import { useAuthStore } from '../../store/store';
+import { useAuthStore } from '../../stores/store';
 import UpdateDoneModal from './UpdateDoneModal';
 
 interface UserSettings {
