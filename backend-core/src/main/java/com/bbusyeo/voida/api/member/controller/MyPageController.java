@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * 회원 정보 관련
+ * 마이페이지 회원 정보 관련 컨트롤러
  */
 @RestController
 @RequestMapping("/v1/member/me")
@@ -43,6 +43,7 @@ public class MyPageController {
     @GetMapping("/quick-slots")
     public BaseResponse<MeResponseInfoDto> getQuickSlots(
             @AuthenticationPrincipal(expression = "member") Member member) {
+        // TODO-MEMBER: 퀵슬롯 음성 TTS 구현 후 수정 필요 (TTS 음성 생성 로직 없음)
         return new BaseResponse<>(MeResponseInfoDto.toMeResponseDto(myPageService.getMeQuickSlots(member.getId())));
     }
 
