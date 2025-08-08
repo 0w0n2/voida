@@ -1,5 +1,6 @@
 package com.bbusyeo.voida.api.member.domain;
 
+import com.bbusyeo.voida.api.member.constant.MemberValue;
 import com.bbusyeo.voida.api.member.domain.enums.OverlayPosition;
 import jakarta.persistence.*;
 import lombok.*;
@@ -31,9 +32,18 @@ public class MemberSetting implements Serializable {
     private OverlayPosition overlayPosition;
 
     @Column(name = "live_font_size", nullable = false)
-    private Byte liveFontSize;
+    private Integer liveFontSize;
 
     @Column(name = "overlay_transparency", nullable = false)
-    private Byte overlayTransparency;
+    private Integer overlayTransparency;
 
+    public static MemberSetting toDefaultSetting(Member member){
+        return MemberSetting.builder()
+                .member(member)
+                .lipTalkMode(MemberValue.DEFAULT_LIP_TALK_MODE)
+                .overlayPosition(MemberValue.DEFAULT_OVERLAY_POSITION)
+                .liveFontSize(MemberValue.DEFAULT_LIVE_FONT_SIZE)
+                .overlayTransparency(MemberValue.DEFAULT_OVERLAY_TRANSPARENCY)
+                .build();
+    }
 }
