@@ -13,7 +13,6 @@ import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
 import com.bbusyeo.voida.global.support.S3Uploader;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +34,7 @@ public class MyPageServiceImpl implements MyPageService {
 
     @Transactional
     @Override
-    public void updateIsNewbie(Long memberId){
+    public void updateIsNewbie(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
         member.changeIsNewbie(false);
@@ -81,7 +80,7 @@ public class MyPageServiceImpl implements MyPageService {
                     && !oldFileImageUrl.startsWith("%s/default_profile".formatted(MemberValue.S3_PROFILE_DIR))) {
                 s3Uploader.delete(oldFileImageUrl);
             }
-        }  catch (Exception e) {
+        } catch (Exception e) {
             // --- 보상 트랜잭션 로직 ---
             // try 블록 내부 (S3 업로드/삭제 등)에서 예외 발생 시, @Transactional에 의해 DB 변경은 자동으로 롤백
             // S3 의 변경사항은 수동으로 처리
@@ -103,7 +102,7 @@ public class MyPageServiceImpl implements MyPageService {
         // 디폴트 member_setting 등록
         MemberSetting defaultSetting = MemberSetting.toDefaultSetting(member);
         memberSettingRepository.save(defaultSetting);
-        
+
         // 디폴트 member_quick_slot 등록
         List<QuickSlotDefault> defaultSlots = MemberValue.DEFAULT_QUICK_SLOT_DEFAULTS;
         for (QuickSlotDefault quickSlotDefault : defaultSlots) {
@@ -133,8 +132,15 @@ public class MyPageServiceImpl implements MyPageService {
 
     @Transactional
     @Override
-    public void changeLipTalkMode(Long memberId, ChangeLipTalkMode requestDto) {
+    public void changeLipTalkMode(Long memberId, ChangeLipTalkRequestMode requestDto) {
         MemberSetting memberSetting = memberSettingRepository.findMemberSettingsByMemberId(memberId);
         memberSetting.changeLipTalkMode(requestDto.getUseLipTalkMode());
+    }
+
+    @Transactional
+    @Override
+    public void changeOverlay(Long memberId, ChangeOverlayRequestDto requestDto) {
+        MemberSetting memberSetting = memberSettingRepository.findMemberSettingsByMemberId(memberId);
+        memberSetting.changeOverlayPosition(requestDto.getOverlayPosition(), requestDto.getLiveFontSize(), requestDto.getOverlayTransparency());
     }
 }

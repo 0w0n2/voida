@@ -53,4 +53,16 @@ public class MemberSetting implements Serializable {
         }
     }
 
+    public void changeOverlayPosition(String overlayPosition, Integer liveFontSize, Integer overlayTransparency) {
+        if (overlayPosition != null) {
+            this.overlayPosition = OverlayPosition.from(overlayPosition);
+        }
+        if (liveFontSize != null) {
+            this.liveFontSize = liveFontSize;
+        }
+        if (overlayTransparency != null) {
+            this.overlayTransparency = overlayTransparency;
+        }
+    }
+
 }

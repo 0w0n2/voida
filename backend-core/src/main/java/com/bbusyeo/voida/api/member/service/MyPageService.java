@@ -24,5 +24,7 @@ public interface MyPageService {
 
     void changePassword(Long memberId, ChangePasswordRequestDto requestDto);
 
-    void changeLipTalkMode(Long memberId, ChangeLipTalkMode requestDto);
+    void changeLipTalkMode(Long memberId, ChangeLipTalkRequestMode requestDto);
+
+    void changeOverlay(Long memberId, ChangeOverlayRequestDto requestDto);
 }

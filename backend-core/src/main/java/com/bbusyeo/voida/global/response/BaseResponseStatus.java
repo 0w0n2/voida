@@ -68,6 +68,7 @@ public enum BaseResponseStatus {
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, false, 901, "ID와 PW가 일치하지 않습니다."),
     MEMBER_NOT_FOUND(HttpStatus.UNAUTHORIZED, false, 902, "존재하지 않는 회원입니다."),
     MISMATCH_PASSWORD(HttpStatus.BAD_REQUEST, false, 903, "비밀번호가 일치하지 않습니다."),
+    UNSUPPORTED_OVERLAY_POSITION(HttpStatus.BAD_REQUEST, false, 904, "지원하지 않는 오버레이 위치 값입니다."),
 
     /**
      * 1000: 소셜 에러.

@@ -75,10 +75,19 @@ public class MyPageController {
 
     @PutMapping("/lip-talk-mode")
     public BaseResponse<Void> changeLipTalkMode(
-            @Valid @RequestBody ChangeLipTalkMode requestDto,
+            @Valid @RequestBody ChangeLipTalkRequestMode requestDto,
             @AuthenticationPrincipal(expression = "member") Member member
     ) {
         myPageService.changeLipTalkMode(member.getId(), requestDto);
+        return new BaseResponse<>();
+    }
+
+    @PutMapping("/overlay")
+    public BaseResponse<Void> changeOverlay(
+            @Valid @RequestBody ChangeOverlayRequestDto requestDto,
+            @AuthenticationPrincipal(expression = "member") Member member
+    ) {
+        myPageService.changeOverlay(member.getId(), requestDto);
         return new BaseResponse<>();
     }
 }

@@ -6,7 +6,7 @@ import lombok.ToString;
 
 @ToString
 @Getter
-public class ChangeLipTalkMode {
+public class ChangeLipTalkRequestMode {
 
     @NotNull(message = "구화 사용 여부를 입력해주세요.")
     private Boolean useLipTalkMode;
