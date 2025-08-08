@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-@Slf4j
 public class MyPageServiceImpl implements MyPageService {
 
     private final MemberRepository memberRepository;
@@ -114,7 +113,6 @@ public class MyPageServiceImpl implements MyPageService {
 
     @Override
     public boolean verifyPassword(Member member, String requestPassword) {
-        log.info("realPassword:{}, requestPassword:{}", member.getPassword(), requestPassword);
         return bCryptPasswordEncoder.matches(requestPassword, member.getPassword());
     }
 
