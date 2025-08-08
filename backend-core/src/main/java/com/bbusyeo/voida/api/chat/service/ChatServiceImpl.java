@@ -60,7 +60,6 @@ public class ChatServiceImpl implements ChatService {
                 .build();
 
         MeetingChat savedChat = meetingChatRepository.save(chat);
-        System.out.println(sender.getNickname());
         // (/sub/chat/meetingRoom/{meetingRoomId}로 브로드 캐스팅
         messagingTemplate.convertAndSend("/sub/chat/meetingRoom/" + meetingRoomId, ChatMessageResponseDto.from(savedChat));
     }

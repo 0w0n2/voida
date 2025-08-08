@@ -27,7 +27,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry  registry) {
         // WebSocket이 웹소켓 핸드셰이킹 커넥션을 생성할 경로 (연결 시작할 엔드포인트)
         registry.addEndpoint("/ws")
-                // todo: 프론트엔드 배포 주소로 변경 예정 , yaml로 관리하기 (properties 관리)
+                // 프론트엔드 배포 주소 yaml로 관리하기 (properties 관리)
                 .setAllowedOrigins(corsProperties.getAllowedOrigins().toArray(String[]::new))
                 .withSockJS();
     }

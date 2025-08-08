@@ -4,8 +4,11 @@ import com.bbusyeo.voida.api.chat.dto.ChatMessageRequestDto;
 import com.bbusyeo.voida.api.chat.dto.ChatMessageResponseDto;
 import com.bbusyeo.voida.api.chat.service.ChatService;
 import com.bbusyeo.voida.api.member.domain.Member;
+import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.response.BaseResponse;
+import com.bbusyeo.voida.global.response.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -31,7 +34,11 @@ public class ChatController {
     public BaseResponse<Page<ChatMessageResponseDto>> getChatHistory(
             @AuthenticationPrincipal(expression = "member") Member member,
             @PathVariable Long meetingRoomId,
-            @PageableDefault(size = 20, sort = "sendedAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @ParameterObject @PageableDefault(size = 20, sort = "sendedAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        if (member == null || member.getMemberUuid() == null) {
+            throw new BaseException(BaseResponseStatus.TOKEN_NOT_FOUND);
+        }
 
         Page<ChatMessageResponseDto> chatHistory = chatService.getChatHistory(meetingRoomId, member.getMemberUuid(), pageable);
         return new BaseResponse<>(chatHistory);

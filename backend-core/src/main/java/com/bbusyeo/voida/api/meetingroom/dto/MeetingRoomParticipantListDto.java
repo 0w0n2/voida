@@ -9,11 +9,11 @@ import java.util.List;
 public class MeetingRoomParticipantListDto {
 
     private int memberCount;
-    private List<ParticipantInfoDto> participants; // Page -> List
+    private List<ParticipantInfoDto> participants;
 
-    public static MeetingRoomParticipantListDto of(List<ParticipantInfoDto> participants) { // Page -> List
+    public static MeetingRoomParticipantListDto of(List<ParticipantInfoDto> participants) {
         return new MeetingRoomParticipantListDto(
-                participants.size(), // getTotalElements() -> size()
+                participants.size(),
                 participants
         );
     }
