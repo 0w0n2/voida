@@ -3,10 +3,7 @@ package com.bbusyeo.voida.api.member.service;
 import com.bbusyeo.voida.api.member.domain.Member;
 import com.bbusyeo.voida.api.member.domain.MemberQuickSlot;
 import com.bbusyeo.voida.api.member.domain.MemberSetting;
-import com.bbusyeo.voida.api.member.dto.MeProfileResponseInfoDto;
-import com.bbusyeo.voida.api.member.dto.MeQuickSlotsResponseInfoDto;
-import com.bbusyeo.voida.api.member.dto.MeSettingResponseInfoDto;
-import com.bbusyeo.voida.api.member.dto.UpdateMeProfileRequestDto;
+import com.bbusyeo.voida.api.member.dto.*;
 import com.bbusyeo.voida.api.member.repository.MemberQuickSlotRepository;
 import com.bbusyeo.voida.api.member.repository.MemberRepository;
 import com.bbusyeo.voida.api.member.repository.MemberSettingRepository;
@@ -95,6 +92,13 @@ public class MyPageServiceImpl implements MyPageService {
                 throw new BaseException(BaseResponseStatus.DATABASE_CONSTRAINT_VIOLATION);
             }
         }
+    }
 
+    @Override
+    public boolean verifyPassword(Member member, VerifyPasswordRequestDto requestDto) {
+        // 1. 요청된 비밀번호 암호화
+        String encodedRequestPassword;
+
+        return false;
     }
 }
