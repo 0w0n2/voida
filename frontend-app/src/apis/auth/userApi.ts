@@ -5,61 +5,33 @@ export const postUserType = (type: 'general' | 'lip-reading') => {
 };
 
 // 유저 정보 조회
-export const getUser = (accessToken: string) => {
-  return apiInstance.get('/v1/members/me/profile', {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
+export const getUser = () => {
+  return apiInstance.get('/v1/member/me/profile');
 };
 
 // 유저 setting 조회
-export const getUserSettings = (accessToken: string) => {
-  return apiInstance.get('/v1/members/me/setting', {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
+export const getUserSettings = () => {
+  return apiInstance.get('/v1/members/me/setting');
 };
 // 유저 quickslots 조회
-export const getUserQuickSlots = (accessToken: string) => {
-  return apiInstance.get('/v1/members/me/quick-slots', {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
+export const getUserQuickSlots = () => {
+  return apiInstance.get('/v1/members/me/quick-slots');
 };
 
 // 유저 소셜 계정 조회
-export const getUserSocialAccounts = (accessToken: string) => {
-  return apiInstance.get('/v1/members/me/social-accounts', {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
+export const getUserSocialAccounts = () => {
+  return apiInstance.get('/v1/members/me/social-accounts');
 };
 
 // 유저 소셜 계정 연동
 // GET,POST 결정 안 됨
-export const linksocialAccount = (accessToken: string) => {
-  return apiInstance.post('/v1/members/me/social-accounts/link', {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
+export const linksocialAccount = () => {
+  return apiInstance.post('/v1/members/me/social-accounts/link');
 };
 
 // 현재 비밀번호 일치 확인
-export const checkCurrentPassword = (accessToken: string, password: string) => {
-  return apiInstance.post(
-    '/v1/members/me/verify-password',
-    { password },
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    },
-  );
+export const checkCurrentPassword = (password: string) => {
+  return apiInstance.post('/v1/members/me/verify-password', { password });
 };
 
 // 유저 정보 수정

@@ -22,7 +22,7 @@ export const register = (
   nickname: string,
   isSocial: boolean,
   providerName?: string,
-  profileImage?: File | null,
+  profileImage?: Blob | null,
 ) => {
   const formData = new FormData();
   const requestDto = {

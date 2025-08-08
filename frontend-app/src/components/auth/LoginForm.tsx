@@ -93,31 +93,33 @@ const LoginForm = () => {
         setError('예상치 못한 오류가 발생하였습니다.');
         return;
       }
-      // 유저 정보 조회
-      // const response = await getUser(accessToken);
-      // const user: User = {
-      //   email: response.data.member.email,
-      //   nickname: response.data.member.nickname,
-      //   profileImage: response.data.member.profileImage || '',
-      // }
+      
+      localStorage.setItem('accessToken', accessToken);
 
-      // 로그인 시도용 코드
-      const user = null
+      // 유저 정보 조회
+      const response = await getUser();
+      const user: User = {
+        email: response.data.result.member.email,
+        nickname: response.data.result.member.nickname,
+        profileImage: response.data.result.member.profileImageUrl || '',
+      };
 
       // 유저 정보 저장
       setAuth(accessToken, user);
-      // const { user } = res.data;
-      // setAuth(accessToken, user);
-      localStorage.setItem('accessToken', accessToken);
+
+      console.log(isNewbie);
       if (isNewbie) {
         navigate('/tutorial');
+      } else {
+        navigate('/main');
       }
 
       // 비밀번호 틀릴  때
       setPasswordError('비밀번호가 일치하지 않습니다.');
-    } catch (err) {
-      const axiosError = err as AxiosError<{ message: string }>;
-      setError(axiosError.response?.data?.message || '로그인 실패');
+    } catch (e) {
+      console.log(e);
+      // const axiosError = err as AxiosError<{ message: string }>;
+      // setError(axiosError.response?.data?.message || '로그인 실패');
     }
   };
 
@@ -176,11 +178,9 @@ const LoginForm = () => {
 
       <div css={footerStyle}>
         <div css={linkBoxStyle}>
+          <span>Voida가 처음이시라면 |</span>
           <Link to="/register">회원가입</Link>
-          <Link to="/register">회원가입</Link>
-          <span>|</span>
-          <Link to="/forgot">비밀번호 찾기</Link>
-          <Link to="/forgot">비밀번호 찾기</Link>
+          {/* <Link to="/forgot">비밀번호 찾기</Link> */}
         </div>
         <button type="submit" css={loginBtnStyle}>
           로그인

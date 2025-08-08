@@ -5,14 +5,15 @@ import VoidaLogo from '@/assets/logo/voida-logo.png';
 import { useNavigate } from 'react-router-dom';
 import { User, LogOut } from 'lucide-react';
 import { logout } from '@/apis/auth/authApi';
-import {useAuthStore} from '@/stores/authStore';
+import { useAuthStore } from '@/stores/authStore';
 
 export default function Header() {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
-  // console.log('user', user);
-  const ProfileImage = user?.profileImage 
+  console.log('user', user);
+  const ProfileImage = user?.profileImage;
+  console.log(ProfileImage);
   const ProfileName = user?.nickname || '사용자';
   const handleLogoClick = () => {
     navigate('/main');
@@ -47,7 +48,11 @@ export default function Header() {
       />
       <div css={userSection}>
         <div css={userInfoStyle} onClick={toggleMenu}>
-          <img src={ProfileImage} alt="프로필 이미지" css={avatarStyle} />
+          <img
+            src={`${import.meta.env.VITE_CDN_URL}/${ProfileImage}`}
+            alt="프로필 이미지"
+            css={avatarStyle}
+          />
           <span>
             <span css={{ fontFamily: 'NanumSquareEB' }}>{ProfileName}</span> 님
           </span>
@@ -55,7 +60,11 @@ export default function Header() {
 
         {isOpen && (
           <div css={dropdownMenu}>
-            <img src={ProfileImage} alt="프로필" css={dropdownAvatar} />
+            <img
+              src={`${import.meta.env.VITE_CDN_URL}/${ProfileImage}`}
+              alt="프로필"
+              css={dropdownAvatar}
+            />
             <div css={dropdownTitle}>
               <strong>{ProfileName}</strong> 님, 안녕하세요!
             </div>
