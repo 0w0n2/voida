@@ -23,4 +23,6 @@ public interface MyPageService {
     boolean verifyPassword(Member member, String requestPassword);
 
     void changePassword(Long memberId, ChangePasswordRequestDto requestDto);
+
+    void changeLipTalkMode(Long memberId, ChangeLipTalkMode requestDto);
 }

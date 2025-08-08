@@ -60,7 +60,7 @@ public class MyPageController {
     public BaseResponse<VerifyPasswordResponseDto> verifyPassword(
             @Valid @RequestBody VerifyPasswordRequestDto requestDto,
             @AuthenticationPrincipal(expression = "member") Member member
-    ){
+    ) {
         return new BaseResponse<>(VerifyPasswordResponseDto.toDto(myPageService.verifyPassword(member, requestDto.getPassword())));
     }
 
@@ -68,8 +68,17 @@ public class MyPageController {
     public BaseResponse<Void> changePassword(
             @Valid @RequestBody ChangePasswordRequestDto requestDto,
             @AuthenticationPrincipal(expression = "member") Member member
-    ){
+    ) {
         myPageService.changePassword(member.getId(), requestDto);
+        return new BaseResponse<>();
+    }
+
+    @PutMapping("/lip-talk-mode")
+    public BaseResponse<Void> changeLipTalkMode(
+            @Valid @RequestBody ChangeLipTalkMode requestDto,
+            @AuthenticationPrincipal(expression = "member") Member member
+    ) {
+        myPageService.changeLipTalkMode(member.getId(), requestDto);
         return new BaseResponse<>();
     }
 }

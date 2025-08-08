@@ -130,4 +130,11 @@ public class MyPageServiceImpl implements MyPageService {
         String encodedPw = bCryptPasswordEncoder.encode(requestDto.getNewPassword());
         member.changePassword(encodedPw);
     }
+
+    @Transactional
+    @Override
+    public void changeLipTalkMode(Long memberId, ChangeLipTalkMode requestDto) {
+        MemberSetting memberSetting = memberSettingRepository.findMemberSettingsByMemberId(memberId);
+        memberSetting.changeLipTalkMode(requestDto.getUseLipTalkMode());
+    }
 }
