@@ -78,7 +78,7 @@ public class MyPageServiceImpl implements MyPageService {
             member.updateProfile(requestDto.getNickname(), finalImageUrl);
 
             if (newFileImageUrl != null && oldFileImageUrl != null
-                    && !oldFileImageUrl.startsWith("%s/profile-images/default".formatted(S3_PROFILE_DIR))) {
+                    && !oldFileImageUrl.startsWith("%s/default_profile".formatted(S3_PROFILE_DIR))) {
                 s3Uploader.delete(oldFileImageUrl);
             }
         }  catch (Exception e) {
