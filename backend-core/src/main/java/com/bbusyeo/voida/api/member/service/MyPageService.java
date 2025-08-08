@@ -20,4 +20,6 @@ public interface MyPageService {
     List<MeQuickSlotsResponseInfoDto> getMeQuickSlots(Long memberId);
 
     void updateProfile(UpdateMeProfileRequestDto requestDto, MultipartFile profileImage, Long memberId);
+
+    void createDefaultSettingsAndQuickSlots(Member member);
 }
