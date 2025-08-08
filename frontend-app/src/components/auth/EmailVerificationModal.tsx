@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { AxiosError } from 'axios';
 import { sendEmailVerification, verifyEmailCode } from '@/apis/auth/authApi';
 import mailIcon from '@/assets/icons/mail.png';
+import { useAlertStore } from '@/stores/useAlertStore';
 
 interface EmailVerificationModalProps {
   isOpen: boolean;
@@ -41,11 +42,11 @@ const EmailVerificationModal = ({
       const res = await sendEmailVerification(email.trim());
       console.log(res)
       setCountdown(180); // 3분 카운트다운
-      alert('인증 코드가 이메일로 발송되었습니다.');
+      useAlertStore.getState().showAlert('인증 코드가 이메일로 발송되었습니다.', 'top')
     } catch (error) {
       if (error instanceof AxiosError) {
         setError(
-          error.response?.data?.message || '인증 코드 발송에 실패했습니다.'
+          useAlertStore.getState().showAlert('인증 코드 발송에 실패했습니다.', 'top')
         );
       }
     } finally {
@@ -69,7 +70,7 @@ const EmailVerificationModal = ({
       const verified = res.data.result.verified;
       console.log(verified);
       if (verified) {
-      alert('이메일 인증이 완료되었습니다!');
+        useAlertStore.getState().showAlert('이메일 인증이 완료되었습니다!', 'top')
       onVerificationSuccess();
       onClose();
     } else {

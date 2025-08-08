@@ -18,6 +18,7 @@ import {
   useLocation,
   Link,
 } from 'react-router-dom';
+import { useAlertStore } from '@/stores/useAlertStore';
 
 import EyeIcon from '@/assets/icons/eye.png';
 import EyeCloseIcon from '@/assets/icons/crossed-eye.png';
@@ -150,12 +151,16 @@ const RegisterForm = () => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        alert('파일 크기는 5MB 이하여야 합니다.');
+        useAlertStore
+          .getState()
+          .showAlert('파일 크기는 5MB 이하여야 합니다.', 'top');
         return;
       }
 
       if (!file.type.startsWith('image/')) {
-        alert('이미지 파일만 업로드 가능합니다.');
+        useAlertStore
+          .getState()
+          .showAlert('이미지 파일만 업로드 가능합니다.', 'top');
         return;
       }
 
@@ -190,15 +195,19 @@ const RegisterForm = () => {
       if (!emailDuplicated) {
         setEmailError('');
         setIsEmailChecked(true);
-        alert('사용 가능한 이메일입니다.');
+        useAlertStore.getState().showAlert('사용 가능한 이메일입니다.', 'top');
       } else {
-        setEmailError('이미 사용중인 이메일입니다.');
+        useAlertStore
+          .getState()
+          .showAlert('이미 사용중인 이메일입니다.', 'top');
         setIsEmailChecked(false);
       }
     } catch (error) {
       if (error instanceof AxiosError) {
         setEmailError(
-          error.response?.data?.message || '중복확인 중 오류가 발생했습니다.',
+          useAlertStore
+            .getState()
+            .showAlert('중복확인 중 오류가 발생했습니다.', 'top'),
         );
       }
       setIsEmailChecked(false);
@@ -224,7 +233,7 @@ const RegisterForm = () => {
       if (!nicknameDuplicated) {
         setNicknameError('');
         setIsNicknameChecked(true);
-        alert('사용 가능한 닉네임입니다.');
+        useAlertStore.getState().showAlert('사용 가능한 닉네임입니다.', 'top');
       } else {
         setNicknameError('이미 사용중인 닉네임입니다.');
         setIsNicknameChecked(false);
@@ -242,7 +251,9 @@ const RegisterForm = () => {
   // 이메일 인증 모달 열기
   const handleEmailVerification = () => {
     if (!isEmailChecked) {
-      alert('먼저 이메일 중복확인을 해주세요.');
+      useAlertStore
+        .getState()
+        .showAlert('먼저 이메일 중복확인을 해주세요.', 'top');
       return;
     }
     setIsVerificationModalOpen(true);
@@ -256,7 +267,7 @@ const RegisterForm = () => {
   // 이메일 인증 성공 처리
   const handleVerificationSuccess = () => {
     setIsEmailVerified(true);
-    alert('이메일 인증이 완료되었습니다!');
+    useAlertStore.getState().showAlert('이메일 인증이 완료되었습니다!', 'top');
   };
 
   // 회원가입 제출
@@ -270,32 +281,38 @@ const RegisterForm = () => {
       !passwordCheck.trim() ||
       !nickname.trim()
     ) {
-      alert('모든 필수 항목을 입력해주세요.');
+      useAlertStore
+        .getState()
+        .showAlert('모든 필수 항목을 입력해주세요.', 'top');
       return;
     }
 
     if (!isEmailChecked) {
-      alert('이메일 중복확인을 해주세요.');
+      useAlertStore.getState().showAlert('이메일 중복확인을 해주세요.', 'top');
       return;
     }
 
     if (!isEmailVerified) {
-      alert('이메일 인증을 완료해주세요.');
+      useAlertStore.getState().showAlert('이메일 인증을 완료해주세요.', 'top');
       return;
     }
 
     if (!isNicknameChecked) {
-      alert('닉네임 중복확인을 해주세요.');
+      useAlertStore.getState().showAlert('닉네임 중복확인을 해주세요.', 'top');
       return;
     }
 
     if (!isPrivacyChecked) {
-      alert('개인정보 수집 및 이용동의에 체크해주세요.');
+      useAlertStore
+        .getState()
+        .showAlert('개인정보 수집 및 이용동의에 체크해주세요.', 'top');
       return;
     }
 
     if (password !== passwordCheck) {
-      alert('비밀번호가 일치하지 않습니다.');
+      useAlertStore
+        .getState()
+        .showAlert('비밀번호가 일치하지 않습니다.', 'top');
       return;
     }
 
@@ -304,6 +321,10 @@ const RegisterForm = () => {
     try {
       // 소셜 로그인 여부 확인
       const isSocial = !!socialEmail;
+      let providerName = undefined;
+      if (isSocial) {
+        providerName = 'GOOGLE';
+      }
 
       // register API 호출
       await register(
@@ -311,18 +332,26 @@ const RegisterForm = () => {
         password,
         nickname,
         isSocial,
+        providerName,
         profileImageFile,
-        isSocial ? 'GOOGLE' : undefined, // 소셜 로그인인 경우 providerName 추가
       );
+
+      console.log(profileImage);
 
       setIsRegistered(true);
     } catch (error) {
       if (error instanceof AxiosError) {
-        alert(
-          error.response?.data?.message || '회원가입 중 오류가 발생했습니다.',
-        );
+        useAlertStore
+          .getState()
+          .showAlert(
+            error.response?.data?.message || '회원가입 중 오류가 발생했습니다.',
+            'top',
+          );
+        alert();
       } else {
-        alert('회원가입 중 오류가 발생했습니다.');
+        useAlertStore
+          .getState()
+          .showAlert('회원가입 중 오류가 발생했습니다.', 'top');
       }
     } finally {
       setIsSubmitting(false);

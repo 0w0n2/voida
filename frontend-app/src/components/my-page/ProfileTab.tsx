@@ -3,7 +3,7 @@ import { css } from '@emotion/react';
 import React, { useState, useEffect } from 'react';
 import defaultProfile from '../../assets/profiles/defaultProfile.png';
 import { getUser, updateUser, linksocialAccount } from '@/apis/auth/userApi';
-import { useAuthStore } from '@/stores/authStore';
+import { useAuthStore, type User } from '@/stores/authStore';
 import UpdatePasswordModal from './UpdatePasswordModal';
 import GetOutModal from './GetOutModal';
 import camera from '@/assets/icons/mp-camera.png';
@@ -20,7 +20,7 @@ interface UserProfile {
 }
 
 const ProfileTab = () => {
-  const { accessToken, user } = useAuthStore();
+  const { accessToken } = useAuthStore();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
@@ -30,15 +30,20 @@ const ProfileTab = () => {
   const [isGetOutModalOpen, setIsGetOutModalOpen] = useState(false);
 
   // 유저 정보 조회 API 호출 (변수에 사진, 닉네임, 이메일 할당)
+  const user = useAuthStore((state) => state.user);
+  const userImage = user?.profileImage;
+  const userNickname = user?.nickname;
+  const userEmail = user?.email;
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
         setLoading(true);
 
-        // const response = await getUser(accessToken!);
-        // const ProfileImage = response.data.profileImage || defaultProfile;
-        // const ProfileName = response.data.nickname;
-        // const ProfileEmail = response.data.email;
+        const response = await getUser();
+        const ProfileImage = response.data.profileImage || defaultProfile;
+        const ProfileName = response.data.nickname;
+        const ProfileEmail = response.data.email;
 
         // 임시 데이터 사용 (퍼블리싱용)
         setTimeout(() => {
@@ -172,30 +177,6 @@ const ProfileTab = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div css={loadingContainerStyle}>
-        <p css={loadingTextStyle}>유저 정보를 불러오는 중...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div css={errorContainerStyle}>
-        <p css={errorTextStyle}>{error}</p>
-      </div>
-    );
-  }
-
-  if (!userProfile) {
-    return (
-      <div css={errorContainerStyle}>
-        <p css={errorTextStyle}>유저 정보를 찾을 수 없습니다.</p>
-      </div>
-    );
-  }
-
   return (
     <>
       {/* 좌측: 프로필 사진 섹션 */}
@@ -205,7 +186,7 @@ const ProfileTab = () => {
         <div css={gradientBorderStyle}>
           <div css={profileImageContainerStyle}>
             <img
-              src={userProfile.profileImage || defaultProfile}
+              src={userImage || defaultProfile}
               alt="프로필 사진"
               css={largeProfileImageStyle}
             />
@@ -217,11 +198,7 @@ const ProfileTab = () => {
           disabled={saving}
           css={changePhotoButtonStyle}
         >
-          {saving ? (
-            '변경 중...'
-          ) : (
-            <img src={camera} alt="camera" className="icon" />
-          )}
+          <img src={camera} alt="camera" className="icon" />
           사진 변경
         </button>
       </div>
@@ -236,14 +213,14 @@ const ProfileTab = () => {
               disabled={saving}
               css={withdrawButtonStyle}
             >
-              {saving ? '처리 중...' : '탈퇴하기'}
+              탈퇴하기
             </button>
             <button
               onClick={handleSave}
               disabled={saving}
               css={saveButtonStyle}
             >
-              {saving ? '저장 중...' : '수정하기'}
+              수정하기
             </button>
           </div>
         </div>
@@ -257,7 +234,7 @@ const ProfileTab = () => {
           </label>
           <input
             type="text"
-            value={userProfile.nickname}
+            value={userNickname}
             onChange={(e) => handleNicknameChange(e.target.value)}
             placeholder="닉네임을 입력하세요"
             disabled={saving}
@@ -273,7 +250,7 @@ const ProfileTab = () => {
           </label>
           <input
             type="email"
-            value={userProfile.email}
+            value={userEmail}
             disabled
             placeholder="이메일을 입력하세요"
             css={inputFieldStyle}
