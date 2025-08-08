@@ -8,14 +8,14 @@ import lombok.ToString;
 @ToString
 @Getter
 @Builder
-public class MeQuickSlotsResponseDto {
+public class MeQuickSlotsResponseInfoDto {
     private Long quickSlotId;
     private String message;
     private String hotkey;
     private String url;
 
-    public static MeQuickSlotsResponseDto toDto(MemberQuickSlot memberQuickSlot) {
-        return MeQuickSlotsResponseDto.builder()
+    public static MeQuickSlotsResponseInfoDto toDto(MemberQuickSlot memberQuickSlot) {
+        return MeQuickSlotsResponseInfoDto.builder()
                 .quickSlotId(memberQuickSlot.getId())
                 .message(memberQuickSlot.getMessage())
                 .hotkey(memberQuickSlot.getHotkey())

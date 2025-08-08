@@ -1,15 +1,15 @@
 package com.bbusyeo.voida.api.member.controller;
 
 import com.bbusyeo.voida.api.member.domain.Member;
-import com.bbusyeo.voida.api.member.dto.MeResponseDto;
+import com.bbusyeo.voida.api.member.dto.MeResponseInfoDto;
+import com.bbusyeo.voida.api.member.dto.UpdateMeProfileRequestDto;
 import com.bbusyeo.voida.api.member.service.MyPageService;
 import com.bbusyeo.voida.global.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 회원 정보 관련
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MyPageController {
 
     private final MyPageService myPageService;
-    
+
     @PatchMapping("/newbie")
     public BaseResponse<Void> isNewbie(
             @AuthenticationPrincipal(expression = "member") Member member) {
@@ -29,20 +29,29 @@ public class MyPageController {
     }
 
     @GetMapping("/profile")
-    public BaseResponse<MeResponseDto> getProfile(
+    public BaseResponse<MeResponseInfoDto> getProfile(
             @AuthenticationPrincipal(expression = "member") Member member) {
-        return new BaseResponse<>(MeResponseDto.toMeResponseDto(myPageService.getMeProfile(member)));
+        return new BaseResponse<>(MeResponseInfoDto.toMeResponseDto(myPageService.getMeProfile(member)));
     }
 
     @GetMapping("/setting")
-    public BaseResponse<MeResponseDto> getSetting(
+    public BaseResponse<MeResponseInfoDto> getSetting(
             @AuthenticationPrincipal(expression = "member") Member member) {
-        return new BaseResponse<>(MeResponseDto.toMeResponseDto(myPageService.getMeSetting(member.getId())));
+        return new BaseResponse<>(MeResponseInfoDto.toMeResponseDto(myPageService.getMeSetting(member.getId())));
     }
 
     @GetMapping("/quick-slots")
-    public BaseResponse<MeResponseDto> getQuickSlots(
+    public BaseResponse<MeResponseInfoDto> getQuickSlots(
             @AuthenticationPrincipal(expression = "member") Member member) {
-        return new BaseResponse<>(MeResponseDto.toMeResponseDto(myPageService.getMeQuickSlots(member.getId())));
+        return new BaseResponse<>(MeResponseInfoDto.toMeResponseDto(myPageService.getMeQuickSlots(member.getId())));
+    }
+
+    @PutMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BaseResponse<Void> updateProfile(
+            @RequestPart UpdateMeProfileRequestDto requestDt,
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
+            @AuthenticationPrincipal(expression = "member") Member member) {
+        myPageService.updateProfile(requestDt, profileImage, member.getId());
+        return new BaseResponse<>();
     }
 }
