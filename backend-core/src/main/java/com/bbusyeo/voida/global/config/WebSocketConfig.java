@@ -1,6 +1,8 @@
 package com.bbusyeo.voida.global.config;
 
+import com.bbusyeo.voida.global.security.config.CorsProperties;
 import com.bbusyeo.voida.global.security.handler.StompHandler;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -10,12 +12,15 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Configuration
 @EnableWebSocketMessageBroker
+@EnableConfigurationProperties({CorsProperties.class})
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final StompHandler stompHandler;
+    private final CorsProperties corsProperties;
 
-    public WebSocketConfig(StompHandler stompHandler) {
+    public WebSocketConfig(StompHandler stompHandler, CorsProperties corsProperties) {
         this.stompHandler = stompHandler;
+        this.corsProperties = corsProperties;
     }
 
     @Override
@@ -23,7 +28,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // WebSocket이 웹소켓 핸드셰이킹 커넥션을 생성할 경로 (연결 시작할 엔드포인트)
         registry.addEndpoint("/ws")
                 // todo: 프론트엔드 배포 주소로 변경 예정 , yaml로 관리하기 (properties 관리)
-                .setAllowedOrigins("*")
+                .setAllowedOrigins(corsProperties.getAllowedOrigins().toArray(String[]::new))
                 .withSockJS();
     }
 
