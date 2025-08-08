@@ -13,6 +13,8 @@ import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
 import com.bbusyeo.voida.global.support.S3Uploader;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,12 +25,14 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Slf4j
 public class MyPageServiceImpl implements MyPageService {
 
     private final MemberRepository memberRepository;
     private final MemberSettingRepository memberSettingRepository;
     private final MemberQuickSlotRepository memberQuickSlotRepository;
     private final S3Uploader s3Uploader;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
     @Override
@@ -94,14 +98,6 @@ public class MyPageServiceImpl implements MyPageService {
         }
     }
 
-    @Override
-    public boolean verifyPassword(Member member, VerifyPasswordRequestDto requestDto) {
-        // 1. 요청된 비밀번호 암호화
-        String encodedRequestPassword;
-
-        return false;
-    }
-
     @Transactional
     @Override
     public void createDefaultSettingsAndQuickSlots(Member member) {
@@ -114,5 +110,26 @@ public class MyPageServiceImpl implements MyPageService {
         for (QuickSlotDefault quickSlotDefault : defaultSlots) {
             memberQuickSlotRepository.save(MemberQuickSlot.toDefaultQuickSlot(member, quickSlotDefault));
         }
+    }
+
+    @Override
+    public boolean verifyPassword(Member member, String requestPassword) {
+        log.info("realPassword:{}, requestPassword:{}", member.getPassword(), requestPassword);
+        return bCryptPasswordEncoder.matches(requestPassword, member.getPassword());
+    }
+
+    @Transactional
+    @Override
+    public void changePassword(Long memberId, ChangePasswordRequestDto requestDto) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
+
+        // 2차 검증 (최종적으로 넘어온 이전 비밀번호가 현재 DB와 일치하는지)
+        if (!bCryptPasswordEncoder.matches(requestDto.getCurrentPassword(), member.getPassword())) {
+            throw new BaseException(BaseResponseStatus.MISMATCH_PASSWORD);
+        }
+
+        String encodedPw = bCryptPasswordEncoder.encode(requestDto.getNewPassword());
+        member.changePassword(encodedPw);
     }
 }

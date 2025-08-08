@@ -1,11 +1,10 @@
 package com.bbusyeo.voida.api.member.controller;
 
 import com.bbusyeo.voida.api.member.domain.Member;
-import com.bbusyeo.voida.api.member.dto.MeResponseInfoDto;
-import com.bbusyeo.voida.api.member.dto.UpdateMeProfileRequestDto;
-import com.bbusyeo.voida.api.member.dto.VerifyPasswordRequestDto;
+import com.bbusyeo.voida.api.member.dto.*;
 import com.bbusyeo.voida.api.member.service.MyPageService;
 import com.bbusyeo.voida.global.response.BaseResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -58,10 +57,19 @@ public class MyPageController {
     }
 
     @PostMapping("/verify-password")
-    public BaseResponse<Void> verifyPassword(
-            @RequestBody VerifyPasswordRequestDto requestDto,
+    public BaseResponse<VerifyPasswordResponseDto> verifyPassword(
+            @Valid @RequestBody VerifyPasswordRequestDto requestDto,
             @AuthenticationPrincipal(expression = "member") Member member
     ){
+        return new BaseResponse<>(VerifyPasswordResponseDto.toDto(myPageService.verifyPassword(member, requestDto.getPassword())));
+    }
+
+    @PutMapping("/password")
+    public BaseResponse<Void> changePassword(
+            @Valid @RequestBody ChangePasswordRequestDto requestDto,
+            @AuthenticationPrincipal(expression = "member") Member member
+    ){
+        myPageService.changePassword(member.getId(), requestDto);
         return new BaseResponse<>();
     }
 }
