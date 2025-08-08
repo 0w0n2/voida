@@ -16,6 +16,7 @@ const MemberPanel = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   const memberList = participants?.participants ?? [];
+
   const myInfo = memberList.find((p) => p.mine);
   const isHost = myInfo ? myInfo.state === 'HOST' : false;
 
@@ -50,7 +51,7 @@ const MemberPanel = () => {
 
       <div css={listStyle}>
         {memberList.map((p) => (
-          <div key={p.memberId} css={[cardStyle, p.mine && myCardStyle]}>
+          <div key={p.memberUuid} css={[cardStyle, p.mine && myCardStyle]}>
             <div css={avatarWrapper}>
               <img
                 src={`${import.meta.env.VITE_CDN_URL}/${p.profileImageUrl}`}

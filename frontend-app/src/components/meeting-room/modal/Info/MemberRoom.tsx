@@ -17,12 +17,12 @@ const MemberRoom = () => {
       <div css={listContainer}>
         {participants?.participants.map((user) => (
           <div
-            key={user.memberId}
+            key={user.memberUuid}
             css={[memberCard, user.mine && myCardStyle]}
           >
             <div css={profileArea}>
               <img
-                src={`${import.meta.env.VITE_CDN_URL}${user.profileImageUrl}`}
+                src={`${import.meta.env.VITE_CDN_URL}/${user.profileImageUrl}`}
                 alt={user.nickname}
                 css={avatar}
               />

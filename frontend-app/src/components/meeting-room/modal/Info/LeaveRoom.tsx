@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, Trash2 } from 'lucide-react';
 import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
 import { leaveRoom } from '@/apis/meeting-room/meetingRoomApi';
+import { useAlertStore } from '@/stores/useAlertStore';
 
 const DeleteRoom = ({ onClose }: { onClose: () => void }) => {
   const { roomInfo } = useMeetingRoomStore();
@@ -18,12 +19,12 @@ const DeleteRoom = ({ onClose }: { onClose: () => void }) => {
 
   const handleConfirmDelete = async () => {
     if (input !== roomInfo?.title) {
-      alert('방 이름이 일치하지 않습니다.');
+      useAlertStore.getState().showAlert('방 이름이 일치하지 않습니다.', 'top');
       return;
     }
 
     await leaveRoom(roomInfo?.meetingRoomId);
-    alert('탈퇴 완료');
+    useAlertStore.getState().showAlert('방에서 탈퇴되었습니다.', 'top');
     onClose();
     navigate('/main');
   };
@@ -36,7 +37,7 @@ const DeleteRoom = ({ onClose }: { onClose: () => void }) => {
 
       <div css={box}>
         <p>
-          방을 탈퇴하면 초대코드를 입력해 <strong>다시 입장</strong> 합니다.
+          방을 탈퇴하면 초대코드를 입력해 <strong>다시 입장</strong>해야 합니다.
         </p>
 
         {confirmMode ? (
