@@ -92,8 +92,8 @@ public class MeetingRoomService {
             memberMeetingRoomRepository.save(hostLink);
             return saveMeetingRoom;
         } catch (Exception e) {
-            // 보상 트랜잭션: DB 저장 중 에러 발생 시, S3에 업로드된 파일이 있다면 삭제
-            if (thumbnailFileKey != null && thumbnailImage != null && !thumbnailImage.isEmpty()) {
+            // 보상 트랜잭션: DB 저장 중 에러 발생 시, S3에 업로드된 파일이 있다면 삭제 (기본 이미지 제외)
+            if (thumbnailImage != null && isDefaultImageKey(thumbnailFileKey)) {
                 s3Uploader.delete(thumbnailFileKey);
             }
             // 원래 예외를 그대로 던지거나, BaseException으로 감싸서 던짐
@@ -113,6 +113,11 @@ public class MeetingRoomService {
     @Transactional(readOnly = true)
     public List<MyMeetingRoomResponseDto> findMyMeetingRooms(String memberUuid) {
         List<MemberMeetingRoom> memberMeetingRooms = memberMeetingRoomRepository.findByMemberUuid(memberUuid);
+
+        if (memberMeetingRooms.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.NO_MEETING_ROOMS_JOINED);
+        }
+
         return memberMeetingRooms.stream()
                 .map(MemberMeetingRoom::getMeetingRoom)
                 .map(MyMeetingRoomResponseDto::from)
@@ -126,32 +131,35 @@ public class MeetingRoomService {
 
         MeetingRoom meetingRoom = findById(meetingRoomId);
         String oldFileKey = meetingRoom.getThumbnailImageUrl();
-        String newFileKey = null; // 새 파일이 업로드 되었는지 확인하기 위해 null로 초기화
+        String newFileKey = oldFileKey; // 기본적으로 이전 파일 유지
 
+        boolean isNewImageUploaded = newThumbnailImage != null && !newThumbnailImage.isEmpty();
+        boolean isCategoryChanged = !Objects.equals(meetingRoom.getCategoryName(), requestDto.getCategory());
 
-        // 새 썸네일 이미지가 있는지 확인
-        if (newThumbnailImage != null && !newThumbnailImage.isEmpty()) {
-            // 새 이미지가 있다면 S3에 업로드하고 새로운 파일 키를 받음
+        // 사용자가 새롭게 썸네일 이미지를 수정하였을 때
+        if (isNewImageUploaded) {
             newFileKey = s3Uploader.upload(newThumbnailImage, S3_THUMBNAIL_DIR);
+        }
+        // 사진 변경은 없고, 카테고리만 바뀌면 그 카테고리에 맞는 default 이미지로 변경
+        else if (isCategoryChanged) {
+            newFileKey = getDefaultThumbnailKey(requestDto.getCategory());
         }
 
         try {
             // DB 엔티티 업데이트
-            // 새 파일이 있으면 newFileKey를, 없으면 oldFileKey를 사용
-            meetingRoom.update(requestDto.getTitle(), requestDto.getCategory(), (newFileKey != null) ? newFileKey : oldFileKey);
+            meetingRoom.update(requestDto.getTitle(), requestDto.getCategory(), newFileKey);
 
             // 후속 처리 : DB 업데이트 성공 후, 기존 사용자 업로드 이미지가 있다면 S3에서 삭제
-            if (newFileKey != null && oldFileKey != null && !isDefaultImageKey(oldFileKey)) {
+            if (isNewImageUploaded && oldFileKey != null && !isDefaultImageKey(oldFileKey)) {
                 s3Uploader.delete(oldFileKey);
             }
-
             return meetingRoom;
+
         } catch (Exception e) {
             // 보상 트랜잭션: DB 업데이트 중 에러 발생 시, S3에 새로 업로드된 파일이 있다면 삭제
-            if (newFileKey != null) {
+            if (isNewImageUploaded && newFileKey != null && !isDefaultImageKey(newFileKey)) {
                 s3Uploader.delete(newFileKey);
             }
-
             // 원래 예외를 그대로 던지거나, BaseException으로 감싸서 던지기
             if (e instanceof BaseException) throw e;
             throw new BaseException(BaseResponseStatus.DATABASE_CONSTRAINT_VIOLATION);
