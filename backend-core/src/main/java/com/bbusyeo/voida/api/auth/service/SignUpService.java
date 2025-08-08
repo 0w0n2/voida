@@ -1,6 +1,7 @@
 package com.bbusyeo.voida.api.auth.service;
 
 import com.bbusyeo.voida.api.auth.dto.SignUpRequestDto;
+import com.bbusyeo.voida.api.member.constant.MemberValue;
 import com.bbusyeo.voida.api.member.domain.Member;
 import com.bbusyeo.voida.api.member.domain.MemberSocial;
 import com.bbusyeo.voida.api.member.domain.enums.ProviderName;
@@ -35,7 +36,7 @@ public class SignUpService {
     private final RedisDao redisDao;
     private static final String SIGNUP_TOKEN_PREFIX = "signup-token:";
 
-    public void signUp(SignUpRequestDto requestDto, MultipartFile profileImage) {
+    public Member signUp(SignUpRequestDto requestDto, MultipartFile profileImage) {
         // 1. 비밀번호 암호화
         String encodedPassword = bCryptPasswordEncoder.encode(requestDto.getPassword());
 
@@ -45,11 +46,9 @@ public class SignUpService {
         // 3. 프로필 이미지 설정
         String profileImageUrl = null;
         try {
-            final int DEFAULT_PROFILE_IMAGE_COUNT = 14;
-            final String s3_PROFILE_DIR = "members/profiles";
             profileImageUrl = (profileImage != null && !profileImage.isEmpty()) ?
-                    s3Uploader.upload(profileImage, s3_PROFILE_DIR) // 사용자 지정 이미지
-                    : "%s/default_profile%d.png".formatted(s3_PROFILE_DIR, random.nextInt(DEFAULT_PROFILE_IMAGE_COUNT)); // 디폴트 이미지
+                    s3Uploader.upload(profileImage, MemberValue.S3_PROFILE_DIR) // 사용자 지정 이미지
+                    : "%s/default_profile%d.png".formatted(MemberValue.S3_PROFILE_DIR, random.nextInt(MemberValue.DEFAULT_PROFILE_IMAGE_COUNT)); // 디폴트 이미지
             // 4. member 테이블 저장
             Member member = memberRepository.save(requestDto.toMember(memberUuid, encodedPassword, profileImageUrl));
 
@@ -69,6 +68,7 @@ public class SignUpService {
                 redisDao.deleteValue(redisKey); // 사용 완료된 소셜 회원가입 데이터 삭제
             }
 
+            return member;
         } catch (Exception e) {
             // 보상 트랜잭션: DB 저장 중 에러 발생 시, S3에 업로드된 파일이 있다면 삭제
             if (profileImageUrl != null && profileImage != null && !profileImage.isEmpty()) {
@@ -82,5 +82,4 @@ public class SignUpService {
             }
         }
     }
-
 }

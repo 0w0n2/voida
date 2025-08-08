@@ -1,5 +1,7 @@
 package com.bbusyeo.voida.api.member.domain;
 
+import com.bbusyeo.voida.api.member.constant.MemberValue;
+import com.bbusyeo.voida.api.member.constant.QuickSlotDefault;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,4 +28,13 @@ public class MemberQuickSlot {
 
     @Column(name = "url", nullable = false, length = 500)
     private String url;
+
+    public static MemberQuickSlot toDefaultQuickSlot(Member member, QuickSlotDefault quickSlotDefault) {
+        return MemberQuickSlot.builder()
+                .member(member)
+                .hotkey(quickSlotDefault.hotkey())
+                .url(MemberValue.S3_QUICK_SLOT_SOUND_DIR + quickSlotDefault.url())
+                .message(quickSlotDefault.message())
+                .build();
+    }
 }

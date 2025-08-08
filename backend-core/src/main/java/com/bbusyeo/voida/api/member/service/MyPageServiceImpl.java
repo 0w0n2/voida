@@ -1,5 +1,7 @@
 package com.bbusyeo.voida.api.member.service;
 
+import com.bbusyeo.voida.api.member.constant.MemberValue;
+import com.bbusyeo.voida.api.member.constant.QuickSlotDefault;
 import com.bbusyeo.voida.api.member.domain.Member;
 import com.bbusyeo.voida.api.member.domain.MemberQuickSlot;
 import com.bbusyeo.voida.api.member.domain.MemberSetting;
@@ -27,8 +29,6 @@ public class MyPageServiceImpl implements MyPageService {
     private final MemberSettingRepository memberSettingRepository;
     private final MemberQuickSlotRepository memberQuickSlotRepository;
     private final S3Uploader s3Uploader;
-
-    private final String S3_PROFILE_DIR = "members/profiles";
 
     @Transactional
     @Override
@@ -68,14 +68,14 @@ public class MyPageServiceImpl implements MyPageService {
 
         try {
             if (profileImage != null && !profileImage.isEmpty()) {
-                newFileImageUrl = s3Uploader.upload(profileImage, S3_PROFILE_DIR);
+                newFileImageUrl = s3Uploader.upload(profileImage, MemberValue.S3_PROFILE_DIR);
             }
 
             String finalImageUrl = (newFileImageUrl != null) ? newFileImageUrl : oldFileImageUrl;
             member.updateProfile(requestDto.getNickname(), finalImageUrl);
 
             if (newFileImageUrl != null && oldFileImageUrl != null
-                    && !oldFileImageUrl.startsWith("%s/default_profile".formatted(S3_PROFILE_DIR))) {
+                    && !oldFileImageUrl.startsWith("%s/default_profile".formatted(MemberValue.S3_PROFILE_DIR))) {
                 s3Uploader.delete(oldFileImageUrl);
             }
         }  catch (Exception e) {
@@ -100,5 +100,19 @@ public class MyPageServiceImpl implements MyPageService {
         String encodedRequestPassword;
 
         return false;
+    }
+
+    @Transactional
+    @Override
+    public void createDefaultSettingsAndQuickSlots(Member member) {
+        // 디폴트 member_setting 등록
+        MemberSetting defaultSetting = MemberSetting.toDefaultSetting(member);
+        memberSettingRepository.save(defaultSetting);
+        
+        // 디폴트 member_quick_slot 등록
+        List<QuickSlotDefault> defaultSlots = MemberValue.DEFAULT_QUICK_SLOT_DEFAULTS;
+        for (QuickSlotDefault quickSlotDefault : defaultSlots) {
+            memberQuickSlotRepository.save(MemberQuickSlot.toDefaultQuickSlot(member, quickSlotDefault));
+        }
     }
 }
