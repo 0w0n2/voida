@@ -11,7 +11,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public enum MailType {
     SIGN_UP_EMAIL_VERIFICATION(
-            "[Voida] 이메일 인증을 완료해주세요 ✨",
+            "[Voida] 이메일 인증을 완료해주세요",
             values -> """
                     <html><body><div><table border="0" cellpadding="0"
                      cellspacing="0" style="width: 815px; margin: 55px
@@ -54,7 +54,7 @@ public enum MailType {
     ),
 
     PASSWORD_RESET(
-            "[Voida] 임시 비밀번호가 발급되었습니다 👨‍🔧",
+            "[Voida] 임시 비밀번호가 발급되었습니다",
             values -> """
                     <html><body><div><table border="0" cellpadding="0"
                     cellspacing="0" style="width: 815px; margin: 55px auto;
