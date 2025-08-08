@@ -2,6 +2,7 @@ package com.bbusyeo.voida.global.security.handler;
 
 import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
+import com.bbusyeo.voida.global.security.dto.UserDetailsDto;
 import com.bbusyeo.voida.global.security.util.TokenUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.Message;
@@ -11,6 +12,8 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Component
@@ -40,6 +43,12 @@ public class StompHandler implements ChannelInterceptor {
 
             // WebSocket 세션에 인증 정보 등록
             accessor.setUser(authentication);
+            // 세션 속성에 Member 객체 저장
+            UserDetailsDto userDetails = (UserDetailsDto) authentication.getPrincipal();
+            Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
+            if (sessionAttributes != null) {
+                sessionAttributes.put("member", userDetails.getMember());
+            }
         }
         return message;
     }

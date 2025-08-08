@@ -5,6 +5,9 @@ import com.bbusyeo.voida.api.chat.dto.ChatMessageRequestDto;
 import com.bbusyeo.voida.api.chat.dto.ChatMessageResponseDto;
 import com.bbusyeo.voida.api.chat.repository.MeetingChatRepository;
 import com.bbusyeo.voida.api.member.domain.Member;
+import com.bbusyeo.voida.api.member.repository.MemberRepository;
+import com.bbusyeo.voida.global.exception.BaseException;
+import com.bbusyeo.voida.global.response.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,6 +28,7 @@ public class ChatServiceImpl implements ChatService {
 
     // WebSocket을 통해 메시지를 전송하기 위한 템플릿
     private final SimpMessagingTemplate messagingTemplate;
+    private final MemberRepository memberRepository;
 
     // 특정 대기실의 과거 채팅 내역 조회
     @Override
@@ -41,7 +45,10 @@ public class ChatServiceImpl implements ChatService {
 
     // 실시간 채팅 메시지 처리, MongoDB에 저장 및 구독 중인 member들에게 브로드캐스팅
     @Override
-    public void saveAndSend(Long meetingRoomId, ChatMessageRequestDto requestDto, Member sender) {
+    public void saveAndSend(Long meetingRoomId, ChatMessageRequestDto requestDto, Member member) {
+
+        Member sender = memberRepository.findByMemberUuid(member.getMemberUuid())
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
 
         MeetingChat chat = MeetingChat.builder()
                 .meetingRoomId(meetingRoomId)

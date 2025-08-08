@@ -11,11 +11,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,7 +41,8 @@ public class ChatController {
     @MessageMapping("/chat/message/{meetingRoomId}")
     public void message(@DestinationVariable Long meetingRoomId,
                         ChatMessageRequestDto requestDto,
-                        @AuthenticationPrincipal(expression = "member") Member member) {
+                        @Header("simpSessionAttributes") Map<String, Object> sessionAttributes) {
+        Member member = (Member) sessionAttributes.get("member");
         chatService.saveAndSend(meetingRoomId, requestDto, member);
     }
 }
