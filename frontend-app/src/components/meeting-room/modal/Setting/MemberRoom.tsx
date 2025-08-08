@@ -8,7 +8,6 @@ import Crown from '@/assets/icons/crown.png';
 
 const MemberRoom = () => {
   const { roomInfo, participants } = useMeetingRoomStore();
-  console.log(participants);
 
   const handleDelegate = async (memberId: number) => {
     if (!roomInfo) return;

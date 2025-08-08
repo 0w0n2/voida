@@ -53,6 +53,13 @@ export interface CreateRoomRequest {
   thumbnailImageUrl: Blob | File | null;
 }
 
+// 참여 중인 방 조회
+export const getRooms = async (): Promise<MeetingRoom[]> => {
+  const res = await apiInstance.get('/v1/meeting-rooms');
+  console.log(res);
+  return res.data.result;
+};
+
 // 방 정보 조회
 export const getRoomInfo = async (meetingRoomId: string): Promise<RoomInfo> => {
   const res = await apiInstance.get(`/v1/meeting-rooms/${meetingRoomId}`);
@@ -62,7 +69,7 @@ export const getRoomInfo = async (meetingRoomId: string): Promise<RoomInfo> => {
 // 방 참여자 조회
 export const getRoomMembers = async (meetingRoomId: string): Promise<RoomParticipant> => {
   const res = await apiInstance.get(`/v1/meeting-rooms/${meetingRoomId}/members`);
-  console.log(res);
+  console.log(res.data.result);
   return res.data.result;
 };
 
@@ -139,60 +146,6 @@ export const postChatMessage = async (
     content,
   });
 };
-
-// 참여 중인 방 조회
-// export const getRooms = async (): Promise<MeetingRoom[]> => {
-//   const res = await apiInstance.get('/v1/meeting-rooms');
-//   return res.data.result;
-// };
-export const getRooms = async (): Promise<MeetingRoom[]> => {
-  // 하드코딩된 테스트 데이터
-  return [
-    {
-      meetingRoomId: '23',
-      title: '테스트 회의방',
-      category: 'game',
-      memberCount: 3,
-      thumbnailImageUrl: '',
-    },
-    {
-      meetingRoomId: '2',
-      title: 'React 스터디',
-      category: 'game',
-      memberCount: 5,
-      thumbnailImageUrl: '',
-    },
-    {
-      meetingRoomId: '3',
-      title: 'React 스터디',
-      category: 'game',
-      memberCount: 5,
-      thumbnailImageUrl: '',
-    },
-    {
-      meetingRoomId: '4',
-      title: 'React 스터디',
-      category: 'game',
-      memberCount: 5,
-      thumbnailImageUrl: '',
-    },
-    {
-      meetingRoomId: '5',
-      title: 'React 스터디',
-      category: 'game',
-      memberCount: 5,
-      thumbnailImageUrl: '',
-    },
-    {
-      meetingRoomId: '6',
-      title: 'React 스터디',
-      category: 'game',
-      memberCount: 5,
-      thumbnailImageUrl: '',
-    },
-  ];
-};
-
 
 // 방 생성
 export const createRoom = async (

@@ -4,8 +4,9 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { Home, Copy, Camera, Grid, UserPlus } from 'lucide-react';
 import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
 import { getInviteCode, postInviteCode, getRoomInfo, updateRoomInfo } from '@/apis/meeting-room/meetingRoomApi';
+import { useAlertStore } from '@/stores/useAlertStore';
 
-const SettingRoom = ({ onClose }: { onClose: () => void }) => {
+const SettingRoom = () => {
   const { roomInfo, setRoomInfo } = useMeetingRoomStore();
   const [title, setTitle] = useState(roomInfo?.title ?? '');
   const [category, setCategory] = useState(roomInfo?.category ?? '');
@@ -64,7 +65,7 @@ const SettingRoom = ({ onClose }: { onClose: () => void }) => {
     const isThumbnailChanged = !!thumbnailFile;
 
     if (!isTitleChanged && !isCategoryChanged && !isThumbnailChanged) {
-      alert('변경된 내용이 없습니다.');
+      useAlertStore.getState().showAlert('변경된 내용이 없습니다.', 'top');
       return;
     }
 
@@ -81,10 +82,12 @@ const SettingRoom = ({ onClose }: { onClose: () => void }) => {
         meetingRoomId: roomInfo.meetingRoomId,
       });
 
-      onClose();
-      window.location.reload();
+      useAlertStore.getState().showAlert('방 정보가 수정되었습니다!', 'top');
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } catch {
-      alert('방 정보 저장에 실패했습니다.');
+      useAlertStore.getState().showAlert('방 정보 저장에 실패했습니다.', 'top');
     }
   };
 
@@ -176,7 +179,7 @@ const SettingRoom = ({ onClose }: { onClose: () => void }) => {
           변경사항 저장
         </button>
       </div>
-      {copied && <div css={toastAlert}>초대코드가 복사되었습니다!</div>}
+      {copied &&  useAlertStore.getState().showAlert('초대코드가 복사되었습니다!', 'bottom') }
     </>
   );
 };
@@ -369,38 +372,5 @@ const saveButton = css`
   color: white;
   &:hover {
     background: var(--color-primary-dark);
-  }
-`;
-
-const toastAlert = css`
-  position: fixed;
-  bottom: 60px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.85);
-  color: white;
-  font-size: 15px;
-  padding: 10px 20px;
-  border-radius: 8px;
-  z-index: 5000;
-  animation: slideUp 2s forwards;
-
-  @keyframes slideUp {
-    0% {
-      opacity: 0;
-      transform: translate(-50%, 20px);
-    }
-    15% {
-      opacity: 1;
-      transform: translate(-50%, 0);
-    }
-    85% {
-      opacity: 1;
-      transform: translate(-50%, 0);
-    }
-    100% {
-      opacity: 0;
-      transform: translate(-50%, 20px);
-    }
   }
 `;

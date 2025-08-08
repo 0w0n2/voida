@@ -31,7 +31,7 @@ const SettingModal = ({ onClose }: SettingModalProps) => {
         </div>
 
         <div css={contentBox}>
-          {activeTab === 'general' && <SettingRoom onClose={onClose} />}
+          {activeTab === 'general' && <SettingRoom />}
           {activeTab === 'members' && <MemberRoom />}
           {activeTab === 'danger' && <DeleteRoom onClose={onClose} />}
         </div>

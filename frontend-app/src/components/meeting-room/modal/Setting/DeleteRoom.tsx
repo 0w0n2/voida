@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, Trash2 } from 'lucide-react';
 import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
 import { deleteRoom } from '@/apis/meeting-room/meetingRoomApi';
+import { useAlertStore } from '@/stores/useAlertStore';
 
 const DeleteRoom = ({ onClose }: { onClose: () => void }) => {
   const { roomInfo } = useMeetingRoomStore();
@@ -18,15 +19,18 @@ const DeleteRoom = ({ onClose }: { onClose: () => void }) => {
 
   const handleConfirmDelete = async () => {
     if (input !== roomInfo?.title) {
-      alert('방 이름이 일치하지 않습니다.');
+      useAlertStore.getState().showAlert('방 이름이 일치하지 않습니다.', 'top');
       return;
     }
 
     await deleteRoom(roomInfo?.meetingRoomId);
-    alert('삭제 완료');
-    onClose();
-    navigate('/main');
-  };
+
+    useAlertStore.getState().showAlert('방이 삭제 되었습니다.', 'top');
+
+    setTimeout(() => {
+      onClose();
+      navigate('/main');
+    }, 1500)};
 
   return (
     <div>

@@ -53,7 +53,7 @@ const MemberPanel = () => {
           <div key={p.memberId} css={[cardStyle, p.mine && myCardStyle]}>
             <div css={avatarWrapper}>
               <img
-                src={`${import.meta.env.VITE_CDN_URL}${p.profileImageUrl}`}
+                src={`${import.meta.env.VITE_CDN_URL}/${p.profileImageUrl}`}
                 alt={p.nickname}
                 css={avatarStyle}
               />
