@@ -29,7 +29,7 @@ public class StompHandler implements ChannelInterceptor {
             String authorizationHeader = accessor.getFirstNativeHeader("Authorization");
 
             // token이 없거나 Bearer 타입 아니면 예외처리
-            if (authorizationHeader == null && !authorizationHeader.startsWith("Bearer ")) {
+            if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
                 throw new BaseException(BaseResponseStatus.TOKEN_NOT_FOUND);
             }
 
