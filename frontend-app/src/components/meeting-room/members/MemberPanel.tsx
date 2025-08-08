@@ -16,6 +16,7 @@ const MemberPanel = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   const memberList = participants?.participants ?? [];
+
   const myInfo = memberList.find((p) => p.mine);
   const isHost = myInfo ? myInfo.state === 'HOST' : false;
 
@@ -50,10 +51,10 @@ const MemberPanel = () => {
 
       <div css={listStyle}>
         {memberList.map((p) => (
-          <div key={p.memberId} css={[cardStyle, p.mine && myCardStyle]}>
+          <div key={p.memberUuid} css={[cardStyle, p.mine && myCardStyle]}>
             <div css={avatarWrapper}>
               <img
-                src={`${import.meta.env.VITE_CDN_URL}${p.profileImageUrl}`}
+                src={`${import.meta.env.VITE_CDN_URL}/${p.profileImageUrl}`}
                 alt={p.nickname}
                 css={avatarStyle}
               />
@@ -78,18 +79,27 @@ const MemberPanel = () => {
         ))}
       </div>
       <div css={roomInfoBox}>
-        <h4>{roomInfo?.title}</h4>
-        <button
-          css={css`
-            ${roomButton};
-            color: ${categoryColors[roomInfo?.category || ''] || '#666'};
-            background-color: ${categoryColors[roomInfo?.category || ''] ||
-            '#999'}20;
-            border: none;
-          `}
-        >
-          {roomInfo?.category}
-        </button>
+        <div css={roomInfoLeft}>
+          <h4>{roomInfo?.title}</h4>
+          <button
+            css={css`
+              ${roomButton};
+              color: ${categoryColors[roomInfo?.category || ''] || '#666'};
+              background-color: ${categoryColors[roomInfo?.category || ''] || '#999'}20;
+              border: none;
+            `}
+          >
+            {roomInfo?.category}
+          </button>
+        </div>
+
+        {roomInfo?.thumbnailImageUrl && (
+          <img
+            src={`${import.meta.env.VITE_CDN_URL}/${roomInfo.thumbnailImageUrl}`}
+            alt="방 썸네일"
+            css={thumbnailStyle}
+          />
+        )}
       </div>
     </aside>
   );
@@ -377,12 +387,11 @@ const roomInfoBox = css`
   margin-bottom: -1.5rem;
   width: calc(100% + 3rem);
   padding: 1.5rem;
-  padding-left: 2.5rem;
-  height: 120px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   background: white;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-  text-align: left;
-  height: 120px;
 
   h4 {
     font-size: 18px;
@@ -413,6 +422,7 @@ const roomInfoBox = css`
 
 
 const roomButton = css`
+  display: inline-flex;
   padding: 6px 12px;
   background: #f3f3f3;
   border: 1px solid #ddd;
@@ -422,4 +432,24 @@ const roomButton = css`
   &:hover {
     background: #eaeaea;
   }
+`;
+
+const roomInfoLeft = css`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+
+  h4 {
+    font-size: 18px;
+    font-family: 'NanumSquareEB';
+    margin: 0;
+  }
+`;
+
+const thumbnailStyle = css`
+  width: 130px;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  object-fit: cover;
 `;

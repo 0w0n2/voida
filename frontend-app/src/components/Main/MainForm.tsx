@@ -2,14 +2,7 @@
 import { css } from '@emotion/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Search,
-  ChevronLeft,
-  ChevronRight,
-  Plus,
-  ArrowRight,
-  User,
-} from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, Plus, ArrowRight, User } from 'lucide-react';
 import CreateRoomModal from '@/components/main/modal/CreateRoom';
 import JoinRoomModal from '@/components/main/modal/JoinRoom';
 import type { MeetingRoom } from '@/apis/meeting-room/meetingRoomApi';
@@ -35,7 +28,6 @@ const MainForm = ({ rooms }: MainFormProps) => {
   const [isJoinOpen, setIsJoinOpen] = useState(false);
 
   const itemsPerPage = 6;
-
   const categories = ['전체', ...Object.keys(categoryColors)];
 
   const filteredRooms = rooms.filter((room) => {
@@ -97,7 +89,7 @@ const MainForm = ({ rooms }: MainFormProps) => {
           onClick={() => navigate(`/meeting-room/${room.meetingRoomId}`)}
         >
           <div css={thumbnailWrapper}>
-            <img src={room.thumbnailImageUrl} alt={room.title} />
+            <img src={`${import.meta.env.VITE_CDN_URL}/${room.thumbnailImageUrl}`} alt={room.title} />
           </div>
 
           <div css={infoSection}>

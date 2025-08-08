@@ -13,7 +13,6 @@ const MainPage = () => {
     const fetchRooms = async () => {
       try {
         const res = await getRooms();
-        console.log(res);
         setMeetingRooms(res ?? []);
       } catch (error) {
         console.error('참여 중인 방 조회 실패:', error);

@@ -3,6 +3,7 @@ import { css } from '@emotion/react';
 import { X, Camera, Grid, Home, Plus, UserRound, Copy } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { createRoom, postInviteCode, getInviteCode } from '@/apis/meeting-room/meetingRoomApi';
+import { useAlertStore } from '@/stores/useAlertStore';
 
 interface CreateRoomModalProps {
   onClose: () => void;
@@ -25,7 +26,6 @@ const CreateRoomModal = ({ onClose }: CreateRoomModalProps) => {
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [inviteCode, setInviteCode] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
 
   const handleThumbnailClick = () => {
     fileInputRef.current?.click();
@@ -61,27 +61,32 @@ const CreateRoomModal = ({ onClose }: CreateRoomModalProps) => {
     } 
   };
 
-  const handleCreate = async () => {
-    setIsLoading(true);
+const handleCreate = async () => {
+  if (!title.trim() || !category.trim()) {
+    useAlertStore
+      .getState()
+      .showAlert('방 제목과 카테고리를 모두 입력해주세요.', 'top');
+    return;
+  }
 
-    try {
-      const room = await createRoom(title, category, thumbnailImageUrl);
-      await postInviteCode(room.meetingRoomId);
-      const { inviteCode } = await getInviteCode(room.meetingRoomId);
-      setInviteCode(inviteCode);
-    } catch (error) {
-      console.error('방 생성 또는 초대코드 요청 실패:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  setIsLoading(true);
+  try {
+    const room = await createRoom(title, category, thumbnailImageUrl);
+    await postInviteCode(room.meetingRoomId);
+    const { inviteCode } = await getInviteCode(room.meetingRoomId);
+    setInviteCode(inviteCode);
+  } catch (error) {
+    console.error('방 생성 또는 초대코드 요청 실패:', error);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
-  const handleCopy = () => {
-    if (!inviteCode) return;
-    navigator.clipboard.writeText(inviteCode);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+const handleCopy = () => {
+  if (!inviteCode) return;
+  navigator.clipboard.writeText(inviteCode);
+  useAlertStore.getState().showAlert('초대코드가 복사되었습니다!', 'bottom');
+};
 
   return (
     <div css={overlay}>
@@ -97,7 +102,8 @@ const CreateRoomModal = ({ onClose }: CreateRoomModalProps) => {
 
         {inviteCode ? (
           <>
-            <X css={closeButton} onClick={onClose} />
+            <X css={closeButton} onClick={() => { onClose(); window.location.reload(); }}
+            />
             <h2 css={codeTitle}>코드 확인하기</h2>
             <div css={codeDisplay}>
               <span>초대코드</span>
@@ -105,7 +111,6 @@ const CreateRoomModal = ({ onClose }: CreateRoomModalProps) => {
                 <Copy />
               </button>
               <p>{inviteCode}</p>
-              {copied && <div css={toastAlert}>초대코드가 복사되었습니다!</div>}
             </div>
 
             <h3 css={infoTitle}>방 초대코드를 전송해보세요!</h3>
@@ -414,6 +419,7 @@ const fieldInput = css`
   font-size: 16px;
   color: #333;
   padding: 12px 0;
+  caret-color: black;
 
   &::placeholder {
     color: var(--color-gray-600);

@@ -14,7 +14,7 @@ export const useAlertStore = create<AlertState>((set) => ({
   position: 'bottom',
   duration: 2000,
   visible: false,
-  showAlert: (message, position = 'bottom', duration = 2000) => {
+  showAlert: (message, position = 'bottom', duration = 1500) => {
     set({ message, position, duration, visible: true });
     setTimeout(() => {
       set({ visible: false });

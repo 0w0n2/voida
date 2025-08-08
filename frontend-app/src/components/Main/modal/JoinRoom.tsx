@@ -76,8 +76,10 @@ const JoinRoomModal = ({ onClose }: JoinRoomModalProps) => {
         return;
       }
 
-      onClose();
-      navigate('/main');
+      useAlertStore.getState().showAlert('방 입장에 성공했습니다!', 'top');
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } catch (error) {
       console.error('초대코드 검증 실패:', error);
       useAlertStore.getState().showAlert('유효하지 않은 초대코드입니다.', 'top');

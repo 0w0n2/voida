@@ -5,19 +5,27 @@ import { delegateHost, kickMember } from '@/apis/meeting-room/meetingRoomApi';
 import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
 import Lip from '@/assets/icons/lip-blue.png';
 import Crown from '@/assets/icons/crown.png';
+import { useAlertStore } from '@/stores/useAlertStore';
 
 const MemberRoom = () => {
   const { roomInfo, participants } = useMeetingRoomStore();
-  console.log(participants);
 
   const handleDelegate = async (memberId: number) => {
-    if (!roomInfo) return;
-    await delegateHost(roomInfo.meetingRoomId, String(memberId));
+  if (!roomInfo) return;
+  await delegateHost(roomInfo.meetingRoomId, String(memberId));
+  useAlertStore.getState().showAlert('방장이 위임되었습니다.', 'top');
+  setTimeout(() => {
+    window.location.reload();
+    }, 1000); 
   };
 
   const handleKick = async (memberId: number) => {
     if (!roomInfo) return;
     await kickMember(roomInfo.meetingRoomId, String(memberId));
+    useAlertStore.getState().showAlert('참여자 강퇴가 완료되었습니다.', 'top');
+    setTimeout(() => {
+      window.location.reload();
+      }, 1000); 
   };
 
   return (
@@ -30,12 +38,12 @@ const MemberRoom = () => {
       <div css={listContainer}>
         {participants?.participants.map((user) => (
           <div
-            key={user.memberId}
+            key={user.memberUuid}
             css={[memberCard, user.mine && myCardStyle]}
           >
             <div css={profileArea}>
               <img
-                src={`${import.meta.env.VITE_CDN_URL}${user.profileImageUrl}`}
+                src={`${import.meta.env.VITE_CDN_URL}/${user.profileImageUrl}`}
                 alt={user.nickname}
                 css={avatar}
               />
@@ -59,21 +67,28 @@ const MemberRoom = () => {
             </div>
 
             {!user.mine && user.state !== 'HOST' && (
-              <div css={buttonArea}>
+            <div css={buttonArea}>
+              <div css={tooltipWrapper}>
                 <button
                   css={changeRoleButton}
-                  onClick={() => handleDelegate(user.memberId)}
+                  onClick={() => handleDelegate(user.memberUuid)}
                 >
-                    <CrownIcon size={18} />
+                  <CrownIcon size={18} />
                 </button>
+                <span css={tooltip}>방장 위임</span>
+              </div>
+
+              <div css={tooltipWrapper}>
                 <button
                   css={kickButton}
-                  onClick={() => handleKick(user.memberId)}
+                  onClick={() => handleKick(user.memberUuid)}
                 >
                   <UserMinus size={18} />
                 </button>
+                <span css={tooltip}>강퇴</span>
               </div>
-            )}
+            </div>
+          )}
           </div>
         ))}
       </div>
@@ -225,4 +240,31 @@ const kickButton = css`
         color: var(--color-red);
     }
   }
+`;
+
+const tooltipWrapper = css`
+  position: relative;
+  display: inline-block;
+
+  &:hover span {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+`;
+
+const tooltip = css`
+  position: absolute;
+  bottom: -28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: #333;
+  color: #fff;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  z-index: 10;
 `;

@@ -13,7 +13,7 @@ export type RoomParticipant = {
 };
 
 export type Participant = {
-  memberId: number;
+  memberUuid: number;
   nickname: string;
   profileImageUrl?: Blob;
   state: 'HOST' | 'PARTICIPANT';
@@ -53,6 +53,12 @@ export interface CreateRoomRequest {
   thumbnailImageUrl: Blob | File | null;
 }
 
+// 참여 중인 방 조회
+export const getRooms = async (): Promise<MeetingRoom[]> => {
+  const res = await apiInstance.get('/v1/meeting-rooms');
+  return res.data.result;
+};
+
 // 방 정보 조회
 export const getRoomInfo = async (meetingRoomId: string): Promise<RoomInfo> => {
   const res = await apiInstance.get(`/v1/meeting-rooms/${meetingRoomId}`);
@@ -62,7 +68,6 @@ export const getRoomInfo = async (meetingRoomId: string): Promise<RoomInfo> => {
 // 방 참여자 조회
 export const getRoomMembers = async (meetingRoomId: string): Promise<RoomParticipant> => {
   const res = await apiInstance.get(`/v1/meeting-rooms/${meetingRoomId}/members`);
-  console.log(res);
   return res.data.result;
 };
 
@@ -79,7 +84,6 @@ export const updateRoomInfo = async (
   if (thumbnailImageUrl && thumbnailImageUrl instanceof File) {
     formData.append('thumbnailImage', thumbnailImageUrl);
   }
-
   const res = await apiInstance.put(`/v1/meeting-rooms/${meetingRoomId}/settings`, formData);
   return res.data.result;
 };
@@ -100,22 +104,24 @@ export const delegateHost = async (
   meetingRoomId: string,
   memberUuid: string,
 ): Promise<void> => {
-  console.log('memberUuid', memberUuid);
-  console.log('meetingRoomId', meetingRoomId);
-  // await apiInstance.put(`/v1/meeting-rooms/${meetingRoomId}/host`, {
-  //   memberUuid,
-  // });
+  await apiInstance.put(`/v1/meeting-rooms/${meetingRoomId}/host`, {
+    memberUuid,
+  });
 };
 
 // 참여자 강퇴 (방장만)
 export const kickMember = async (
   meetingRoomId: string,
-  kickMemberUuid: string,
+  kickMemberUuid: string
 ): Promise<void> => {
-  await apiInstance.delete(`/v1/meeting-rooms/${meetingRoomId}/kick`, {
-    kickMemberUuid,
-  });
+  await apiInstance.delete(
+    `/v1/meeting-rooms/${meetingRoomId}/members`,
+    {
+      data: { kickMemberUuid },
+    }
+  );
 };
+
 
 // 대기실 채팅 히스토리 조회 (스크롤 페이징)
 export const getRoomChatHistory = async (
@@ -140,60 +146,6 @@ export const postChatMessage = async (
   });
 };
 
-// 참여 중인 방 조회
-// export const getRooms = async (): Promise<MeetingRoom[]> => {
-//   const res = await apiInstance.get('/v1/meeting-rooms');
-//   return res.data.result;
-// };
-export const getRooms = async (): Promise<MeetingRoom[]> => {
-  // 하드코딩된 테스트 데이터
-  return [
-    {
-      meetingRoomId: '23',
-      title: '테스트 회의방',
-      category: 'game',
-      memberCount: 3,
-      thumbnailImageUrl: '',
-    },
-    {
-      meetingRoomId: '2',
-      title: 'React 스터디',
-      category: 'game',
-      memberCount: 5,
-      thumbnailImageUrl: '',
-    },
-    {
-      meetingRoomId: '3',
-      title: 'React 스터디',
-      category: 'game',
-      memberCount: 5,
-      thumbnailImageUrl: '',
-    },
-    {
-      meetingRoomId: '4',
-      title: 'React 스터디',
-      category: 'game',
-      memberCount: 5,
-      thumbnailImageUrl: '',
-    },
-    {
-      meetingRoomId: '5',
-      title: 'React 스터디',
-      category: 'game',
-      memberCount: 5,
-      thumbnailImageUrl: '',
-    },
-    {
-      meetingRoomId: '6',
-      title: 'React 스터디',
-      category: 'game',
-      memberCount: 5,
-      thumbnailImageUrl: '',
-    },
-  ];
-};
-
-
 // 방 생성
 export const createRoom = async (
   title: string,
@@ -205,10 +157,9 @@ export const createRoom = async (
   const jsonBlob = new Blob([JSON.stringify(requestDto)], { type: 'application/json' });
   formData.append('requestDto', jsonBlob);
   if (thumbnailImageUrl && thumbnailImageUrl instanceof File) {
-    formData.append("thumbnailImageUrl", thumbnailImageUrl);
+    formData.append("thumbnailImage", thumbnailImageUrl);
   }
   const res = await apiInstance.post('/v1/meeting-rooms', formData);
-  console.log(res.data);
   return res.data.result;
 };
 
@@ -236,6 +187,7 @@ export const postInviteCode = async (
 export const verifyInviteCode = async (
   inviteCode: string,
 ): Promise<{ isSuccess: boolean }> => {
+  console.log('inviteCode', inviteCode);
   const res = await apiInstance.post(
     `/v1/meeting-rooms/verify-invite-code`,
     { inviteCode },
