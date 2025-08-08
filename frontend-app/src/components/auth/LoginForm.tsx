@@ -9,7 +9,7 @@ import VoidaLogo from '@/assets/logo/voida-logo.png';
 import GoogleLogo from '@/assets/icons/google-logo.png';
 import EyeIcon from '@/assets/icons/eye.png';
 import EyeCloseIcon from '@/assets/icons/crossed-eye.png';
-import { useAuthStore, type User } from '@/store/authStore';
+import { useAuthStore, type User } from '@/stores/authStore';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');

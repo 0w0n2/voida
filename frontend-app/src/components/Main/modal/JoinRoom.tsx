@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { X, ArrowRight, Plus } from 'lucide-react';
 import CreateRoomModal from '@/components/main/modal/CreateRoom';
 import { verifyInviteCode } from '@/apis/meeting-room/meetingRoomApi';
+import { useAlertStore } from '@/stores/useAlertStore';
 
 interface JoinRoomModalProps {
   onClose: () => void;
@@ -71,7 +72,7 @@ const JoinRoomModal = ({ onClose }: JoinRoomModalProps) => {
       const res = await verifyInviteCode(inviteCode);
 
       if (!res.isSuccess) {
-        alert('유효하지 않은 초대코드입니다.');
+        useAlertStore.getState().showAlert('유효하지 않은 초대코드입니다.', 'top');
         return;
       }
 
@@ -79,7 +80,7 @@ const JoinRoomModal = ({ onClose }: JoinRoomModalProps) => {
       navigate('/main');
     } catch (error) {
       console.error('초대코드 검증 실패:', error);
-      alert('유효하지 않은 초대코드입니다.');
+      useAlertStore.getState().showAlert('유효하지 않은 초대코드입니다.', 'top');
     }
   };
 

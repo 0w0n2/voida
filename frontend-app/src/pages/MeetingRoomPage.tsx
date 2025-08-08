@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 import MemberPanel from '@/components/meeting-room/members/MemberPanel';
 import ChatPanel from '@/components/meeting-room/chat/ChatPanel';
 import { getRoomInfo, getRoomMembers, getRoomChatHistory } from '@/apis/meeting-room/meetingRoomApi';
-import { useMeetingRoomStore } from '@/store/meetingRoomStore';
+import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
 
 const MeetingRoomPage = () => {
   const { meetingRoomId } = useParams<{ meetingRoomId: string }>();

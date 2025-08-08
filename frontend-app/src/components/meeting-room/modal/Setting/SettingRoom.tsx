@@ -2,7 +2,7 @@
 import { css } from '@emotion/react';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Home, Copy, Camera, Grid, UserPlus } from 'lucide-react';
-import { useMeetingRoomStore } from '@/store/meetingRoomStore';
+import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
 import { getInviteCode, postInviteCode, getRoomInfo, updateRoomInfo } from '@/apis/meeting-room/meetingRoomApi';
 
 const SettingRoom = ({ onClose }: { onClose: () => void }) => {

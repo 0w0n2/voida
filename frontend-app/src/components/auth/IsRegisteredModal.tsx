@@ -6,7 +6,7 @@ import confetti from 'canvas-confetti';
 import tutorial from '@/assets/icons/tutorialButton.png';
 import home from '@/assets/icons/home-white.png';
 import congratu from '@/assets/icons/congratu.png';
-import { useAuthStore } from '@/store/authStore';
+import { useAuthStore } from '@/stores/authStore';
 import defaultProfile from '@/assets/profiles/defaultProfile.png';
 
 interface IsRegisteredModalProps {

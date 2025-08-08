@@ -4,7 +4,7 @@ import { useRef, useEffect, useState } from 'react';
 import ChatHeader from './ChatHeader';
 import SendIcon from '@/assets/icons/send.png';
 import ScrollDown from '@/assets/icons/scroll-down.png';
-import { useMeetingRoomStore } from '@/store/meetingRoomStore';
+import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
 import { getRoomChatHistory } from '@/apis/meeting-room/meetingRoomApi';
 import { connectStomp, disconnectStomp, publishMessage } from '@/apis/core/stompClient';
 
