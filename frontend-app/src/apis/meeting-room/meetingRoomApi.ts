@@ -235,10 +235,11 @@ export const postInviteCode = async (
 // 초대 코드 검증
 export const verifyInviteCode = async (
   inviteCode: string,
-): Promise<{ valid: boolean }> => {
+): Promise<{ isSuccess: boolean }> => {
   const res = await apiInstance.post(
     `/v1/meeting-rooms/verify-invite-code`,
     { inviteCode },
   );
+  console.log(res.data);
   return res.data;
 };

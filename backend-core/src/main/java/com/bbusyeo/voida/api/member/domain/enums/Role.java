@@ -6,7 +6,7 @@ import lombok.Getter;
 public enum Role {
     ADMIN("ROLE_ADMIN"),
     USER("ROLE_USER");
-    // GUEST("ROLE_NOT_PERMITTED");
+    // GUEST("ROLE_QUEST");
 
     private final String roleName;
 

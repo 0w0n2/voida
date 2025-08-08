@@ -5,13 +5,13 @@ import VoidaLogo from '@/assets/logo/voida-logo.png';
 import { useNavigate } from 'react-router-dom';
 import { User, LogOut } from 'lucide-react';
 import { logout } from '@/apis/auth/authApi';
-import {useAuthStore} from '@/store/authStore';
+import {useAuthStore} from '@/stores/authStore';
 
 export default function Header() {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
-  console.log('user', user);
+  // console.log('user', user);
   const ProfileImage = user?.profileImage 
   const ProfileName = user?.nickname || '사용자';
   const handleLogoClick = () => {

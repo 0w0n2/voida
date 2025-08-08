@@ -109,6 +109,15 @@ public class MeetingRoomService {
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NOT_FOUND_MEETING_ROOM));
     }
 
+    // 내가 참여중인 대기실 조회
+    @Transactional(readOnly = true)
+    public List<MyMeetingRoomResponseDto> findMyMeetingRooms(String memberUuid) {
+        List<MemberMeetingRoom> memberMeetingRooms = memberMeetingRoomRepository.findByMemberUuid(memberUuid);
+        return memberMeetingRooms.stream()
+                .map(MemberMeetingRoom::getMeetingRoom)
+                .map(MyMeetingRoomResponseDto::from)
+                .collect(Collectors.toList());
+    }
 
     // 방 기본 정보 수정
     public MeetingRoom update(String memberUuid, Long meetingRoomId, MeetingRoomUpdateRequestDto requestDto, MultipartFile newThumbnailImage) {

@@ -29,8 +29,6 @@ public enum BaseResponseStatus {
     TOKEN_USERNAME_NOT_FOUND(HttpStatus.UNAUTHORIZED, false, 401, "토큰 내에 userName이 존재하지 않습니다."),
     ACCESS_DENIED(HttpStatus.FORBIDDEN, false, 403, "접근 권한이 없습니다."),
 
-    // 소셜 로그인
-
 
     /**
      * 500: 기타 에러.
@@ -73,7 +71,9 @@ public enum BaseResponseStatus {
     /**
      * 1000: 소셜 에러.
      */
-    UNSUPPORTED_SOCIAL_PROVIDER(HttpStatus.BAD_REQUEST, false, 1000, "지원하지 않는 소셜 로그인 타입입니다.");
+    UNSUPPORTED_SOCIAL_PROVIDER(HttpStatus.BAD_REQUEST, false, 1000, "지원하지 않는 소셜 로그인 타입입니다."),
+    EXPIRED_SOCIAL_SIGNUP(HttpStatus.NOT_FOUND, false, 1002, "회원가입 시간이 만료되었습니다. 다시 시도해주세요."),
+    ALREADY_REGISTERED_EMAIL(HttpStatus.CONFLICT, false, 1003, "이미 가입된 계정입니다. 이메일 로그인 방식을 사용해주세요.");
 
     private final HttpStatus httpStatus;
     private final boolean isSuccess;

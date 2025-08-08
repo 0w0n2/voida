@@ -2,8 +2,8 @@
 import { css } from '@emotion/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useMeetingRoomStore } from '@/store/meetingRoomStore';
-import SettingModal from '@/components/meeting-room/modal/Setting/SettingModal';
+import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
+import SettingModal from '@/components/meeting-room/modal/setting/SettingModal';
 import InfoModal from '@/components/meeting-room/modal/Info/InfoModal';
 import Lip from '@/assets/icons/lip-blue.png';
 import Setting from '@/assets/icons/room-setting.png';

@@ -3,7 +3,7 @@ import { css } from '@emotion/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, Trash2 } from 'lucide-react';
-import { useMeetingRoomStore } from '@/store/meetingRoomStore';
+import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
 import { deleteRoom } from '@/apis/meeting-room/meetingRoomApi';
 
 const DeleteRoom = ({ onClose }: { onClose: () => void }) => {

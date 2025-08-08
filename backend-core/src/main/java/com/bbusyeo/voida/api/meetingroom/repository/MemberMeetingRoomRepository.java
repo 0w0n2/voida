@@ -25,4 +25,6 @@ public interface MemberMeetingRoomRepository extends JpaRepository<MemberMeeting
     // 대기실에 들어가있는 회원 목록 JPA로 조회
     List<MemberMeetingRoom> findByMeetingRoomId(Long meetingRoomId);
 
+    List<MemberMeetingRoom> findByMemberUuid(String memberUuid);
+
 }

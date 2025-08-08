@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useMeetingRoomStore } from '@/store/meetingRoomStore';
+import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
 import Lip from '@/assets/icons/lip-blue.png';
 import Crown from '@/assets/icons/crown.png';
 

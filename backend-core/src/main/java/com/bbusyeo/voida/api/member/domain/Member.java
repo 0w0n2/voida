@@ -3,6 +3,7 @@ package com.bbusyeo.voida.api.member.domain;
 import com.bbusyeo.voida.api.member.domain.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -58,5 +59,18 @@ public class Member implements Serializable {
 
     public void changePassword(String encodedPassword) {
         this.password = encodedPassword;
+    }
+
+    public void changeIsNewbie(Boolean isNewbie) {
+        this.isNewbie = isNewbie;
+    }
+
+    public void updateProfile(String nickname, String profileImageUrl) {
+        if (StringUtils.hasText(nickname)) {
+            this.nickname = nickname;
+        }
+        if (StringUtils.hasText(profileImageUrl)) {
+            this.profileImageUrl = profileImageUrl;
+        }
     }
 }

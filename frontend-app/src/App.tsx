@@ -15,10 +15,12 @@ import MyPage from '@/pages/MyPage';
 import MeetingRoomPage from '@/pages/MeetingRoomPage';
 import LiveRoomOverlay from '@/components/live-room/LiveOverlay';
 import VoiceRoom from '@/components/live-room/VoiceRoom';
+import GlobalAlert from '@/components/common/GlobalAlert';
 
 function App() {
   return (
     <HashRouter>
+      <GlobalAlert />
       <Routes>
         <Route path="/" element={<StartingPage />} />
         <Route path="/login" element={<LoginPage />} />

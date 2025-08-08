@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuthStore } from '@/store/authStore';
+import { useAuthStore } from '@/stores/authStore';
 import { getUser } from '@/apis/auth/userApi';
 import { reissueToken } from '@/apis/auth/authApi';
 const CallbackPage = () => {

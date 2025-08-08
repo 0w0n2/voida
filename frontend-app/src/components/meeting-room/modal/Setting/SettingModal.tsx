@@ -2,9 +2,9 @@
 import { css } from '@emotion/react';
 import { useState } from 'react';
 import { Settings, Users, AlertTriangle, X } from 'lucide-react';
-import SettingRoom from '@/components/meeting-room/modal/Setting/SettingRoom';
-import MemberRoom from '@/components/meeting-room/modal/Setting/MemberRoom';
-import DeleteRoom from '@/components/meeting-room/modal/Setting/DeleteRoom';
+import SettingRoom from '@/components/meeting-room/modal/setting/SettingRoom';
+import MemberRoom from '@/components/meeting-room/modal/setting/MemberRoom';
+import DeleteRoom from '@/components/meeting-room/modal/setting/DeleteRoom';
 
 type SettingModalProps = {
   onClose: () => void;
