@@ -36,7 +36,6 @@ public class ResetPasswordService {
         // 3. 임시 비밀번호 인코딩 후 업데이트
         String encodedPw = bCryptPasswordEncoder.encode(tempPw.toString());
         member.changePassword(encodedPw);
-        memberRepository.save(member);
 
         // 4. 임시 비밀번호 반환
         return tempPw.toString();

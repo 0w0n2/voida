@@ -1,10 +1,7 @@
 package com.bbusyeo.voida.api.member.service;
 
 import com.bbusyeo.voida.api.member.domain.Member;
-import com.bbusyeo.voida.api.member.dto.MeProfileResponseInfoDto;
-import com.bbusyeo.voida.api.member.dto.MeQuickSlotsResponseInfoDto;
-import com.bbusyeo.voida.api.member.dto.MeSettingResponseInfoDto;
-import com.bbusyeo.voida.api.member.dto.UpdateMeProfileRequestDto;
+import com.bbusyeo.voida.api.member.dto.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -19,7 +16,11 @@ public interface MyPageService {
 
     List<MeQuickSlotsResponseInfoDto> getMeQuickSlots(Long memberId);
 
+    void createDefaultSettingsAndQuickSlots(Member member);
+
     void updateProfile(UpdateMeProfileRequestDto requestDto, MultipartFile profileImage, Long memberId);
 
-    void createDefaultSettingsAndQuickSlots(Member member);
+    boolean verifyPassword(Member member, String requestPassword);
+
+    void changePassword(Long memberId, ChangePasswordRequestDto requestDto);
 }

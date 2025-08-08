@@ -67,6 +67,7 @@ public enum BaseResponseStatus {
     NICKNAME_GENERATION_FAILED(HttpStatus.CONFLICT, false, 900, "랜덤 닉네임 생성을 실패했습니다."),
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, false, 901, "ID와 PW가 일치하지 않습니다."),
     MEMBER_NOT_FOUND(HttpStatus.UNAUTHORIZED, false, 902, "존재하지 않는 회원입니다."),
+    MISMATCH_PASSWORD(HttpStatus.BAD_REQUEST, false, 903, "비밀번호가 일치하지 않습니다."),
 
     /**
      * 1000: 소셜 에러.

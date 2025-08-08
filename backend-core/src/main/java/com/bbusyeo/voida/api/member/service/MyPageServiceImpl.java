@@ -5,10 +5,7 @@ import com.bbusyeo.voida.api.member.constant.QuickSlotDefault;
 import com.bbusyeo.voida.api.member.domain.Member;
 import com.bbusyeo.voida.api.member.domain.MemberQuickSlot;
 import com.bbusyeo.voida.api.member.domain.MemberSetting;
-import com.bbusyeo.voida.api.member.dto.MeProfileResponseInfoDto;
-import com.bbusyeo.voida.api.member.dto.MeQuickSlotsResponseInfoDto;
-import com.bbusyeo.voida.api.member.dto.MeSettingResponseInfoDto;
-import com.bbusyeo.voida.api.member.dto.UpdateMeProfileRequestDto;
+import com.bbusyeo.voida.api.member.dto.*;
 import com.bbusyeo.voida.api.member.repository.MemberQuickSlotRepository;
 import com.bbusyeo.voida.api.member.repository.MemberRepository;
 import com.bbusyeo.voida.api.member.repository.MemberSettingRepository;
@@ -16,6 +13,8 @@ import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
 import com.bbusyeo.voida.global.support.S3Uploader;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,6 +31,7 @@ public class MyPageServiceImpl implements MyPageService {
     private final MemberSettingRepository memberSettingRepository;
     private final MemberQuickSlotRepository memberQuickSlotRepository;
     private final S3Uploader s3Uploader;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
     @Override
@@ -95,7 +95,6 @@ public class MyPageServiceImpl implements MyPageService {
                 throw new BaseException(BaseResponseStatus.DATABASE_CONSTRAINT_VIOLATION);
             }
         }
-
     }
 
     @Transactional
@@ -110,5 +109,25 @@ public class MyPageServiceImpl implements MyPageService {
         for (QuickSlotDefault quickSlotDefault : defaultSlots) {
             memberQuickSlotRepository.save(MemberQuickSlot.toDefaultQuickSlot(member, quickSlotDefault));
         }
+    }
+
+    @Override
+    public boolean verifyPassword(Member member, String requestPassword) {
+        return bCryptPasswordEncoder.matches(requestPassword, member.getPassword());
+    }
+
+    @Transactional
+    @Override
+    public void changePassword(Long memberId, ChangePasswordRequestDto requestDto) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
+
+        // 2차 검증 (최종적으로 넘어온 이전 비밀번호가 현재 DB와 일치하는지)
+        if (!bCryptPasswordEncoder.matches(requestDto.getCurrentPassword(), member.getPassword())) {
+            throw new BaseException(BaseResponseStatus.MISMATCH_PASSWORD);
+        }
+
+        String encodedPw = bCryptPasswordEncoder.encode(requestDto.getNewPassword());
+        member.changePassword(encodedPw);
     }
 }
