@@ -4,7 +4,7 @@ import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.response.BaseResponse;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
 import com.bbusyeo.voida.global.security.config.SecurityWhitelistProperties;
-import com.bbusyeo.voida.global.security.service.TokenBlackListService;
+import com.bbusyeo.voida.global.security.service.jwt.TokenBlackListService;
 import com.bbusyeo.voida.global.security.util.TokenUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;

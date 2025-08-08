@@ -2,18 +2,19 @@
 import { css } from '@emotion/react';
 import { X, Camera, Grid, Home, Plus, UserRound, Copy } from 'lucide-react';
 import { useState, useRef } from 'react';
-import { createRoom, getInviteCode } from '@/apis/meetingRoomApi';
+import { createRoom, postInviteCode, getInviteCode } from '@/apis/meeting-room/meetingRoomApi';
+import { useAlertStore } from '@/stores/useAlertStore';
 
 interface CreateRoomModalProps {
   onClose: () => void;
 }
 
 const categoryColors: Record<string, string> = {
-  게임: '#8e44ad',
-  일상: '#f1c40f',
-  학습: '#333333',
-  회의: '#27ae60',
-  자유: '#3498db',
+  game: '#8e44ad',
+  talk: '#f1c40f',
+  study: '#333333',
+  meeting: '#27ae60',
+  free: '#3498db',
 };
 
 const CreateRoomModal = ({ onClose }: CreateRoomModalProps) => {
@@ -21,12 +22,10 @@ const CreateRoomModal = ({ onClose }: CreateRoomModalProps) => {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
   const [isDragging, setIsDragging] = useState(false);
-  const [thumbnailImageUrl, setThumbnailImageUrl] = useState<string | null>(
-    null,
-  );
+  const [thumbnailImageUrl, setThumbnailImageUrl] = useState<Blob | null>(null);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [inviteCode, setInviteCode] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
 
   const handleThumbnailClick = () => {
     fileInputRef.current?.click();
@@ -35,8 +34,9 @@ const CreateRoomModal = ({ onClose }: CreateRoomModalProps) => {
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const url = URL.createObjectURL(file);
-    setThumbnailImageUrl(url);
+    const previewUrl = URL.createObjectURL(file);
+    setPreviewImageUrl(previewUrl);
+    setThumbnailImageUrl(file);  
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -55,32 +55,38 @@ const CreateRoomModal = ({ onClose }: CreateRoomModalProps) => {
 
     const file = e.dataTransfer.files?.[0];
     if (file) {
-      const url = URL.createObjectURL(file);
-      setThumbnailImageUrl(url);
-    }
+      const previewUrl = URL.createObjectURL(file);
+      setPreviewImageUrl(previewUrl);   
+      setThumbnailImageUrl(file);    
+    } 
   };
 
-  const handleCreate = async () => {
-    const thumbnail = thumbnailImageUrl ?? 'null';
-    setIsLoading(true);
+const handleCreate = async () => {
+  if (!title.trim() || !category.trim()) {
+    useAlertStore
+      .getState()
+      .showAlert('방 제목과 카테고리를 모두 입력해주세요.', 'top');
+    return;
+  }
 
-    try {
-      const room = await createRoom(title, category, thumbnail);
-      const { inviteCode } = await getInviteCode(room.meetingRoomId);
-      setInviteCode(inviteCode);
-    } catch (error) {
-      console.error('방 생성 또는 초대코드 요청 실패:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  setIsLoading(true);
+  try {
+    const room = await createRoom(title, category, thumbnailImageUrl);
+    await postInviteCode(room.meetingRoomId);
+    const { inviteCode } = await getInviteCode(room.meetingRoomId);
+    setInviteCode(inviteCode);
+  } catch (error) {
+    console.error('방 생성 또는 초대코드 요청 실패:', error);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
-  const handleCopy = () => {
-    if (!inviteCode) return;
-    navigator.clipboard.writeText(inviteCode);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+const handleCopy = () => {
+  if (!inviteCode) return;
+  navigator.clipboard.writeText(inviteCode);
+  useAlertStore.getState().showAlert('초대코드가 복사되었습니다!', 'bottom');
+};
 
   return (
     <div css={overlay}>
@@ -96,7 +102,8 @@ const CreateRoomModal = ({ onClose }: CreateRoomModalProps) => {
 
         {inviteCode ? (
           <>
-            <X css={closeButton} onClick={onClose} />
+            <X css={closeButton} onClick={() => { onClose(); window.location.reload(); }}
+            />
             <h2 css={codeTitle}>코드 확인하기</h2>
             <div css={codeDisplay}>
               <span>초대코드</span>
@@ -104,7 +111,6 @@ const CreateRoomModal = ({ onClose }: CreateRoomModalProps) => {
                 <Copy />
               </button>
               <p>{inviteCode}</p>
-              {copied && <div css={toastAlert}>초대코드가 복사되었습니다!</div>}
             </div>
 
             <h3 css={infoTitle}>방 초대코드를 전송해보세요!</h3>
@@ -129,11 +135,13 @@ const CreateRoomModal = ({ onClose }: CreateRoomModalProps) => {
             >
               {thumbnailImageUrl ? (
                 <>
-                  <img
-                    src={thumbnailImageUrl}
-                    css={thumbnailImage}
-                    alt="썸네일"
-                  />
+                  {previewImageUrl && (
+                    <img
+                      src={previewImageUrl}
+                      css={thumbnailImage}
+                      alt="썸네일"
+                    />
+                  )}
                   <div
                     css={[
                       thumbnailOverlay,
@@ -204,11 +212,11 @@ const CreateRoomModal = ({ onClose }: CreateRoomModalProps) => {
                 onChange={(e) => setCategory(e.target.value)}
               >
                 <option value="">카테고리를 선택해주세요.</option>
-                <option value="게임">게임</option>
-                <option value="일상">일상</option>
-                <option value="학습">학습</option>
-                <option value="회의">회의</option>
-                <option value="자유">자유</option>
+                <option value="game">게임</option>
+                <option value="talk">일상</option>
+                <option value="study">학습</option>
+                <option value="meeting">회의</option>
+                <option value="free">자유</option>
               </select>
             </div>
 
@@ -411,6 +419,7 @@ const fieldInput = css`
   font-size: 16px;
   color: #333;
   padding: 12px 0;
+  caret-color: black;
 
   &::placeholder {
     color: var(--color-gray-600);
@@ -490,13 +499,13 @@ const codeDisplay = css`
     display: block;
     font-size: 16px;
     color: var(--color-gray-600);
-    margin-bottom: 12px;
+    margin-bottom: 20px;
     letter-spacing: normal;
   }
 
   p {
     font-size: 36px;
-    letter-spacing: 4px;
+    letter-spacing: 6px;
     margin: 0;
   }
 `;
@@ -565,6 +574,7 @@ const infoList = css`
   flex-direction: column;
   align-items: center;
   gap: 12px;
+  margin-bottom: 20px;
 
   li {
     position: relative;

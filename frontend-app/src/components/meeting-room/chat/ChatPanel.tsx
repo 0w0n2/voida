@@ -4,28 +4,48 @@ import { useRef, useEffect, useState } from 'react';
 import ChatHeader from './ChatHeader';
 import SendIcon from '@/assets/icons/send.png';
 import ScrollDown from '@/assets/icons/scroll-down.png';
-import { useMeetingRoomStore } from '@/store/meetingRoomStore';
-import { getRoomChatHistory, postChatMessage } from '@/apis/meetingRoomApi';
+import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
+import { getRoomChatHistory } from '@/apis/meeting-room/meetingRoomApi';
+import { connectStomp, disconnectStomp, publishMessage } from '@/apis/core/stompClient';
 
 const ChatPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
   const { chatMessages, setChatMessages, addChatMessage } =
     useMeetingRoomStore();
-
   const [input, setInput] = useState('');
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const lastMessageId = useRef<string | null>(null);
-  const cursorIdRef = useRef<string | undefined>(undefined);
+  const cursorIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    connectStomp(meetingRoomId, (msg) => {
+      addChatMessage({ ...msg, isMine: false });
+    });
+
+    return () => {
+      disconnectStomp();
+    };
+  }, [meetingRoomId, addChatMessage]);
 
   useEffect(() => {
     const loadInitial = async () => {
-      const res = await getRoomChatHistory(meetingRoomId);
-      setChatMessages(res.chatHistory.content);
-      cursorIdRef.current = res.chatHistory.cursorId;
-      setHasMore(res.chatHistory.hasNext);
+      try {
+        const res = await getRoomChatHistory(meetingRoomId);
+        const chatHistory = res?.chatHistory;
+        setChatMessages(chatHistory?.content ?? []);
+
+        cursorIdRef.current = chatHistory?.cursorId ?? null;
+        setHasMore(chatHistory?.hasNext ?? false);
+        
+      } catch (error) {
+        console.error('채팅 기록 초기 로딩 실패:', error);
+        setChatMessages([]);
+        setHasMore(false);
+      }
     };
+
     loadInitial();
   }, [meetingRoomId, setChatMessages]);
 
@@ -35,16 +55,16 @@ const ChatPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
 
     const el = chatBoxRef.current;
     const prevScrollHeight = el.scrollHeight;
-    const res = await getRoomChatHistory(meetingRoomId, cursorIdRef.current);
+    const res = await getRoomChatHistory(meetingRoomId, cursorIdRef.current ?? '');
 
     if (res.chatHistory.content.length === 0) {
       setHasMore(false);
     } else {
       setChatMessages(
         [...res.chatHistory.content, ...chatMessages],
-        true, // reset X, prepend
+        true,
       );
-      cursorIdRef.current = res.chatHistory.cursorId;
+      cursorIdRef.current = res.chatHistory.cursorId ?? null;
       setHasMore(res.chatHistory.hasNext);
 
       requestAnimationFrame(() => {
@@ -77,7 +97,6 @@ const ChatPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
     }
   };
 
-  // 새 메시지가 도착하면 스크롤 처리
   useEffect(() => {
     if (loading || !chatBoxRef.current) return;
 
@@ -90,10 +109,11 @@ const ChatPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
     lastMessageId.current = lastMessage?.createdAt ?? null;
   }, [chatMessages, loading]);
 
-  const handleSend = async () => {
+  const handleSend = () => {
     if (!input.trim()) return;
 
-    await postChatMessage(meetingRoomId, input);
+    publishMessage(meetingRoomId, input); 
+
     addChatMessage({
       senderId: 'me',
       writerNickname: '나',
@@ -102,6 +122,7 @@ const ChatPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
       createdAt: new Date().toISOString(),
       isMine: true,
     });
+
     setInput('');
   };
 
@@ -188,6 +209,19 @@ const chatBox = css`
   display: flex;
   flex-direction: column;
   gap: 8px;
+
+  @media (max-width: 1400px) {
+    padding: 2rem;
+  }
+  @media (max-width: 1200px) {
+    padding: 1.5rem;
+  }
+  @media (max-width: 900px) {
+    padding: 1rem;
+  }
+  @media (max-width: 600px) {
+    padding: 0.5rem;
+  }
 `;
 
 const scrollButton = css`
@@ -228,6 +262,23 @@ const avatar = css`
   height: 44px;
   border-radius: 50%;
   object-fit: cover;
+
+  @media (max-width: 1400px) {
+    width: 40px;
+    height: 40px;
+  }
+  @media (max-width: 1200px) {
+    width: 36px;
+    height: 36px;
+  }
+  @media (max-width: 900px) {
+    width: 32px;
+    height: 32px;
+  }
+  @media (max-width: 600px) {
+    width: 28px;
+    height: 28px;
+  }
 `;
 
 const contentBox = css`
@@ -278,10 +329,33 @@ const other = css`
 
 const inputRow = css`
   display: flex;
-  padding: 15px;
+  box-sizing: border-box;
+  padding: 1.5rem 2.5rem;
   background: white;
   height: 120px;
+  flex-shrink: 0;
+
+  @media (max-width: 1400px) {
+    height: 100px;
+    padding: 12px 40px;
+  }
+
+  @media (max-width: 1200px) {
+    height: 90px;
+    padding: 10px 30px;
+  }
+
+  @media (max-width: 900px) {
+    height: 80px;
+    padding: 8px 20px;
+  }
+
+  @media (max-width: 600px) {
+    height: 70px;
+    padding: 6px 12px;
+  }
 `;
+
 
 const inputWrapper = css`
   position: relative;
@@ -305,6 +379,23 @@ const inputStyle = css`
   height: 70%;
   background: white;
   transition: all 0.2s ease;
+
+  @media (max-width: 1400px) {
+    font-size: 15px;
+    padding: 12px 44px 12px 44px;
+  }
+  @media (max-width: 1200px) {
+    font-size: 14px;
+    padding: 12px 40px 12px 40px;
+  }
+  @media (max-width: 900px) {
+    font-size: 13px;
+    padding: 10px 36px 10px 36px;
+  }
+  @media (max-width: 600px) {
+    font-size: 12px;
+    padding: 8px 32px 8px 32px;
+  }
 `;
 
 const sendIconBtn = css`
@@ -323,12 +414,25 @@ const sendIconBtn = css`
   height: 40px;
   border-radius: 50%;
   transition: background-color 0.2s ease;
+
   &:hover {
     background: #e0edff;
   }
+
   img {
     width: 24px;
     height: 24px;
     object-fit: contain;
+  }
+
+  @media (max-width: 900px) {
+    width: 36px;
+    height: 36px;
+    margin-right: 16px;
+  }
+  @media (max-width: 600px) {
+    width: 32px;
+    height: 32px;
+    margin-right: 10px;
   }
 `;

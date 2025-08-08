@@ -1,24 +1,18 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useState } from 'react';
-import {
-  Search,
-  ChevronLeft,
-  ChevronRight,
-  Plus,
-  ArrowRight,
-  User,
-} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Search, ChevronLeft, ChevronRight, Plus, ArrowRight, User } from 'lucide-react';
 import CreateRoomModal from '@/components/main/modal/CreateRoom';
 import JoinRoomModal from '@/components/main/modal/JoinRoom';
-import type { MeetingRoom } from '@/apis/meetingRoomApi';
+import type { MeetingRoom } from '@/apis/meeting-room/meetingRoomApi';
 
 const categoryColors: Record<string, string> = {
-  게임: '#8e44ad',
-  일상: '#f1c40f',
-  학습: '#333333',
-  회의: '#27ae60',
-  자유: '#3498db',
+  game: '#8e44ad',
+  talk: '#f1c40f',
+  study: '#333333',
+  meeting: '#27ae60',
+  free: '#3498db',
 };
 
 interface MainFormProps {
@@ -26,6 +20,7 @@ interface MainFormProps {
 }
 
 const MainForm = ({ rooms }: MainFormProps) => {
+  const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [searchTerm, setSearchTerm] = useState('');
@@ -33,7 +28,6 @@ const MainForm = ({ rooms }: MainFormProps) => {
   const [isJoinOpen, setIsJoinOpen] = useState(false);
 
   const itemsPerPage = 6;
-
   const categories = ['전체', ...Object.keys(categoryColors)];
 
   const filteredRooms = rooms.filter((room) => {
@@ -89,32 +83,35 @@ const MainForm = ({ rooms }: MainFormProps) => {
 
       <div css={cardGrid}>
         {currentRooms.map((room) => (
-          <div key={room.meetingRoomId} css={card}>
-            <div css={thumbnailWrapper}>
-              <img src={room.thumbnailImageUrl} alt={room.title} />
-            </div>
+        <div
+          key={room.meetingRoomId}
+          css={card}
+          onClick={() => navigate(`/meeting-room/${room.meetingRoomId}`)}
+        >
+          <div css={thumbnailWrapper}>
+            <img src={`${import.meta.env.VITE_CDN_URL}/${room.thumbnailImageUrl}`} alt={room.title} />
+          </div>
 
-            <div css={infoSection}>
-              <h3 css={titleText}>{room.title}</h3>
-              <div css={bottomRow}>
-                <span
-                  css={css`
-                    ${categoryChip};
-                    color: ${categoryColors[room.category] || '#999'};
-                    background-color: ${categoryColors[room.category] ||
-                    '#999'}20;
-                  `}
-                >
-                  {room.category}
-                </span>
-                <div css={participants}>
-                  <User size={16} />
-                  <span>{room.memberCount}</span>
-                </div>
+          <div css={infoSection}>
+            <h3 css={titleText}>{room.title}</h3>
+            <div css={bottomRow}>
+              <span
+                css={css`
+                  ${categoryChip};
+                  color: ${categoryColors[room.category] || '#999'};
+                  background-color: ${categoryColors[room.category] || '#999'}20;
+                `}
+              >
+                {room.category}
+              </span>
+              <div css={participants}>
+                <User size={16} />
+                <span>{room.memberCount}</span>
               </div>
             </div>
           </div>
-        ))}
+        </div>
+      ))}
       </div>
 
       <div css={pagination}>
@@ -172,9 +169,10 @@ const MainForm = ({ rooms }: MainFormProps) => {
 export default MainForm;
 
 const container = css`
-  padding: 20px;
-  max-width: 1400px;
+  padding: 0px 20px;
+  max-width: 1300px; 
   margin: 0 auto;
+  width: 100%;
 `;
 
 const searchContainer = css`
@@ -186,7 +184,7 @@ const searchContainer = css`
 const searchBox = css`
   display: flex;
   align-items: center;
-  background: #f5f5f5;
+  background: var(--color-bg-white);
   border-radius: 50px;
   padding: 14px 28px;
   width: 100%;
@@ -252,25 +250,6 @@ const cardGrid = css`
   grid-auto-rows: 290px;
   gap: 32px;
   margin-bottom: 40px;
-
-  @media (max-width: 1600px) {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    grid-auto-rows: 400px;
-  }
-
-  @media (max-width: 1366px) {
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    grid-auto-rows: 380px;
-    gap: 16px;
-    margin-bottom: 32px;
-  }
-
-  @media (max-width: 1024px) {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    grid-auto-rows: 360px;
-    gap: 14px;
-    margin-bottom: 28px;
-  }
 `;
 
 const card = css`
@@ -380,16 +359,6 @@ const floatBtns = css`
   right: 40px;
   display: flex;
   gap: 20px;
-
-  @media (max-width: 1366px) {
-    bottom: 30px;
-    right: 30px;
-  }
-
-  @media (max-width: 1024px) {
-    bottom: 20px;
-    right: 20px;
-  }
 `;
 
 const floatBtn = css`

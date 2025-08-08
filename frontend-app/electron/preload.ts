@@ -1,17 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
-contextBridge.exposeInMainWorld('electron', {
-  joinLive: () => ipcRenderer.invoke('join-live'),
-  leaveLive: () => ipcRenderer.invoke('leave-live'),
+contextBridge.exposeInMainWorld('electronAPI', {
+  openOverlay: () => {
+    ipcRenderer.send('open-overlay');
+  },
 });
-
-declare global {
-  interface Window {
-    electron: {
-      joinLive: () => Promise<void>;
-      leaveLive: () => Promise<void>;
-    };
-  }
-}
-
-export {};

@@ -11,6 +11,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("v1/meeting-rooms")
@@ -35,6 +37,14 @@ public class MeetingRoomController {
     public BaseResponse<MeetingRoomInfoResponseDto> findById(@PathVariable Long meetingRoomId) {
         MeetingRoom meetingRoom = meetingRoomService.findById(meetingRoomId);
         MeetingRoomInfoResponseDto response = MeetingRoomInfoResponseDto.from(meetingRoom);
+        return new BaseResponse<>(response);
+    }
+
+    // 내가 참여중인 대기실 조회
+    @GetMapping
+    public BaseResponse<List<MyMeetingRoomResponseDto>> findMyMeetingRooms(
+            @AuthenticationPrincipal(expression = "member") Member member) {
+        List<MyMeetingRoomResponseDto> response = meetingRoomService.findMyMeetingRooms(member.getMemberUuid());
         return new BaseResponse<>(response);
     }
 

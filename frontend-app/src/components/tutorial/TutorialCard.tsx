@@ -129,11 +129,30 @@ const wrapper = css`
   overflow-x: auto;
   display: flex;
   justify-content: center;
+
+  @media (max-width: 1200px) {
+    max-width: 1000px;
+  }
+
+  @media (max-width: 900px) {
+    max-width: 100%;
+    padding: 0 1rem;
+  }
 `;
 
 const row = css`
   display: flex;
   gap: 3rem;
+
+  @media (max-width: 900px) {
+    gap: 2rem;
+  }
+
+  @media (max-width: 600px) {
+    gap: 1.5rem;
+    flex-direction: column;
+    align-items: center;
+  }
 `;
 
 const cardWithArrow = css`
@@ -177,6 +196,32 @@ const card = css`
     line-height: 1.5;
     margin-top: 30px;
     margin-bottom: 60px;
+
+    @media (max-width: 900px) {
+      font-size: 16px;
+      margin-bottom: 40px;
+    }
+
+    @media (max-width: 600px) {
+      font-size: 15px;
+      margin-bottom: 30px;
+    }
+  }
+
+  @media (max-width: 1200px) {
+    min-width: 280px;
+    min-height: 400px;
+  }
+
+  @media (max-width: 900px) {
+    min-width: 260px;
+    min-height: 380px;
+  }
+
+  @media (max-width: 600px) {
+    width: 100%;
+    min-width: 240px;
+    min-height: 360px;
   }
 `;
 
@@ -199,6 +244,16 @@ const floatingArrow = css`
   display: flex;
   justify-content: center;
   align-items: center;
+
+  @media (max-width: 900px) {
+    width: 45px;
+    height: 45px;
+    right: -40px;
+  }
+
+  @media (max-width: 600px) {
+    display: none;
+  }
 `;
 
 const nextBtn = css`
@@ -220,6 +275,11 @@ const nextBtn = css`
   &:hover {
     background-color: var(--color-primary-dark);
   }
+
+  @media (max-width: 600px) {
+    font-size: 15px;
+    padding: 10px 24px;
+  }
 `;
 
 const finishBtn = css`
@@ -238,6 +298,12 @@ const finishBtn = css`
   &:hover {
     background-color: var(--color-primary-dark);
   }
+
+  @media (max-width: 600px) {
+    font-size: 15px;
+    padding: 10px 24px;
+    margin-top: 40px;
+  }
 `;
 
 const dotsWrapper = css`
@@ -255,4 +321,9 @@ const dot = (active: boolean) => css`
     ? 'var(--color-primary)'
     : 'var(--color-gray-300)'};
   transition: background-color 0.3s ease;
+
+  @media (max-width: 600px) {
+    width: 12px;
+    height: 12px;
+  }
 `;

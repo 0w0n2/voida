@@ -29,8 +29,6 @@ public enum BaseResponseStatus {
     TOKEN_USERNAME_NOT_FOUND(HttpStatus.UNAUTHORIZED, false, 401, "토큰 내에 userName이 존재하지 않습니다."),
     ACCESS_DENIED(HttpStatus.FORBIDDEN, false, 403, "접근 권한이 없습니다."),
 
-    // 소셜 로그인
-
 
     /**
      * 500: 기타 에러.
@@ -47,6 +45,7 @@ public enum BaseResponseStatus {
     /**
      * 700: 대기실 에러.
      */
+    NO_MEETING_ROOMS_JOINED(HttpStatus.NOT_FOUND, false, 700, "참여중인 대기실이 없습니다."),
     INVALID_INVITE_CODE(HttpStatus.BAD_REQUEST, false, 701, "초대코드가 옳지 않습니다."),
     EXPIRED_INVITE_CODE(HttpStatus.NOT_FOUND, false, 702, "초대 코드가 만료되었습니다."),
     FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN, false, 703, "방장 권한이 없습니다."),
@@ -69,11 +68,14 @@ public enum BaseResponseStatus {
     NICKNAME_GENERATION_FAILED(HttpStatus.CONFLICT, false, 900, "랜덤 닉네임 생성을 실패했습니다."),
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, false, 901, "ID와 PW가 일치하지 않습니다."),
     MEMBER_NOT_FOUND(HttpStatus.UNAUTHORIZED, false, 902, "존재하지 않는 회원입니다."),
+    MISMATCH_PASSWORD(HttpStatus.BAD_REQUEST, false, 903, "비밀번호가 일치하지 않습니다."),
 
     /**
      * 1000: 소셜 에러.
      */
-    UNSUPPORTED_SOCIAL_PROVIDER(HttpStatus.BAD_REQUEST, false, 1000, "지원하지 않는 소셜 로그인 타입입니다.");
+    UNSUPPORTED_SOCIAL_PROVIDER(HttpStatus.BAD_REQUEST, false, 1000, "지원하지 않는 소셜 로그인 타입입니다."),
+    EXPIRED_SOCIAL_SIGNUP(HttpStatus.NOT_FOUND, false, 1002, "회원가입 시간이 만료되었습니다. 다시 시도해주세요."),
+    ALREADY_REGISTERED_EMAIL(HttpStatus.CONFLICT, false, 1003, "이미 가입된 계정입니다. 이메일 로그인 방식을 사용해주세요.");
 
     private final HttpStatus httpStatus;
     private final boolean isSuccess;

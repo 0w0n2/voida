@@ -166,6 +166,15 @@ const contentWrapperStyle = css`
   flex-direction: column;
   align-items: center;
   margin-bottom: 2rem;
+
+  @media (max-width: 1200px) {
+    max-width: 800px;
+  }
+
+  @media (max-width: 900px) {
+    max-width: 90%;
+    padding: 1rem;
+  }
 `;
 
 const titleStyle = css`
@@ -173,6 +182,14 @@ const titleStyle = css`
   font-family: 'NanumSquareEB';
   margin-bottom: 1rem;
   text-align: center;
+
+  @media (max-width: 900px) {
+    font-size: 32px;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 26px;
+  }
 `;
 
 const subtitleStyle = css`
@@ -180,9 +197,18 @@ const subtitleStyle = css`
   margin-bottom: 3rem;
   text-align: center;
   font-size: 20px;
+
+  @media (max-width: 900px) {
+    font-size: 18px;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 16px;
+  }
 `;
 
 const videoContener = css`
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -190,6 +216,10 @@ const videoContener = css`
   gap: 2rem;
   border-radius: 12px;
   background: var(--color-gray-100);
+
+  @media (max-width: 900px) {
+    width: 100%;
+  }
 `;
 
 const videoBox = css`
@@ -200,6 +230,12 @@ const videoBox = css`
   border-radius: 12px;
   overflow: hidden;
   margin: 0 auto;
+
+  @media (max-width: 900px) {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
 `;
 
 const videoStyle = css`
@@ -243,18 +279,46 @@ const guideBox = css`
 
 const recordButton = css`
   position: absolute;
-  top: 50%;
+  top: 100%;
   left: 50%;
-  transform: translate(-50%, 120%);
-  background: transparent;
+  transform: translate(-50%, -220%);
+  z-index: 10;
+
+  background: white;
   border: none;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 12px;
   cursor: pointer;
-  z-index: 2;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  @media (max-width: 900px) {
+    transform: translate(-50%, -210%);
+    padding: 10px;
+  }
+
+  @media (max-width: 600px) {
+    transform: translate(-50%, -200%);
+    padding: 8px;
+  }
 `;
 
 const iconStyle = css`
   width: 70px;
   height: 70px;
+
+  @media (max-width: 900px) {
+    width: 60px;
+    height: 60px;
+  }
+
+  @media (max-width: 600px) {
+    width: 50px;
+    height: 50px;
+  }
 `;
 
 const textBox = (progress: number) => css`
@@ -275,6 +339,14 @@ const textBox = (progress: number) => css`
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   transition: background 0.3s ease;
+
+  @media (max-width: 900px) {
+    font-size: 26px;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 22px;
+  }
 `;
 
 const progressBarWrapper = css`

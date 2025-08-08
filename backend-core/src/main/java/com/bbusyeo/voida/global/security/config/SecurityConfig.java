@@ -1,14 +1,12 @@
 package com.bbusyeo.voida.global.security.config;
 
 import com.bbusyeo.voida.global.security.filter.JwtAuthorizationFilter;
-import com.bbusyeo.voida.global.security.handler.CustomAccessDeniedHandler;
-import com.bbusyeo.voida.global.security.handler.CustomAuthenticationEntryPoint;
-import com.bbusyeo.voida.global.security.handler.CustomAuthenticationProvider;
-import com.bbusyeo.voida.global.security.service.TokenBlackListService;
+import com.bbusyeo.voida.global.security.handler.*;
+import com.bbusyeo.voida.global.security.service.oauth2.CustomOauth2UserService;
+import com.bbusyeo.voida.global.security.service.jwt.TokenBlackListService;
 import com.bbusyeo.voida.global.security.util.TokenUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -28,8 +26,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
-
 /**
  * 인증/인가 환경 클래스 - JWT 기반 REST API 보호 (/v1/** 경로(헤더 기반 토큰 인증))
  * - Spring Security 환경설정 구성
@@ -37,9 +33,8 @@ import java.util.List;
  * - 사용자에 대한 Authentication/Authorization 에 대한 구성을 Bean 메서드로 주입
  */
 @Configuration
-@Slf4j
 @EnableWebSecurity
-@EnableConfigurationProperties({SecurityWhitelistProperties.class, CorsProperties.class})
+@EnableConfigurationProperties({SecurityWhitelistProperties.class, CorsProperties.class, OAuthProperties.class})
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -51,6 +46,10 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final CorsProperties corsProperties;
+    private final CustomOauth2UserService customOauth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final OAuthProperties oAuthProperties;
+    private final OAuth2FailureHandler oAuth2FailureHandler;
 
     // SecurityFilterChain : HTTP 요청에 대한 보안 설정
     // 필터를 통해 (인증) 방식과 절차에 대한 설정 수행
@@ -74,11 +73,25 @@ public class SecurityConfig {
                     auth.anyRequest().authenticated();
                 })
 
-                // (3) JWT Filter 등록
+                // (3) OAuth2 로그인 설정
+                .oauth2Login(oauth2 -> oauth2
+                        .authorizationEndpoint(endpoint -> endpoint     // 인가 URI: 사용자가 구글 로그인 페이지로 리다이렉트될 때 쓰는 엔드포인트
+                                .baseUri(oAuthProperties.getAuthorizationEndpoint()))
+                        .redirectionEndpoint(endpoint -> endpoint       // 콜백 URI: 구글이 code를 돌려줄 때 호출되는 엔드포인트
+                                .baseUri(oAuthProperties.getRedirectionEndpoint())
+                        )
+                        .userInfoEndpoint(userInfo -> userInfo          // Provider 로부터 획득한 유저정보를 다룰 service class를 지정
+                                .userService(customOauth2UserService))  // OAuth2 로그인 성공 시 후속 조치를 처리
+                        .successHandler(oAuth2SuccessHandler)           // OAuth2 로그인 성공 시 호출되는 handler
+                        .failureHandler(oAuth2FailureHandler)
+                )
+
+                // (4) JWT Filter 등록
                 .addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class)
 
-                // (4) ExceptionHandling
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint) // 토큰 없이 인증 필요한 API 요청 → 401 응답
+                // (5) ExceptionHandling
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(authenticationEntryPoint) // 토큰 없이 인증 필요한 API 요청 → 401 응답
                         .accessDeniedHandler(accessDeniedHandler) // 토큰은 있는데 권한이 없는 경우 → 403 응답
                 )
 
@@ -98,12 +111,6 @@ public class SecurityConfig {
     JwtAuthorizationFilter authenticationFilter() {
         return new JwtAuthorizationFilter(tokenUtils, tokenBlackListService, objectMapper, whitelistProperties);
     }
-
-//    // PasswordEncoder : 비밀번호 암호화
-//    @Bean
-//    public PasswordEncoder passwordEncoder() {
-//        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-//    }
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
