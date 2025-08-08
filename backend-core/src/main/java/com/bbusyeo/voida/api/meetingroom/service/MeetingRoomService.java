@@ -140,9 +140,11 @@ public class MeetingRoomService {
         if (isNewImageUploaded) {
             newFileKey = s3Uploader.upload(newThumbnailImage, S3_THUMBNAIL_DIR);
         }
-        // 사진 변경은 없고, 카테고리만 바뀌면 그 카테고리에 맞는 default 이미지로 변경
+        // 사진 변경은 없고, 기존에 default 이미지였고, 카테고리만 바뀌면 그 카테고리에 맞는 default 이미지로 변경
         else if (isCategoryChanged) {
+            if (isDefaultImageKey(oldFileKey)) {
             newFileKey = getDefaultThumbnailKey(requestDto.getCategory());
+            }
         }
 
         try {
