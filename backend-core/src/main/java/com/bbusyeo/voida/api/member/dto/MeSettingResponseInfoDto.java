@@ -19,6 +19,7 @@ public class MeSettingResponseInfoDto {
                 .lipTalkMode(memberSetting.getLipTalkMode())
                 .liveFontSize(memberSetting.getLiveFontSize())
                 .overlayPosition(memberSetting.getOverlayPosition().toString())
+                .overlayTransparency(memberSetting.getOverlayTransparency())
                 .build();
     }
 }
