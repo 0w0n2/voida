@@ -52,7 +52,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         // 1. 요청 성공 (CustomOAuth2SuccessHandler 에서 처리)
         if (memberSocial.isPresent()) { // 1-1. 기존에 가입한 소셜 계정 -> 로그인 진행
             return new UserDetailsDto(memberSocial.get().getMember());
-        } else if (memberRepository.existsByEmail(providerEmail)){
+        } else if (memberRepository.existsByEmailAndIsDeletedIsFalse(providerEmail)){
             // 2. 요청 실패 (CustomOAuth2FailureHandler 에서 처리)
             // 최초 로그인이나 동일한 이메일 주소로 일반 회원가입이 되어 있음
             throw oauth2Exception(BaseResponseStatus.ALREADY_REGISTERED_EMAIL);
