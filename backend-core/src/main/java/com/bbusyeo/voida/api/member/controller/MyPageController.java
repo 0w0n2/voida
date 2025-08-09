@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
  * 마이페이지 회원 정보 관련 컨트롤러
  */
 @RestController
-@RequestMapping("/v1/member/me")
+@RequestMapping("/v1/members/me")
 @RequiredArgsConstructor
 public class MyPageController {
 
