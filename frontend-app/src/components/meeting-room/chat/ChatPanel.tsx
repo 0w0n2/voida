@@ -25,37 +25,38 @@ const ChatPanel = ({ meetingRoomId }: ChatPanelProps) => {
   const { user, setUser, clearUser } = useAuthStore();
   const accessToken = localStorage.getItem('accessToken');
 
-  useEffect(() => {
-    const run = async () => {
-      if (accessToken && !user) {
-        try {
-          const res = await getUser();
-          const data = res.data.result.member;
-          setUser({
-            email: data.email,
-            nickname: data.nickname,
-            profileImage: data.profileImageUrl || '',
-            memberUuid: data.memberUuid,
-          });
-        } catch (err) {
-          console.error('유저 정보 로드 실패', err);
-          clearUser();
-        }
+
+useEffect(() => {
+  const run = async () => {
+    if (accessToken && !user) {
+      try {
+        const res = await getUser();
+        const data = res.data.result.member;
+        setUser({
+          email: data.email,
+          nickname: data.nickname,
+          profileImage: data.profileImageUrl || '',
+          memberUuid: data.memberUuid,
+        });
+      } catch (err) {
+        console.error('유저 정보 로드 실패', err);
+        clearUser();
       }
+    }
 
-      connectStomp(meetingRoomId, (msg) => {
-        const myUuid = useAuthStore.getState().user?.memberUuid;
-        const mine = msg.senderUuid === myUuid;
-        addChatMessage({ ...msg, mine });
-      });
-    };
+    connectStomp(meetingRoomId, (msg) => {
+      const myUuid = useAuthStore.getState().user?.memberUuid;
+      const mine = msg.senderUuid === myUuid;
+      addChatMessage({ ...msg, mine });
+    });
+  };
 
-    run();
+  run();
 
-    return () => {
-      disconnectStomp();
-    };
-  }, [meetingRoomId, accessToken, user, setUser, clearUser, addChatMessage]);
+  return () => {
+    disconnectStomp();
+  };
+}, [meetingRoomId, accessToken, user, setUser, clearUser, addChatMessage]);
 
   useEffect(() => {
     const loadInitial = async () => {
