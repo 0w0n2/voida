@@ -55,10 +55,10 @@ public class MyPageController {
 
     @PutMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<Void> updateProfile(
-            @RequestPart UpdateMeProfileRequestDto requestDt,
+            @RequestPart UpdateMeProfileRequestDto requestDto,
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
             @AuthenticationPrincipal(expression = "member") Member member) {
-        myPageService.updateProfile(requestDt, profileImage, member.getId());
+        myPageService.updateProfile(requestDto, profileImage, member.getId());
         return new BaseResponse<>();
     }
 
