@@ -4,7 +4,8 @@ import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import MemberPanel from '@/components/meeting-room/members/MemberPanel';
 import ChatPanel from '@/components/meeting-room/chat/ChatPanel';
-import { getRoomInfo, getRoomMembers, getRoomChatHistory } from '@/apis/meeting-room/meetingRoomApi';
+import { getRoomInfo, getRoomMembers } from '@/apis/meeting-room/meetingRoomApi';
+import { getRoomChatHistory } from '@/apis/stomp/meetingRoomStomp';
 import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
 
 const MeetingRoomPage = () => {
@@ -17,15 +18,15 @@ const MeetingRoomPage = () => {
       try {
         const room = await getRoomInfo(meetingRoomId);
         const members = await getRoomMembers(meetingRoomId);
-        // const chat = await getRoomChatHistory(meetingRoomId);
+        const chat = await getRoomChatHistory(meetingRoomId);
 
         setRoomInfo({
           ...room,
           meetingRoomId, 
         });
         setParticipants(members);
-        // const chatList = chat?.chatHistory?.content ?? [];
-        // setChatMessages(chatList);
+        const chatList = chat?.chatHistory?.content ?? [];
+        setChatMessages(chatList);
       } catch (err) {
         console.error('초기 데이터 로딩 실패:', err);
       }

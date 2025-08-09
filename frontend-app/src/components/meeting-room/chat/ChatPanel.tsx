@@ -17,7 +17,6 @@ interface ChatPanelProps {
 const ChatPanel = ({ meetingRoomId }: ChatPanelProps) => {
   const { chatMessages, setChatMessages, addChatMessage } = useMeetingRoomStore();
   const [input, setInput] = useState('');
-  const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const chatBoxRef = useRef<HTMLDivElement>(null);
@@ -27,9 +26,10 @@ const ChatPanel = ({ meetingRoomId }: ChatPanelProps) => {
   const accessToken = localStorage.getItem('accessToken');
 
   useEffect(() => {
-    if (accessToken && !user) {
-      getUser()
-        .then((res) => {
+    const run = async () => {
+      if (accessToken && !user) {
+        try {
+          const res = await getUser();
           const data = res.data.result.member;
           setUser({
             email: data.email,
@@ -37,40 +37,48 @@ const ChatPanel = ({ meetingRoomId }: ChatPanelProps) => {
             profileImage: data.profileImageUrl || '',
             memberUuid: data.memberUuid,
           });
-        })
-        .catch((err) => {
+        } catch (err) {
           console.error('유저 정보 로드 실패', err);
           clearUser();
-        });
-    }
+        }
+      }
 
-    connectStomp(meetingRoomId, (msg) => {
-      const myUuid = useAuthStore.getState().user?.memberUuid;
-      const mine = msg.senderUuid === myUuid;
-      addChatMessage({ ...msg, mine });
-    });
-    return disconnectStomp;
-  }, [meetingRoomId, addChatMessage]);
+      connectStomp(meetingRoomId, (msg) => {
+        const myUuid = useAuthStore.getState().user?.memberUuid;
+        const mine = msg.senderUuid === myUuid;
+        addChatMessage({ ...msg, mine });
+      });
+    };
+
+    run();
+
+    return () => {
+      disconnectStomp();
+    };
+  }, [meetingRoomId, accessToken, user, setUser, clearUser, addChatMessage]);
 
   useEffect(() => {
     const loadInitial = async () => {
       try {
-        const res = await getRoomChatHistory(meetingRoomId, page, 20);
-        const chatHistory = res?.chatHistory;
-        setChatMessages(chatHistory?.content ?? []);
-        setPage(0);
-        setHasMore(chatHistory?.hasNext ?? false);
+        const res = await getRoomChatHistory(meetingRoomId, 0, 20);
+        setChatMessages(res.content);
+        setPage(res.number);
+
+        requestAnimationFrame(() => {
+          if (chatBoxRef.current) {
+            chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+          }
+        });
       } catch (error) {
         console.error('채팅 기록 초기 로딩 실패:', error);
         setChatMessages([]);
-        setHasMore(false);
       }
     };
     loadInitial();
   }, [meetingRoomId, setChatMessages]);
 
   const fetchOldMessages = useCallback(async () => {
-    if (loading || !hasMore || !chatBoxRef.current) return;
+    if (loading || !chatBoxRef.current) return;
     setLoading(true);
 
     const el = chatBoxRef.current;
@@ -79,27 +87,21 @@ const ChatPanel = ({ meetingRoomId }: ChatPanelProps) => {
     try {
       const nextPage = page + 1;
       const res = await getRoomChatHistory(meetingRoomId, nextPage, 20);
-      const { content, hasNext } = res.chatHistory;
-
-      if (content.length === 0) {
-        setHasMore(false);
-      } else {
-        setChatMessages([...content, ...chatMessages], true);
+      
+      setChatMessages([...res.content, ...chatMessages], true);
         setPage(nextPage);
-        setHasMore(hasNext);
 
         requestAnimationFrame(() => {
           if (chatBoxRef.current) {
             chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight - prevScrollHeight;
           }
         });
-      }
     } catch (error) {
       console.error('이전 메시지 로딩 실패:', error);
     }
 
     setLoading(false);
-  }, [loading, hasMore, meetingRoomId, chatMessages, setChatMessages, page]);
+  }, [loading, meetingRoomId, chatMessages, setChatMessages, page]);
 
   const handleScroll = () => {
     const el = chatBoxRef.current;
