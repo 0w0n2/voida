@@ -73,4 +73,10 @@ public class Member implements Serializable {
             this.profileImageUrl = profileImageUrl;
         }
     }
+
+    public void softDelete(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
+        this.deletedAt = LocalDateTime.now();
+    }
+
 }
