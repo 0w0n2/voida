@@ -10,4 +10,6 @@ public interface MemberSocialRepository extends JpaRepository<MemberSocial, Long
 
     @EntityGraph(attributePaths = "member")
     Optional<MemberSocial> findByEmail(String providerEmail);
+
+    void deleteMemberSocialsByMemberId(Long memberId);
 }

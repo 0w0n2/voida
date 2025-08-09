@@ -51,7 +51,7 @@ public class EmailVerificationService {
 
     @Transactional(readOnly=true)
     public CheckEmailResponseDto checkEmail(CheckEmailRequestDto requestDto) {
-        return CheckEmailResponseDto.toDto(memberRepository.existsByEmail(requestDto.getEmail()));
+        return CheckEmailResponseDto.toDto(memberRepository.existsByEmailAndIsDeletedIsFalse(requestDto.getEmail()));
     }
 
 }

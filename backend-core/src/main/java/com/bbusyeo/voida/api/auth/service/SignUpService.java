@@ -4,7 +4,6 @@ import com.bbusyeo.voida.api.auth.dto.SignUpRequestDto;
 import com.bbusyeo.voida.api.member.constant.MemberValue;
 import com.bbusyeo.voida.api.member.domain.Member;
 import com.bbusyeo.voida.api.member.domain.MemberSocial;
-import com.bbusyeo.voida.api.member.domain.enums.ProviderName;
 import com.bbusyeo.voida.api.member.repository.MemberRepository;
 import com.bbusyeo.voida.api.member.repository.MemberSocialRepository;
 import com.bbusyeo.voida.global.exception.BaseException;
@@ -15,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Random;
@@ -37,6 +35,13 @@ public class SignUpService {
     private static final String SIGNUP_TOKEN_PREFIX = "signup-token:";
 
     public Member signUp(SignUpRequestDto requestDto, MultipartFile profileImage) {
+        // 이전에 탈퇴한 회원의 재가입 시 기존 정보 제거
+        memberRepository.findByEmailAndIsDeleted(requestDto.getEmail(), true)
+                .ifPresent(member -> {
+                    memberRepository.delete(member);
+                    memberRepository.flush(); // 영속성 컨텍스트의 변경 내용을 DB에 반영
+                })
+        ;
         // 1. 비밀번호 암호화
         String encodedPassword = bCryptPasswordEncoder.encode(requestDto.getPassword());
 

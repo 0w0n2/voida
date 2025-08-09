@@ -27,4 +27,5 @@ public interface MemberMeetingRoomRepository extends JpaRepository<MemberMeeting
 
     List<MemberMeetingRoom> findByMemberUuid(String memberUuid);
 
+    void deleteMemberMeetingRoomsByMemberUuid(String memberUuid);
 }

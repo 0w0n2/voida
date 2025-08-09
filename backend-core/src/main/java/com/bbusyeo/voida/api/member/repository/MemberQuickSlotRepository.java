@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface MemberQuickSlotRepository extends JpaRepository<MemberQuickSlot, Long> {
     List<MemberQuickSlot> findMemberQuickSlotsByMemberId(Long memberId);
+
+    void deleteMemberQuickSlotsByMemberId(Long memberId);
 }

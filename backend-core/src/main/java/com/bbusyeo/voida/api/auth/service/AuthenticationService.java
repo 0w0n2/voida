@@ -1,5 +1,8 @@
 package com.bbusyeo.voida.api.auth.service;
 
+import com.bbusyeo.voida.api.member.repository.MemberRepository;
+import com.bbusyeo.voida.global.exception.BaseException;
+import com.bbusyeo.voida.global.response.BaseResponseStatus;
 import com.bbusyeo.voida.global.security.dto.UserDetailsDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -16,8 +19,19 @@ import org.springframework.stereotype.Service;
 public class AuthenticationService {
 
     private final AuthenticationProvider authenticationProvider;
+    private final MemberRepository memberRepository;
 
     public UserDetailsDto authenticate(String email, String password) {
+        
+        // 탈퇴한 회원의 로그인 방지
+        memberRepository.findByEmail(email)
+                .ifPresent(member -> {
+                    if (member.getIsDeleted()) {
+                        throw new BaseException(BaseResponseStatus.INVALID_CREDENTIALS);
+                    }
+                });
+        
+        // 로그인 로직 진행
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
 
         Authentication authentication = authenticationProvider.authenticate(authenticationToken);

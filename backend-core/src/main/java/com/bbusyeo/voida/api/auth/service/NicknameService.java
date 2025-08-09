@@ -20,12 +20,12 @@ public class NicknameService {
     public String getRandomNickname() {
         for (int i = 0; i < 10; i++) {
             String nickname = nicknameGenerator.generateNickname();
-            if (!memberRepository.existsByNickname(nickname)) return nickname;
+            if (!memberRepository.existsByNicknameAndIsDeletedIsFalse(nickname)) return nickname;
         }
         throw new BaseException(BaseResponseStatus.NICKNAME_GENERATION_FAILED);
     }
 
     public CheckNicknameResponseDto checkNickname(CheckNicknameRequestDto requestDto) {
-        return CheckNicknameResponseDto.toDto(memberRepository.existsByNickname(requestDto.getNickname()));
+        return CheckNicknameResponseDto.toDto(memberRepository.existsByNicknameAndIsDeletedIsFalse(requestDto.getNickname()));
     }
 }

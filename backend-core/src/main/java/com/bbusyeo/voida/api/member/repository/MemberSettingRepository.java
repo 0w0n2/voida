@@ -5,4 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MemberSettingRepository extends JpaRepository<MemberSetting, Long> {
     MemberSetting findMemberSettingsByMemberId(Long memberId);
+
+    void deleteMemberSettingByMemberId(Long memberId);
 }
