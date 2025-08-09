@@ -27,4 +27,7 @@ public interface MyPageService {
     void changeLipTalkMode(Long memberId, ChangeLipTalkRequestMode requestDto);
 
     void changeOverlay(Long memberId, ChangeOverlayRequestDto requestDto);
+
+    void changeQuickSlots(Long memberId, ChangeQuickSlotsRequestDto requestDto);
+
 }

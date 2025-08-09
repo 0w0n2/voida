@@ -90,4 +90,13 @@ public class MyPageController {
         myPageService.changeOverlay(member.getId(), requestDto);
         return new BaseResponse<>();
     }
+
+    @PutMapping("/quick-slots")
+    public BaseResponse<Void> changeQuickSlots(
+            @Valid @RequestBody ChangeQuickSlotsRequestDto requestDto,
+            @AuthenticationPrincipal(expression = "member") Member member
+    ) {
+        myPageService.changeQuickSlots(member.getId(), requestDto);
+        return new BaseResponse<>();
+    }
 }
