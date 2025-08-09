@@ -28,11 +28,10 @@ const JoinRoomModal = ({ onClose }: JoinRoomModalProps) => {
         if (idx > 8) break;
         updated[idx] = ch;
         const el = inputsRef.current[idx];
-        if (el) el.value = ch; // uncontrolled input이므로 DOM 값도 직접 세팅
+        if (el) el.value = ch; 
         idx++;
       }
 
-      // 다음 포커스 이동
       if (idx <= 8) {
         inputsRef.current[idx]?.focus();
       } else {
@@ -52,7 +51,6 @@ const JoinRoomModal = ({ onClose }: JoinRoomModalProps) => {
     const input = e.currentTarget;
     const value = input.value;
 
-    // 붙여넣기나 빠른 입력으로 1자 초과가 들어오면 일괄 분배
     if (value.length > 1) {
       fillFrom(index, value);
       return;
