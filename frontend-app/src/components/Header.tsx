@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { use, useState } from 'react';
+import { useState } from 'react';
 import VoidaLogo from '@/assets/logo/voida-logo.png';
 import { useNavigate } from 'react-router-dom';
 import { User, LogOut } from 'lucide-react';
