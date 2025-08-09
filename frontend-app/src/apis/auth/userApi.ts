@@ -6,7 +6,7 @@ export const postUserType = (type: 'general' | 'lip-reading') => {
 
 // 유저 정보 조회
 export const getUser = () => {
-  return apiInstance.get('/v1/member/me/profile');
+  return apiInstance.get('/v1/members/me/profile');
 };
 
 // 유저 setting 조회
