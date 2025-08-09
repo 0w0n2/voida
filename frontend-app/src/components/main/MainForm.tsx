@@ -36,11 +36,8 @@ const MainForm = ({ rooms = [] }: MainFormProps) => {
   const [isJoinOpen, setIsJoinOpen] = useState(false);
 
   const itemsPerPage = 6;
-
-  // 한글 기준 카테고리 목록
   const categories = ['전체', ...Object.values(categoryLabels)];
 
-  // 필터 로직 (한글 기준 비교)
   const filteredRooms = rooms.filter((room) => {
     const normalizedCategory = room.categoryName?.toLowerCase().trim();
     const roomCategoryKo = categoryLabels[normalizedCategory] || '기타';
@@ -65,7 +62,6 @@ const MainForm = ({ rooms = [] }: MainFormProps) => {
 
   return (
     <div css={container}>
-      {/* 검색/카테고리 선택 */}
       <div css={searchContainer}>
         <div css={searchBox}>
           <select
@@ -95,7 +91,6 @@ const MainForm = ({ rooms = [] }: MainFormProps) => {
         </div>
       </div>
 
-      {/* 방 목록 */}
       <div css={cardGrid}>
         {currentRooms.map((room) => {
           const normalizedCategory = room.categoryName?.toLowerCase().trim();
@@ -138,7 +133,6 @@ const MainForm = ({ rooms = [] }: MainFormProps) => {
         })}
       </div>
 
-      {/* 페이지네이션 */}
       <div css={pagination}>
         <button
           css={pageBtn}
@@ -167,7 +161,6 @@ const MainForm = ({ rooms = [] }: MainFormProps) => {
         </button>
       </div>
 
-      {/* 플로팅 버튼 */}
       <div css={floatBtns}>
         <div css={floatBtnWrapper}>
           <button css={floatBtn} onClick={() => setIsJoinOpen(true)}>
@@ -359,7 +352,7 @@ const pageBtn = css`
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {
-    background-color: #f0f0f0;
+    background-color: #ffffff74;
   }
 
   &:disabled {
