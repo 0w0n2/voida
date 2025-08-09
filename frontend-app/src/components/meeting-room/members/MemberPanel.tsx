@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
 import SettingModal from '@/components/meeting-room/modal/setting/SettingModal';
-import InfoModal from '@/components/meeting-room/modal/Info/InfoModal';
+import InfoModal from '@/components/meeting-room/modal/info/InfoModal';
 import Lip from '@/assets/icons/lip-blue.png';
 import Setting from '@/assets/icons/room-setting.png';
 import Info from '@/assets/icons/info.png';
@@ -85,7 +85,8 @@ const MemberPanel = () => {
             css={css`
               ${roomButton};
               color: ${categoryColors[roomInfo?.category || ''] || '#666'};
-              background-color: ${categoryColors[roomInfo?.category || ''] || '#999'}20;
+              background-color: ${categoryColors[roomInfo?.category || ''] ||
+              '#999'}20;
               border: none;
             `}
           >
@@ -95,7 +96,9 @@ const MemberPanel = () => {
 
         {roomInfo?.thumbnailImageUrl && (
           <img
-            src={`${import.meta.env.VITE_CDN_URL}/${roomInfo.thumbnailImageUrl}`}
+            src={`${import.meta.env.VITE_CDN_URL}/${
+              roomInfo.thumbnailImageUrl
+            }`}
             alt="방 썸네일"
             css={thumbnailStyle}
           />
@@ -419,7 +422,6 @@ const roomInfoBox = css`
     padding: 6px 12px;
   }
 `;
-
 
 const roomButton = css`
   display: inline-flex;

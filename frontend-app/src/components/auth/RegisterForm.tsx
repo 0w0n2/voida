@@ -1,25 +1,14 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useEffect, useState } from 'react';
+import { useLocation, Link } from 'react-router-dom';
 import { AxiosError } from 'axios';
-import {
-  register,
-  checkEmailDuplicate,
-  checkNicknameDuplicate,
-} from '@/apis/auth/authApi';
+import { register, checkEmailDuplicate, checkNicknameDuplicate, getRandomNickname } from '@/apis/auth/authApi';
+import EmailVerificationModal from './EmailVerificationModal';
+import IsRegisteredModal from './IsRegisteredModal';
+import { useAlertStore } from '@/stores/useAlertStore';
 import VoidaLogo from '@/assets/logo/voida-logo.png';
 import defaultProfile from '@/assets/profiles/defaultProfile.png';
-import EmailVerificationModal from './EmailVerificationModal';
-import { getRandomNickname } from '@/apis/auth/authApi';
-import IsRegisteredModal from './IsRegisteredModal';
-import {
-  useSearchParams,
-  useNavigate,
-  useLocation,
-  Link,
-} from 'react-router-dom';
-import { useAlertStore } from '@/stores/useAlertStore';
-
 import EyeIcon from '@/assets/icons/eye.png';
 import EyeCloseIcon from '@/assets/icons/crossed-eye.png';
 
@@ -202,14 +191,8 @@ const RegisterForm = () => {
           .showAlert('이미 사용중인 이메일입니다.', 'top');
         setIsEmailChecked(false);
       }
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        setEmailError(
-          useAlertStore
-            .getState()
-            .showAlert('중복확인 중 오류가 발생했습니다.', 'top'),
-        );
-      }
+    } catch (e) {
+      console.log(e);
       setIsEmailChecked(false);
     }
   };
@@ -358,8 +341,6 @@ const RegisterForm = () => {
     }
   };
 
-  //////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////
   return (
     <>
       <form css={formStyle} onSubmit={handleSubmit}>
@@ -517,14 +498,12 @@ const RegisterForm = () => {
           </div>
         </div>
       </form>
-      {/* 이메일 인증 모달 */}
       <EmailVerificationModal
         isOpen={isVerificationModalOpen}
         onClose={() => setIsVerificationModalOpen(false)}
         email={email}
         onVerificationSuccess={handleVerificationSuccess}
       />
-      {/* 회원가입 완료 모달 */}
       <IsRegisteredModal
         isOpen={isRegistered}
         onClose={handleCloseRegisteredModal}
@@ -677,6 +656,7 @@ const checkIdStyle = css`
   line-height: 1.4;
   display: inline-block;
 `;
+
 const loginLinkStyle = css`
   color: var(--color-primary);
   text-decoration: none;
@@ -687,6 +667,7 @@ const loginLinkStyle = css`
   }
   line-height: 1.5;
 `;
+
 const submitButtonStyle = css`
   margin-left: auto;
   background: var(--color-primary);

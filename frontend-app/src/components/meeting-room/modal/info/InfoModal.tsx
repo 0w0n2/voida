@@ -2,31 +2,42 @@
 import { css } from '@emotion/react';
 import { useState } from 'react';
 import { Info, Users, AlertTriangle, X } from 'lucide-react';
-import InfoRoom from '@/components/meeting-room/modal/Info/InfoRoom';
-import MemberRoom from '@/components/meeting-room/modal/Info/MemberRoom';
-import LeaveRoom from '@/components/meeting-room/modal/Info/LeaveRoom';
+import InfoRoom from '@/components/meeting-room/modal/info/InfoRoom';
+import MemberRoom from '@/components/meeting-room/modal/info/MemberRoom';
+import LeaveRoom from '@/components/meeting-room/modal/info/LeaveRoom';
 
 type SettingModalProps = {
   onClose: () => void;
 };
 
 const SettingModal = ({ onClose }: SettingModalProps) => {
-  const [activeTab, setActiveTab] = useState<'general' | 'members' | 'danger'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'members' | 'danger'>(
+    'general',
+  );
 
   return (
     <div css={overlay}>
       <div css={modal}>
         <X css={closeButton} onClick={onClose} />
-       
+
         <div css={tabList}>
-          <button className={activeTab === 'general' ? 'active' : ''} onClick={() => setActiveTab('general')}>
-            <Info size={18} style={{ marginTop: 3}} /> 일반 정보
+          <button
+            className={activeTab === 'general' ? 'active' : ''}
+            onClick={() => setActiveTab('general')}
+          >
+            <Info size={18} style={{ marginTop: 3 }} /> 일반 정보
           </button>
-          <button className={activeTab === 'members' ? 'active' : ''} onClick={() => setActiveTab('members')}>
-            <Users size={18} style={{ marginTop: 4}} /> 참여자 확인
+          <button
+            className={activeTab === 'members' ? 'active' : ''}
+            onClick={() => setActiveTab('members')}
+          >
+            <Users size={18} style={{ marginTop: 4 }} /> 참여자 확인
           </button>
-          <button className={activeTab === 'danger' ? 'active' : ''} onClick={() => setActiveTab('danger')}>
-            <AlertTriangle size={18} style={{ marginTop: 2}} /> 방 탈퇴
+          <button
+            className={activeTab === 'danger' ? 'active' : ''}
+            onClick={() => setActiveTab('danger')}
+          >
+            <AlertTriangle size={18} style={{ marginTop: 2 }} /> 방 탈퇴
           </button>
         </div>
 
@@ -45,7 +56,7 @@ export default SettingModal;
 const overlay = css`
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);       
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -124,7 +135,7 @@ const contentBox = css`
   flex-direction: column;
   gap: 0px;
   padding-right: 32px;
-  
+
   label {
     font-weight: 500;
     margin-bottom: 6px;

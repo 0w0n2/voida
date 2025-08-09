@@ -1,20 +1,40 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { use, useState } from 'react';
+import { useState, useEffect } from 'react';
 import VoidaLogo from '@/assets/logo/voida-logo.png';
 import { useNavigate } from 'react-router-dom';
 import { User, LogOut } from 'lucide-react';
 import { logout } from '@/apis/auth/authApi';
+import { getUser } from '@/apis/auth/userApi';
 import { useAuthStore } from '@/stores/authStore';
 
 export default function Header() {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  const user = useAuthStore((state) => state.user);
-  console.log('user', user);
+  const { user, setUser, clearUser } = useAuthStore();
+  const accessToken = localStorage.getItem('accessToken');
+
+  useEffect(() => {
+    if (accessToken && !user) {
+      getUser()
+        .then((res) => {
+          const data = res.data.result.member;
+          setUser({
+            email: data.email,
+            nickname: data.nickname,
+            profileImage: data.profileImageUrl || '',
+          });
+        })
+        .catch((err) => {
+          console.error('유저 정보 로드 실패', err);
+          clearUser();
+        });
+    }
+  }, [accessToken, user, setUser, clearUser]);
+
   const ProfileImage = user?.profileImage;
-  console.log(ProfileImage);
   const ProfileName = user?.nickname || '사용자';
+
   const handleLogoClick = () => {
     navigate('/main');
   };
@@ -32,10 +52,14 @@ export default function Header() {
     const confirmLogout = window.confirm('로그아웃 하시겠습니까?');
     if (confirmLogout) {
       await logout();
-      console.log('로그아웃 성공');
       localStorage.removeItem('accessToken');
+      clearUser();
       navigate('/login');
     }
+  };
+
+  const handleLogin = () => {
+    navigate('/login');
   };
 
   return (
@@ -47,18 +71,28 @@ export default function Header() {
         onClick={handleLogoClick}
       />
       <div css={userSection}>
-        <div css={userInfoStyle} onClick={toggleMenu}>
-          <img
-            src={`${import.meta.env.VITE_CDN_URL}/${ProfileImage}`}
-            alt="프로필 이미지"
-            css={avatarStyle}
-          />
-          <span>
-            <span css={{ fontFamily: 'NanumSquareEB' }}>{ProfileName}</span> 님
-          </span>
-        </div>
+        {accessToken ? (
+          user ? (
+            <div css={userInfoStyle} onClick={toggleMenu}>
+              <img
+                src={`${import.meta.env.VITE_CDN_URL}/${ProfileImage}`}
+                alt="프로필 이미지"
+                css={avatarStyle}
+              />
+              <span>
+                <span css={{ fontFamily: 'NanumSquareEB' }}>{ProfileName}</span> 님
+              </span>
+            </div>
+          ) : (
+            <span>로딩 중...</span>
+          )
+        ) : (
+          <button css={loginButton} onClick={handleLogin}>
+            로그인
+          </button>
+        )}
 
-        {isOpen && (
+        {isOpen && accessToken && user && (
           <div css={dropdownMenu}>
             <img
               src={`${import.meta.env.VITE_CDN_URL}/${ProfileImage}`}
@@ -258,5 +292,20 @@ const logoutButton = css`
 
   &:hover {
     background: #e6e6e6;
+  }
+`;
+
+const loginButton = css`
+  padding: 10px 16px;
+  background: var(--color-primary);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+  font-family: 'NanumSquareB';
+  font-size: 14px;
+
+  &:hover {
+    background: var(--color-primary-dark);
   }
 `;

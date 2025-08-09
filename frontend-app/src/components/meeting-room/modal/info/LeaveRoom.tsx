@@ -43,11 +43,12 @@ const DeleteRoom = ({ onClose }: { onClose: () => void }) => {
         {confirmMode ? (
           <div css={confirmBox}>
             <p css={confirmTitle}>
-              <AlertTriangle size={15} style={{ marginTop: 2}} />
+              <AlertTriangle size={15} style={{ marginTop: 2 }} />
               정말 탈퇴하시겠습니까?
             </p>
             <p>
-              탈퇴하려면 방 이름 <strong>"{roomInfo?.title}"</strong>을 입력해주세요.
+              탈퇴하려면 방 이름 <strong>"{roomInfo?.title}"</strong>을
+              입력해주세요.
             </p>
             <input
               css={inputBox}
@@ -67,8 +68,8 @@ const DeleteRoom = ({ onClose }: { onClose: () => void }) => {
           </div>
         ) : (
           <button css={leaveButton} onClick={handleDeleteClick}>
-            <Trash2 size={16} style={{ marginRight: 6, marginTop: 2 }} />
-            방 탈퇴하기
+            <Trash2 size={16} style={{ marginRight: 6, marginTop: 2 }} />방
+            탈퇴하기
           </button>
         )}
       </div>

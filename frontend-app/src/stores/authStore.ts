@@ -7,15 +7,13 @@ export type User = {
 };
 
 type AuthState = {
-  accessToken: string | null;
   user: User | null;
-  setAuth: (token: string, user: User | null) => void;
-  clearAuth: () => void;
+  setUser: (user: User | null) => void;
+  clearUser: () => void;
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
-  accessToken: null,
   user: null,
-  setAuth: (token, user) => set({ accessToken: token, user }),
-  clearAuth: () => set({ accessToken: null, user: null }),
+  setUser: (user) => set({ user }),
+  clearUser: () => set({ user: null }),
 }));

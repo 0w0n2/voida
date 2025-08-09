@@ -11,22 +11,33 @@ type SettingModalProps = {
 };
 
 const SettingModal = ({ onClose }: SettingModalProps) => {
-  const [activeTab, setActiveTab] = useState<'general' | 'members' | 'danger'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'members' | 'danger'>(
+    'general',
+  );
 
   return (
     <div css={overlay}>
       <div css={modal}>
         <X css={closeButton} onClick={onClose} />
-       
+
         <div css={tabList}>
-          <button className={activeTab === 'general' ? 'active' : ''} onClick={() => setActiveTab('general')}>
-            <Settings size={18} style={{ marginTop: 3}} /> 일반 설정
+          <button
+            className={activeTab === 'general' ? 'active' : ''}
+            onClick={() => setActiveTab('general')}
+          >
+            <Settings size={18} style={{ marginTop: 3 }} /> 일반 설정
           </button>
-          <button className={activeTab === 'members' ? 'active' : ''} onClick={() => setActiveTab('members')}>
-            <Users size={18} style={{ marginTop: 4}} /> 참여자 관리
+          <button
+            className={activeTab === 'members' ? 'active' : ''}
+            onClick={() => setActiveTab('members')}
+          >
+            <Users size={18} style={{ marginTop: 4 }} /> 참여자 관리
           </button>
-          <button className={activeTab === 'danger' ? 'active' : ''} onClick={() => setActiveTab('danger')}>
-            <AlertTriangle size={18} style={{ marginTop: 2}} /> 방 삭제
+          <button
+            className={activeTab === 'danger' ? 'active' : ''}
+            onClick={() => setActiveTab('danger')}
+          >
+            <AlertTriangle size={18} style={{ marginTop: 2 }} /> 방 삭제
           </button>
         </div>
 
@@ -42,11 +53,10 @@ const SettingModal = ({ onClose }: SettingModalProps) => {
 
 export default SettingModal;
 
-
 const overlay = css`
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);       
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
