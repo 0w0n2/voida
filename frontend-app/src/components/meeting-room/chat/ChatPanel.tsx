@@ -8,19 +8,14 @@ import { useAuthStore } from '@/stores/authStore';
 import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
 import { getRoomChatHistory } from '@/apis/meeting-room/meetingRoomApi';
 import { getUser } from '@/apis/auth/userApi';
-import {
-  connectStomp,
-  disconnectStomp,
-  publishMessage,
-} from '@/apis/stomp/stompClient';
+import { connectStomp, disconnectStomp, publishMessage } from '@/apis/stomp/stompClient';
 
 interface ChatPanelProps {
   meetingRoomId: string;
 }
 
 const ChatPanel = ({ meetingRoomId }: ChatPanelProps) => {
-  const { chatMessages, setChatMessages, addChatMessage } =
-    useMeetingRoomStore();
+  const { chatMessages, setChatMessages, addChatMessage } = useMeetingRoomStore();
   const [input, setInput] = useState('');
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -51,10 +46,7 @@ const ChatPanel = ({ meetingRoomId }: ChatPanelProps) => {
 
     connectStomp(meetingRoomId, (msg) => {
       const myUuid = useAuthStore.getState().user?.memberUuid;
-      console.log(useAuthStore.getState().user);
       const mine = msg.senderUuid === myUuid;
-      console.log(myUuid);
-      console.log(msg.senderUuid);
       addChatMessage({ ...msg, mine });
     });
     return disconnectStomp;
@@ -98,8 +90,7 @@ const ChatPanel = ({ meetingRoomId }: ChatPanelProps) => {
 
         requestAnimationFrame(() => {
           if (chatBoxRef.current) {
-            chatBoxRef.current.scrollTop =
-              chatBoxRef.current.scrollHeight - prevScrollHeight;
+            chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight - prevScrollHeight;
           }
         });
       }
@@ -124,12 +115,12 @@ const ChatPanel = ({ meetingRoomId }: ChatPanelProps) => {
     if (loading || !chatBoxRef.current) return;
 
     const lastMessage = chatMessages[chatMessages.length - 1];
-    if (lastMessage && lastMessage.createdAt !== lastMessageId.current) {
+    if (lastMessage && lastMessage.sendedAt !== lastMessageId.current) {
       if (lastMessage.mine) {
         chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
       }
     }
-    lastMessageId.current = lastMessage?.createdAt ?? null;
+    lastMessageId.current = lastMessage?.sendedAt ?? null;
   }, [chatMessages, loading]);
 
   const handleSend = () => {
@@ -146,17 +137,17 @@ const ChatPanel = ({ meetingRoomId }: ChatPanelProps) => {
           <div key={index} css={[chatItem, m.mine && myItem]}>
             {!m.mine && m.profileImageUrl && (
               <img
-                src={m.profileImageUrl}
-                alt={m.writerNickname}
+                src={`${import.meta.env.VITE_CDN_URL}/${m.profileImageUrl}`}
+                alt={m.senderNickname}
                 css={avatar}
               />
             )}
             <div css={contentBox}>
               {!m.mine && (
                 <div css={metaRow}>
-                  <span css={nickname}>{m.writerNickname}</span>
+                  <span css={nickname}>{m.senderNickname}</span>
                   <span css={time}>
-                    {new Date(m.createdAt).toLocaleString('ko-KR', {
+                    {new Date(m.sendedAt).toLocaleString('ko-KR', {
                       month: '2-digit',
                       day: '2-digit',
                       hour: '2-digit',

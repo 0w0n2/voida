@@ -22,11 +22,11 @@ export interface RoomParticipant {
 }
 
 export interface ChatMessage {
-  senderId: string;
-  writerNickname: string;
+  senderUuid: string;
+  senderNickname: string;
   profileImageUrl?: string;
   content: string;
-  createdAt: string;
+  sendedAt: string;
   mine: boolean;
 }
 
