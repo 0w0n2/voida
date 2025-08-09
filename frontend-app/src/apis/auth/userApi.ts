@@ -35,57 +35,37 @@ export const checkCurrentPassword = (password: string) => {
 };
 
 // 유저 정보 수정
-export const updateUser = (
-  accessToken: string,
-  nickname: string,
-  profileImage?: File | null,
-) => {
+export const updateUser = (nickname: string, profileImage?: File | null) => {
   const formData = new FormData();
-  formData.append('nickname', nickname);
+  const requestDto = {
+    nickname,
+  };
+
+  formData.append('requestDto', new Blob([JSON.stringify(requestDto)]));
 
   if (profileImage) {
     formData.append('profileImage', profileImage);
+  } else {
+    formData.append('profileImage', 'null');
   }
 
-  return apiInstance.put('/v1/members/me/profile', formData, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  return apiInstance.put('/v1/members/me/profile', formData, {});
 };
 
 // 비밀번호 수정
 export const updatePassword = (
-  accessToken: string,
   currentPassword: string,
   newPassword: string,
 ) => {
-  return apiInstance.put(
-    '/v1/members/me/password',
-    { currentPassword, newPassword },
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    },
-  );
+  return apiInstance.put('/v1/members/me/password', {
+    currentPassword,
+    newPassword,
+  });
 };
 
 // 구화 모드 수정
-export const updateGuideMode = (
-  accessToken: string,
-  useLipTalkMode: boolean,
-) => {
-  return apiInstance.put(
-    '/v1/members/me/lip-talk-mode',
-    { useLipTalkMode },
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    },
-  );
+export const updateGuideMode = (useLipTalkMode: boolean) => {
+  return apiInstance.put('/v1/members/me/lip-talk-mode', { useLipTalkMode });
 };
 
 // 오버레이 수정
@@ -113,26 +93,11 @@ type QuickSlot = {
   hotkey: string;
 };
 
-export const updateQuickslots = (
-  accessToken: string,
-  quickSlots: QuickSlot[],
-) => {
-  return apiInstance.put(
-    '/v1/members/me/quick-slots',
-    { quickSlots },
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    },
-  );
+export const updateQuickslots = (quickSlots: QuickSlot[]) => {
+  return apiInstance.put('/v1/members/me/quick-slots', { quickSlots });
 };
 
 // 회원탈퇴
-export const deleteUser = (accessToken: string) => {
-  return apiInstance.delete('/v1/members/me', {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
+export const deleteUser = () => {
+  return apiInstance.delete('/v1/members/me', {});
 };
