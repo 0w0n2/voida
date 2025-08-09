@@ -37,7 +37,7 @@ public class MemberSetting implements Serializable {
     @Column(name = "overlay_transparency", nullable = false)
     private Integer overlayTransparency;
 
-    public static MemberSetting toDefaultSetting(Member member){
+    public static MemberSetting toDefaultSetting(Member member) {
         return MemberSetting.builder()
                 .member(member)
                 .lipTalkMode(MemberValue.DEFAULT_LIP_TALK_MODE)
@@ -46,4 +46,23 @@ public class MemberSetting implements Serializable {
                 .overlayTransparency(MemberValue.DEFAULT_OVERLAY_TRANSPARENCY)
                 .build();
     }
+
+    public void changeLipTalkMode(Boolean lipTalkMode) {
+        if (lipTalkMode != null) {
+            this.lipTalkMode = lipTalkMode;
+        }
+    }
+
+    public void changeOverlayPosition(String overlayPosition, Integer liveFontSize, Integer overlayTransparency) {
+        if (overlayPosition != null) {
+            this.overlayPosition = OverlayPosition.from(overlayPosition);
+        }
+        if (liveFontSize != null) {
+            this.liveFontSize = liveFontSize;
+        }
+        if (overlayTransparency != null) {
+            this.overlayTransparency = overlayTransparency;
+        }
+    }
+
 }

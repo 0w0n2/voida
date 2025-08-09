@@ -37,4 +37,16 @@ public class MemberQuickSlot {
                 .message(quickSlotDefault.message())
                 .build();
     }
+
+    public void updateQuickSlot(String message, String hotkey, String url) {
+        if (message != null) {
+            this.message = message;
+        }
+        if (hotkey != null) {
+            this.hotkey = hotkey;
+        }
+        if (url != null) {
+            this.url = url;
+        }
+    }
 }
