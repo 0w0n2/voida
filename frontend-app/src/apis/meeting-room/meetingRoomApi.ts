@@ -24,7 +24,7 @@ export interface RoomParticipant {
 export interface MeetingRoom {
   meetingRoomId: string;
   title: string;
-  category: string;
+  categoryName: string;
   memberCount: number;
   thumbnailImageUrl: string;
 }
