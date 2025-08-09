@@ -4,7 +4,6 @@ import com.bbusyeo.voida.api.auth.dto.SignUpRequestDto;
 import com.bbusyeo.voida.api.member.constant.MemberValue;
 import com.bbusyeo.voida.api.member.domain.Member;
 import com.bbusyeo.voida.api.member.domain.MemberSocial;
-import com.bbusyeo.voida.api.member.domain.enums.ProviderName;
 import com.bbusyeo.voida.api.member.repository.MemberRepository;
 import com.bbusyeo.voida.api.member.repository.MemberSocialRepository;
 import com.bbusyeo.voida.global.exception.BaseException;
@@ -12,17 +11,14 @@ import com.bbusyeo.voida.global.redis.dao.RedisDao;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
 import com.bbusyeo.voida.global.support.S3Uploader;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
