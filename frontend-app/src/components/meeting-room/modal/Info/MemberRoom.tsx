@@ -29,12 +29,12 @@ const MemberRoom = () => {
               <div>
                 <div css={nameRow}>
                   <span>{user.nickname}</span>
-                    {user.state === 'HOST' && (
+                  {user.state === 'HOST' && (
                     <span css={roleBadge}>
-                        <img src={Crown} alt="방장" css={crownImg} />
-                        방장
+                      <img src={Crown} alt="방장" css={crownImg} />
+                      방장
                     </span>
-                    )}
+                  )}
                   {user.lipTalkMode && (
                     <span css={lipIcon}>
                       <img src={Lip} alt="구화" css={lipImg} />
