@@ -6,7 +6,7 @@ import SendIcon from '@/assets/icons/send.png';
 import ScrollDown from '@/assets/icons/scroll-down.png';
 import { useAuthStore } from '@/stores/authStore';
 import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
-import { getRoomChatHistory } from '@/apis/meeting-room/meetingRoomApi';
+import { getRoomChatHistory } from '@/apis/stomp/meetingRoomStomp';
 import { getUser } from '@/apis/auth/userApi';
 import { connectStomp, disconnectStomp, publishMessage } from '@/apis/stomp/stompClient';
 
