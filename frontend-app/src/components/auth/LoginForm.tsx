@@ -1,7 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useState } from 'react';
-import { AxiosError } from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { login } from '@/apis/auth/authApi';
 import { getUser } from '@/apis/auth/userApi';
@@ -18,11 +17,10 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
-  const { setAuth } = useAuthStore();
+  const { setUser } = useAuthStore();
   const navigate = useNavigate();
 
-  // 구글 로그인 리다이렉트 함수 !!
-  // 리다이렉트 페이지 : callback.tsx
+  // 구글 로그인 리다이렉트 함수
   const handleGoogleLogin = () => {
     const provider = 'google';
     window.location.href = `${
@@ -75,7 +73,6 @@ const LoginForm = () => {
     try {
       const res = await login(email, password);
 
-      // 에러처리
       if (res.data.code === 901) {
         setEmailError('아이디 또는 비밀번호가 올바르지 않습니다');
         setPasswordError('아이디 또는 비밀번호가 올바르지 않습니다');
@@ -93,25 +90,24 @@ const LoginForm = () => {
         setError('예상치 못한 오류가 발생하였습니다.');
         return;
       }
-      
+
       localStorage.setItem('accessToken', accessToken);
 
-      // 유저 정보 조회
       const response = await getUser();
       const user: User = {
         email: response.data.result.member.email,
         nickname: response.data.result.member.nickname,
         profileImage: response.data.result.member.profileImageUrl || '',
       };
-
-      // 유저 정보 저장
-      setAuth(accessToken, user);
+      setUser(user);
 
       console.log(isNewbie);
       if (isNewbie) {
         navigate('/tutorial');
+        return;
       } else {
         navigate('/main');
+        return;
       }
 
       // 비밀번호 틀릴  때
@@ -176,13 +172,12 @@ const LoginForm = () => {
 
       {error && <div css={globalErrorStyle}>{error}</div>}
 
-      <div css={footerStyle}>
-        <div css={linkBoxStyle}>
-          <span>Voida가 처음이시라면 |</span>
-          <Link to="/register">회원가입</Link>
-          {/* <Link to="/forgot">비밀번호 찾기</Link> */}
-        </div>
-        <button type="submit" css={loginBtnStyle}>
+      <div css={bottomRowStyle}>
+        <span css={checkIdStyle}>Voida가 처음이시라면?&nbsp;</span>
+        <Link to="/register" css={registerLinkStyle}>
+          회원가입
+        </Link>
+        <button type="submit" css={submitButtonStyle}>
           로그인
         </button>
       </div>
@@ -325,7 +320,34 @@ const eyeIconStyle = css`
   }
 `;
 
-const loginBtnStyle = css`
+const bottomRowStyle = css`
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 8px;
+  gap: 8px;
+`;
+
+const checkIdStyle = css`
+  font-size: 14px;
+  font-family: 'NanumSquareR', sans-serif;
+  line-height: 1.4;
+  display: inline-block;
+`;
+
+const registerLinkStyle = css`
+  color: var(--color-primary);
+  text-decoration: none;
+  font-family: 'NanumSquareB', sans-serif;
+  font-weight: 500;
+  &:hover {
+    text-decoration: underline;
+  }
+  line-height: 1.5;
+`;
+
+const submitButtonStyle = css`
+  margin-left: auto;
   background: var(--color-primary);
   color: white;
   padding: 0.75rem;
@@ -334,34 +356,7 @@ const loginBtnStyle = css`
   border-radius: 8px;
   cursor: pointer;
   width: 80px;
-
   &:hover {
     background: var(--color-primary-dark);
-  }
-`;
-
-const footerStyle = css`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 1rem;
-`;
-
-const linkBoxStyle = css`
-  font-size: 14px;
-  color: #888;
-
-  a {
-    text-decoration: none;
-    color: #666;
-    margin: 0 0.25rem;
-
-    &:hover {
-      color: #2d6cdf;
-    }
-  }
-
-  span {
-    margin: 0 0.25rem;
   }
 `;
