@@ -1,9 +1,13 @@
 package com.bbusyeo.voida.api.member.controller;
 
+import com.bbusyeo.voida.api.auth.service.TokenAuthService;
 import com.bbusyeo.voida.api.member.domain.Member;
 import com.bbusyeo.voida.api.member.dto.*;
+import com.bbusyeo.voida.api.member.service.DeleteAccountService;
 import com.bbusyeo.voida.api.member.service.MyPageService;
 import com.bbusyeo.voida.global.response.BaseResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -20,6 +24,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class MyPageController {
 
     private final MyPageService myPageService;
+    private final DeleteAccountService deleteAccountService;
+    private final TokenAuthService tokenAuthService;
 
     @PatchMapping("/newbie")
     public BaseResponse<Void> isNewbie(
@@ -70,6 +76,16 @@ public class MyPageController {
             @AuthenticationPrincipal(expression = "member") Member member
     ){
         myPageService.changePassword(member.getId(), requestDto);
+        return new BaseResponse<>();
+    }
+
+    @DeleteMapping
+    public BaseResponse<Void> deleteMember(
+            HttpServletRequest request, HttpServletResponse response,
+            @AuthenticationPrincipal(expression = "member") Member member
+    ) {
+        deleteAccountService.deleteAccount(member.getId()); // 회원 삭제
+        tokenAuthService.signOut(request, response); // 로그아웃 처리
         return new BaseResponse<>();
     }
 }
