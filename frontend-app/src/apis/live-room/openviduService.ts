@@ -1,4 +1,5 @@
-// apis/voiceService.ts
+// openvidu 토큰 발급
+// 연결/해제
 import { OpenVidu } from 'openvidu-browser';
 
 let OV: OpenVidu;

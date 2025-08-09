@@ -96,9 +96,7 @@ const MemberPanel = () => {
 
         {roomInfo?.thumbnailImageUrl && (
           <img
-            src={`${import.meta.env.VITE_CDN_URL}/${
-              roomInfo.thumbnailImageUrl
-            }`}
+            src={`${import.meta.env.VITE_CDN_URL}/${roomInfo.thumbnailImageUrl}`}
             alt="방 썸네일"
             css={thumbnailStyle}
           />

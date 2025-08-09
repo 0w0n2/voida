@@ -19,7 +19,7 @@ interface MainFormProps {
   rooms: MeetingRoom[];
 }
 
-const MainForm = ({ rooms }: MainFormProps) => {
+const MainForm = ({ rooms = [] }: MainFormProps) => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState('전체');

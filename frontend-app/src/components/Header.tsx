@@ -23,6 +23,7 @@ export default function Header() {
             email: data.email,
             nickname: data.nickname,
             profileImage: data.profileImageUrl || '',
+            memberUuid: data.memberUuid,
           });
         })
         .catch((err) => {

@@ -2,7 +2,7 @@
 import { css } from '@emotion/react';
 import React, { useState, useEffect } from 'react';
 import { getUserQuickSlots, updateQuickslots } from '../../apis/auth/userApi';
-import { useAuthStore } from '../../stores/store';
+import { useAuthStore } from '../../stores/userStore';
 import UpdateDoneModal from './UpdateDoneModal';
 
 interface Shortcut {

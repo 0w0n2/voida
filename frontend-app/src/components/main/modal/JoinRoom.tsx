@@ -1,7 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { X, ArrowRight, Plus } from 'lucide-react';
 import CreateRoomModal from '@/components/main/modal/CreateRoom';
 import { verifyInviteCode } from '@/apis/meeting-room/meetingRoomApi';
@@ -15,7 +14,6 @@ const JoinRoomModal = ({ onClose }: JoinRoomModalProps) => {
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
   const [codeValues, setCodeValues] = useState<string[]>(Array(9).fill(''));
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const navigate = useNavigate();
 
   const handleInput = (e: React.FormEvent<HTMLInputElement>, index: number) => {
     const input = e.currentTarget;
@@ -69,17 +67,9 @@ const JoinRoomModal = ({ onClose }: JoinRoomModalProps) => {
     const inviteCode = codeValues.join('');
 
     try {
-      const res = await verifyInviteCode(inviteCode);
-
-      if (!res.isSuccess) {
-        useAlertStore.getState().showAlert('유효하지 않은 초대코드입니다.', 'top');
-        return;
-      }
-
+      await verifyInviteCode(inviteCode);
       useAlertStore.getState().showAlert('방 입장에 성공했습니다!', 'top');
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
+      setTimeout(() => { window.location.reload() }, 500);
     } catch (error) {
       console.error('초대코드 검증 실패:', error);
       useAlertStore.getState().showAlert('유효하지 않은 초대코드입니다.', 'top');
