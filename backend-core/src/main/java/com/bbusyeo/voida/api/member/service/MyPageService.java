@@ -16,7 +16,7 @@ public interface MyPageService {
 
     List<MeSocialAccountsInfoDto> getSocialAccounts(Long memberId);
 
-    void createDefaultSettings(Member member);
+    void createDefaultSettingsAndQuickSlots(Member member);
 
     void updateProfile(UpdateMeProfileRequestDto requestDto, MultipartFile profileImage, Long memberId);
 

@@ -1,10 +1,7 @@
 package com.bbusyeo.voida.api.member.service;
 
 import com.bbusyeo.voida.api.member.constant.MemberValue;
-import com.bbusyeo.voida.api.member.constant.QuickSlotDefault;
-import com.bbusyeo.voida.api.member.domain.Member;
 import com.bbusyeo.voida.api.member.domain.MemberQuickSlot;
-import com.bbusyeo.voida.api.member.domain.MemberSetting;
 import com.bbusyeo.voida.api.member.dto.ChangeQuickSlotsRequestDto;
 import com.bbusyeo.voida.api.member.dto.MeQuickSlotsRequestInfoDto;
 import com.bbusyeo.voida.api.member.dto.MeQuickSlotsResponseInfoDto;
@@ -30,15 +27,8 @@ public class QuickSlotServiceImpl implements QuickSlotService {
     private final TtsService ttsService;
     private final S3Uploader s3Uploader;
     private final MemberQuickSlotRepository memberQuickSlotRepository;
-
-    private String generateAndUploadSound(String message) {
-        // TTS 를 통해 음성 파일 테이터 생성
-        MultipartFile ttsAudioData = ttsService.createSpeechByText(message).block();
-        // S3에 음성 파일 업로드 후 URL 반환
-        // return s3Uploader.upload(ttsAudioData, MemberValue.S3_QUICK_SLOT_SOUND_DIR);
-        return s3Uploader.upload(ttsAudioData, MemberValue.S3_QUICK_SLOT_SOUND_DIR);
-    }
-
+    
+    // 퀵슬롯 수정 담당
     @Transactional
     @Override
     public void changeQuickSlots(Long memberId, ChangeQuickSlotsRequestDto requestDto) {
@@ -54,11 +44,11 @@ public class QuickSlotServiceImpl implements QuickSlotService {
             MemberQuickSlot memberQuickSlot = quickSlotMap.get(slotDto.getQuickSlotId());
 
             if (memberQuickSlot != null) {
-                String newSoundUrl = memberQuickSlot.getUrl(); // 기존 URL로 초기화
-                if (!memberQuickSlot.getMessage().equals(slotDto.getMessage())) { // 음성 생성 및 업로드 후 URL 리턴
-                    newSoundUrl = generateAndUploadSound(slotDto.getMessage());
+                String finalSoundUrl = memberQuickSlot.getUrl(); // 기존 URL로 초기화
+                if (!memberQuickSlot.getMessage().equals(slotDto.getMessage())) { // 메시지 변경됐을 경우 TTS 생성 및 업로드 후 URL 리턴
+                    finalSoundUrl = handleSoundFileUpdate(memberQuickSlot, slotDto.getMessage());
                 }
-                memberQuickSlot.updateQuickSlot(slotDto.getMessage(), slotDto.getHotkey(), newSoundUrl);
+                memberQuickSlot.updateQuickSlot(slotDto.getMessage(), slotDto.getHotkey(), finalSoundUrl);
             } else {
                 throw new BaseException(BaseResponseStatus.INVALID_QUICK_SLOT_ID);
             }
@@ -73,13 +63,32 @@ public class QuickSlotServiceImpl implements QuickSlotService {
                 .map(MeQuickSlotsResponseInfoDto::toDto)
                 .collect(Collectors.toList());
     }
+    
+    // message 문자열을 입력 받아 TTS 로 변환하고, S3에 업로드
+    private String generateAndUploadSound(String message) {
+        MultipartFile ttsAudioData = ttsService.createSpeechByText(message).block();    // TTS 를 통해 음성 파일 테이터 생성
+        return s3Uploader.upload(ttsAudioData, MemberValue.S3_QUICK_SLOT_SOUND_DIR);    // S3에 음성 파일 업로드 후 URL 반환
+    }
 
-    @Transactional
-    @Override
-    public void createDefaultQuickSlots(Member member) { // 디폴트 member_quick_slot 등록
-        List<QuickSlotDefault> defaultSlots = MemberValue.DEFAULT_QUICK_SLOT_DEFAULTS;
-        for (QuickSlotDefault quickSlotDefault : defaultSlots) {
-            memberQuickSlotRepository.save(MemberQuickSlot.toDefaultQuickSlot(member, quickSlotDefault));
+    // S3 업로드 및 기존 데이터 삭제 담당 메소드
+    private String handleSoundFileUpdate(MemberQuickSlot memberQuickSlot, String newMessage) {
+        String oldSoundUrl = memberQuickSlot.getUrl();
+        String newSoundUrl = null;
+        try {
+            newSoundUrl = generateAndUploadSound(newMessage); // 새 파일 업로드
+            if (oldSoundUrl != null && !oldSoundUrl.contains("default")) { // 기본 사운드가 아닐 경우 기존 음성 삭제
+                s3Uploader.delete(oldSoundUrl);
+            }
+            return newSoundUrl;
+        } catch (Exception e) { // 보상 트랜잭션 로직 : 실패 시 새로 업로드한 파일이 있다면 삭제
+            if (newSoundUrl != null) {
+                s3Uploader.delete(newSoundUrl);
+            }
+            if (e instanceof BaseException) {
+                throw e;
+            } else {
+                throw new BaseException(BaseResponseStatus.FILE_UPLOAD_FAILED);
+            }
         }
     }
 }

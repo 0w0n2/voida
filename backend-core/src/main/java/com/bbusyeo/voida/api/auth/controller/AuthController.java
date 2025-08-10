@@ -89,8 +89,7 @@ public class AuthController {
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
     ) {
         Member newMember = signUpService.signUp(requestDto, profileImage);
-        myPageService.createDefaultSettings(newMember);
-        quickSlotService.createDefaultQuickSlots(newMember);
+        myPageService.createDefaultSettingsAndQuickSlots(newMember);
         return new BaseResponse<>();
     }
 

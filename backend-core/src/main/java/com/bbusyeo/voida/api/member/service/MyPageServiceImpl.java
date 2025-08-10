@@ -32,6 +32,7 @@ public class MyPageServiceImpl implements MyPageService {
 
     private final MemberRepository memberRepository;
     private final MemberSettingRepository memberSettingRepository;
+    private final MemberQuickSlotRepository memberQuickSlotRepository;
     private final S3Uploader s3Uploader;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final MemberSocialRepository memberSocialRepository;
@@ -102,10 +103,16 @@ public class MyPageServiceImpl implements MyPageService {
 
     @Transactional
     @Override
-    public void createDefaultSettings(Member member) {
+    public void createDefaultSettingsAndQuickSlots(Member member) {
         // 디폴트 member_setting 등록
         MemberSetting defaultSetting = MemberSetting.toDefaultSetting(member);
         memberSettingRepository.save(defaultSetting);
+
+        // 디폴트 member_quick_slot 등록
+        List<QuickSlotDefault> defaultSlots = MemberValue.DEFAULT_QUICK_SLOT_DEFAULTS;
+        for (QuickSlotDefault quickSlotDefault : defaultSlots) {
+            memberQuickSlotRepository.save(MemberQuickSlot.toDefaultQuickSlot(member, quickSlotDefault));
+        }
     }
 
     @Override
