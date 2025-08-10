@@ -1,11 +1,13 @@
-package com.bbusyeo.voida.global.ai.dto;
+package com.bbusyeo.voida.global.ai.tts.dto;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 
-// byte[] 을 MultiFile 타입으로 변환
+/**
+ * byte[] 을 MultiFile 타입으로 변환
+ */
 @AllArgsConstructor
 public class CustomMultipartFile implements MultipartFile {
     private final byte[] input;

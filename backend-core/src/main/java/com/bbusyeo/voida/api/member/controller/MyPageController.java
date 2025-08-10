@@ -5,6 +5,7 @@ import com.bbusyeo.voida.api.member.domain.Member;
 import com.bbusyeo.voida.api.member.dto.*;
 import com.bbusyeo.voida.api.member.service.DeleteAccountService;
 import com.bbusyeo.voida.api.member.service.MyPageService;
+import com.bbusyeo.voida.api.member.service.QuickSlotService;
 import com.bbusyeo.voida.global.response.BaseResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,6 +27,7 @@ public class MyPageController {
     private final MyPageService myPageService;
     private final DeleteAccountService deleteAccountService;
     private final TokenAuthService tokenAuthService;
+    private final QuickSlotService quickSlotService;
 
     @PatchMapping("/newbie")
     public BaseResponse<Void> isNewbie(
@@ -49,8 +51,7 @@ public class MyPageController {
     @GetMapping("/quick-slots")
     public BaseResponse<MeResponseInfoDto> getQuickSlots(
             @AuthenticationPrincipal(expression = "member") Member member) {
-        // TODO-MEMBER: 퀵슬롯 음성 TTS 구현 후 수정 필요 (TTS 음성 생성 로직 없음)
-        return new BaseResponse<>(MeResponseInfoDto.toMeResponseDto(myPageService.getMeQuickSlots(member.getId())));
+        return new BaseResponse<>(MeResponseInfoDto.toMeResponseDto(quickSlotService.getMeQuickSlots(member.getId())));
     }
 
     @GetMapping("/social-accounts")
@@ -107,7 +108,7 @@ public class MyPageController {
             @Valid @RequestBody ChangeQuickSlotsRequestDto requestDto,
             @AuthenticationPrincipal(expression = "member") Member member
     ) {
-        myPageService.changeQuickSlots(member.getId(), requestDto);
+        quickSlotService.changeQuickSlots(member.getId(), requestDto);
         return new BaseResponse<>();
     }
 

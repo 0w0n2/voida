@@ -5,6 +5,7 @@ import com.bbusyeo.voida.api.auth.dto.*;
 import com.bbusyeo.voida.api.auth.service.*;
 import com.bbusyeo.voida.api.member.domain.Member;
 import com.bbusyeo.voida.api.member.service.MyPageService;
+import com.bbusyeo.voida.api.member.service.QuickSlotService;
 import com.bbusyeo.voida.global.mail.service.MailService;
 import com.bbusyeo.voida.global.mail.util.MailType;
 import com.bbusyeo.voida.global.response.BaseResponse;
@@ -36,6 +37,7 @@ public class AuthController {
     private final SignUpService signUpService;
     private final EmailVerificationService emailVerificationService;
     private final MyPageService myPageService;
+    private final QuickSlotService quickSlotService;
 
     @PostMapping("/sign-in")
     public BaseResponse<SignInResponseDto> signIn(@Valid @RequestBody SignInRequestDto requestDto, HttpServletResponse response) {
@@ -87,7 +89,8 @@ public class AuthController {
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
     ) {
         Member newMember = signUpService.signUp(requestDto, profileImage);
-        myPageService.createDefaultSettingsAndQuickSlots(newMember);
+        myPageService.createDefaultSettings(newMember);
+        quickSlotService.createDefaultQuickSlots(newMember);
         return new BaseResponse<>();
     }
 

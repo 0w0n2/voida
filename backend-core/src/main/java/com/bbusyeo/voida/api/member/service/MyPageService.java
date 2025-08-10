@@ -14,11 +14,9 @@ public interface MyPageService {
 
     MeSettingResponseInfoDto getMeSetting(Long memberId);
 
-    List<MeQuickSlotsResponseInfoDto> getMeQuickSlots(Long memberId);
-
     List<MeSocialAccountsInfoDto> getSocialAccounts(Long memberId);
 
-    void createDefaultSettingsAndQuickSlots(Member member);
+    void createDefaultSettings(Member member);
 
     void updateProfile(UpdateMeProfileRequestDto requestDto, MultipartFile profileImage, Long memberId);
 
@@ -29,7 +27,5 @@ public interface MyPageService {
     void changeLipTalkMode(Long memberId, ChangeLipTalkRequestMode requestDto);
 
     void changeOverlay(Long memberId, ChangeOverlayRequestDto requestDto);
-
-    void changeQuickSlots(Long memberId, ChangeQuickSlotsRequestDto requestDto);
 
 }

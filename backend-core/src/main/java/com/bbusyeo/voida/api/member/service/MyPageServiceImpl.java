@@ -11,7 +11,6 @@ import com.bbusyeo.voida.api.member.repository.MemberQuickSlotRepository;
 import com.bbusyeo.voida.api.member.repository.MemberRepository;
 import com.bbusyeo.voida.api.member.repository.MemberSettingRepository;
 import com.bbusyeo.voida.api.member.repository.MemberSocialRepository;
-import com.bbusyeo.voida.global.ai.service.OpenAITtsService;
 import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
 import com.bbusyeo.voida.global.support.S3Uploader;
@@ -33,11 +32,9 @@ public class MyPageServiceImpl implements MyPageService {
 
     private final MemberRepository memberRepository;
     private final MemberSettingRepository memberSettingRepository;
-    private final MemberQuickSlotRepository memberQuickSlotRepository;
     private final S3Uploader s3Uploader;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final MemberSocialRepository memberSocialRepository;
-    private final OpenAITtsService openAITtsService;
 
     @Transactional
     @Override
@@ -56,15 +53,6 @@ public class MyPageServiceImpl implements MyPageService {
     public MeSettingResponseInfoDto getMeSetting(Long memberId) {
         MemberSetting memberSetting = memberSettingRepository.findMemberSettingsByMemberId(memberId);
         return MeSettingResponseInfoDto.toDto(memberSetting);
-    }
-
-    @Override
-    public List<MeQuickSlotsResponseInfoDto> getMeQuickSlots(Long memberId) {
-        List<MemberQuickSlot> quickSlots = memberQuickSlotRepository.findMemberQuickSlotsByMemberId(memberId);
-
-        return quickSlots.stream()
-                .map(MeQuickSlotsResponseInfoDto::toDto)
-                .collect(Collectors.toList());
     }
 
     @Override
@@ -114,16 +102,10 @@ public class MyPageServiceImpl implements MyPageService {
 
     @Transactional
     @Override
-    public void createDefaultSettingsAndQuickSlots(Member member) {
+    public void createDefaultSettings(Member member) {
         // 디폴트 member_setting 등록
         MemberSetting defaultSetting = MemberSetting.toDefaultSetting(member);
         memberSettingRepository.save(defaultSetting);
-
-        // 디폴트 member_quick_slot 등록
-        List<QuickSlotDefault> defaultSlots = MemberValue.DEFAULT_QUICK_SLOT_DEFAULTS;
-        for (QuickSlotDefault quickSlotDefault : defaultSlots) {
-            memberQuickSlotRepository.save(MemberQuickSlot.toDefaultQuickSlot(member, quickSlotDefault));
-        }
     }
 
     @Override
@@ -158,35 +140,5 @@ public class MyPageServiceImpl implements MyPageService {
     public void changeOverlay(Long memberId, ChangeOverlayRequestDto requestDto) {
         MemberSetting memberSetting = memberSettingRepository.findMemberSettingsByMemberId(memberId);
         memberSetting.changeOverlayPosition(requestDto.getOverlayPosition(), requestDto.getLiveFontSize(), requestDto.getOverlayTransparency());
-    }
-
-    @Transactional
-    @Override
-    public void changeQuickSlots(Long memberId, ChangeQuickSlotsRequestDto requestDto) {
-        // 사용자의 모든 퀵슬롯을 quickSlotId를 키로 하는 Map 생성
-        Map<Long, MemberQuickSlot> quickSlotMap = memberQuickSlotRepository.findMemberQuickSlotsByMemberId(memberId)
-                .stream()
-                .collect(Collectors.toMap(MemberQuickSlot::getId, Function.identity()));
-
-        // 요청 DTO에 포함된 퀵슬롯 리스트
-        List<MeQuickSlotsRequestInfoDto> requestSlots = requestDto.getQuickSlots();
-
-        for (MeQuickSlotsRequestInfoDto slotDto : requestSlots) {
-            MemberQuickSlot memberQuickSlot = quickSlotMap.get(slotDto.getQuickSlotId());
-
-            if (memberQuickSlot != null) {
-                // TODO-MEMBER: 변경된 메시지에 대한 음성 변환 후 S3 업로드 로직 필요 (현재는 가짜값)
-                String newSoundUrl = memberQuickSlot.getUrl(); // 기존 URL로 초기화
-                if (!memberQuickSlot.getMessage().equals(slotDto.getMessage())) {
-                    // OpenAI TTS 를 이용해서 음성 파일(byte[]) 생성
-                    MultipartFile ttsAudioData = openAITtsService.createSpeechReactive(slotDto.getMessage()).block();
-                    // S3에 음성 파일 업로드 후 URL 받기
-                    newSoundUrl = s3Uploader.upload(ttsAudioData, MemberValue.S3_QUICK_SLOT_SOUND_DIR);
-                }
-                memberQuickSlot.updateQuickSlot(slotDto.getMessage(), slotDto.getHotkey(), newSoundUrl);
-            } else {
-                throw new BaseException(BaseResponseStatus.INVALID_QUICK_SLOT_ID);
-            }
-        }
     }
 }
