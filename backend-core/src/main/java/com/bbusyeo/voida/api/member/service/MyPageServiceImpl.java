@@ -5,10 +5,12 @@ import com.bbusyeo.voida.api.member.constant.QuickSlotDefault;
 import com.bbusyeo.voida.api.member.domain.Member;
 import com.bbusyeo.voida.api.member.domain.MemberQuickSlot;
 import com.bbusyeo.voida.api.member.domain.MemberSetting;
+import com.bbusyeo.voida.api.member.domain.MemberSocial;
 import com.bbusyeo.voida.api.member.dto.*;
 import com.bbusyeo.voida.api.member.repository.MemberQuickSlotRepository;
 import com.bbusyeo.voida.api.member.repository.MemberRepository;
 import com.bbusyeo.voida.api.member.repository.MemberSettingRepository;
+import com.bbusyeo.voida.api.member.repository.MemberSocialRepository;
 import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
 import com.bbusyeo.voida.global.support.S3Uploader;
@@ -33,6 +35,7 @@ public class MyPageServiceImpl implements MyPageService {
     private final MemberQuickSlotRepository memberQuickSlotRepository;
     private final S3Uploader s3Uploader;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final MemberSocialRepository memberSocialRepository;
 
     @Transactional
     @Override
@@ -59,6 +62,15 @@ public class MyPageServiceImpl implements MyPageService {
 
         return quickSlots.stream()
                 .map(MeQuickSlotsResponseInfoDto::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MeSocialAccountsInfoDto> getSocialAccounts(Long memberId) {
+        List<MemberSocial> socialAccounts = memberSocialRepository.findMemberSocialsByMemberId(memberId);
+
+        return socialAccounts.stream()
+                .map(MeSocialAccountsInfoDto::toDto)
                 .collect(Collectors.toList());
     }
 
