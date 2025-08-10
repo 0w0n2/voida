@@ -53,6 +53,11 @@ public class MyPageController {
         return new BaseResponse<>(MeResponseInfoDto.toMeResponseDto(myPageService.getMeQuickSlots(member.getId())));
     }
 
+    @GetMapping("/social-accounts")
+    public BaseResponse<MeSocialAccountsResponseDto> getSocialAccounts(@AuthenticationPrincipal(expression = "member") Member member) {
+        return new BaseResponse<>(MeSocialAccountsResponseDto.toDto(myPageService.getSocialAccounts(member.getId())));
+    }
+
     @PutMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<Void> updateProfile(
             @RequestPart UpdateMeProfileRequestDto requestDto,
