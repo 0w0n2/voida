@@ -15,7 +15,7 @@ public class GMSTtsRequestDto {
     public static GMSTtsRequestDto toDto(String model, String message) {
         return GMSTtsRequestDto.builder()
                 .model(model)
-                .voice("onyx")
+                .voice("nova")
                 .input(message)
                 .response_format("mp3")
                 .build();

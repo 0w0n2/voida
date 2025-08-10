@@ -35,6 +35,7 @@ public class QuickSlotServiceImpl implements QuickSlotService {
         // TTS 를 통해 음성 파일 테이터 생성
         MultipartFile ttsAudioData = ttsService.createSpeechByText(message).block();
         // S3에 음성 파일 업로드 후 URL 반환
+        // return s3Uploader.upload(ttsAudioData, MemberValue.S3_QUICK_SLOT_SOUND_DIR);
         return s3Uploader.upload(ttsAudioData, MemberValue.S3_QUICK_SLOT_SOUND_DIR);
     }
 
