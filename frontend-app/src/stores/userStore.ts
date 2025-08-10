@@ -9,21 +9,24 @@ type RoomState = {
   meetingRooms: Room[];
   setMeetingRooms: (meetingRooms: Room[]) => void;
 };
-// 유저 정보 조회
+
 type User = {
   email: string;
   nickname: string;
   profileImage: string;
+  memberUuid: string;
 };
 
 // 유저 정보 조회 setting
 type OverlayPosition = 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT';
+
 type Settings = {
   lipTalkMode: boolean;
   overlayPosition: OverlayPosition;
   liveFontSize: number;
   overlayTransparency: number;
 };
+
 type SettingResponse = {
   setting: Settings;
 };
@@ -35,6 +38,7 @@ type QuickSlots = {
   hotkey:string
   url:string
 }
+
 type QuickSlotsResponse = {
   quickSlots: QuickSlots[];
 };
@@ -45,8 +49,6 @@ type AuthState = {
   setAuth: (token: string, user: User | null) => void;
   clearAuth: () => void;
 };
-
-///////////////////////
 
 export const useRoomStore = create<RoomState>((set) => ({
   meetingRooms: [],

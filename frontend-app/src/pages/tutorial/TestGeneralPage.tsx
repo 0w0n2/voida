@@ -2,7 +2,7 @@
 import { css } from '@emotion/react';
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { uploadTutorialAudio } from '@/apis/tutorialApi';
+import { uploadTutorialAudio } from '@/apis/tutorial/tutorialApi';
 import { useMicVolume } from '@/hooks/useMicVolume';
 import Header from '@/components/Header';
 import TutorialFooter from '@/components/tutorial/TurtorialFooter';

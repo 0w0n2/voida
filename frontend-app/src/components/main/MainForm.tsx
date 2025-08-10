@@ -15,11 +15,19 @@ const categoryColors: Record<string, string> = {
   free: '#3498db',
 };
 
+const categoryLabels: Record<string, string> = {
+  game: '게임',
+  talk: '일상',
+  study: '학습',
+  meeting: '회의',
+  free: '자유',
+};
+
 interface MainFormProps {
   rooms: MeetingRoom[];
 }
 
-const MainForm = ({ rooms }: MainFormProps) => {
+const MainForm = ({ rooms = [] }: MainFormProps) => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState('전체');
@@ -28,23 +36,25 @@ const MainForm = ({ rooms }: MainFormProps) => {
   const [isJoinOpen, setIsJoinOpen] = useState(false);
 
   const itemsPerPage = 6;
-  const categories = ['전체', ...Object.keys(categoryColors)];
+  const categories = ['전체', ...Object.values(categoryLabels)];
 
   const filteredRooms = rooms.filter((room) => {
+    const normalizedCategory = room.categoryName?.toLowerCase().trim();
+    const roomCategoryKo = categoryLabels[normalizedCategory] || '기타';
+
     const matchesCategory =
-      selectedCategory === '전체' || room.category === selectedCategory;
+      selectedCategory === '전체' || roomCategoryKo === selectedCategory;
+
     const matchesSearch = room.title
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
+
     return matchesCategory && matchesSearch;
   });
 
   const totalPages = Math.ceil(filteredRooms.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentRooms = filteredRooms.slice(
-    startIndex,
-    startIndex + itemsPerPage,
-  );
+  const currentRooms = filteredRooms.slice(startIndex, startIndex + itemsPerPage);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -62,9 +72,9 @@ const MainForm = ({ rooms }: MainFormProps) => {
               setCurrentPage(1);
             }}
           >
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
+            {categories.map((label) => (
+              <option key={label} value={label}>
+                {label}
               </option>
             ))}
           </select>
@@ -82,36 +92,45 @@ const MainForm = ({ rooms }: MainFormProps) => {
       </div>
 
       <div css={cardGrid}>
-        {currentRooms.map((room) => (
-        <div
-          key={room.meetingRoomId}
-          css={card}
-          onClick={() => navigate(`/meeting-room/${room.meetingRoomId}`)}
-        >
-          <div css={thumbnailWrapper}>
-            <img src={`${import.meta.env.VITE_CDN_URL}/${room.thumbnailImageUrl}`} alt={room.title} />
-          </div>
+        {currentRooms.map((room) => {
+          const normalizedCategory = room.categoryName?.toLowerCase().trim();
+          const categoryKo = categoryLabels[normalizedCategory] || '기타';
+          const categoryColor = categoryColors[normalizedCategory] || '#999';
 
-          <div css={infoSection}>
-            <h3 css={titleText}>{room.title}</h3>
-            <div css={bottomRow}>
-              <span
-                css={css`
-                  ${categoryChip};
-                  color: ${categoryColors[room.category] || '#999'};
-                  background-color: ${categoryColors[room.category] || '#999'}20;
-                `}
-              >
-                {room.category}
-              </span>
-              <div css={participants}>
-                <User size={16} />
-                <span>{room.memberCount}</span>
+          return (
+            <div
+              key={room.meetingRoomId}
+              css={card}
+              onClick={() => navigate(`/meeting-room/${room.meetingRoomId}`)}
+            >
+              <div css={thumbnailWrapper}>
+                <img
+                  src={`${import.meta.env.VITE_CDN_URL}/${room.thumbnailImageUrl}`}
+                  alt={room.title}
+                />
+              </div>
+
+              <div css={infoSection}>
+                <h3 css={titleText}>{room.title}</h3>
+                <div css={bottomRow}>
+                  <span
+                    css={css`
+                      ${categoryChip};
+                      color: ${categoryColor};
+                      background-color: ${categoryColor}20;
+                    `}
+                  >
+                    {categoryKo}
+                  </span>
+                  <div css={participants}>
+                    <User size={16} />
+                    <span>{room.memberCount}</span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      ))}
+          );
+        })}
       </div>
 
       <div css={pagination}>
@@ -158,9 +177,7 @@ const MainForm = ({ rooms }: MainFormProps) => {
         </div>
       </div>
 
-      {isCreateOpen && (
-        <CreateRoomModal onClose={() => setIsCreateOpen(false)} />
-      )}
+      {isCreateOpen && <CreateRoomModal onClose={() => setIsCreateOpen(false)} />}
       {isJoinOpen && <JoinRoomModal onClose={() => setIsJoinOpen(false)} />}
     </div>
   );
@@ -335,7 +352,7 @@ const pageBtn = css`
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {
-    background-color: #f0f0f0;
+    background-color: #ffffff74;
   }
 
   &:disabled {

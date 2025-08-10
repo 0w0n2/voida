@@ -98,7 +98,9 @@ const LoginForm = () => {
         email: response.data.result.member.email,
         nickname: response.data.result.member.nickname,
         profileImage: response.data.result.member.profileImageUrl || '',
+        memberUuid: response.data.result.member.memberUuid,
       };
+      console.log(user);
       setUser(user);
 
       console.log(isNewbie);

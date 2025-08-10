@@ -2,7 +2,7 @@
 import { css } from '@emotion/react';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { uploadLipTestVideo } from '@/apis/tutorialApi';
+import { uploadLipTestVideo } from '@/apis/tutorial/tutorialApi';
 import Header from '@/components/Header';
 import TutorialFooter from '@/components/tutorial/TurtorialFooter';
 import TutorialModal from '@/components/tutorial/modal/TutorialLipReadingModal';

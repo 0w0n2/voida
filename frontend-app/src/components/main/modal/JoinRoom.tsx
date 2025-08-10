@@ -1,7 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { X, ArrowRight, Plus } from 'lucide-react';
 import CreateRoomModal from '@/components/main/modal/CreateRoom';
 import { verifyInviteCode } from '@/apis/meeting-room/meetingRoomApi';
@@ -15,20 +14,58 @@ const JoinRoomModal = ({ onClose }: JoinRoomModalProps) => {
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
   const [codeValues, setCodeValues] = useState<string[]>(Array(9).fill(''));
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const navigate = useNavigate();
+  const sanitize = (s: string) => s.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 9);
 
-  const handleInput = (e: React.FormEvent<HTMLInputElement>, index: number) => {
-    const input = e.currentTarget;
-    const value = input.value.toUpperCase();
-    input.value = value;
+   const fillFrom = (start: number, raw: string) => {
+    const chars = sanitize(raw).split('');
+    if (chars.length === 0) return;
 
     setCodeValues((prev) => {
       const updated = [...prev];
-      updated[index] = value;
+      let idx = start;
+
+      for (const ch of chars) {
+        if (idx > 8) break;
+        updated[idx] = ch;
+        const el = inputsRef.current[idx];
+        if (el) el.value = ch; 
+        idx++;
+      }
+
+      if (idx <= 8) {
+        inputsRef.current[idx]?.focus();
+      } else {
+        inputsRef.current[8]?.blur();
+      }
+      return updated;
+    });
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>, index: number) => {
+    e.preventDefault();
+    const text = e.clipboardData.getData('text');
+    fillFrom(index, text);
+  };
+
+  const handleInput = (e: React.FormEvent<HTMLInputElement>, index: number) => {
+    const input = e.currentTarget;
+    const value = input.value;
+
+    if (value.length > 1) {
+      fillFrom(index, value);
+      return;
+    }
+
+    const upper = sanitize(value);
+    input.value = upper;
+
+    setCodeValues((prev) => {
+      const updated = [...prev];
+      updated[index] = upper;
       return updated;
     });
 
-    if (value.length === 1 && index < 8) {
+    if (upper.length === 1 && index < 8) {
       inputsRef.current[index + 1]?.focus();
     }
   };
@@ -69,17 +106,9 @@ const JoinRoomModal = ({ onClose }: JoinRoomModalProps) => {
     const inviteCode = codeValues.join('');
 
     try {
-      const res = await verifyInviteCode(inviteCode);
-
-      if (!res.isSuccess) {
-        useAlertStore.getState().showAlert('유효하지 않은 초대코드입니다.', 'top');
-        return;
-      }
-
+      await verifyInviteCode(inviteCode);
       useAlertStore.getState().showAlert('방 입장에 성공했습니다!', 'top');
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
+      setTimeout(() => { window.location.reload() }, 500);
     } catch (error) {
       console.error('초대코드 검증 실패:', error);
       useAlertStore.getState().showAlert('유효하지 않은 초대코드입니다.', 'top');
@@ -99,7 +128,7 @@ const JoinRoomModal = ({ onClose }: JoinRoomModalProps) => {
 
         <p css={desc}>초대코드를 입력해주세요.</p>
 
-        <div css={codeContainer}>
+         <div css={codeContainer}>
           {Array.from({ length: 9 }).map((_, i) => (
             <input
               key={i}
@@ -108,6 +137,7 @@ const JoinRoomModal = ({ onClose }: JoinRoomModalProps) => {
               type="text"
               onInput={(e) => handleInput(e, i)}
               onKeyDown={(e) => handleKeyDown(e, i)}
+              onPaste={(e) => handlePaste(e, i)}
               ref={(el: HTMLInputElement | null) => {
                 inputsRef.current[i] = el;
               }}

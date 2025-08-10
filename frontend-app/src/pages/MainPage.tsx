@@ -26,7 +26,7 @@ const MainPage = () => {
   return (
     <div css={wrapper}>
       <Header />
-      {meetingRooms.length > 0 ? (
+      {Array.isArray(meetingRooms) && meetingRooms.length > 0 ? (
         <MainForm rooms={meetingRooms} />
       ) : (
         <NoRoomMainForm />

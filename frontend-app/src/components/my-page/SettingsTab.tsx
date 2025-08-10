@@ -2,7 +2,7 @@
 import { css } from '@emotion/react';
 import React, { useState, useEffect } from 'react';
 import { getUserSettings, updateGuideMode } from '../../apis/auth/userApi';
-import { useAuthStore } from '../../stores/store';
+import { useAuthStore } from '../../stores/userStore';
 import { useNavigate } from 'react-router-dom';
 import UpdateDoneModal from './UpdateDoneModal';
 import guide from '@/assets/icons/mp-guide.png';
