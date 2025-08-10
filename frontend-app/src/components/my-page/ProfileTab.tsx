@@ -13,6 +13,7 @@ import mail from '@/assets/icons/mp-mail.png';
 import settings from '@/assets/icons/mp-setting.png';
 import google from '@/assets/icons/google-logo.png';
 import { useNavigate } from 'react-router-dom';
+import UpdateDoneModal from './UpdateDoneModal';
 
 interface UserProfile {
   nickname: string;
@@ -30,11 +31,11 @@ const ProfileTab = () => {
   );
   const [userEmail, setUserEmail] = useState<string>(user?.email || '');
   const [userImage, setUserImage] = useState<string>(user?.profileImage || '');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
+  const [Changed, setChanged] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [isGetOutModalOpen, setIsGetOutModalOpen] = useState(false);
+  const [showDoneModal, setShowDoneModal] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // 유저 정보 조회(변수에 사진, 닉네임, 이메일 할당)
   // const user = useAuthStore((state) => state.user);
@@ -43,20 +44,12 @@ const ProfileTab = () => {
   // const userNickname = user?.nickname;
   // const userEmail = user?.email;
 
-  // useEffect(() => {
-  //   const fetchUserProfile = async () => {
-  //     try {
-  //       setLoading(true);
-  //     } catch (err) {
-  //       console.error('유저 정보 조회 실패:', err);
-  //       setError('유저 정보를 불러오는데 실패했습니다.');
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchUserProfile();
-  // }, []);
+  useEffect(() => {
+    setUserNickname(user?.nickname ?? '');
+    setUserEmail(user?.email ?? '');
+    setUserImage(user?.profileImage ?? '');
+    setChanged(false)
+  }, [user]);
 
   // 변수에 입력받은 닉네임 할당
   // const handleNicknameChange = (newNickname: string) => {
@@ -69,50 +62,57 @@ const ProfileTab = () => {
   //   }
   // };
 
+  // 닉네임 변경하기
+  const handleNicknameChange = (newNickname: string) => {
+    setUserNickname(newNickname);
+    setChanged(true);
+  };
+
   // 변수에 입력받은 사진 할당 (사진 보여주기도 포함)
   const handleProfileImageChange = () => {
     console.log(userImage);
-    if (userImage) {
-      // 이미지 파일 선택 및 미리보기
-      const fileInput = document.createElement('input');
-      fileInput.type = 'file';
-      fileInput.accept = 'image/*';
-      fileInput.onchange = (e) => {
-        const file = (e.target as HTMLInputElement).files?.[0];
-        if (file) {
-          // 파일 크기 검증 (5MB 이하)
-          if (file.size > 5 * 1024 * 1024) {
-            alert('파일 크기는 5MB 이하여야 합니다.');
-            return;
-          }
-
-          // 이미지 파일 타입 검증
-          if (!file.type.startsWith('image/')) {
-            alert('이미지 파일만 업로드 가능합니다.');
-            return;
-          }
-
-          // 이미지 미리보기 URL 생성
-          const imageUrl = URL.createObjectURL(file);
-          setUserImage(imageUrl);
-          setProfileImageFile(file);
+    // 이미지 파일 선택 및 미리보기
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        // 파일 크기 검증 (5MB 이하)
+        if (file.size > 5 * 1024 * 1024) {
+          alert('파일 크기는 5MB 이하여야 합니다.');
+          return;
         }
-      };
-      fileInput.click();
-    }
+
+        // 이미지 파일 타입 검증
+        if (!file.type.startsWith('image/')) {
+          alert('이미지 파일만 업로드 가능합니다.');
+          return;
+        }
+
+        // 이미지 미리보기 URL 생성
+        const imageUrl = URL.createObjectURL(file);
+        setUserImage(imageUrl);
+        setProfileImageFile(file);
+        if (imageUrl !== user?.profileImage) setChanged(true);
+      }
+    };
+    fileInput.click();
+    
+
   };
 
   // 수정하기 버튼 클릭 시 한번에 수정 API 호출
   const handleSave = async () => {
-    if (profileImageFile) {
+    if (profileImageFile || userNickname !== user?.nickname) {
       try {
-        setSaving(true);
-
         await updateUser(userNickname, profileImageFile);
         console.log('유저 정보 업데이트 완료');
+        // setProfileImageFile(null)
+        setShowDoneModal(true);
+        setChanged(false);
       } catch (err) {
         console.error('유저 정보 업데이트 실패:', err);
-        setSaving(false);
       }
     }
   };
@@ -139,15 +139,17 @@ const ProfileTab = () => {
 
   const handleWithdrawConfirm = async () => {
     try {
-      setSaving(true);
-
       await deleteUser();
       navigate('/login');
       console.log('회원탈퇴 완료');
     } catch (err) {
       console.error('회원탈퇴 실패:', err);
-      setSaving(false);
     }
+  };
+
+  // 모달 창 닫는 함수
+  const handleCloseModal = () => {
+    setShowDoneModal(false);
   };
 
   return (
@@ -166,19 +168,19 @@ const ProfileTab = () => {
               css={largeProfileImageStyle}
             /> */}
             <img
-          src={
-            userImage
-              ? userImage.startsWith('blob:')
-                ? userImage
-                : `${import.meta.env.VITE_CDN_URL}/${userImage.replace(
-                    /^\/+/,
-                    '',
-                  )}`
-              : defaultProfile
-          }
-          alt="프로필 사진"
-          css={largeProfileImageStyle}
-        />
+              src={
+                userImage
+                  ? userImage.startsWith('blob:')
+                    ? userImage
+                    : `${import.meta.env.VITE_CDN_URL}/${userImage.replace(
+                        /^\/+/,
+                        '',
+                      )}`
+                  : defaultProfile
+              }
+              alt="프로필 사진"
+              css={largeProfileImageStyle}
+            />
           </div>
         </div>
 
@@ -198,7 +200,7 @@ const ProfileTab = () => {
             </button>
             <button
               onClick={handleSave}
-              disabled={saving}
+              disabled={!Changed}
               css={saveButtonStyle}
             >
               수정하기
@@ -216,7 +218,7 @@ const ProfileTab = () => {
           <input
             type="text"
             value={userNickname}
-            onChange={(e) => setUserNickname(e.target.value)}
+            onChange={(e) => handleNicknameChange(e.target.value)}
             placeholder="닉네임을 입력하세요"
             css={inputFieldStyle}
           />
@@ -254,7 +256,7 @@ const ProfileTab = () => {
             </label>
             <button
               onClick={handleGoogleLink}
-              disabled={saving}
+              disabled={Changed}
               css={googleButtonStyle}
             >
               <img src={google} alt="google" css={iconStyle} />
@@ -272,6 +274,11 @@ const ProfileTab = () => {
         isOpen={isGetOutModalOpen}
         onClose={() => setIsGetOutModalOpen(false)}
         onConfirm={handleWithdrawConfirm}
+        userName={userNickname || userProfile?.nickname || '사용자'}
+      />
+      <UpdateDoneModal
+        isOpen={showDoneModal}
+        onClose={handleCloseModal}
         userName={userNickname || userProfile?.nickname || '사용자'}
       />
     </>
@@ -536,7 +543,7 @@ const googleButtonStyle = css`
   }
 `;
 
-const loadingContainerStyle = css`
+const ChangedContainerStyle = css`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -546,7 +553,7 @@ const loadingContainerStyle = css`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
-const loadingTextStyle = css`
+const ChangedTextStyle = css`
   font-family: 'NanumSquareR', sans-serif;
   font-size: 16px;
   color: var(--color-gray-600);

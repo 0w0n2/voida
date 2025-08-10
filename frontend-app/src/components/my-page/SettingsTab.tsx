@@ -25,8 +25,8 @@ const SettingsTab = () => {
       try {
         const res = await getUserSettings();
         console.log(res);
-        const lipTalkMode = res.data.result.lipTalkMode;
-        console.log('lipTalkMode:', lipTalkMode);
+        const lipTalkMode = res.data.result.setting.lipTalkMode;
+        // console.log('lipTalkMode:', lipTalkMode);
         setUserSpeech({ useLipTalkMode: lipTalkMode });
       } catch (err) {
         console.error('유저 설정 조회 실패:', err);
@@ -52,7 +52,7 @@ const SettingsTab = () => {
     try {
       await updateGuideMode(userSpeech?.useLipTalkMode ?? false);
       console.log('설정 저장');
-      console.log('변경된 값:', !userSpeech?.useLipTalkMode);
+      console.log('변경된 값:', userSpeech?.useLipTalkMode);
       setShowDoneModal(true);
       setHasChanged(false);
     } catch (err) {

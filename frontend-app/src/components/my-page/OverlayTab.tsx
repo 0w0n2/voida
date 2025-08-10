@@ -5,186 +5,93 @@ import { getUserSettings, updateOverlay } from '../../apis/auth/userApi';
 import { useAuthStore } from '../../stores/store';
 import UpdateDoneModal from './UpdateDoneModal';
 
-interface UserSettings {
-  overlayPosition: string;
-  overlayTransparency: number;
-  liveFontSize: number;
-  // 필요한 다른 설정들 추가 가능
-}
+type OverlayPosition =
+  | 'TOPLEFT'
+  | 'TOPRIGHT'
+  | 'BOTTOMLEFT'
+  | 'BOTTOMRIGHT';
 
 const OverlayTab = () => {
-  const { accessToken, user } = useAuthStore();
-  const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuthStore();
+  // 오버레이 정보 변수
+  const [overlayPosition, setOverlayPosition] =
+    useState<OverlayPosition>('TOP_RIGHT');
+  const [liveFontSize, setLiveFontSize] = useState<number>(0);
+  const [overlayTransparency, setOverlayTransparency] = useState<number>(0);
+  const [changed, setChanged] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [showDoneModal, setShowDoneModal] = useState(false);
+
+  const enumToNum: { [key in OverlayPosition]: number } = {
+    TOP_LEFT: 0,
+    TOP_RIGHT: 1,
+    BOTTOM_LEFT: 2,
+    BOTTOM_RIGHT: 3,
+  };
+
+  const numToEnum: OverlayPosition[] = [
+    'TOPLEFT',
+    'TOPRIGHT',
+    'BOTTOMLEFT',
+    'BOTTOMRIGHT',
+  ];
 
   // 유저 설정 불러오기
   useEffect(() => {
     const fetchUserSettings = async () => {
       try {
-        setLoading(true);
-
-        // TODO: API 연동 시 주석 해제
-        // const response = await getUserSettings(accessToken!);
-        // setUserSettings(response.data);
-
-        // 임시 데이터 사용 (퍼블리싱용)
-        setTimeout(() => {
-          setUserSettings({
-            overlayPosition: '0',
-            overlayTransparency: 100,
-            liveFontSize: 70,
-          });
-          setError(null);
-        }, 500);
+        const res = await getUserSettings();
+        console.log(res);
+        setOverlayPosition(
+          res.data.result.setting.overlayPosition as OverlayPosition,
+        );
+        setLiveFontSize(res.data.result.setting.liveFontSize);
+        setOverlayTransparency(res.data.result.setting.overlayTransparency);
       } catch (err) {
         console.error('유저 설정 조회 실패:', err);
         setError('유저 설정을 불러오는데 실패했습니다.');
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchUserSettings();
-  }, [accessToken]);
+  }, []);
 
   const handlePositionChange = async (position: number) => {
-    if (userSettings) {
-      setUserSettings({
-        ...userSettings,
-        overlayPosition: position.toString(),
-      });
-
-      // TODO: API 연동 시 주석 해제
-      // try {
-      //   setSaving(true);
-      //   await updateOverlay(
-      //     accessToken!,
-      //     position.toString(),
-      //     userSettings.overlayTransparency,
-      //     userSettings.liveFontSize
-      //   );
-      //   console.log('오버레이 위치 설정 완료');
-      // } catch (err) {
-      //   console.error('오버레이 위치 설정 실패:', err);
-      //   // 실패 시 원래 상태로 되돌리기
-      //   setUserSettings({
-      //     ...userSettings,
-      //     overlayPosition: userSettings.overlayPosition,
-      //   });
-      // } finally {
-      //   setSaving(false);
-      // }
-
-      // 임시 저장 시뮬레이션
-      setSaving(true);
-      setTimeout(() => {
-        console.log('오버레이 위치 설정 완료');
-        setSaving(false);
-      }, 500);
+    const newPosition = numToEnum[position];
+    if (newPosition) {
+      setOverlayPosition(newPosition);
+      setChanged(true);
     }
+    console.log('위치 변경됨:', position);
   };
 
+  // 폰트 사이즈 변경
   const handleFontSizeChange = async (size: number) => {
-    if (userSettings) {
-      setUserSettings({
-        ...userSettings,
-        liveFontSize: size,
-      });
-
-      // TODO: API 연동 시 주석 해제
-      // try {
-      //   setSaving(true);
-      //   await updateOverlay(
-      //     accessToken!,
-      //     userSettings.overlayPosition,
-      //     userSettings.overlayTransparency,
-      //     size
-      //   );
-      //   console.log('글자 크기 설정 완료');
-      // } catch (err) {
-      //   console.error('글자 크기 설정 실패:', err);
-      //   // 실패 시 원래 상태로 되돌리기
-      //   setUserSettings({
-      //     ...userSettings,
-      //     liveFontSize: userSettings.liveFontSize,
-      //   });
-      // } finally {
-      //   setSaving(false);
-      // }
-
-      // 임시 저장 시뮬레이션
-      setSaving(true);
-      setTimeout(() => {
-        console.log('글자 크기 설정 완료');
-        setSaving(false);
-      }, 500);
-    }
+    setLiveFontSize(size);
+    setChanged(true);
+    console.log('폰트 사이즈 변경됨:', size);
   };
 
-  const handleTransparencyChange = async (transparency: number) => {
-    if (userSettings) {
-      setUserSettings({
-        ...userSettings,
-        overlayTransparency: transparency,
-      });
-
-      // TODO: API 연동 시 주석 해제
-      // try {
-      //   setSaving(true);
-      //   await updateOverlay(
-      //     accessToken!,
-      //     userSettings.overlayPosition,
-      //     transparency,
-      //     userSettings.liveFontSize
-      //   );
-      //   console.log('투명도 설정 완료');
-      // } catch (err) {
-      //   console.error('투명도 설정 실패:', err);
-      //   // 실패 시 원래 상태로 되돌리기
-      //   setUserSettings({
-      //     ...userSettings,
-      //     overlayTransparency: userSettings.overlayTransparency,
-      //   });
-      // } finally {
-      //   setSaving(false);
-      // }
-
-      // 임시 저장 시뮬레이션
-      setSaving(true);
-      setTimeout(() => {
-        console.log('투명도 설정 완료');
-        setSaving(false);
-      }, 500);
-    }
+  // 투명도 변경
+  const handleTransparencyChange = (transparency: number) => {
+    setOverlayTransparency(transparency);
+    setChanged(true);
+    console.log('투명도 변경됨:', transparency);
   };
 
-  // TODO: API 연동 시 구현
+  // 오버레이 설정 저장 하기
   const handleSave = async () => {
     try {
-      setSaving(true);
       console.log('오버레이 설정 저장 시작');
-
-      // TODO: API 연동 시 주석 해제
-      // await updateOverlay(
-      //   accessToken!,
-      //   userSettings.overlayPosition,
-      //   userSettings.overlayTransparency,
-      //   userSettings.liveFontSize
-      // );
-      // console.log('오버레이 설정 저장 완료');
-
-      // 임시 저장 시뮬레이션
-      setTimeout(() => {
-        console.log('오버레이 설정 저장 완료');
-        setShowDoneModal(true);
-        setSaving(false);
-      }, 1000);
+      const res = await updateOverlay(overlayPosition, overlayTransparency, liveFontSize);
+      setChanged(true);
+      console.log('오버레이 설정 저장 완료');
+      
     } catch (err) {
       console.error('오버레이 설정 저장 실패:', err);
-      setSaving(false);
+      setSaving(true);
+      setShowDoneModal(true);
     }
   };
 
@@ -192,36 +99,12 @@ const OverlayTab = () => {
     setShowDoneModal(false);
   };
 
-  if (loading) {
-    return (
-      <div css={loadingContainerStyle}>
-        <p css={loadingTextStyle}>오버레이 설정을 불러오는 중...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div css={errorContainerStyle}>
-        <p css={errorTextStyle}>{error}</p>
-      </div>
-    );
-  }
-
-  if (!userSettings) {
-    return (
-      <div css={errorContainerStyle}>
-        <p css={errorTextStyle}>오버레이 설정을 찾을 수 없습니다.</p>
-      </div>
-    );
-  }
-
   return (
     <div css={overlayPanelStyle}>
       <div css={overlayHeaderStyle}>
         <h2 css={panelTitleStyle}>오버레이 설정</h2>
-        <button css={saveButtonStyle} onClick={handleSave} disabled={saving}>
-          {saving ? '저장 중...' : '저장하기'}
+        <button css={saveButtonStyle} onClick={handleSave} disabled={!changed}>
+          저장하기
         </button>
       </div>
       <p css={panelSubtitleStyle}>
@@ -236,14 +119,15 @@ const OverlayTab = () => {
               게임 중 채팅과 엔점이 보일 위치를 지정할 수 있습니다.
             </p>
             <div css={positionGridStyle}>
-              {[0, 1, 2, 3, 4, 5].map((position) => (
+              {[0, 1, 2, 3].map((position) => (
                 <div
                   key={position}
                   css={positionBoxStyle(
-                    parseInt(userSettings.overlayPosition) === position,
-                    saving,
+                    overlayPosition
+                      ? enumToNum[overlayPosition] === position
+                      : false,
                   )}
-                  onClick={() => !saving && handlePositionChange(position)}
+                  onClick={() => handlePositionChange(position)}
                 />
               ))}
             </div>
@@ -263,13 +147,13 @@ const OverlayTab = () => {
                 type="range"
                 min="12"
                 max="48"
-                value={userSettings.liveFontSize}
+                value={liveFontSize}
                 onChange={(e) => handleFontSizeChange(Number(e.target.value))}
-                disabled={saving}
+                // disabled={saving}
               />
               <span
                 css={sliderLabelStyle}
-                style={{ fontSize: `${userSettings.liveFontSize}px` }}
+                style={{ fontSize: `${liveFontSize}px` }}
               >
                 가
               </span>
@@ -288,15 +172,13 @@ const OverlayTab = () => {
                 type="range"
                 min="0"
                 max="100"
-                value={userSettings.overlayTransparency}
+                value={overlayTransparency}
                 onChange={(e) =>
                   handleTransparencyChange(Number(e.target.value))
                 }
-                disabled={saving}
+                // disabled={saving}
               />
-              <span css={sliderLabelStyle}>
-                {userSettings.overlayTransparency}%
-              </span>
+              <span css={sliderLabelStyle}>{overlayTransparency}%</span>
             </div>
           </div>
         </div>
@@ -434,29 +316,37 @@ const overlaySectionDescriptionStyle = css`
 
 const positionGridStyle = css`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr); /* 2 x 2 */
+  grid-template-rows: repeat(2, 1fr); /* ← 행 높이도 지정 */
   gap: 16px;
-  max-width: 320px;
+
+  /* 셀 높이의 기준을 만들어줘야 함 — 둘 중 하나 선택 */
+  width: 360px;
+  height: 200px; /* 고정 박스형 */
+  /* 또는: width: 360px; aspect-ratio: 16 / 9;  grid-auto-rows: 1fr; */
+
+  padding: 10px;
+  border-radius: 12px;
+  background: #f7f8fb;
+  box-shadow: inset 0 0 0 2px #e3e6ef;
 `;
 
 const positionBoxStyle = (selected: boolean, disabled?: boolean) => css`
-  width: 90px;
-  height: 70px;
+  width: 100%;
+  height: 100%;
+  display: block;
   background-color: ${selected
-    ? 'var(--color-primary)'
+    ? 'var(--color-primary-50)'
     : 'var(--color-gray-100)'};
   border: 2px solid
     ${selected ? 'var(--color-primary)' : 'var(--color-gray-200)'};
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: ${disabled ? 'not-allowed' : 'pointer'};
-  transition: all 0.2s ease;
-  opacity: ${disabled ? 0.6 : 1};
-
-  &:hover {
-    border-color: ${disabled
-      ? 'var(--color-gray-200)'
-      : 'var(--color-primary)'};
-  }
+  transition: background-color 0.2s, border-color 0.2s, transform 0.1s,
+    box-shadow 0.2s;
+  ${!disabled
+    ? `&:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,.06); }`
+    : ''}
 `;
 
 const sliderContainerStyle = css`

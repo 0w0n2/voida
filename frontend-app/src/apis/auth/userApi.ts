@@ -70,7 +70,6 @@ export const updateGuideMode = (useLipTalkMode: boolean) => {
 
 // 오버레이 수정
 export const updateOverlay = (
-  accessToken: string,
   overlayPosition: string,
   overlayTransparency: number,
   liveFontSize: number,
@@ -78,11 +77,6 @@ export const updateOverlay = (
   return apiInstance.put(
     '/v1/members/me/overlay',
     { overlayPosition, overlayTransparency, liveFontSize },
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    },
   );
 };
 
