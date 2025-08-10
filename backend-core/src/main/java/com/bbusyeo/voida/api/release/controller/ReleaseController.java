@@ -16,10 +16,17 @@ public class ReleaseController {
 
     private final ReleaseService releaseService;
 
-    @Operation(summary = "데스크톱 앱 릴리스 정보 조회 API",
+    @Operation(summary = "데스크톱 앱 릴리스 최신 정보 조회 API")
+    @GetMapping("/latest")
+    public BaseResponse<DesktopAppResponseDto> getLatestRelease() {
+
+        return new BaseResponse<>(releaseService.getLatestRelease());
+    }
+
+    @Operation(summary = "데스크톱 앱 특정 버전 릴리스 정보 조회 API",
             description = "version 형식은 `0.0.0`과 같은 형식을 사용하세요.")
     @GetMapping("/versions/{version}")
-    public BaseResponse<DesktopAppResponseDto> getDesktopAppInfo(@PathVariable String version) {
+    public BaseResponse<DesktopAppResponseDto> getReleaseByVersion(@PathVariable String version) {
 
         return new BaseResponse<>(releaseService.getReleaseByVersion(version));
     }

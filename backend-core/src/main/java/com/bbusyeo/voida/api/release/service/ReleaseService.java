@@ -6,4 +6,6 @@ public interface ReleaseService {
 
     DesktopAppResponseDto getReleaseByVersion(String version);
 
+    DesktopAppResponseDto getLatestRelease();
+
 }
