@@ -110,6 +110,7 @@ export const createRoom = async (
   }
 
   const res = await apiInstance.post('/v1/meeting-rooms', formData);
+  console.log(res);
   return res.data.result;
 };
 

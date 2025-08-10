@@ -78,8 +78,8 @@ const glassStyle = css`
 
 const mainWrapper = css`
   position: relative;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  min-height: 85vh;
   z-index: 1;
   overflow: hidden;
 `;
@@ -219,20 +219,20 @@ const roomButtonStyle = css`
 
 const float1 = keyframes`
   0%   { transform: translateY(0px) translateX(0px); }
-  50%  { transform: translateY(-100px) translateX(800px); }
+  50%  { transform: translateY(-50px) translateX(200px); }
   100% { transform: translateY(0px) translateX(0px); }
 `;
 
 const float2 = keyframes`
   0%   { transform: translateY(0px) translateX(0px); }
-  50%  { transform: translateY(100px) translateX(-800px); }
+  50%  { transform: translateY(50px) translateX(-200px); }
   100% { transform: translateY(0px) translateX(0px); }
 `;
 
 const blurBg1 = css`
   position: absolute;
   top: 15%;
-  left: 5%;
+  left: 3%;
   width: 280px;
   height: 280px;
   background: radial-gradient(circle, #b69cff, transparent 70%);
@@ -255,8 +255,8 @@ const blurBg2 = css`
 
 const blurBg3 = css`
   position: absolute;
-  top: 50%;
-  left: 30%;
+  top: 45%;
+  left: 25%;
   width: 260px;
   height: 260px;
   background: radial-gradient(circle, #ff8fa3, transparent 70%);

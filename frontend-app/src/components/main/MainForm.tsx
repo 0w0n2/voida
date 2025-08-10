@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { css } from '@emotion/react';
+import { css,  keyframes } from '@emotion/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, ChevronLeft, ChevronRight, Plus, ArrowRight, User } from 'lucide-react';
@@ -179,38 +179,64 @@ const MainForm = ({ rooms = [] }: MainFormProps) => {
 
       {isCreateOpen && <CreateRoomModal onClose={() => setIsCreateOpen(false)} />}
       {isJoinOpen && <JoinRoomModal onClose={() => setIsJoinOpen(false)} />}
+
+      <div css={blurBg1} />
+      <div css={blurBg2} /> 
+      <div css={blurBg3} />
     </div>
   );
 };
 
 export default MainForm;
 
+const glassStyle = css`
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.25) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-radius: 100px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.15),
+    inset 0 1px 1px rgba(255, 255, 255, 0.4),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+`;
+
 const container = css`
   padding: 0px 20px;
-  max-width: 1300px; 
   margin: 0 auto;
   width: 100%;
+  min-height: 85vh;
+  z-index: 1;
+  overflow: hidden;
 `;
 
 const searchContainer = css`
-  display: flex;
-  justify-content: center;
-  margin-bottom: 40px;
+  ${glassStyle};
+  position: fixed;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  width: 100%;
+  max-width: 800px;
 `;
 
 const searchBox = css`
   display: flex;
   align-items: center;
-  background: var(--color-bg-white);
   border-radius: 50px;
   padding: 14px 28px;
   width: 100%;
   max-width: 800px;
   transition: border 0.2s ease;
   border: 2px solid transparent;
-
   &:focus-within {
-    border: 2px solid var(--color-primary);
+    background: var(--color-bg-white);
   }
 `;
 
@@ -263,11 +289,21 @@ const searchBtn = css`
 
 const cardGrid = css`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  grid-auto-rows: 290px;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: minmax(290px, auto);
   gap: 32px;
-  margin-bottom: 40px;
+  margin: 150px;
+  margin-top: 160px;
+
+  @media (max-height: 1000px), (max-width: 1400px) {
+    margin: 80px 260px; 
+    margin-top: 120px;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: minmax(140px, auto);
+    gap: 30px;
+  }
 `;
+
 
 const card = css`
   background: white;
@@ -278,12 +314,15 @@ const card = css`
   cursor: pointer;
   display: flex;
   flex-direction: column;
+  flex: 1; 
+  min-height: 0;
 
   &:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
   }
 `;
+
 
 const thumbnailWrapper = css`
   width: 100%;
@@ -334,10 +373,14 @@ const participants = css`
 `;
 
 const pagination = css`
+  position: fixed;
+  bottom: clamp(40px, 6vh, 60px);
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   justify-content: center;
   gap: 8px;
-  margin-bottom: 20px;
+  z-index: 100;
 `;
 
 const pageBtn = css`
@@ -424,4 +467,52 @@ const floatTooltip = css`
   pointer-events: none;
   transition: all 0.2s ease;
   z-index: 9999;
+`;
+
+const float1 = keyframes`
+  0%   { transform: translateY(0px) translateX(0px); }
+  50%  { transform: translateY(-50px) translateX(200px); }
+  100% { transform: translateY(0px) translateX(0px); }
+`;
+
+const float2 = keyframes`
+  0%   { transform: translateY(0px) translateX(0px); }
+  50%  { transform: translateY(50px) translateX(-200px); }
+  100% { transform: translateY(0px) translateX(0px); }
+`;
+
+const blurBg1 = css`
+  position: absolute;
+  top: 15%;
+  left: 3%;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, #b69cff, transparent 70%);
+  filter: blur(80px);
+  z-index: -1;
+  animation: ${float1} 30s ease-in-out infinite;
+`;
+
+const blurBg2 = css`
+  position: absolute;
+  bottom: 10%;
+  right: 10%;
+  width: 380px;
+  height: 380px;
+  background: radial-gradient(circle, #82e9ff, transparent 70%);
+  filter: blur(100px);
+  z-index: -1;
+  animation: ${float2} 28s ease-in-out infinite;
+`;
+
+const blurBg3 = css`
+  position: absolute;
+  top: 45%;
+  left: 25%;
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, #ff8fa3, transparent 70%);
+  filter: blur(90px);
+  z-index: -1;
+  animation: ${float1} 24s ease-in-out infinite;
 `;
