@@ -1,4 +1,4 @@
-package com.bbusyeo.voida.api.distribution.domain;
+package com.bbusyeo.voida.api.release.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -20,7 +20,7 @@ public class DesktopApp {
     @Column(nullable = false, length = 15)
     private String version;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false)
     private String url;
 
     @Column(nullable = false)
