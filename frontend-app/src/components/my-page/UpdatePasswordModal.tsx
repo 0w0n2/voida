@@ -5,16 +5,16 @@ import { checkCurrentPassword, updatePassword } from '@/apis/auth/userApi';
 import EyeIcon from '@/assets/icons/eye.png';
 import EyeCloseIcon from '@/assets/icons/crossed-eye.png';
 import { Eye } from 'lucide-react';
+import UpdatePasswordDoneModal from '@/components/my-page/UpdatePasswordDoneModal';
+
 interface UpdatePasswordModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onPasswordUpdateSuccess: () => void;
 }
 
 const UpdatePasswordModal = ({
   isOpen,
   onClose,
-  onPasswordUpdateSuccess,
 }: UpdatePasswordModalProps) => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -59,8 +59,8 @@ const UpdatePasswordModal = ({
   // 현재 비밀번호 유효성 검사 핸들러
   const isSameCurrentPassword = async () => {
     try {
-      const res = await checkCurrentPassword(accessToken!, currentPassword);
-      const isMatched = res.data.isMatched;
+      const res = await checkCurrentPassword(currentPassword);
+      const isMatched = res.data.result.isMatched;
       if (isMatched) {
         setCurrentPasswordError('');
       } else {
@@ -129,33 +129,15 @@ const UpdatePasswordModal = ({
       return;
     }
 
+
     setIsLoading(true);
     setError('');
 
     try {
-      // TODO: API 연동 시 주석 해제
-      // await updatePassword(accessToken!, {
-      //   currentPassword,
-      //   newPassword,
-      // });
-      // console.log('비밀번호 변경 완료');
-
-      // response data에 따라 성공 모달 표시 로직 구현 필요
-      // 실패 시 에러 메시지 표시
-
-      // 임시 시뮬레이션
-      setTimeout(() => {
-        setIsSuccessModalOpen(true);
-        onPasswordUpdateSuccess();
-        onClose();
-        // 폼 초기화
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
-        setCurrentPasswordError('');
-        setNewPasswordError('');
-        setConfirmPasswordError('');
-      }, 1000);
+      await updatePassword(currentPassword, newPassword);
+      // const isSuccess = res.data.isSuccess
+      setIsSuccessModalOpen(true);
+      console.log('비밀번호 변경 완료');
     } catch (err) {
       setCurrentPasswordError('현재 비밀번호가 일치하지 않습니다.');
     } finally {
@@ -310,11 +292,11 @@ const UpdatePasswordModal = ({
         </button>
       </div>
       {/* 비밀번호 수정 성공 시 모달 */}
-      {/* <UpdatePasswordDoneModal
+      <UpdatePasswordDoneModal
         isOpen={isSuccessModalOpen}
-        onClose={() => setIsSuccessModalOpen(false)}
-        // userName={user?.nickname}
-      /> */}
+        onClose={()=>setIsSuccessModalOpen(false)}
+
+      />
     </div>
   );
 };

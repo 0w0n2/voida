@@ -8,16 +8,14 @@ import UpdateDoneModal from './UpdateDoneModal';
 import guide from '@/assets/icons/mp-guide.png';
 
 interface UserSettings {
-  useLipTalkMode: boolean; // API 스펙에 맞게 변경
-  // 필요한 다른 설정들 추가 가능
+  useLipTalkMode: boolean;
 }
 
 const SettingsTab = () => {
-  const { accessToken, user } = useAuthStore();
-  const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
+  const { user } = useAuthStore();
+  const [userSpeech, setUserSpeech] = useState<UserSettings | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
+  const [hasChanged, setHasChanged] = useState(false);
   const [showDoneModal, setShowDoneModal] = useState(false);
   const navigate = useNavigate();
 
@@ -25,80 +23,40 @@ const SettingsTab = () => {
   useEffect(() => {
     const fetchUserSettings = async () => {
       try {
-        setLoading(true);
-
-        // TODO: API 연동 시 주석 해제
-        // const response = await getUserSettings(accessToken!);
-        // setUserSettings(response.data);
-
-        // 임시 데이터 사용 (퍼블리싱용)
-        setTimeout(() => {
-          setUserSettings({
-            useLipTalkMode: false,
-          });
-          setError(null);
-        }, 500);
+        const res = await getUserSettings();
+        console.log(res);
+        const lipTalkMode = res.data.result.setting.lipTalkMode;
+        // console.log('lipTalkMode:', lipTalkMode);
+        setUserSpeech({ useLipTalkMode: lipTalkMode });
       } catch (err) {
         console.error('유저 설정 조회 실패:', err);
-        setError('유저 설정을 불러오는데 실패했습니다.');
       } finally {
         setLoading(false);
       }
     };
 
     fetchUserSettings();
-  }, [accessToken]);
+  }, []);
 
-  const handleSpeechToggle = async (enabled: boolean) => {
-    if (userSettings) {
-      setUserSettings({
-        ...userSettings,
-        useLipTalkMode: enabled,
-      });
-
-      // TODO: API 연동 시 주석 해제
-      // try {
-      //   setSaving(true);
-      //   await updateGuideMode(accessToken!, enabled);
-      //   console.log('구화 모드 설정 완료');
-      // } catch (err) {
-      //   console.error('구화 모드 설정 실패:', err);
-      //   // 실패 시 원래 상태로 되돌리기
-      //   setUserSettings({
-      //     ...userSettings,
-      //     useLipTalkMode: !enabled,
-      //   });
-      // } finally {
-      //   setSaving(false);
-      // }
-
-      // 임시 저장 시뮬레이션
-      setSaving(true);
-      setTimeout(() => {
-        console.log('구화 모드 설정 완료');
-        setSaving(false);
-      }, 500);
-    }
+  // 유저 구화 설정 토글
+  const handleSpeechToggle = () => {
+    setUserSpeech({
+      useLipTalkMode: !userSpeech?.useLipTalkMode,
+    });
+    console.log('토글 변경됨:', !userSpeech?.useLipTalkMode);
+    setHasChanged(true);
   };
 
-  // TODO: API 연동 시 구현
+  // 유저 설정 업데이트 API 호출
   const handleSave = async () => {
     try {
-      setSaving(true);
+      await updateGuideMode(userSpeech?.useLipTalkMode ?? false);
       console.log('설정 저장');
-
-      // TODO: 유저 설정 업데이트 API 호출
-      // await updateGuideMode(accessToken!, userSettings);
-
-      // 임시 시뮬레이션
-      setTimeout(() => {
-        console.log('설정 저장 완료');
-        setShowDoneModal(true);
-        setSaving(false);
-      }, 1000);
+      console.log('변경된 값:', userSpeech?.useLipTalkMode);
+      setShowDoneModal(true);
+      setHasChanged(false);
     } catch (err) {
       console.error('설정 저장 실패:', err);
-      setSaving(false);
     }
   };
 
@@ -111,36 +69,16 @@ const SettingsTab = () => {
     navigate('/tutorial');
   };
 
-  if (loading) {
-    return (
-      <div css={loadingContainerStyle}>
-        <p css={loadingTextStyle}>유저 설정을 불러오는 중...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div css={errorContainerStyle}>
-        <p css={errorTextStyle}>{error}</p>
-      </div>
-    );
-  }
-
-  if (!userSettings) {
-    return (
-      <div css={errorContainerStyle}>
-        <p css={errorTextStyle}>유저 설정을 찾을 수 없습니다.</p>
-      </div>
-    );
-  }
-
   return (
     <div css={settingsPanelStyle}>
       <div css={settingsHeaderStyle}>
         <h2 css={panelTitleStyle}>설정</h2>
-        <button css={saveButtonStyle} onClick={handleSave} disabled={saving}>
-          {saving ? '저장 중...' : '저장하기'}
+        <button
+          css={saveButtonStyle}
+          onClick={handleSave}
+          disabled={!hasChanged}
+        >
+          저장하기
         </button>
       </div>
       <p css={panelSubtitleStyle}>구화 및 음성 관련 설정을 관리하세요.</p>
@@ -155,12 +93,12 @@ const SettingsTab = () => {
               </p>
             </div>
             <div
-              css={toggleSwitchStyle(userSettings.useLipTalkMode, saving)}
-              onClick={() =>
-                !saving && handleSpeechToggle(!userSettings.useLipTalkMode)
-              }
+              css={toggleSwitchStyle(userSpeech?.useLipTalkMode ?? false)}
+              onClick={handleSpeechToggle}
             >
-              <div css={toggleSliderStyle(userSettings.useLipTalkMode)} />
+              <div
+                css={toggleSliderStyle(userSpeech?.useLipTalkMode ?? false)}
+              />
             </div>
           </div>
 
