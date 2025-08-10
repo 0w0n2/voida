@@ -27,7 +27,8 @@ public class DesktopApp {
     private LocalDateTime uploadedAt;
 
     @Builder
-    DesktopApp(String version, String url, LocalDateTime uploadedAt) {
+    DesktopApp(Long id, String version, String url, LocalDateTime uploadedAt) {
+        this.id = id;
         this.version = version;
         this.url = url;
         this.uploadedAt = uploadedAt;

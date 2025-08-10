@@ -1,7 +1,9 @@
 package com.bbusyeo.voida.api.release.controller;
 
+import com.bbusyeo.voida.api.release.dto.in.DesktopAppRequestDto;
 import com.bbusyeo.voida.api.release.dto.out.DesktopAppResponseDto;
 import com.bbusyeo.voida.api.release.service.ReleaseService;
+import com.bbusyeo.voida.api.release.vo.DesktopAppRequestVo;
 import com.bbusyeo.voida.global.response.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,6 +31,16 @@ public class ReleaseController {
     public BaseResponse<DesktopAppResponseDto> getReleaseByVersion(@PathVariable String version) {
 
         return new BaseResponse<>(releaseService.getReleaseByVersion(version));
+    }
+
+    @Operation(summary = "데스크톱 앱 릴리스 등록 API",
+        description = "version 형식은 `0.0.0`과 같은 형식을 사용하세요.")
+    @PostMapping("/versions/{version}")
+    public BaseResponse<Void> registerReleaseByVersion(
+        @PathVariable String version, @RequestBody DesktopAppRequestVo requestVo) {
+
+        releaseService.createRelease(DesktopAppRequestDto.toDto(version, requestVo));
+        return new BaseResponse<>();
     }
 
 }

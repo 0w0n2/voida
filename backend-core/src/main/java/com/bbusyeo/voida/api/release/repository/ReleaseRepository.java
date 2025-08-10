@@ -10,6 +10,9 @@ import java.util.Optional;
 public interface ReleaseRepository extends JpaRepository<DesktopApp, Long> {
 
     Optional<DesktopApp> findTopByOrderByUploadedAtDesc();
+
     Optional<DesktopApp> findTopByVersionOrderByUploadedAtDesc(String version);
+
+    Optional<DesktopApp> findByVersion(String version);
 
 }
