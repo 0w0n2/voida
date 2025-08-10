@@ -3,12 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { css } from '@emotion/react';
 import TutorialMainCard from '@/components/tutorial/TutorialMainCard';
 import Header from '@/components/Header';
+import LipTalkModal from '@/components/tutorial/modal/LipTalkModeModal';
 import Microphone from '@/assets/images/tutorial-microphone.png';
 import WebCam from '@/assets/images/tutorial-webcam.png';
 import Text from '@/assets/images/tutorial-text.png';
+import { useState } from 'react';
 
 export default function TutorialMainPage() {
   const navigate = useNavigate();
+  const [showLipTalkModal, setShowLipTalkModal] = useState(false);
 
   return (
     <div css={pageWrapperStyle}>
@@ -51,7 +54,7 @@ export default function TutorialMainPage() {
         </div>
 
         <div css={buttonWrapperStyle}>
-          <button css={skipButtonStyle} onClick={() => navigate('/main')}>
+          <button css={skipButtonStyle} onClick={() => setShowLipTalkModal(true)}>
             튜토리얼 건너뛰기
           </button>
           <button
@@ -62,6 +65,9 @@ export default function TutorialMainPage() {
           </button>
         </div>
       </div>
+      {showLipTalkModal && (
+        <LipTalkModal onClose={() => setShowLipTalkModal(false)}/>
+      )}
     </div>
   );
 }
