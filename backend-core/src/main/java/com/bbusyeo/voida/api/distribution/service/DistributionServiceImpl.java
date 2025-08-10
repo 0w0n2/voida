@@ -1,7 +1,7 @@
 package com.bbusyeo.voida.api.distribution.service;
 
 import static com.bbusyeo.voida.global.response.BaseResponseStatus.INVALID_VERSION;
-import static com.bbusyeo.voida.global.response.BaseResponseStatus.DISTRIBUTION_NOT_FOUND;
+import static com.bbusyeo.voida.global.response.BaseResponseStatus.RELEASE_NOT_FOUND;
 
 import com.bbusyeo.voida.api.distribution.dto.out.DistributionResponseDto;
 import com.bbusyeo.voida.api.distribution.repository.DistributionRepository;
@@ -22,7 +22,7 @@ public class DistributionServiceImpl implements DistributionService {
         return DistributionResponseDto.from(
                 version.equals("latest")
                         ? distributionRepository.findTopByOrderByUploadedAtDesc()
-                        .orElseThrow(() -> new BaseException(DISTRIBUTION_NOT_FOUND))
+                        .orElseThrow(() -> new BaseException(RELEASE_NOT_FOUND))
                         : distributionRepository.findTopByVersionOrderByUploadedAtDesc(version)
                         .orElseThrow(() -> new BaseException(INVALID_VERSION)));
     }

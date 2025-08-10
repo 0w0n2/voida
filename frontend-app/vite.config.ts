@@ -4,6 +4,7 @@ import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: './',
   plugins: [
     react({
       jsxImportSource: '@emotion/react',
@@ -15,6 +16,18 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
+    },
+  },
+  define: {
+    global: 'window',
+  },
+  server: {
+    proxy: {
+      '/openvidu/api': {
+        target: 'http://localhost:4443',
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 });

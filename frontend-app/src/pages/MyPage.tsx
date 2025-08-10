@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
-import styled from '@emotion/styled';
+/** @jsxImportSource @emotion/react */
+import { css } from '@emotion/react';
+import { useRef, useState, useEffect } from 'react';
 import Header from '../components/Header';
-import ProfileTab from '../components/Myp/ProfileTab';
-import SettingsTab from '../components/Myp/SettingsTab';
-import ShortcutsTab from '../components/Myp/ShortcutsTab';
-import OverlayTab from '../components/Myp/OverlayTab';
+import ProfileTab from '../components/my-page/ProfileTab';
+import SettingsTab from '../components/my-page/SettingsTab';
+import ShortcutsTab from '../components/my-page/ShortcutsTab';
+import OverlayTab from '../components/my-page/OverlayTab';
+import settings from '@/assets/icons/mp-setting.png';
+import shortcuts from '@/assets/icons/mp-shortcut.png';
+import overlay from '@/assets/icons/mp-overlay.png';
+import profile from '@/assets/icons/mp-profile.png';
 
 const MyPage = () => {
   const [activeTab, setActiveTab] = useState('profile');
@@ -29,97 +34,97 @@ const MyPage = () => {
   };
 
   return (
-    <Container>
-      {/* 헤더 */}
+    <main>
       <Header />
+      <nav css={navigationStyle}>
+        <div css={selectorBoxStyle}>
+          
+          <button
+            css={navTabStyle(activeTab === 'profile')}
+            onClick={() => handleTabClick('profile')}
+          >
+            <img src={profile} alt="profile" />
+            <span css={tabTextStyle}>프로필</span>
+          </button>
+          <button
+            css={navTabStyle(activeTab === 'settings')}
+            onClick={() => handleTabClick('settings')}
+          >
+            <img src={settings} alt="settings" />
+            <span css={tabTextStyle}>설정</span>
+          </button>
+          <button
+            css={navTabStyle(activeTab === 'shortcuts')}
+            onClick={() => handleTabClick('shortcuts')}
+          >
+            <img src={shortcuts} alt="shortcuts" />
+            <span css={tabTextStyle}>단축키</span>
+          </button>
+          <button
+            css={navTabStyle(activeTab === 'overlay')}
+            onClick={() => handleTabClick('overlay')}
+          >
+            <img src={overlay} alt="overlay" />
+            <span css={tabTextStyle}>오버레이</span>
+          </button>
+        </div>
+      </nav>
 
-      {/* 네비게이션 바 */}
-      <Navigation>
-        <NavTab
-          active={activeTab === 'profile'}
-          onClick={() => handleTabClick('profile')}
-        >
-          <TabIcon>👤</TabIcon>
-          <TabText>프로필</TabText>
-        </NavTab>
-        <NavTab
-          active={activeTab === 'settings'}
-          onClick={() => handleTabClick('settings')}
-        >
-          <TabIcon>⚙️</TabIcon>
-          <TabText>설정</TabText>
-        </NavTab>
-        <NavTab
-          active={activeTab === 'shortcuts'}
-          onClick={() => handleTabClick('shortcuts')}
-        >
-          <TabIcon>⌨️</TabIcon>
-          <TabText>단축키</TabText>
-        </NavTab>
-        <NavTab
-          active={activeTab === 'overlay'}
-          onClick={() => handleTabClick('overlay')}
-        >
-          <TabIcon>⊞</TabIcon>
-          <TabText>오버레이</TabText>
-        </NavTab>
-      </Navigation>
-
-      {/* 메인 콘텐츠 */}
-      <MainContent>{renderContent()}</MainContent>
-    </Container>
+      <section css={mainContentStyle}>{renderContent()}</section>
+    </main>
   );
 };
 
-// 스타일 컴포넌트
-const Container = styled.div`
-  min-height: 100vh;
-  background-color: var(--color-bg-blue);
-  font-family: 'NanumSquareR', sans-serif;
-`;
+export const navigationStyle = css`
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 
-const Navigation = styled.nav`
   display: flex;
-  background-color: var(--color-bg-white);
-  border-bottom: 1px solid var(--color-gray-200);
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding: 0 24px;
 `;
 
-const NavTab = styled.button<{ active: boolean }>`
+export const selectorBoxStyle = css`
+  width: 100%;
+  max-width: 1200px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 16px 24px;
-  background: none;
+  margin: 0 auto;
+  gap: 16px;
+  padding: 0 24px;
+`;
+
+export const navTabStyle = (active: boolean) => css`
+  position: relative;
+  z-index: 1; 
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
   border: none;
+  background: none;
+  font-weight: ${active ? '700' : '400'};
+  color: ${active ? '#000' : '#888'};
   cursor: pointer;
-  font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
-  color: ${(props) =>
-    props.active ? 'var(--color-primary)' : 'var(--color-gray-600)'};
-  font-weight: ${(props) => (props.active ? '700' : '400')};
-  border-bottom: 2px solid
-    ${(props) => (props.active ? 'var(--color-primary)' : 'transparent')};
-  transition: all 0.2s ease;
+  border-radius: 12px;
 
-  &:hover {
-    color: var(--color-primary);
-  }
 `;
 
-const TabIcon = styled.span`
-  font-size: 16px;
-`;
-
-const TabText = styled.span`
+export const tabTextStyle = css`
   font-family: 'NanumSquareR', sans-serif;
 `;
 
-const MainContent = styled.main`
+export const mainContentStyle = css`
   display: flex;
   gap: 24px;
   padding: 40px;
   max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
+  margin: auto;
 `;
 
 export default MyPage;

@@ -3,9 +3,7 @@ package com.bbusyeo.voida.api.meetingroom.service;
 import com.bbusyeo.voida.api.meetingroom.domain.MeetingRoom;
 import com.bbusyeo.voida.api.meetingroom.domain.MemberMeetingRoom;
 import com.bbusyeo.voida.api.meetingroom.domain.enums.MemberMeetingRoomState;
-import com.bbusyeo.voida.api.meetingroom.dto.MeetingRoomCreateRequestDto;
-import com.bbusyeo.voida.api.meetingroom.dto.MeetingRoomCreateResponseDto;
-import com.bbusyeo.voida.api.meetingroom.dto.MeetingRoomUpdateRequestDto;
+import com.bbusyeo.voida.api.meetingroom.dto.*;
 import com.bbusyeo.voida.api.meetingroom.repository.MeetingRoomRepository;
 import com.bbusyeo.voida.api.meetingroom.repository.MemberMeetingRoomRepository;
 import com.bbusyeo.voida.api.member.domain.Member;
@@ -16,11 +14,16 @@ import com.bbusyeo.voida.global.support.S3Uploader;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -50,11 +53,10 @@ public class MeetingRoomService {
 
 
     // 대기실 생성
-    public MeetingRoom create(Long memberId, MeetingRoomCreateRequestDto request, MultipartFile thumbnailImage) {
+    public MeetingRoom create(String memberUuid, MeetingRoomCreateRequestDto request, MultipartFile thumbnailImage) {
 
-        // Todo: memberId는 혜원 작업 완료 후, 인증(JWT 토큰)에서 가져와야함
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.ILLEGAL_ARGUMENT));
+        Member member = memberRepository.findByMemberUuid(memberUuid)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
 
         String thumbnailFileKey = null;
 
@@ -81,7 +83,7 @@ public class MeetingRoomService {
 
             // 생성자 = Host 설정하는 MemberMeetingRoom 객체 생성
             MemberMeetingRoom hostLink = MemberMeetingRoom.builder()
-                    .member(member)
+                    .memberUuid(memberUuid)
                     .meetingRoom(saveMeetingRoom)
                     .state(MemberMeetingRoomState.HOST)
                     .build();
@@ -90,8 +92,8 @@ public class MeetingRoomService {
             memberMeetingRoomRepository.save(hostLink);
             return saveMeetingRoom;
         } catch (Exception e) {
-            // 보상 트랜잭션: DB 저장 중 에러 발생 시, S3에 업로드된 파일이 있다면 삭제
-            if (thumbnailFileKey != null && thumbnailImage != null && !thumbnailImage.isEmpty()) {
+            // 보상 트랜잭션: DB 저장 중 에러 발생 시, S3에 업로드된 파일이 있다면 삭제 (기본 이미지 제외)
+            if (thumbnailImage != null && isDefaultImageKey(thumbnailFileKey)) {
                 s3Uploader.delete(thumbnailFileKey);
             }
             // 원래 예외를 그대로 던지거나, BaseException으로 감싸서 던짐
@@ -107,40 +109,59 @@ public class MeetingRoomService {
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NOT_FOUND_MEETING_ROOM));
     }
 
+    // 내가 참여중인 대기실 조회
+    @Transactional(readOnly = true)
+    public List<MyMeetingRoomResponseDto> findMyMeetingRooms(String memberUuid) {
+        List<MemberMeetingRoom> memberMeetingRooms = memberMeetingRoomRepository.findByMemberUuid(memberUuid);
+
+        if (memberMeetingRooms.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.NO_MEETING_ROOMS_JOINED);
+        }
+
+        return memberMeetingRooms.stream()
+                .map(MemberMeetingRoom::getMeetingRoom)
+                .map(MyMeetingRoomResponseDto::from)
+                .collect(Collectors.toList());
+    }
 
     // 방 기본 정보 수정
-    public MeetingRoom update(Long memberId, Long meetingRoomId, MeetingRoomUpdateRequestDto requestDto, MultipartFile newThumbnailImage) {
+    public MeetingRoom update(String memberUuid, Long meetingRoomId, MeetingRoomUpdateRequestDto requestDto, MultipartFile newThumbnailImage) {
         // 방장 권한 확인하기
-        checkHostAuthority(memberId, meetingRoomId);
+        checkHostAuthority(memberUuid, meetingRoomId);
 
         MeetingRoom meetingRoom = findById(meetingRoomId);
         String oldFileKey = meetingRoom.getThumbnailImageUrl();
-        String newFileKey = null; // 새 파일이 업로드 되었는지 확인하기 위해 null로 초기화
+        String newFileKey = oldFileKey; // 기본적으로 이전 파일 유지
 
+        boolean isNewImageUploaded = newThumbnailImage != null && !newThumbnailImage.isEmpty();
+        boolean isCategoryChanged = !Objects.equals(meetingRoom.getCategoryName(), requestDto.getCategory());
 
-        // 새 썸네일 이미지가 있는지 확인
-        if (newThumbnailImage != null && !newThumbnailImage.isEmpty()) {
-            // 새 이미지가 있다면 S3에 업로드하고 새로운 파일 키를 받음
+        // 사용자가 새롭게 썸네일 이미지를 수정하였을 때
+        if (isNewImageUploaded) {
             newFileKey = s3Uploader.upload(newThumbnailImage, S3_THUMBNAIL_DIR);
+        }
+        // 사진 변경은 없고, 기존에 default 이미지였고, 카테고리만 바뀌면 그 카테고리에 맞는 default 이미지로 변경
+        else if (isCategoryChanged) {
+            if (isDefaultImageKey(oldFileKey)) {
+            newFileKey = getDefaultThumbnailKey(requestDto.getCategory());
+            }
         }
 
         try {
             // DB 엔티티 업데이트
-            // 새 파일이 있으면 newFileKey를, 없으면 oldFileKey를 사용
-            meetingRoom.update(requestDto.getTitle(), requestDto.getCategory(), (newFileKey != null) ? newFileKey : oldFileKey);
+            meetingRoom.update(requestDto.getTitle(), requestDto.getCategory(), newFileKey);
 
             // 후속 처리 : DB 업데이트 성공 후, 기존 사용자 업로드 이미지가 있다면 S3에서 삭제
-            if (newFileKey != null && oldFileKey != null && !isDefaultImageKey(oldFileKey)) {
+            if (isNewImageUploaded && oldFileKey != null && !isDefaultImageKey(oldFileKey)) {
                 s3Uploader.delete(oldFileKey);
             }
-
             return meetingRoom;
+
         } catch (Exception e) {
             // 보상 트랜잭션: DB 업데이트 중 에러 발생 시, S3에 새로 업로드된 파일이 있다면 삭제
-            if (newFileKey != null) {
+            if (isNewImageUploaded && newFileKey != null && !isDefaultImageKey(newFileKey)) {
                 s3Uploader.delete(newFileKey);
             }
-
             // 원래 예외를 그대로 던지거나, BaseException으로 감싸서 던지기
             if (e instanceof BaseException) throw e;
             throw new BaseException(BaseResponseStatus.DATABASE_CONSTRAINT_VIOLATION);
@@ -148,9 +169,9 @@ public class MeetingRoomService {
     }
 
     // 대기실 삭제
-    public void delete(Long memberId, Long meetingRoomId) {
+    public void delete(String memberUuid, Long meetingRoomId) {
         // 방장 권한 확인
-        checkHostAuthority(memberId, meetingRoomId);
+        checkHostAuthority(memberUuid, meetingRoomId);
 
         // MeetingRoom 존재 확인
         MeetingRoom meetingRoom = findById(meetingRoomId);
@@ -168,14 +189,109 @@ public class MeetingRoomService {
         }
     }
 
+    // 대기실 참여자 정보 리스트 조회
+    @Transactional(readOnly = true)
+    public MeetingRoomParticipantListDto getMeetingRoomMembers(String currentMemberUuid, Long meetingRoomId) {
+
+        // meetingRoomId로 모든 참여자 상태 조회
+        List<MemberMeetingRoom> allMemberMeetingRooms = memberMeetingRoomRepository.findByMeetingRoomId(meetingRoomId);
+
+        if (allMemberMeetingRooms.isEmpty()) {
+            return MeetingRoomParticipantListDto.of(Collections.emptyList());
+        }
+
+        // 참여 관계에서 memberUuid 목록 추출
+        List<String> memberUuids = allMemberMeetingRooms.stream()
+                .map(MemberMeetingRoom::getMemberUuid)
+                .collect(Collectors.toList());
+
+        // 추출된 memberUuid 목록으로 Member 정보들을 조회
+        Map<String, Member> memberByUuidMap = memberRepository.findByMemberUuidIn(memberUuids).stream()
+                .collect(Collectors.toMap(Member::getMemberUuid, member -> member));
+
+        // 참여 정보를 DTO로 변환
+        List<ParticipantInfoDto> participants = allMemberMeetingRooms.stream()
+                .map(memberMeetingRoom -> {
+                    Member member = memberByUuidMap.get(memberMeetingRoom.getMemberUuid());
+                    return ParticipantInfoDto.of(memberMeetingRoom, member, currentMemberUuid);
+                })
+                .collect(Collectors.toList());
+
+        return MeetingRoomParticipantListDto.of(participants);
+    }
+
+    // 방장 위임
+    public void changeHost(String memberUuid, Long meetingRoomId, String newHostMemberUuid) {
+
+        // 요청자가 방장인지 확인
+        checkHostAuthority(memberUuid, meetingRoomId);
+
+        // 자기 자신에게 위임하는지 확인
+        if (memberUuid.equals(newHostMemberUuid)) {
+            throw new BaseException(BaseResponseStatus.CANNOT_CHANGE_TO_SELF);
+        }
+
+        // 현재 방장 정보 조회 (일반 참여자로 변경해주기 위해 필요)
+        MemberMeetingRoom currentHostMemberMeetingRoom = memberMeetingRoomRepository.findByMemberUuidAndMeetingRoomId(memberUuid, meetingRoomId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.MEETING_ROOM_MEMBER_NOT_FOUND));
+
+        // 위임 받을 멤버가 방에 참여중인지 검사
+        MemberMeetingRoom newHostMemberMeetingRoom = memberMeetingRoomRepository.findByMemberUuidAndMeetingRoomId(newHostMemberUuid, meetingRoomId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.MEETING_ROOM_MEMBER_NOT_FOUND));
+
+        // 권한 변경
+        currentHostMemberMeetingRoom.updateState(MemberMeetingRoomState.PARTICIPANT);
+        newHostMemberMeetingRoom.updateState(MemberMeetingRoomState.HOST);
+    }
+
+    // 유저 추방
+    public void kickMember(String memberUuid, Long meetingRoomId, String kickMemberUuid) {
+
+        // 요청자 방장인지 확인
+        checkHostAuthority(memberUuid, meetingRoomId);
+
+        // 방장 자기 자신 추방하려는지 확인
+        if (memberUuid.equals(kickMemberUuid)) {
+            throw new BaseException(BaseResponseStatus.CANNOT_CHANGE_TO_SELF);
+        }
+
+        // 추방할 member가 방에 참여중인지 확인
+        MemberMeetingRoom memberMeetingRoom = memberMeetingRoomRepository
+                .findByMemberUuidAndMeetingRoomId(kickMemberUuid, meetingRoomId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.MEETING_ROOM_MEMBER_NOT_FOUND));
+
+        // 참여자 <-> 대기실 관계 제거, 대기실 인원 1 감소
+        MeetingRoom meetingRoom = memberMeetingRoom.getMeetingRoom();
+        meetingRoom.decreaseMemberCount();
+        memberMeetingRoomRepository.delete(memberMeetingRoom);
+    }
+
+    // 대기실 나가기(탈퇴)
+    public void leaveMeetingRoom(String memberUuid, Long meetingRoomId) {
+
+        // 방에 참여중인지 확인
+        MemberMeetingRoom memberMeetingRoom = memberMeetingRoomRepository
+                .findByMemberUuidAndMeetingRoomId(memberUuid, meetingRoomId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.MEETING_ROOM_MEMBER_NOT_FOUND));
+
+        // 요청한 유저가 방장인지 확인
+        if (memberMeetingRoom.getState() == MemberMeetingRoomState.HOST) {
+            throw new BaseException(BaseResponseStatus.HOST_CANNOT_LEAVE);
+        }
+
+        // member <-> meetingRoom 관계 제거, 대기실 인원 1 감소
+        MeetingRoom meetingRoom = memberMeetingRoom.getMeetingRoom();
+        meetingRoom.decreaseMemberCount();
+        memberMeetingRoomRepository.delete(memberMeetingRoom);
+    }
 
     // 방장 권한 확인 메서드
-    public void checkHostAuthority(Long memberId, Long meetingRoomId) {
-        // todo: memberId는 혜원 작업 완료 후, 인증(JWT 토큰)에서 가져와야함
-        Member member = memberRepository.findById(memberId)
-                // 시스템에 존재하는 유저가 아닐때, 임시로 400 에러 => 추후 NOT_FOUND_MEMBER response로 바꿔야함
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.ILLEGAL_ARGUMENT));
-        memberMeetingRoomRepository.findByMemberAndMeetingRoomId(member, meetingRoomId)
+    public void checkHostAuthority(String memberUuid, Long meetingRoomId) {
+        memberRepository.findByMemberUuid(memberUuid)
+                // 시스템에 존재하는 유저가 아닐때
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
+
+        memberMeetingRoomRepository.findByMemberUuidAndMeetingRoomId(memberUuid, meetingRoomId)
                 .filter(memberMeetingRoom -> memberMeetingRoom.getState() == MemberMeetingRoomState.HOST)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.FORBIDDEN_ACCESS));
     }

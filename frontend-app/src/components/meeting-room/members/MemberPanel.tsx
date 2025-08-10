@@ -1,45 +1,31 @@
 /** @jsxImportSource @emotion/react */
-import { css, keyframes } from '@emotion/react';
+import { css } from '@emotion/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useMeetingRoomStore } from '@/store/meetingRoomStore';
-import SettingModal from '@/components/meeting-room/modal/SettingModal';
-import InfoModal from '@/components/meeting-room/modal/InfoModal';
+import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
+import SettingModal from '@/components/meeting-room/modal/setting/SettingModal';
+import InfoModal from '@/components/meeting-room/modal/info/InfoModal';
 import Lip from '@/assets/icons/lip-blue.png';
 import Setting from '@/assets/icons/room-setting.png';
 import Info from '@/assets/icons/info.png';
 import Home from '@/assets/icons/home-gray.png';
 import Crown from '@/assets/icons/crown.png';
 
-const pulse = keyframes`
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.4); opacity: 0.4; }
-  100% { transform: scale(1); opacity: 1; }
-`;
-
-const categoryColors: Record<string, string> = {
-  게임: '#8e44ad',
-  일상: '#f1c40f',
-  학습: '#333333',
-  회의: '#27ae60',
-  자유: '#3498db',
-};
-
-const MemberPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
+const MemberPanel = () => {
   const { participants, roomInfo } = useMeetingRoomStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   const memberList = participants?.participants ?? [];
-  // const myInfo = memberList.find((p) => p.isMine);
-  const myInfo = memberList[0];
-  const isHost = myInfo?.state === 'HOST';
+
+  const myInfo = memberList.find((p) => p.mine);
+  const isHost = myInfo ? myInfo.state === 'HOST' : false;
 
   return (
     <aside css={panelStyle}>
       <div css={panelHeader}>
         <div>
           <h3>참여자</h3>
-          <p>{roomInfo?.title ?? '대기방'} 참여자</p>
+          <p>{roomInfo?.title ?? '대기방'}</p>
         </div>
         <div css={headerIcons}>
           <div css={iconWrapper} onClick={() => setIsModalOpen(true)}>
@@ -56,7 +42,6 @@ const MemberPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
             ) : (
               <InfoModal onClose={() => setIsModalOpen(false)} />
             ))}
-
           <div css={iconWrapper} onClick={() => navigate('/main')}>
             <img src={Home} alt="홈" css={iconStyle} />
             <span css={tooltip}>홈으로</span>
@@ -66,15 +51,18 @@ const MemberPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
 
       <div css={listStyle}>
         {memberList.map((p) => (
-          <div key={p.memberId} css={[cardStyle, p.isMine && myCardStyle]}>
+          <div key={p.memberUuid} css={[cardStyle, p.mine && myCardStyle]}>
             <div css={avatarWrapper}>
-              <img src={p.profileImageUrl} alt={p.nickname} css={avatarStyle} />
+              <img
+                src={`${import.meta.env.VITE_CDN_URL}/${p.profileImageUrl}`}
+                alt={p.nickname}
+                css={avatarStyle}
+              />
               {p.state === 'HOST' && (
                 <div css={hostBadge}>
                   <img src={Crown} alt="방장" css={crownIcon} />
                 </div>
               )}
-              <div css={activeBadge} />
             </div>
             <div css={infoBox}>
               <div css={nameRow}>
@@ -91,24 +79,42 @@ const MemberPanel = ({ meetingRoomId }: { meetingRoomId: string }) => {
         ))}
       </div>
       <div css={roomInfoBox}>
-        <h4>{roomInfo?.title}</h4>
-        <button
-          css={css`
-            ${roomButton};
-            color: ${categoryColors[roomInfo?.category || ''] || '#666'};
-            background-color: ${categoryColors[roomInfo?.category || ''] ||
-            '#999'}20;
-            border: none;
-          `}
-        >
-          {roomInfo?.category}
-        </button>
+        <div css={roomInfoLeft}>
+          <h4>{roomInfo?.title}</h4>
+          <button
+            css={css`
+              ${roomButton};
+              color: ${categoryColors[roomInfo?.category || ''] || '#666'};
+              background-color: ${categoryColors[roomInfo?.category || ''] ||
+              '#999'}20;
+              border: none;
+            `}
+          >
+            {roomInfo?.category}
+          </button>
+        </div>
+
+        {roomInfo?.thumbnailImageUrl && (
+          <img
+            src={`${import.meta.env.VITE_CDN_URL}/${roomInfo.thumbnailImageUrl}`}
+            alt="방 썸네일"
+            css={thumbnailStyle}
+          />
+        )}
       </div>
     </aside>
   );
 };
 
 export default MemberPanel;
+
+const categoryColors: Record<string, string> = {
+  game: '#8e44ad',
+  talk: '#f1c40f',
+  study: '#333333',
+  meeting: '#27ae60',
+  free: '#3498db',
+};
 
 const panelStyle = css`
   width: 450px;
@@ -117,6 +123,24 @@ const panelStyle = css`
   border-right: 1px solid #ddd;
   display: flex;
   flex-direction: column;
+
+  @media (max-width: 1400px) {
+    width: 400px;
+  }
+  @media (max-width: 1200px) {
+    width: 350px;
+  }
+  @media (max-width: 900px) {
+    width: 100%;
+    border-right: none;
+    border-top: 1px solid #ddd;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  @media (max-width: 600px) {
+    padding: 1rem;
+  }
 `;
 
 const panelHeader = css`
@@ -205,11 +229,22 @@ const cardStyle = css`
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   width: 100%;
   max-width: 90%;
+
+  @media (max-width: 900px) {
+    max-width: 100%;
+    border-radius: 20px;
+    padding: 1rem;
+    gap: 16px;
+  }
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 `;
 
 const myCardStyle = css`
-  background: #eef6ff;
-  border: 1px solid #d0e2ff;
+  background: linear-gradient(135deg, #eaf4ff 40%, #f3edff 70%, #e5dfff 100%);
+  border: 1px solid #f3edff;
 `;
 
 const avatarStyle = css`
@@ -217,6 +252,23 @@ const avatarStyle = css`
   height: 55px;
   border-radius: 50%;
   object-fit: cover;
+
+  @media (max-width: 1400px) {
+    width: 48px;
+    height: 48px;
+  }
+  @media (max-width: 1200px) {
+    width: 42px;
+    height: 42px;
+  }
+  @media (max-width: 900px) {
+    width: 36px;
+    height: 36px;
+  }
+  @media (max-width: 600px) {
+    width: 32px;
+    height: 32px;
+  }
 `;
 
 const avatarWrapper = css`
@@ -249,6 +301,16 @@ const infoBox = css`
   display: flex;
   flex-direction: column;
   margin-left: 10px;
+
+  @media (max-width: 900px) {
+    height: auto;
+    padding: 1rem;
+  }
+  @media (max-width: 600px) {
+    h4 {
+      font-size: 16px;
+    }
+  }
 `;
 
 const nameRow = css`
@@ -260,6 +322,16 @@ const nameRow = css`
 const nicknameStyle = css`
   font-size: 18px;
   font-family: 'NanumSquareR';
+
+  @media (max-width: 1200px) {
+    font-size: 16px;
+  }
+  @media (max-width: 900px) {
+    font-size: 15px;
+  }
+  @media (max-width: 600px) {
+    font-size: 14px;
+  }
 `;
 
 const lipIcon = css`
@@ -308,39 +380,49 @@ const lipTooltip = css`
   z-index: 10;
 `;
 
-const activeBadge = css`
-  position: absolute;
-  bottom: -5px;
-  right: -12px;
-  width: 15px;
-  height: 15px;
-  background-color: var(--color-green);
-  border: 2px solid white;
-  border-radius: 50%;
-  animation: ${pulse} 4s infinite;
-`;
-
 const roomInfoBox = css`
+  box-sizing: border-box;
   margin-top: auto;
   margin-left: -1.5rem;
   margin-right: -1.5rem;
   margin-bottom: -1.5rem;
   width: calc(100% + 3rem);
-  height: 120px;
   padding: 1.5rem;
-  padding-left: 2.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   background: white;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-  text-align: left;
 
   h4 {
     font-size: 18px;
-    font-family: 'NanumSquarEB';
+    font-family: 'NanumSquareEB';
     margin-bottom: 12px;
+  }
+
+  @media (max-width: 1400px) {
+    height: 100px;
+    padding: 12px 40px;
+  }
+
+  @media (max-width: 1200px) {
+    height: 90px;
+    padding: 10px 30px;
+  }
+
+  @media (max-width: 900px) {
+    height: 80px;
+    padding: 8px 20px;
+  }
+
+  @media (max-width: 600px) {
+    height: 70px;
+    padding: 6px 12px;
   }
 `;
 
 const roomButton = css`
+  display: inline-flex;
   padding: 6px 12px;
   background: #f3f3f3;
   border: 1px solid #ddd;
@@ -350,4 +432,24 @@ const roomButton = css`
   &:hover {
     background: #eaeaea;
   }
+`;
+
+const roomInfoLeft = css`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+
+  h4 {
+    font-size: 18px;
+    font-family: 'NanumSquareEB';
+    margin: 0;
+  }
+`;
+
+const thumbnailStyle = css`
+  width: 130px;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  object-fit: cover;
 `;

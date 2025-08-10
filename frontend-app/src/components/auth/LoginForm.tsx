@@ -1,14 +1,14 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useState } from 'react';
-import { AxiosError } from 'axios';
-import { login } from '@/apis/authApi';
+import { useNavigate, Link } from 'react-router-dom';
+import { login } from '@/apis/auth/authApi';
+import { getUser } from '@/apis/auth/userApi';
 import VoidaLogo from '@/assets/logo/voida-logo.png';
 import GoogleLogo from '@/assets/icons/google-logo.png';
 import EyeIcon from '@/assets/icons/eye.png';
 import EyeCloseIcon from '@/assets/icons/crossed-eye.png';
-import { useAuthStore } from '@/store/authStore';
-import { useNavigate } from 'react-router-dom';
+import { useAuthStore, type User } from '@/stores/authStore';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -17,11 +17,10 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
-  const { setAuth } = useAuthStore();
+  const { setUser } = useAuthStore();
   const navigate = useNavigate();
 
-  // 구글 로그인 리다이렉트 함수 !!
-  // 리다이렉트 페이지 : callback.tsx
+  // 구글 로그인 리다이렉트 함수
   const handleGoogleLogin = () => {
     const provider = 'google';
     window.location.href = `${
@@ -30,6 +29,7 @@ const LoginForm = () => {
   };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmailError('');
     const value = e.target.value;
     setEmail(value);
 
@@ -40,6 +40,12 @@ const LoginForm = () => {
     } else {
       setEmailError('');
     }
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPasswordError('');
+    const value = e.target.value;
+    setPassword(value);
   };
 
   const validate = () => {
@@ -66,17 +72,52 @@ const LoginForm = () => {
 
     try {
       const res = await login(email, password);
-      const { accessToken, user, isNewbie } = res.data;
-      setAuth(accessToken, user);
+
+      if (res.data.code === 901) {
+        setEmailError('아이디 또는 비밀번호가 올바르지 않습니다');
+        setPasswordError('아이디 또는 비밀번호가 올바르지 않습니다');
+        return;
+      }
+      if (res.data.code === 902) {
+        setEmailError('존재하지 않는 이메일입니다.');
+        return;
+      }
+
+      const isNewbie = res.data.result.isNewbie;
+      const accessToken = res.headers.authorization;
+
+      if (!accessToken) {
+        setError('예상치 못한 오류가 발생하였습니다.');
+        return;
+      }
+
+      localStorage.setItem('accessToken', accessToken);
+
+      const response = await getUser();
+      const user: User = {
+        email: response.data.result.member.email,
+        nickname: response.data.result.member.nickname,
+        profileImage: response.data.result.member.profileImageUrl || '',
+        memberUuid: response.data.result.member.memberUuid,
+      };
+      console.log(user);
+      setUser(user);
+
+      console.log(isNewbie);
       if (isNewbie) {
         navigate('/tutorial');
+        return;
       } else {
         navigate('/main');
+        return;
       }
-    } catch (err) {
-      const axiosError = err as AxiosError<{ message: string }>;
 
-      setError(axiosError.response?.data?.message || '로그인 실패');
+      // 비밀번호 틀릴  때
+      setPasswordError('비밀번호가 일치하지 않습니다.');
+    } catch (e) {
+      console.log(e);
+      // const axiosError = err as AxiosError<{ message: string }>;
+      // setError(axiosError.response?.data?.message || '로그인 실패');
     }
   };
 
@@ -118,7 +159,7 @@ const LoginForm = () => {
             type={showPassword ? 'text' : 'password'}
             placeholder="비밀번호"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={handlePasswordChange}
             css={[inputStyle, passwordError && inputErrorStyle]}
           />
           <img
@@ -133,13 +174,12 @@ const LoginForm = () => {
 
       {error && <div css={globalErrorStyle}>{error}</div>}
 
-      <div css={footerStyle}>
-        <div css={linkBoxStyle}>
-          <a href="/register">회원가입</a>
-          <span>|</span>
-          <a href="/forgot">비밀번호 찾기</a>
-        </div>
-        <button type="submit" css={loginBtnStyle}>
+      <div css={bottomRowStyle}>
+        <span css={checkIdStyle}>Voida가 처음이시라면?&nbsp;</span>
+        <Link to="/register" css={registerLinkStyle}>
+          회원가입
+        </Link>
+        <button type="submit" css={submitButtonStyle}>
           로그인
         </button>
       </div>
@@ -282,7 +322,34 @@ const eyeIconStyle = css`
   }
 `;
 
-const loginBtnStyle = css`
+const bottomRowStyle = css`
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 8px;
+  gap: 8px;
+`;
+
+const checkIdStyle = css`
+  font-size: 14px;
+  font-family: 'NanumSquareR', sans-serif;
+  line-height: 1.4;
+  display: inline-block;
+`;
+
+const registerLinkStyle = css`
+  color: var(--color-primary);
+  text-decoration: none;
+  font-family: 'NanumSquareB', sans-serif;
+  font-weight: 500;
+  &:hover {
+    text-decoration: underline;
+  }
+  line-height: 1.5;
+`;
+
+const submitButtonStyle = css`
+  margin-left: auto;
   background: var(--color-primary);
   color: white;
   padding: 0.75rem;
@@ -291,34 +358,7 @@ const loginBtnStyle = css`
   border-radius: 8px;
   cursor: pointer;
   width: 80px;
-
   &:hover {
     background: var(--color-primary-dark);
-  }
-`;
-
-const footerStyle = css`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 1rem;
-`;
-
-const linkBoxStyle = css`
-  font-size: 0.8rem;
-  color: #888;
-
-  a {
-    text-decoration: none;
-    color: #666;
-    margin: 0 0.25rem;
-
-    &:hover {
-      color: #2d6cdf;
-    }
-  }
-
-  span {
-    margin: 0 0.25rem;
   }
 `;

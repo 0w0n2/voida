@@ -2,7 +2,7 @@
 import { css } from '@emotion/react';
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { uploadTutorialAudio } from '@/apis/tutorialApi';
+import { uploadTutorialAudio } from '@/apis/tutorial/tutorialApi';
 import { useMicVolume } from '@/hooks/useMicVolume';
 import Header from '@/components/Header';
 import TutorialFooter from '@/components/tutorial/TurtorialFooter';
@@ -151,6 +151,23 @@ const contentWrapperStyle = css`
   flex-direction: column;
   align-items: center;
   margin-bottom: 2rem;
+
+  @media (max-width: 1400px) {
+    max-width: 840px;
+  }
+
+  @media (max-width: 1200px) {
+    max-width: 720px;
+  }
+
+  @media (max-width: 900px) {
+    max-width: 100%;
+    padding: 1rem;
+  }
+
+  @media (max-width: 600px) {
+    padding: 0.8rem;
+  }
 `;
 
 const titleStyle = css`
@@ -158,6 +175,18 @@ const titleStyle = css`
   font-family: 'NanumSquareEB';
   margin-bottom: 1rem;
   text-align: center;
+
+  @media (max-width: 1200px) {
+    font-size: 36px;
+  }
+
+  @media (max-width: 900px) {
+    font-size: 32px;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 28px;
+  }
 `;
 
 const subtitleStyle = css`
@@ -165,6 +194,18 @@ const subtitleStyle = css`
   margin-bottom: 3rem;
   text-align: center;
   font-size: 20px;
+
+  @media (max-width: 1200px) {
+    font-size: 18px;
+  }
+
+  @media (max-width: 900px) {
+    font-size: 16px;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 15px;
+  }
 `;
 
 const recordContainer = css`
@@ -176,20 +217,45 @@ const recordContainer = css`
   align-items: center;
   gap: 2rem;
   padding: 3rem 0;
+
+  @media (max-width: 1400px) {
+    width: 840px;
+  }
+
+  @media (max-width: 1200px) {
+    width: 720px;
+  }
+
+  @media (max-width: 900px) {
+    width: 100%;
+    padding: 2rem 0;
+    height: auto;
+  }
+
+  @media (max-width: 600px) {
+    padding: 1.5rem 0;
+    gap: 1.5rem;
+  }
 `;
 
 const iconStyle = css`
   width: 30px;
   height: 30px;
   margin-right: 20px;
+
+  @media (max-width: 600px) {
+    width: 24px;
+    height: 24px;
+    margin-right: 12px;
+  }
 `;
 
 const recordButtonStyle = (isRecording: boolean) => css`
   background: ${isRecording ? '#ff4d4f' : '#1677ff'};
   color: #fff;
-  font-size: 18px;
+  font-size: clamp(14px, 1.8vw, 18px);
   font-family: 'NanumSquareB';
-  padding: 0.8rem 2rem;
+  padding: clamp(0.6rem, 1.5vw, 0.8rem) clamp(1.2rem, 4vw, 2rem);
   border: none;
   border-radius: 999px;
   cursor: pointer;
@@ -197,6 +263,11 @@ const recordButtonStyle = (isRecording: boolean) => css`
   display: flex;
   align-items: center;
   justify-content: center;
+
+  @media (max-width: 480px) {
+    width: 100%;
+    max-width: 300px;
+  }
 `;
 
 const noMic = css`
@@ -204,5 +275,8 @@ const noMic = css`
   align-items: center;
   justify-content: center;
   height: 100%;
+  padding: 1rem;
   color: #fff;
+  font-size: clamp(14px, 2vw, 18px);
+  text-align: center;
 `;
