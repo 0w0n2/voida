@@ -35,6 +35,7 @@ public class MeetingRoomService {
     private static final String S3_THUMBNAIL_DIR = "meeting-rooms/thumbnails/";
     private static final Map<String, String> CATEGORY_TO_FILENAME_MAP;
     private static final Set<String> DEFAULT_FILENAMES;
+    private static final long MAX_THUMBNAIL_SIZE = 10 * 1024 * 1024;
 
     static {
         Map<String, String> categoryMap = new HashMap<>();
