@@ -38,7 +38,6 @@ const MyPage = () => {
       <Header />
       <nav css={navigationStyle}>
         <div css={selectorBoxStyle}>
-          
           <button
             css={navTabStyle(activeTab === 'profile')}
             onClick={() => handleTabClick('profile')}
@@ -77,29 +76,51 @@ const MyPage = () => {
 
 export const navigationStyle = css`
   width: 100%;
-  max-width: 1200px;
+  max-width: 90%;
   margin: 0 auto;
 
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 16px;
-  padding: 0 24px;
+  gap: 1.5%;
+  padding: 0 2%;
+
+  @media (max-width: 768px) {
+    max-width: 95%;
+    gap: 1%;
+    padding: 0 1%;
+  }
+
+  @media (max-width: 480px) {
+    max-width: 98%;
+    padding: 0 0.5%;
+  }
 `;
 
 export const selectorBoxStyle = css`
   width: 100%;
-  max-width: 1200px;
+  max-width: 90%;
   display: flex;
   align-items: center;
   margin: 0 auto;
-  gap: 16px;
-  padding: 0 24px;
+  gap: 1.5%;
+  padding: 0 2%;
+
+  @media (max-width: 768px) {
+    max-width: 95%;
+    gap: 1%;
+    padding: 0 1%;
+  }
+
+  @media (max-width: 480px) {
+    max-width: 98%;
+    padding: 0 0.5%;
+  }
 `;
 
 export const navTabStyle = (active: boolean) => css`
   position: relative;
-  z-index: 1; 
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -112,6 +133,17 @@ export const navTabStyle = (active: boolean) => css`
   font-size: 14px;
   border-radius: 12px;
 
+  @media (max-width: 768px) {
+    padding: 8px 12px;
+    font-size: 13px;
+    gap: 4px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 6px 8px;
+    font-size: 12px;
+    gap: 2px;
+  }
 `;
 
 export const tabTextStyle = css`
@@ -120,11 +152,30 @@ export const tabTextStyle = css`
 
 export const mainContentStyle = css`
   display: flex;
-  gap: 24px;
-  padding: 40px;
-  max-width: 1200px;
+  gap: 3%;
+  padding: 3%;
+  max-width: 90%;
   width: 100%;
   margin: auto;
+
+  @media (max-width: 1024px) {
+    max-width: 95%;
+    gap: 2%;
+    padding: 2%;
+  }
+
+  @media (max-width: 768px) {
+    max-width: 98%;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  @media (max-width: 480px) {
+    max-width: 100%;
+    padding: 15px;
+    gap: 15px;
+  }
 `;
 
 export default MyPage;

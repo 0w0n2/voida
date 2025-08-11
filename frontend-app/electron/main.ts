@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
-import { createOverlayWindow } from './overlayWindow';
+import { closeOverlayWindow, createOverlayWindow } from './overlayWindow';
 
 let win: BrowserWindow;
 
@@ -30,5 +30,13 @@ app.whenReady().then(() => {
   ipcMain.on('open-overlay', () => {
     win?.hide();
     createOverlayWindow(isDev);
+  });
+
+  ipcMain.on('close-overlay', () => {
+    closeOverlayWindow();
+    if (win) {
+      win.show();
+      win.focus();
+    }
   });
 });
