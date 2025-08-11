@@ -92,8 +92,7 @@ const LiveOverlay = () => {
   ];
 
   const exitLive = () => {
-    // window.electron.closeOverlay()
-    // setOverlayActive(false)
+    window.electronAPI.closeOverlay();
   };
 
   return (
@@ -114,12 +113,12 @@ const LiveOverlay = () => {
             ))}
           </div>
           <div css={headerRight}>
-            <img src={user} alt="User" css={iconBtn} />
+            <img src={user} alt="User" css={userBtn} />
             <p>{dummy.length}</p>
             <img
               src={exit}
               alt="Exit"
-              css={iconBtn}
+              css={outBtn}
               onClick={() => exitLive()}
             />
           </div>
@@ -143,9 +142,7 @@ const LiveOverlay = () => {
             </div>
           </div>
         )}
-        <div>
-          
-        </div>
+        <div>{/* 영상 노출 부분 */}</div>
         <button onClick={() => setIsExpanded(!isExpanded)} css={toggleBtn}>
           {isExpanded ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
         </button>
@@ -190,7 +187,7 @@ const header = css`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
+  padding: 12px 10px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 `;
 
@@ -204,11 +201,21 @@ const headerRight = css`
   align-items: center;
 `;
 
-const iconBtn = css`
+const userBtn = css`
   width: 20px;
   height: 20px;
   cursor: pointer;
+  margin-left: 10px;
+  &:hover {
+    color: #f87171;
+  }
+`;
 
+const outBtn = css`
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+  margin-left: 10px;
   &:hover {
     color: #f87171;
   }

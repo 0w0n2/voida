@@ -164,8 +164,20 @@ const settingsPanelStyle = css`
   width: 100%;
   background-color: var(--color-bg-white);
   border-radius: 12px;
-  padding: 32px;
+  padding: 3%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 1024px) {
+    padding: 2.5%;
+  }
+
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 15px;
+  }
 `;
 
 const settingsHeaderStyle = css`
@@ -181,6 +193,14 @@ const panelTitleStyle = css`
   font-weight: 800;
   color: var(--color-text);
   margin-bottom: 8px;
+
+  @media (max-width: 768px) {
+    font-size: 18px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 16px;
+  }
 `;
 
 const panelSubtitleStyle = css`
@@ -188,6 +208,16 @@ const panelSubtitleStyle = css`
   font-size: 14px;
   color: var(--color-gray-600);
   margin-bottom: 24px;
+
+  @media (max-width: 768px) {
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+    margin-bottom: 15px;
+  }
 `;
 
 const saveButtonStyle = css`
@@ -221,8 +251,17 @@ const settingsSectionStyle = css`
 
 const horizontalContainerStyle = css`
   display: flex;
-  gap: 40px;
+  gap: 3%;
   width: 100%;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 15px;
+  }
 `;
 
 const settingsItemStyle = css`

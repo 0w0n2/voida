@@ -24,7 +24,7 @@ export function createOverlayWindow(isDev: boolean) {
     alwaysOnTop: true,
     resizable: false,
     skipTaskbar: true,
-    focusable: false,
+    focusable: true,
     hasShadow: false,
     webPreferences: {
       nodeIntegration: false,
@@ -44,4 +44,10 @@ export function createOverlayWindow(isDev: boolean) {
   }
 
   overlayWin.setIgnoreMouseEvents(false);
+}
+
+export function closeOverlayWindow() {
+  if (!overlayWin) return;
+  overlayWin.close();
+  overlayWin = null;
 }

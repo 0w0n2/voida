@@ -5,11 +5,7 @@ import { getUserSettings, updateOverlay } from '../../apis/auth/userApi';
 import { useAuthStore } from '../../stores/userStore';
 import UpdateDoneModal from './UpdateDoneModal';
 
-type OverlayPosition =
-  | 'TOPLEFT'
-  | 'TOPRIGHT'
-  | 'BOTTOMLEFT'
-  | 'BOTTOMRIGHT';
+type OverlayPosition = 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT';
 
 const OverlayTab = () => {
   const { user } = useAuthStore();
@@ -84,10 +80,14 @@ const OverlayTab = () => {
   const handleSave = async () => {
     try {
       console.log('오버레이 설정 저장 시작');
-      const res = await updateOverlay(overlayPosition, overlayTransparency, liveFontSize);
+      const res = await updateOverlay(
+        overlayPosition,
+        overlayTransparency,
+        liveFontSize,
+      );
       setChanged(true);
       console.log('오버레이 설정 저장 완료');
-      
+      setChanged(false);
     } catch (err) {
       console.error('오버레이 설정 저장 실패:', err);
       setSaving(true);
@@ -149,7 +149,6 @@ const OverlayTab = () => {
                 max="48"
                 value={liveFontSize}
                 onChange={(e) => handleFontSizeChange(Number(e.target.value))}
-                // disabled={saving}
               />
               <span
                 css={sliderLabelStyle}
@@ -176,7 +175,6 @@ const OverlayTab = () => {
                 onChange={(e) =>
                   handleTransparencyChange(Number(e.target.value))
                 }
-                // disabled={saving}
               />
               <span css={sliderLabelStyle}>{overlayTransparency}%</span>
             </div>
@@ -195,45 +193,24 @@ const OverlayTab = () => {
 
 export default OverlayTab;
 
-// CSS 스타일
-const loadingContainerStyle = css`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  background-color: var(--color-bg-white);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-`;
-
-const loadingTextStyle = css`
-  font-family: 'NanumSquareR', sans-serif;
-  font-size: 16px;
-  color: var(--color-gray-600);
-`;
-
-const errorContainerStyle = css`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  background-color: var(--color-bg-white);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-`;
-
-const errorTextStyle = css`
-  font-family: 'NanumSquareR', sans-serif;
-  font-size: 16px;
-  color: var(--color-red);
-`;
-
 const overlayPanelStyle = css`
   width: 100%;
   background-color: var(--color-bg-white);
   border-radius: 12px;
-  padding: 32px;
+  padding: 3%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 1024px) {
+    padding: 2.5%;
+  }
+
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 15px;
+  }
 `;
 
 const overlayHeaderStyle = css`
@@ -249,6 +226,14 @@ const panelTitleStyle = css`
   font-weight: 700;
   color: var(--color-text);
   margin-bottom: 8px;
+
+  @media (max-width: 768px) {
+    font-size: 18px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 16px;
+  }
 `;
 
 const panelSubtitleStyle = css`
@@ -256,6 +241,16 @@ const panelSubtitleStyle = css`
   font-size: 14px;
   color: var(--color-gray-600);
   margin-bottom: 24px;
+
+  @media (max-width: 768px) {
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+    margin-bottom: 15px;
+  }
 `;
 
 const saveButtonStyle = css`
@@ -282,9 +277,18 @@ const saveButtonStyle = css`
 
 const overlayContentStyle = css`
   display: flex;
-  gap: 40px;
-  max-width: 800px;
+  gap: 3%;
+  max-width: 100%;
   margin-top: 20px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 15px;
+  }
 `;
 
 const leftSectionStyle = css`
@@ -321,7 +325,7 @@ const positionGridStyle = css`
   gap: 16px;
 
   /* 셀 높이의 기준을 만들어줘야 함 — 둘 중 하나 선택 */
-  width: 360px;
+  width: 100%;
   height: 200px; /* 고정 박스형 */
   /* 또는: width: 360px; aspect-ratio: 16 / 9;  grid-auto-rows: 1fr; */
 
@@ -329,6 +333,18 @@ const positionGridStyle = css`
   border-radius: 12px;
   background: #f7f8fb;
   box-shadow: inset 0 0 0 2px #e3e6ef;
+
+  @media (max-width: 768px) {
+    height: 150px;
+    gap: 12px;
+    padding: 8px;
+  }
+
+  @media (max-width: 480px) {
+    height: 120px;
+    gap: 8px;
+    padding: 6px;
+  }
 `;
 
 const positionBoxStyle = (selected: boolean, disabled?: boolean) => css`
@@ -353,7 +369,15 @@ const sliderContainerStyle = css`
   display: flex;
   align-items: center;
   gap: 20px;
-  max-width: 450px;
+  max-width: 100%;
+
+  @media (max-width: 768px) {
+    gap: 15px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 10px;
+  }
 `;
 
 const sliderLabelStyle = css`

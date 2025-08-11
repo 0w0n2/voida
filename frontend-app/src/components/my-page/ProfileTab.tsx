@@ -48,7 +48,7 @@ const ProfileTab = () => {
     setUserNickname(user?.nickname ?? '');
     setUserEmail(user?.email ?? '');
     setUserImage(user?.profileImage ?? '');
-    setChanged(false)
+    setChanged(false);
   }, [user]);
 
   // 변수에 입력받은 닉네임 할당
@@ -98,8 +98,6 @@ const ProfileTab = () => {
       }
     };
     fileInput.click();
-    
-
   };
 
   // 수정하기 버튼 클릭 시 한번에 수정 API 호출
@@ -290,21 +288,49 @@ export default ProfileTab;
 const profilePanelStyle = css`
   background-color: var(--color-bg-white);
   border-radius: 12px;
-  min-width: 400px;
+  min-width: 30%;
   justify-content: center;
   align-items: center;
-  padding: 32px;
+  padding: 3%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 1024px) {
+    min-width: 35%;
+    padding: 2.5%;
+  }
+
+  @media (max-width: 768px) {
+    min-width: 100%;
+    padding: 20px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 15px;
+  }
 `;
 
 const infoPanelStyle = css`
   flex: 2;
   background-color: var(--color-bg-white);
-  min-width: 600px;
+  min-width: 45%;
   border-radius: 12px;
-  padding: 32px;
+  padding: 3%;
   margin: 0 auto;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 1024px) {
+    min-width: 50%;
+    padding: 2.5%;
+  }
+
+  @media (max-width: 768px) {
+    min-width: 100%;
+    padding: 20px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 15px;
+  }
 `;
 
 const panelTitleStyle = css`
@@ -313,14 +339,31 @@ const panelTitleStyle = css`
   color: var(--color-text);
   margin-bottom: 8px;
   text-align: center;
+
+  @media (max-width: 768px) {
+    font-size: 18px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 16px;
+  }
 `;
 
 const panelSubtitleStyle = css`
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
   color: var(--color-gray-600);
-  margin-bottom: 24px;
   text-align: center;
+
+  @media (max-width: 768px) {
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+    margin-bottom: 15px;
+  }
 `;
 
 const secondSubtitleStyle = css`
@@ -328,10 +371,20 @@ const secondSubtitleStyle = css`
   font-size: 14px;
   color: var(--color-gray-600);
   margin-bottom: 24px;
+
+  @media (max-width: 768px) {
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+    margin-bottom: 15px;
+  }
 `;
 
 const profileImageContainerStyle = css`
-  widrth: 180px;
+  width: 180px;
   height: 180px;
   background: linear-gradient(135deg, #6e8efb, #a777e3);
   border-radius: 50%;
@@ -339,7 +392,23 @@ const profileImageContainerStyle = css`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 24px;
+
+  @media (max-width: 1024px) {
+    width: 160px;
+    height: 160px;
+  }
+
+  @media (max-width: 768px) {
+    width: 140px;
+    height: 140px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 480px) {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 15px;
+  }
 `;
 
 const largeProfileImageStyle = css`
@@ -347,19 +416,34 @@ const largeProfileImageStyle = css`
   height: 170px;
   border-radius: 50%;
   object-fit: cover;
+
+  @media (max-width: 1024px) {
+    width: 150px;
+    height: 150px;
+  }
+
+  @media (max-width: 768px) {
+    width: 130px;
+    height: 130px;
+  }
+
+  @media (max-width: 480px) {
+    width: 110px;
+    height: 110px;
+  }
 `;
 
 const changePhotoButtonStyle = css`
   display: flex;
   align-items: center;
   gap: 20px;
-  width: 40%;
+  width: 50%;
   padding: 12px;
   background-color: var(--color-bg-white);
   color: var(--color-text);
   border: 1px solid var(--color-gray-300);
   border-radius: 8px;
-  margin-left: 30%;
+  margin-left: 25%;
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
   font-weight: 600;
@@ -368,7 +452,7 @@ const changePhotoButtonStyle = css`
 
   &:hover {
     border-color: var(--color-primary);
-    color:var(--color-primary);
+    color: var(--color-primary);
   }
 
   &:disabled {
@@ -377,10 +461,23 @@ const changePhotoButtonStyle = css`
     cursor: not-allowed;
   }
 
-  .icon{
-      width: 20px;
+  .icon {
+    width: 20px;
     height: 20px;
-    margin-left: 5px; 
+    margin-left: 30px;
+  }
+
+  @media (max-width: 768px) {
+    width: 80%;
+    margin-left: 10%;
+  }
+
+  @media (max-width: 480px) {
+    width: 90%;
+    margin-left: 5%;
+    padding: 10px;
+    font-size: 13px;
+  }
 `;
 
 const infoHeaderStyle = css`
@@ -397,7 +494,7 @@ const actionButtonsStyle = css`
 
 const withdrawButtonStyle = css`
   padding: 8px 16px;
-  background-color: var(--color-red);
+  background-color: var(--color-gray-300);
   color: var(--color-text-white);
   border: none;
   border-radius: 6px;
@@ -412,8 +509,8 @@ const withdrawButtonStyle = css`
   }
 
   &:disabled {
-    background-color: var(--color-red-dark: #e43345ff;);
-    color: var(--color-red-dark: #e43345ff;);
+    background-color: var(--color-gray-300);
+    color: var(--color-gray-500);
     cursor: not-allowed;
   }
 `;
@@ -577,8 +674,17 @@ const errorTextStyle = css`
 
 const horizontalContainerStyle = css`
   display: flex;
-  gap: 24px;
+  gap: 3%;
   margin-top: 24px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 15px;
+  }
 `;
 
 const halfSectionStyle = css`

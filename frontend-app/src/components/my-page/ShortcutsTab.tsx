@@ -15,7 +15,7 @@ interface Shortcut {
 const ShortcutsTab = () => {
   const { user } = useAuthStore();
   const [shortcuts, setShortcuts] = useState<Shortcut[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [hasChanged, setHasChanged] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [showDoneModal, setShowDoneModal] = useState(false);
@@ -28,8 +28,6 @@ const ShortcutsTab = () => {
   useEffect(() => {
     const fetchUserQuickSlots = async () => {
       try {
-        setLoading(true);
-
         const res = await getUserQuickSlots();
         console.log(res);
 
@@ -43,8 +41,6 @@ const ShortcutsTab = () => {
       } catch (err) {
         console.error('유저 단축키 조회 실패:', err);
         setError('유저 단축키를 불러오는데 실패했습니다.');
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -59,21 +55,20 @@ const ShortcutsTab = () => {
     const newShortcuts = [...shortcuts];
     newShortcuts[index].message = value;
     setShortcuts(newShortcuts);
+
+    setHasChanged(true);
   };
 
   // TODO: API 연동 시 구현
   const handleSave = async () => {
     try {
-      setSaving(true);
-
       await updateQuickslots(shortcuts);
       setShowDoneModal(true);
-      setSaving(false);
       console.log('단축키 저장 완료');
       console.log(shortcuts);
+      setHasChanged(false);
     } catch (err) {
       console.error('단축키 저장 실패:', err);
-      setSaving(false);
     }
   };
 
@@ -85,8 +80,12 @@ const ShortcutsTab = () => {
     <div css={shortcutsPanelStyle}>
       <div css={shortcutsHeaderStyle}>
         <h2 css={panelTitleStyle}>단축키 설정</h2>
-        <button css={saveButtonStyle} onClick={handleSave} disabled={saving}>
-          {saving ? '저장 중...' : '저장하기'}
+        <button
+          css={saveButtonStyle}
+          onClick={handleSave}
+          disabled={!hasChanged}
+        >
+          저장하기
         </button>
       </div>
       <p css={panelSubtitleStyle}>
@@ -122,45 +121,24 @@ const ShortcutsTab = () => {
 
 export default ShortcutsTab;
 
-// CSS 스타일
-const loadingContainerStyle = css`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  background-color: var(--color-bg-white);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-`;
-
-const loadingTextStyle = css`
-  font-family: 'NanumSquareR', sans-serif;
-  font-size: 16px;
-  color: var(--color-gray-600);
-`;
-
-const errorContainerStyle = css`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  background-color: var(--color-bg-white);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-`;
-
-const errorTextStyle = css`
-  font-family: 'NanumSquareR', sans-serif;
-  font-size: 16px;
-  color: var(--color-red);
-`;
-
 const shortcutsPanelStyle = css`
   width: 100%;
   background-color: var(--color-bg-white);
   border-radius: 12px;
-  padding: 32px;
+  padding: 3%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 1024px) {
+    padding: 2.5%;
+  }
+
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 15px;
+  }
 `;
 
 const shortcutsHeaderStyle = css`
@@ -176,6 +154,14 @@ const panelTitleStyle = css`
   font-weight: 900;
   color: var(--color-text);
   margin-bottom: 8px;
+
+  @media (max-width: 768px) {
+    font-size: 18px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 16px;
+  }
 `;
 
 const panelSubtitleStyle = css`
@@ -183,6 +169,16 @@ const panelSubtitleStyle = css`
   font-size: 14px;
   color: var(--color-gray-600);
   margin-bottom: 24px;
+
+  @media (max-width: 768px) {
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+    margin-bottom: 15px;
+  }
 `;
 
 const saveButtonStyle = css`
@@ -212,6 +208,15 @@ const shortcutsGridStyle = css`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 10px;
+  }
 `;
 
 const shortcutItemStyle = css`
@@ -222,6 +227,16 @@ const shortcutItemStyle = css`
   background-color: var(--color-gray-50);
   border-radius: 8px;
   border: 1px solid var(--color-gray-200);
+
+  @media (max-width: 768px) {
+    gap: 12px;
+    padding: 12px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 8px;
+    padding: 10px;
+  }
 `;
 
 const keyContainerStyle = css`
@@ -246,10 +261,6 @@ const backtickKeyStyle = css`
   align-items: center;
   justify-content: center;
   transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: var(--color-gray-700);
-  }
 `;
 
 const plusSignStyle = css`
@@ -274,10 +285,6 @@ const numberKeyStyle = css`
   align-items: center;
   justify-content: center;
   transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: var(--color-gray-700);
-  }
 `;
 
 const shortcutInputStyle = css`
