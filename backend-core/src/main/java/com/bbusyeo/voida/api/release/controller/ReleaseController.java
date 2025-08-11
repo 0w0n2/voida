@@ -8,6 +8,7 @@ import com.bbusyeo.voida.global.response.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/v1/releases/desktop-apps")
@@ -33,8 +34,9 @@ public class ReleaseController {
         return new BaseResponse<>(releaseService.getReleaseByVersion(version));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "데스크톱 앱 릴리스 등록 API",
-        description = "version 형식은 `0.0.0`과 같은 형식을 사용하세요.")
+        description = "(ADMIN Only) version 형식은 `0.0.0`과 같은 형식을 사용하세요.")
     @PostMapping("/versions/{version}")
     public BaseResponse<Void> registerReleaseByVersion(
         @PathVariable String version, @RequestBody DesktopAppRequestVo requestVo) {
