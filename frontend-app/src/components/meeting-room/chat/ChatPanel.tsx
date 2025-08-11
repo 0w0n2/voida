@@ -25,7 +25,6 @@ const ChatPanel = ({ meetingRoomId }: ChatPanelProps) => {
   const { user, setUser, clearUser } = useAuthStore();
   const accessToken = localStorage.getItem('accessToken');
 
-  // 유저 정보 & STOMP 연결
   useEffect(() => {
     const run = async () => {
       if (accessToken && !user) {
@@ -57,7 +56,6 @@ const ChatPanel = ({ meetingRoomId }: ChatPanelProps) => {
     };
   }, [meetingRoomId, accessToken, user, setUser, clearUser, addChatMessage]);
 
-  // 초기 채팅 로딩
   useEffect(() => {
     const loadInitial = async () => {
       try {
@@ -113,7 +111,6 @@ const ChatPanel = ({ meetingRoomId }: ChatPanelProps) => {
     setLoading(false);
   }, [loading, meetingRoomId, chatMessages, setChatMessages, page]);
 
-  // 스크롤 이벤트
   const handleScroll = () => {
     const el = chatBoxRef.current;
     if (!el || loading) return;
@@ -124,7 +121,6 @@ const ChatPanel = ({ meetingRoomId }: ChatPanelProps) => {
     setShowScrollButton(!nearBottom);
   };
 
-  // 새 메시지 도착 시 자동 스크롤
   useEffect(() => {
     if (loading || !chatBoxRef.current) return;
 
@@ -134,7 +130,6 @@ const ChatPanel = ({ meetingRoomId }: ChatPanelProps) => {
 
     const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 100;
 
-    // 내가 보낸 메시지이거나, 현재 스크롤이 거의 아래에 있을 경우
     if (lastMessage.isMine || isNearBottom) {
       el.scrollTop = el.scrollHeight;
     }
