@@ -1,4 +1,5 @@
 /** @jsxImportSource @emotion/react */
+import { css } from '@emotion/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { uploadTutorialAudio } from '@/apis/tutorial/tutorialApi';
@@ -9,8 +10,6 @@ import TutorialFooter from '@/components/tutorial/TurtorialFooter';
 import TutorialModal from '@/components/tutorial/modal/TutorialGeneralModel';
 import WaveVisualizer from '@/components/tutorial/WaveVisualizer';
 import RecordIcon from '@/assets/icons/record.png';
-/** @jsxImportSource @emotion/react */
-import { css } from '@emotion/react';
 
 const BARS = 40;
 
@@ -36,10 +35,15 @@ const TestGeneralPage = () => {
 
   const bars = useMicVolume(isRecording, BARS);
 
-  const handleRecordToggle = () => {
-    if (isRecording) stop();
-    else start();
-  };
+const handleRecordToggle = () => {
+  if (isRecording) {
+    stop(); 
+  } else {
+    setAnalysisResult(null);
+    setIsAnalyzing(false);
+    start();
+  }
+};
 
   return (
     <div css={pageWrapperStyle}>
@@ -78,9 +82,6 @@ const TestGeneralPage = () => {
 };
 
 export default TestGeneralPage;
-
-// 아래 스타일은 그대로 복사
-
 
 const pageWrapperStyle = css`
   min-height: 100vh;

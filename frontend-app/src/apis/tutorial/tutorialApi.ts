@@ -27,7 +27,7 @@ export const uploadTutorialAudio = async (file: Blob) => {
   formData.append('file', file, buildFileName(file, 'record', 'webm'));
 
   const res = await apiInstanceSpring.post('/tutorial/audio', formData);
-  return res;
+  return res.data.result;
 };
 
 export const uploadLipTestVideo = async (file: Blob) => {
