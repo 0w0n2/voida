@@ -78,7 +78,9 @@ const pageWrapperStyle = css`
 `;
 
 const cardWrapperStyle = css`
-  max-width: 86rem;
+  flex: 1;
+  max-width: 80%;
+  min-height: 100%;
   margin: 0 auto;
   padding: 0 2rem;
 

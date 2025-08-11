@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import MemberPanel from '@/components/meeting-room/members/MemberPanel';
 import ChatPanel from '@/components/meeting-room/chat/ChatPanel';
@@ -11,35 +11,51 @@ import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
 const MeetingRoomPage = () => {
   const { meetingRoomId } = useParams<{ meetingRoomId: string }>();
   const { setRoomInfo, setParticipants, setChatMessages } = useMeetingRoomStore();
+  const [isReady, setIsReady] = useState(false);
 
-  useEffect(() => {
-    if (!meetingRoomId) return;
-    const fetchData = async () => {
-      try {
-        const room = await getRoomInfo(meetingRoomId);
-        const members = await getRoomMembers(meetingRoomId);
-        const chat = await getRoomChatHistory(meetingRoomId);
+useEffect(() => {
+  if (!meetingRoomId) return;
 
-        setRoomInfo({
-          ...room,
-          meetingRoomId, 
-        });
-        setParticipants(members);
-        const chatList = chat?.chatHistory?.content ?? [];
-        setChatMessages(chatList);
-      } catch (err) {
-        console.error('초기 데이터 로딩 실패:', err);
-      }
-    };
+  const fetchData = async () => {
+    let roomData = null;
+    let membersData = null;
+    let chatData = null;
 
-    fetchData();
-  }, [meetingRoomId, setRoomInfo, setParticipants, setChatMessages]);
+    try {
+      roomData = await getRoomInfo(meetingRoomId);
+      setRoomInfo({ ...roomData, meetingRoomId });
+    } catch (err) {
+      console.error('방 정보 로딩 실패:', err);
+    }
+
+    try {
+      membersData = await getRoomMembers(meetingRoomId);
+      setParticipants(membersData ?? []);
+    } catch (err) {
+      console.error('참여자 목록 로딩 실패:', err);
+    }
+
+    try {
+      console.log(meetingRoomId);
+      chatData = await getRoomChatHistory(meetingRoomId);
+      const chatList = chatData?.chatHistory?.content ?? [];
+      console.log(chatData);
+      setChatMessages(chatList);
+    } catch (err) {
+      console.error('채팅 기록 로딩 실패:', err);
+    }
+
+    setIsReady(true);
+  };
+
+  fetchData();
+}, [meetingRoomId, setRoomInfo, setParticipants, setChatMessages]);
 
 
   return (
     <div css={container}>
       <MemberPanel />
-      <ChatPanel meetingRoomId={meetingRoomId!} />
+      {isReady && <ChatPanel meetingRoomId={meetingRoomId!} />}
     </div>
   );
 };

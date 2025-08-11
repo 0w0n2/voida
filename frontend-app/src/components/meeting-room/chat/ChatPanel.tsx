@@ -62,7 +62,6 @@ useEffect(() => {
     const loadInitial = async () => {
       try {
         const res = await getRoomChatHistory(meetingRoomId, 0, 20);
-        console.log(res);
         setChatMessages(res.content);
         setPage(res.number);
 

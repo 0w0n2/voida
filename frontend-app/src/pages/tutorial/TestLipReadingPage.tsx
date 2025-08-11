@@ -1,102 +1,53 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { uploadLipTestVideo } from '@/apis/tutorial/tutorialApi';
 import Header from '@/components/Header';
 import TutorialFooter from '@/components/tutorial/TurtorialFooter';
 import TutorialModal from '@/components/tutorial/modal/TutorialLipReadingModal';
 import RecordButton from '@/assets/icons/record.png';
+import { useVideoRecorder } from '@/hooks/useVideoRecorder';
+
+const maxDuration = 7000;
 
 const TestLipReadingPage = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const [hasPermission, setHasPermission] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
-  const [stream, setStream] = useState<MediaStream | null>(null);
   const [progress, setProgress] = useState(0);
-  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const maxDuration = 7000;
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState<
-    null | 'success' | 'fail'
-  >(null);
+  const [analysisResult, setAnalysisResult] = useState<null | 'success' | 'fail'>(null);
   const navigate = useNavigate();
 
-  // 카메라 권한 요청 및 스트림 설정
-  useEffect(() => {
-    navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
-      .then((mediaStream) => {
-        setHasPermission(true);
-        setStream(mediaStream);
-        if (videoRef.current) {
-          videoRef.current.srcObject = mediaStream;
-        }
-      })
-      .catch((err) => {
-        console.error('Camera permission denied:', err);
-        setHasPermission(false);
-      });
-  }, []);
-
-  // 녹화 시작 핸들러
-  const handleRecord = () => {
-    if (!stream) return;
-
-    if (!isRecording) {
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'video/webm',
-      });
-      const chunks: BlobPart[] = [];
-      const startTime = Date.now();
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) chunks.push(event.data);
-      };
-
-      mediaRecorder.onstop = async () => {
-        if (progressIntervalRef.current) {
-          clearInterval(progressIntervalRef.current);
-          progressIntervalRef.current = null;
-        }
-        setProgress(0);
-
-        const blob = new Blob(chunks, { type: 'video/webm' });
-
-        try {
-          setIsAnalyzing(true);
-          setAnalysisResult(null);
-          const res = await uploadLipTestVideo(blob);
-          setAnalysisResult(res.data.result);
-        } catch (e) {
-          console.error(e);
-          setIsAnalyzing(false);
-          setAnalysisResult('fail');
-        }
-      };
-
-      progressIntervalRef.current = setInterval(() => {
-        const elapsed = Date.now() - startTime;
-        const ratio = Math.min(elapsed / maxDuration, 1);
-        setProgress(ratio * 100);
-        if (elapsed >= maxDuration) {
-          mediaRecorder.stop();
-          setIsRecording(false);
-        }
-      }, 100);
-
-      mediaRecorder.start();
-      mediaRecorderRef.current = mediaRecorder;
-      setIsRecording(true);
-    } else {
-      mediaRecorderRef.current?.stop();
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
-        progressIntervalRef.current = null;
+  const { hasPermission, isRecording, stream, start, stop } = useVideoRecorder({
+    mimeType: 'video/webm',
+    maxDurationMs: maxDuration,
+    audioConstraints: true,
+    videoConstraints: true,
+    onProgress: (percent) => setProgress(percent),
+    onStop: async ({ blob }) => {
+      setIsAnalyzing(true);
+      try {
+        const res = await uploadLipTestVideo(blob);
+        setAnalysisResult(res.data.result);
+      } catch (err) {
+        console.error(err);
+        setAnalysisResult('fail');
       }
-      setProgress(0);
-      setIsRecording(false);
+    },
+  });
+
+  // 스트림을 video 태그에 연결
+  if (stream && videoRef.current && !videoRef.current.srcObject) {
+    videoRef.current.srcObject = stream;
+  }
+
+  const handleRecordClick = () => {
+    if (isRecording) {
+      stop(); 
+    } else {
+      setAnalysisResult(null);
+      setIsAnalyzing(false);
+      start();
     }
   };
 
@@ -127,11 +78,13 @@ const TestLipReadingPage = () => {
               <div css={progressBar(progress)} />
             </div>
           </div>
+
           {!isRecording && (
-            <button css={recordButton} onClick={handleRecord}>
+            <button css={recordButton} onClick={handleRecordClick}>
               <img src={RecordButton} alt="record" css={iconStyle} />
             </button>
           )}
+
           <div css={textBox(progress)}>
             <p>“Hello, My name is John.”</p>
           </div>
@@ -141,11 +94,19 @@ const TestLipReadingPage = () => {
       <TutorialModal
         isOpen={isAnalyzing}
         result={analysisResult}
-        onRetry={() => {
+      onRetry={() => {
+        setIsAnalyzing(false);
+        setAnalysisResult(null);
+
+        setTimeout(() => {
+          window.location.href = `${import.meta.env.VITE_APP_URL}/#/tutorial/test/lip-reading`;
+        }, 0);
+      }}
+        onGoHome={() => {
           setIsAnalyzing(false);
           setAnalysisResult(null);
+          navigate('/main');
         }}
-        onGoHome={() => navigate('/')}
       />
     </div>
   );

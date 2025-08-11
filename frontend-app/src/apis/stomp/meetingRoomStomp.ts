@@ -1,4 +1,4 @@
-import apiInstance from '@/apis/core/apiInstanceSpring';
+import apiInstanceSpring from '@/apis/core/apiInstanceSpring';
 
 export interface ChatMessage {
   senderUuid: string;
@@ -12,7 +12,7 @@ export interface ChatMessage {
 export interface PageableChatHistory {
   content: ChatMessage[];
   number: number;
-  size: number;
+  size: number; 
   totalPages: number;
   totalElements: number;
   first: boolean;
@@ -24,7 +24,7 @@ export const getRoomChatHistory = async (
   page = 0,
   size = 20
 ): Promise<PageableChatHistory> => {
-  const res = await apiInstance.get(`/v1/meeting-rooms/${meetingRoomId}/chats`, {
+  const res = await apiInstanceSpring.get(`/v1/meeting-rooms/${meetingRoomId}/chats`, {
     params: { page, size },
   });
   return res.data.result as PageableChatHistory;

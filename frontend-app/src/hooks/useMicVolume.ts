@@ -23,7 +23,6 @@ export const useMicVolume = (
 
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
 
-      // 마이크 점유 해제
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((t) => t.stop());
         streamRef.current = null;
@@ -39,7 +38,7 @@ export const useMicVolume = (
     let mounted = true;
     let analyser: AnalyserNode;
     let bufferLength: number;
-    let dataArray: Uint8Array;
+    let dataArray: Uint8Array = new Uint8Array(0);
 
     const start = async () => {
       try {
@@ -50,11 +49,11 @@ export const useMicVolume = (
         const source = audioCtx.createMediaStreamSource(stream);
 
         analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 1024; // 해상도 ↑
+        analyser.fftSize = 1024; 
         source.connect(analyser);
 
-        bufferLength = analyser.fftSize;
-        dataArray = new Uint8Array(bufferLength);
+        bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);   
 
         audioContextRef.current = audioCtx;
         analyserRef.current = analyser;

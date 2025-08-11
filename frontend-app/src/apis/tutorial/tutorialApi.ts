@@ -31,6 +31,7 @@ export const uploadTutorialAudio = async (file: Blob) => {
 };
 
 export const uploadLipTestVideo = async (file: Blob) => {
+  console.log(file);
   const formData = new FormData();
   formData.append('file', file, buildFileName(file, 'lip-test', 'webm'));
 

@@ -46,7 +46,7 @@ export function useAudioRecorder({
   }, []);
 
   const start = useCallback(() => {
-    console.log('[Recorder] start() 실행됨');
+    // console.log('[Recorder] start() 실행됨');
     if (!stream || isRecording) return;
 
     let type = mimeType;
@@ -62,7 +62,7 @@ export function useAudioRecorder({
     };
 
     mr.onstop = () => {
-      console.log('[Recorder] onstop 이벤트 실행됨');
+      // console.log('[Recorder] onstop 이벤트 실행됨');
       if (timerRef.current) clearTimeout(timerRef.current);
       const durationMs = Date.now() - startTimeRef.current;
       const finalType = mr.mimeType || 'audio/webm';
@@ -82,7 +82,7 @@ export function useAudioRecorder({
   }, [stream, isRecording, mimeType, maxDurationMs, onProgress, onStop]);
 
   const stop = useCallback(() => {
-    console.log('[Recorder] stop() 실행됨');
+    // console.log('[Recorder] stop() 실행됨');
     if (!isRecording) return;
     setIsRecording(false);
     mrRef.current?.stop();

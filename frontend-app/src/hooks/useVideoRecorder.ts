@@ -81,7 +81,9 @@ export function useVideoRecorder(opts: UseVideoRecorderOptions = {}) {
         const elapsed = Date.now() - startTimeRef.current;
         const ratio = Math.min(elapsed / maxDurationMs, 1);
         onProgress(Math.round(ratio * 100));
-        if (elapsed >= maxDurationMs) stop();
+       if (elapsed >= maxDurationMs) {
+            mrRef.current?.stop(); 
+        }
       }, 100);
     }
 

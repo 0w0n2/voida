@@ -11,8 +11,6 @@ import TutorialModal from '@/components/tutorial/modal/TutorialGeneralModel';
 import WaveVisualizer from '@/components/tutorial/WaveVisualizer';
 import RecordIcon from '@/assets/icons/record.png';
 
-// const BARS = 40;
-
 const TestGeneralPage = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<null | 'success' | 'fail'>(null);
@@ -71,11 +69,19 @@ const handleRecordToggle = () => {
       <TutorialModal
         isOpen={isAnalyzing}
         result={analysisResult}
-        onRetry={() => {
+      onRetry={() => {
+        setIsAnalyzing(false);
+        setAnalysisResult(null);
+
+        setTimeout(() => {
+          window.location.href = `${import.meta.env.VITE_APP_URL}/#/tutorial/test/general`;
+        }, 0);
+      }}
+        onGoHome={() => {
           setIsAnalyzing(false);
           setAnalysisResult(null);
+          navigate('/main');
         }}
-        onGoHome={() => navigate('/main')}
       />
     </div>
   );

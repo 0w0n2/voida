@@ -18,7 +18,7 @@ let subscription: StompSubscription | null = null;
 let currentRoomId: string | null = null;
 let onMessageRef: OnMessage | null = null;
 
-const WS_ENDPOINT = `${import.meta.env.VITE_API_URL}/ws`;
+const WS_ENDPOINT = `${import.meta.env.VITE_SPRING_API_URL}/ws`;
 const TOPIC_PREFIX = `/sub/chat/meetingRoom/`;
 const SEND_PREFIX = `/pub/chat/message/`;
 

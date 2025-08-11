@@ -5,8 +5,8 @@ import Voice from '@/assets/images/general-tutorial2.png';
 interface TutorialModalProps {
   isOpen: boolean;
   result: null | 'success' | 'fail';
-  onRetry?: () => void;
-  onGoHome?: () => void;
+  onRetry: () => void;  
+  onGoHome: () => void;  
 }
 
 export default function TutorialModal({
@@ -51,9 +51,7 @@ export default function TutorialModal({
             </div>
             <div css={buttonGroup}>
               <button className="disabled">다시 하기</button>
-              <button className="main" onClick={onGoHome}>
-                메인으로 가기
-              </button>
+              <button className="main" onClick={onGoHome}>메인으로 가기</button>
             </div>
           </>
         )}
@@ -75,10 +73,8 @@ export default function TutorialModal({
               </div>
             </div>
             <div css={buttonGroup}>
-              <button className="retry" onClick={onRetry}>
-                다시 하기
-              </button>
-              <button className="disabled">메인으로 가기</button>
+              <button className="retry" onClick={onRetry}>다시 하기</button>
+              <button className="disabled" onClick={onGoHome}>메인으로 가기</button>
             </div>
           </>
         )}
@@ -247,7 +243,6 @@ const buttonGroup = css`
   .disabled {
     background: #e5e7eb;
     color: #9ca3af;
-    cursor: default;
   }
 
   .main {

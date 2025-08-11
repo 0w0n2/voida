@@ -8,7 +8,6 @@ interface Props {
 
 export default function WaveVisualizer({ bars }: Props) {
   const avg = bars.reduce((a, b) => a + b, 0) / (bars.length || 1);
-  console.log(avg);
 
   const color = useMemo(() => {
     if (avg >= 1.5) return '#8a2be2';   
