@@ -59,6 +59,11 @@ public class MeetingRoomService {
     // 대기실 생성
     public MeetingRoom create(String memberUuid, MeetingRoomCreateRequestDto request, MultipartFile thumbnailImage) {
 
+        // 파일 크기 검증
+        if (thumbnailImage != null && thumbnailImage.getSize() > MAX_THUMBNAIL_SIZE) {
+            throw new BaseException(BaseResponseStatus.THUMBNAIL_SIZE_EXCEEDED);
+        }
+
         Member member = memberRepository.findByMemberUuid(memberUuid)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
 
@@ -132,6 +137,11 @@ public class MeetingRoomService {
     public MeetingRoom update(String memberUuid, Long meetingRoomId, MeetingRoomUpdateRequestDto requestDto, MultipartFile newThumbnailImage) {
         // 방장 권한 확인하기
         checkHostAuthority(memberUuid, meetingRoomId);
+
+        // 파일 크기 검증
+        if (newThumbnailImage != null && newThumbnailImage.getSize() > MAX_THUMBNAIL_SIZE) {
+            throw new BaseException(BaseResponseStatus.THUMBNAIL_SIZE_EXCEEDED);
+        }
 
         MeetingRoom meetingRoom = findById(meetingRoomId);
         String oldFileKey = meetingRoom.getThumbnailImageUrl();
