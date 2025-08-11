@@ -5,6 +5,10 @@ import { ChevronDown, ChevronUp, X } from 'lucide-react';
 import exit from '@/assets/icons/exitIcon.png';
 import user from '@/assets/icons/user.png';
 
+import lip from '@/assets/icons/lips.png';
+import recording from '@/assets/icons/soundRecording.png';
+
+// prop 받아서 구화여부 보여주기
 const LiveOverlay = () => {
   const [isExpanded, setIsExpanded] = useState(true);
 
@@ -103,13 +107,18 @@ const LiveOverlay = () => {
             {Array.from(
               new Map(dummy.map((msg) => [msg.user.userId, msg.user])).values(),
             ).map((user) => (
-              <img
-                key={user.userId}
-                src={user.userImageUrl}
-                alt={user.userNickname}
-                title={user.userNickname}
-                css={profile}
-              />
+              <div key={user.userId} css={profileWrap}>
+                <img
+                  src={user.userImageUrl}
+                  alt={user.userNickname}
+                  title={user.userNickname}
+                  css={profile}
+                />
+                {/* 구화 사용 여부 노출 */}
+                <div css={micBadge} aria-label="구화모드 사용중">
+                  🎤
+                </div>
+              </div>
             ))}
           </div>
           <div css={headerRight}>
@@ -123,7 +132,6 @@ const LiveOverlay = () => {
             />
           </div>
         </div>
-
         {isExpanded && (
           <div css={body}>
             <div css={messagesWrap}>
@@ -142,6 +150,17 @@ const LiveOverlay = () => {
             </div>
           </div>
         )}
+        <hr />
+        {/* 구화여부에 따른 버튼 노출 */}
+        {/* {lipTalk ? ( */}
+        <button css={lipiconWrapper}>
+          <img src={lip} alt="녹음" css={lipIcon} />
+        </button>
+        {/* ) : ( */}
+        {/* <button css={lipiconWrapper}>
+          <img src={recording} alt="녹음" css={lipIcon} onClick={} />
+        </button> */}
+        {/* )} */}
         <div>{/* 영상 노출 부분 */}</div>
         <button onClick={() => setIsExpanded(!isExpanded)} css={toggleBtn}>
           {isExpanded ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
@@ -263,4 +282,52 @@ const messagesWrap = css`
   flex-direction: column;
   justify-content: flex-end;
   gap: 8px;
+`;
+
+const micBadge = css`
+  position: absolute;
+  right: 8px;
+  bottom: -7px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--color-green);
+  color: #fff;
+  font-size: 10px;
+  line-height: 14px;
+  text-align: center;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+  pointer-events: none; /* 클릭 막지 않게 */
+`;
+
+const profileWrap = css`
+  position: relative;
+  width: 30px;
+  height: 30px;
+  display: inline-block;
+`;
+
+const lipIcon = css`
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
+`;
+
+const lipiconWrapper = css`
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin: 15px;
+  margin-left: 90px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
 `;

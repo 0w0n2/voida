@@ -11,7 +11,7 @@ const OverlayTab = () => {
   const { user } = useAuthStore();
   // 오버레이 정보 변수
   const [overlayPosition, setOverlayPosition] =
-    useState<OverlayPosition>('TOP_RIGHT');
+    useState<OverlayPosition>('TOPRIGHT');
   const [liveFontSize, setLiveFontSize] = useState<number>(0);
   const [overlayTransparency, setOverlayTransparency] = useState<number>(0);
   const [changed, setChanged] = useState(false);
@@ -20,10 +20,10 @@ const OverlayTab = () => {
   const [showDoneModal, setShowDoneModal] = useState(false);
 
   const enumToNum: { [key in OverlayPosition]: number } = {
-    TOP_LEFT: 0,
-    TOP_RIGHT: 1,
-    BOTTOM_LEFT: 2,
-    BOTTOM_RIGHT: 3,
+    TOPLEFT: 0,
+    TOPRIGHT: 1,
+    BOTTOMLEFT: 2,
+    BOTTOMRIGHT: 3,
   };
 
   const numToEnum: OverlayPosition[] = [
@@ -141,21 +141,16 @@ const OverlayTab = () => {
               게임 중 채팅의 글자 크기를 지정할 수 있습니다.
             </p>
             <div css={sliderContainerStyle}>
-              <span css={sliderLabelStyle}>가</span>
+              <span css={sliderLabelStyle}>0</span>
               <input
-                css={sliderStyle}
+                css={fontSliderStyle(liveFontSize)}
                 type="range"
-                min="12"
-                max="48"
+                min="0"
+                max="100"
                 value={liveFontSize}
                 onChange={(e) => handleFontSizeChange(Number(e.target.value))}
               />
-              <span
-                css={sliderLabelStyle}
-                style={{ fontSize: `${liveFontSize}px` }}
-              >
-                가
-              </span>
+              <span css={sliderLabelStyle}>100</span>
             </div>
           </div>
 
@@ -167,7 +162,7 @@ const OverlayTab = () => {
             <div css={sliderContainerStyle}>
               <span css={sliderLabelStyle}>0%</span>
               <input
-                css={sliderStyle}
+                css={sliderStyle(overlayTransparency)}
                 type="range"
                 min="0"
                 max="100"
@@ -320,14 +315,15 @@ const overlaySectionDescriptionStyle = css`
 
 const positionGridStyle = css`
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 2 x 2 */
-  grid-template-rows: repeat(2, 1fr); /* ← 행 높이도 지정 */
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
   gap: 16px;
 
-  /* 셀 높이의 기준을 만들어줘야 함 — 둘 중 하나 선택 */
   width: 100%;
-  height: 200px; /* 고정 박스형 */
-  /* 또는: width: 360px; aspect-ratio: 16 / 9;  grid-auto-rows: 1fr; */
+  height: 200px;
+  width: 360px;
+  aspect-ratio: 16 / 9;
+  grid-auto-rows: 1fr;
 
   padding: 10px;
   border-radius: 12px;
@@ -388,14 +384,54 @@ const sliderLabelStyle = css`
   text-align: center;
 `;
 
-const sliderStyle = css`
+const sliderStyle = (val: number) => css`
   flex: 1;
   height: 6px;
   background: linear-gradient(
     to right,
     var(--color-primary) 0%,
-    var(--color-primary) 50%,
-    var(--color-gray-200) 50%,
+    var(--color-primary) ${val}%,
+    var(--color-gray-200) ${val}%,
+    var(--color-gray-200) 100%
+  );
+  border-radius: 3px;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  &::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+  }
+`;
+
+const fontSliderStyle = (val: number) => css`
+  flex: 1;
+  height: 6px;
+  background: linear-gradient(
+    to right,
+    var(--color-primary) 0%,
+    var(--color-primary) ${val}%,
+    var(--color-gray-200) ${val}%,
     var(--color-gray-200) 100%
   );
   border-radius: 3px;
