@@ -8,14 +8,18 @@ interface Props {
 
 export default function WaveVisualizer({ bars }: Props) {
   const avg = bars.reduce((a, b) => a + b, 0) / (bars.length || 1);
+  console.log(avg);
 
   const color = useMemo(() => {
-    if (avg >= 4) return '#8a2be2';   
-    if (avg >= 0.5) return '#1677ff'; 
+    if (avg >= 1.5) return '#8a2be2';   
+    if (avg >= 0.1) return '#1677ff'; 
     return '#ccc';                
   }, [avg]);
 
-  return <div css={waveWrapper} style={{ ['--wave-color' as any]: color }} />;
+  return   <div
+    css={waveWrapper}
+    style={{ '--wave-color': color } as React.CSSProperties}
+  />;
 }
 
 const waveWrapper = css`

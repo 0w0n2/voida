@@ -11,7 +11,7 @@ import TutorialModal from '@/components/tutorial/modal/TutorialGeneralModel';
 import WaveVisualizer from '@/components/tutorial/WaveVisualizer';
 import RecordIcon from '@/assets/icons/record.png';
 
-const BARS = 40;
+// const BARS = 40;
 
 const TestGeneralPage = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -33,7 +33,7 @@ const TestGeneralPage = () => {
     },
   });
 
-  const bars = useMicVolume(isRecording, BARS);
+const bars = useMicVolume(isRecording, { barsCount: 40, sensitivity: 1.5, maxHeight: 30 });
 
 const handleRecordToggle = () => {
   if (isRecording) {
