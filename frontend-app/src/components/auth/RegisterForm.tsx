@@ -3,7 +3,12 @@ import { css } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { AxiosError } from 'axios';
-import { register, checkEmailDuplicate, checkNicknameDuplicate, getRandomNickname } from '@/apis/auth/authApi';
+import {
+  register,
+  checkEmailDuplicate,
+  checkNicknameDuplicate,
+  getRandomNickname,
+} from '@/apis/auth/authApi';
 import EmailVerificationModal from './EmailVerificationModal';
 import IsRegisteredModal from './IsRegisteredModal';
 import { useAlertStore } from '@/stores/useAlertStore';
@@ -106,7 +111,7 @@ const RegisterForm = () => {
     const value = e.target.value;
     setPassword(value);
     if (passwordCheck) {
-      validatePasswordCheck(passwordCheck);
+      validatePasswordCheck(passwordCheck, value);
     }
   };
 
@@ -119,12 +124,13 @@ const RegisterForm = () => {
     } else {
       setPasswordError('');
     }
+    validatePasswordCheck(passwordCheck, value);
   };
 
-  const validatePasswordCheck = (value: string) => {
+  const validatePasswordCheck = (value: string, mainPassword: string) => {
     if (!value.trim()) {
       setPasswordCheckError('비밀번호 확인을 입력해주세요.');
-    } else if (value !== password) {
+    } else if (value !== mainPassword) {
       setPasswordCheckError('비밀번호가 일치하지 않습니다.');
     } else {
       setPasswordCheckError('');
@@ -240,11 +246,6 @@ const RegisterForm = () => {
       return;
     }
     setIsVerificationModalOpen(true);
-
-    // // 오버레이 테스트
-    // setTimeout(() => {
-    //   window.electron.joinLive();
-    // }, 1000);
   };
 
   // 이메일 인증 성공 처리
@@ -455,7 +456,7 @@ const RegisterForm = () => {
                 value={passwordCheck}
                 onChange={(e) => {
                   setPasswordCheck(e.target.value);
-                  validatePasswordCheck(e.target.value);
+                  validatePasswordCheck(e.target.value, password);
                 }}
                 css={[inputStyle, passwordCheckError && errorInputStyle]}
                 required
