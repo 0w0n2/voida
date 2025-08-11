@@ -33,7 +33,7 @@ public class SwaggerConfig {
     }
 
     private Info apiInfo() {
-        return new Info().title("Bbusyeo - Voida Service").version("v1")
+        return new Info().title("Bbusyeo - Backend Core API").version("v1")
             .description("Voida Test Server API Docs");
     }
 

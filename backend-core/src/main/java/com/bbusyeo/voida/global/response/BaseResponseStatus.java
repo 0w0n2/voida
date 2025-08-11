@@ -53,6 +53,7 @@ public enum BaseResponseStatus {
     MEETING_ROOM_FULL(HttpStatus.CONFLICT, false, 705, "대기실 정원이 가득 찼습니다."),
     ALREADY_PARTICIPATING(HttpStatus.CONFLICT, false, 706, "이미 참여중인 방입니다."),
     INVITE_CODE_GENERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, false, 707, "참여코드 생성 오류. 잠시 후 다시 실행해주세요."),
+
     CANNOT_CHANGE_TO_SELF(HttpStatus.BAD_REQUEST, false, 708, "자신에겐 불가능한 요청 입니다."),
     HOST_CANNOT_LEAVE(HttpStatus.BAD_REQUEST, false, 709, "방장은 대기실을 탈퇴할 수 없습니다."),
     MEETING_ROOM_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, false, 710, "대기실에서 해당 유저를 찾을 수 없습니다."),
@@ -78,12 +79,17 @@ public enum BaseResponseStatus {
      */
     UNSUPPORTED_SOCIAL_PROVIDER(HttpStatus.BAD_REQUEST, false, 1000, "지원하지 않는 소셜 로그인 타입입니다."),
     EXPIRED_SOCIAL_SIGNUP(HttpStatus.NOT_FOUND, false, 1002, "회원가입 시간이 만료되었습니다. 다시 시도해주세요."),
-    ALREADY_REGISTERED_EMAIL(HttpStatus.CONFLICT, false, 1003, "이미 가입된 계정입니다. 이메일 로그인 방식을 사용해주세요.");
+    ALREADY_REGISTERED_EMAIL(HttpStatus.CONFLICT, false, 1003, "이미 가입된 계정입니다. 이메일 로그인 방식을 사용해주세요."),
+
+    /**
+     * 1500: 릴리스 에러.
+     */
+    INVALID_VERSION(HttpStatus.BAD_REQUEST, false, 1500, "해당 버전의 릴리스가 존재하지 않습니다."),
+    RELEASE_NOT_FOUND(HttpStatus.NOT_FOUND, false, 1504, "존재하지 않는 릴리스 정보입니다.");
 
     private final HttpStatus httpStatus;
     private final boolean isSuccess;
     private final int code;
     private final String message;
-
 
 }

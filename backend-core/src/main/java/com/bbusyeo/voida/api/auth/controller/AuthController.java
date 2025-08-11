@@ -10,6 +10,7 @@ import com.bbusyeo.voida.global.mail.service.MailService;
 import com.bbusyeo.voida.global.mail.util.MailType;
 import com.bbusyeo.voida.global.response.BaseResponse;
 import com.bbusyeo.voida.global.security.dto.UserDetailsDto;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -23,6 +24,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/v1/auth")
+@Tag(name = "Auth")
 @RequiredArgsConstructor
 public class AuthController {
 

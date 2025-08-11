@@ -5,6 +5,7 @@ import com.bbusyeo.voida.api.meetingroom.dto.*;
 import com.bbusyeo.voida.api.meetingroom.service.MeetingRoomService;
 import com.bbusyeo.voida.api.member.domain.Member;
 import com.bbusyeo.voida.global.response.BaseResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,7 +16,8 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("v1/meeting-rooms")
+@Tag(name = "Meeting Room")
+@RequestMapping("/v1/meeting-rooms")
 public class MeetingRoomController {
 
     private final MeetingRoomService meetingRoomService;
