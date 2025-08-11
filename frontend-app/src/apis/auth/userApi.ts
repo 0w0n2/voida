@@ -1,4 +1,4 @@
-import apiInstance from '@/apis/core/apiInstance';
+import apiInstance from '@/apis/core/apiInstanceSpring';
 
 export const postUserType = (type: 'general' | 'lip-reading') => {
   return apiInstance.post('/user/type', { type });

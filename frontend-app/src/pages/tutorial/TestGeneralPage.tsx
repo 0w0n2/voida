@@ -1,62 +1,28 @@
 /** @jsxImportSource @emotion/react */
-import { css } from '@emotion/react';
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { uploadTutorialAudio } from '@/apis/tutorial/tutorialApi';
 import { useMicVolume } from '@/hooks/useMicVolume';
+import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import Header from '@/components/Header';
 import TutorialFooter from '@/components/tutorial/TurtorialFooter';
 import TutorialModal from '@/components/tutorial/modal/TutorialGeneralModel';
 import WaveVisualizer from '@/components/tutorial/WaveVisualizer';
 import RecordIcon from '@/assets/icons/record.png';
+/** @jsxImportSource @emotion/react */
+import { css } from '@emotion/react';
 
 const BARS = 40;
 
 const TestGeneralPage = () => {
-  const [isRecording, setIsRecording] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState<
-    null | 'success' | 'fail'
-  >(null);
-  const [stream, setStream] = useState<MediaStream | null>(null);
-  const [hasPermission, setHasPermission] = useState(false);
-  const bars = useMicVolume(isRecording, BARS);
+  const [analysisResult, setAnalysisResult] = useState<null | 'success' | 'fail'>(null);
   const navigate = useNavigate();
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<BlobPart[]>([]);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 마이크 권한 요청 및 스트림 설정
-  useEffect(() => {
-    navigator.mediaDevices
-      .getUserMedia({ audio: true })
-      .then((mediaStream) => {
-        setStream(mediaStream);
-        setHasPermission(true);
-      })
-      .catch((err) => {
-        console.error('Audio permission denied:', err);
-        setHasPermission(false);
-      });
-  }, []);
-
-  // 녹음 시작
-  const startRecording = async () => {
-    if (!stream) return;
-
-    const mediaRecorder = new MediaRecorder(stream);
-    mediaRecorderRef.current = mediaRecorder;
-    chunksRef.current = [];
-
-    mediaRecorder.ondataavailable = (e) => {
-      if (e.data.size > 0) chunksRef.current.push(e.data);
-    };
-
-    // 녹음이 끝났을 때
-    mediaRecorder.onstop = async () => {
-      const blob = new Blob(chunksRef.current, { type: 'audio/wav' });
-      chunksRef.current = [];
-
+  const { hasPermission, isRecording, start, stop } = useAudioRecorder({
+    mimeType: 'audio/webm;codecs=opus',
+    maxDurationMs: 10_000,
+    onStop: async ({ blob }) => {
       setIsAnalyzing(true);
       try {
         const res = await uploadTutorialAudio(blob);
@@ -65,55 +31,30 @@ const TestGeneralPage = () => {
         console.error(err);
         setAnalysisResult('fail');
       }
-    };
+    },
+  });
 
-    mediaRecorder.start();
-    setIsRecording(true);
+  const bars = useMicVolume(isRecording, BARS);
 
-    timerRef.current = setTimeout(() => {
-      stopRecording();
-    }, 10000);
-  };
-
-  // 녹음 중지
-  const stopRecording = () => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-    setIsRecording(false);
-    mediaRecorderRef.current?.stop();
-  };
-
-  // 녹음 시작/중지 핸들러
   const handleRecordToggle = () => {
-    if (!isRecording) {
-      startRecording();
-    } else {
-      stopRecording();
-    }
+    if (isRecording) stop();
+    else start();
   };
 
   return (
     <div css={pageWrapperStyle}>
       <Header />
       <div css={contentWrapperStyle}>
-        <h2 css={titleStyle}>
-          마이크 상태를 확인하고, 녹음 버튼을 눌러주세요.
-        </h2>
+        <h2 css={titleStyle}>마이크 상태를 확인하고, 녹음 버튼을 눌러주세요.</h2>
         <p css={subtitleStyle}>음성이 잘 들릴 수 있도록 해주세요.</p>
 
         <div css={recordContainer}>
           {hasPermission ? (
             <>
-              <button
-                css={recordButtonStyle(isRecording)}
-                onClick={handleRecordToggle}
-              >
+              <button css={recordButtonStyle(isRecording)} onClick={handleRecordToggle}>
                 <img src={RecordIcon} alt="record" css={iconStyle} />
                 {isRecording ? '녹음 그만하기' : '녹음 시작하기'}
               </button>
-
               <WaveVisualizer bars={bars} />
             </>
           ) : (
@@ -137,6 +78,9 @@ const TestGeneralPage = () => {
 };
 
 export default TestGeneralPage;
+
+// 아래 스타일은 그대로 복사
+
 
 const pageWrapperStyle = css`
   min-height: 100vh;

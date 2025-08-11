@@ -1,4 +1,4 @@
-import apiInstance from '@/apis/core/apiInstance';
+import apiInstance from '@/apis/core/apiInstanceSpring';
 
 export interface ChatMessage {
   senderUuid: string;
