@@ -3,6 +3,7 @@ import { css } from '@emotion/react';
 import React, { useState, useEffect } from 'react';
 import { getUserQuickSlots, updateQuickslots } from '../../apis/auth/userApi';
 import { useAuthStore } from '../../stores/userStore';
+import { useAlertStore } from '@/stores/useAlertStore';
 import UpdateDoneModal from './UpdateDoneModal';
 
 interface Shortcut {
@@ -67,6 +68,9 @@ const ShortcutsTab = () => {
       console.log('단축키 저장 완료');
       console.log(shortcuts);
       setHasChanged(false);
+      useAlertStore
+        .getState()
+        .showAlert('유저 정보가 업데이트되었습니다.', 'top');
     } catch (err) {
       console.error('단축키 저장 실패:', err);
     }
@@ -110,11 +114,11 @@ const ShortcutsTab = () => {
         ))}
       </div>
 
-      <UpdateDoneModal
+      {/* <UpdateDoneModal
         isOpen={showDoneModal}
         onClose={handleCloseModal}
         userName={user?.nickname || '사용자'}
-      />
+      /> */}
     </div>
   );
 };

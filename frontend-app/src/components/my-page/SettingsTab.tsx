@@ -3,9 +3,11 @@ import { css } from '@emotion/react';
 import React, { useState, useEffect } from 'react';
 import { getUserSettings, updateGuideMode } from '../../apis/auth/userApi';
 import { useAuthStore } from '../../stores/userStore';
+import { useAlertStore } from '@/stores/useAlertStore';
 import { useNavigate } from 'react-router-dom';
 import UpdateDoneModal from './UpdateDoneModal';
 import guide from '@/assets/icons/mp-guide.png';
+
 
 interface UserSettings {
   useLipTalkMode: boolean;
@@ -55,6 +57,7 @@ const SettingsTab = () => {
       console.log('변경된 값:', userSpeech?.useLipTalkMode);
       setShowDoneModal(true);
       setHasChanged(false);
+      useAlertStore.getState().showAlert('유저 정보가 업데이트되었습니다.', 'top');
     } catch (err) {
       console.error('설정 저장 실패:', err);
     }
@@ -117,11 +120,11 @@ const SettingsTab = () => {
         </div>
       </div>
 
-      <UpdateDoneModal
+      {/* <UpdateDoneModal
         isOpen={showDoneModal}
         onClose={handleCloseModal}
         userName={user?.nickname || '사용자'}
-      />
+      /> */}
     </div>
   );
 };

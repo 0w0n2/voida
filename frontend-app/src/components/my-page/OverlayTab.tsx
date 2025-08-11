@@ -3,6 +3,7 @@ import { css } from '@emotion/react';
 import React, { useState, useEffect } from 'react';
 import { getUserSettings, updateOverlay } from '../../apis/auth/userApi';
 import { useAuthStore } from '../../stores/userStore';
+import { useAlertStore } from '@/stores/useAlertStore';
 import UpdateDoneModal from './UpdateDoneModal';
 
 type OverlayPosition = 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT';
@@ -88,6 +89,9 @@ const OverlayTab = () => {
       setChanged(true);
       console.log('오버레이 설정 저장 완료');
       setChanged(false);
+      useAlertStore
+        .getState()
+        .showAlert('유저 정보가 업데이트되었습니다.', 'top');
     } catch (err) {
       console.error('오버레이 설정 저장 실패:', err);
       setSaving(true);

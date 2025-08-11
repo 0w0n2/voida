@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import defaultProfile from '../../assets/profiles/defaultProfile.png';
 import { deleteUser, updateUser } from '@/apis/auth/userApi';
 import { useAuthStore, type User } from '@/stores/authStore';
+import { useAlertStore } from '@/stores/useAlertStore';
 import UpdatePasswordModal from './UpdatePasswordModal';
 import GetOutModal from './GetOutModal';
 import camera from '@/assets/icons/mp-camera.png';
@@ -14,6 +15,7 @@ import settings from '@/assets/icons/mp-setting.png';
 import google from '@/assets/icons/google-logo.png';
 import { useNavigate } from 'react-router-dom';
 import UpdateDoneModal from './UpdateDoneModal';
+
 
 interface UserProfile {
   nickname: string;
@@ -106,7 +108,7 @@ const ProfileTab = () => {
       try {
         await updateUser(userNickname, profileImageFile);
         console.log('유저 정보 업데이트 완료');
-        // setProfileImageFile(null)
+        useAlertStore.getState().showAlert('유저 정보가 업데이트되었습니다.', 'top');
         setShowDoneModal(true);
         setChanged(false);
       } catch (err) {
@@ -274,11 +276,11 @@ const ProfileTab = () => {
         onConfirm={handleWithdrawConfirm}
         userName={userNickname || userProfile?.nickname || '사용자'}
       />
-      <UpdateDoneModal
+      {/* <UpdateDoneModal
         isOpen={showDoneModal}
         onClose={handleCloseModal}
         userName={userNickname || userProfile?.nickname || '사용자'}
-      />
+      /> */}
     </>
   );
 };
