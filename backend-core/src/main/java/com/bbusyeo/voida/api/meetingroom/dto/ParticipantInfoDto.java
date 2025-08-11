@@ -2,6 +2,7 @@ package com.bbusyeo.voida.api.meetingroom.dto;
 
 import com.bbusyeo.voida.api.meetingroom.domain.MemberMeetingRoom;
 import com.bbusyeo.voida.api.member.domain.Member;
+import com.bbusyeo.voida.api.member.domain.MemberSetting;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,18 +20,23 @@ public class ParticipantInfoDto {
     private String profileImageUrl;
     private String state;
     private boolean lipTalkMode;
+    private String overlayPosition;
+    private Integer liveFontSize;
+    private Integer overlayTransparency;
     private boolean isMine;
 
-    public static ParticipantInfoDto of(MemberMeetingRoom memberMeetingRoom, Member member, String currentMemberUuid) {
+    public static ParticipantInfoDto of(MemberMeetingRoom memberMeetingRoom, Member member, MemberSetting memberSetting, String currentMemberUuid) {
         boolean isMine = member.getMemberUuid().equals(currentMemberUuid);
 
-        // todo: lipTalkMode는 member 완성 후 실제 로직으로 변경
         return ParticipantInfoDto.builder()
                 .memberUuid(member.getMemberUuid())
                 .nickname(member.getNickname())
                 .profileImageUrl(member.getProfileImageUrl())
                 .state(memberMeetingRoom.getState().name())
-                .lipTalkMode(false)
+                .lipTalkMode(memberSetting.getLipTalkMode())
+                .overlayPosition(memberSetting.getOverlayPosition().name())
+                .liveFontSize(memberSetting.getLiveFontSize())
+                .overlayTransparency(memberSetting.getOverlayTransparency())
                 .isMine(isMine)
                 .build();
     }

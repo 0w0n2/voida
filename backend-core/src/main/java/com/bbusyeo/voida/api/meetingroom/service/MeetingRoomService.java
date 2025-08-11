@@ -7,7 +7,9 @@ import com.bbusyeo.voida.api.meetingroom.dto.*;
 import com.bbusyeo.voida.api.meetingroom.repository.MeetingRoomRepository;
 import com.bbusyeo.voida.api.meetingroom.repository.MemberMeetingRoomRepository;
 import com.bbusyeo.voida.api.member.domain.Member;
+import com.bbusyeo.voida.api.member.domain.MemberSetting;
 import com.bbusyeo.voida.api.member.repository.MemberRepository;
+import com.bbusyeo.voida.api.member.repository.MemberSettingRepository;
 import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
 import com.bbusyeo.voida.global.support.S3Uploader;
@@ -50,6 +52,7 @@ public class MeetingRoomService {
     private final MeetingRoomRepository meetingRoomRepository;
     private final MemberMeetingRoomRepository memberMeetingRoomRepository;
     private final MemberRepository memberRepository;
+    private final MemberSettingRepository memberSettingRepository;
 
 
     // 대기실 생성
@@ -209,11 +212,16 @@ public class MeetingRoomService {
         Map<String, Member> memberByUuidMap = memberRepository.findByMemberUuidIn(memberUuids).stream()
                 .collect(Collectors.toMap(Member::getMemberUuid, member -> member));
 
+        // 추출된 memberUuid 목록으로 memberSetting 정보 조회
+        Map<String, MemberSetting> memberSettingByUuidMap = memberSettingRepository.findByMember_MemberUuidIn(memberUuids).stream()
+                .collect(Collectors.toMap(memberSetting -> memberSetting.getMember().getMemberUuid(), memberSetting -> memberSetting));
+
         // 참여 정보를 DTO로 변환
         List<ParticipantInfoDto> participants = allMemberMeetingRooms.stream()
                 .map(memberMeetingRoom -> {
                     Member member = memberByUuidMap.get(memberMeetingRoom.getMemberUuid());
-                    return ParticipantInfoDto.of(memberMeetingRoom, member, currentMemberUuid);
+                    MemberSetting memberSetting = memberSettingByUuidMap.get(member.getMemberUuid());
+                    return ParticipantInfoDto.of(memberMeetingRoom, member, memberSetting, currentMemberUuid);
                 })
                 .collect(Collectors.toList());
 
