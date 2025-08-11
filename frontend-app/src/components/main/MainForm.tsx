@@ -208,9 +208,9 @@ const glassStyle = css`
 
 const container = css`
   padding: 0px 20px;
+  max-width: 1300px; 
   margin: 0 auto;
   width: 100%;
-  min-height: 85vh;
   z-index: 1;
   overflow: hidden;
 `;
@@ -218,12 +218,16 @@ const container = css`
 const searchContainer = css`
   ${glassStyle};
   position: fixed;
-  top: 100px;
+  top: 90px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 100;
   width: 100%;
   max-width: 800px;
+
+  @media (min-height: 1000px) {
+    top: 110px;
+  }
 `;
 
 const searchBox = css`
@@ -289,21 +293,18 @@ const searchBtn = css`
 
 const cardGrid = css`
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: minmax(290px, auto);
+  grid-template-columns: repeat(auto-fit, minmax(320px, 360px));
+  justify-content: center;
+  grid-auto-rows: 290px;
   gap: 32px;
-  margin: 150px;
-  margin-top: 160px;
+  margin-top: 110px;
+  margin-bottom: 40px;
 
-  @media (max-height: 1000px), (max-width: 1400px) {
-    margin: 80px 260px; 
-    margin-top: 120px;
-    grid-template-columns: repeat(4, 1fr);
-    grid-auto-rows: minmax(140px, auto);
-    gap: 30px;
+  @media (min-height: 1000px) {
+    margin-top: 170px;
+    gap: 50px;
   }
 `;
-
 
 const card = css`
   background: white;
@@ -314,15 +315,12 @@ const card = css`
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  flex: 1; 
-  min-height: 0;
 
   &:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
   }
 `;
-
 
 const thumbnailWrapper = css`
   width: 100%;
