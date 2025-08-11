@@ -6,6 +6,7 @@ import com.bbusyeo.voida.api.member.dto.*;
 import com.bbusyeo.voida.api.member.service.DeleteAccountService;
 import com.bbusyeo.voida.api.member.service.MyPageService;
 import com.bbusyeo.voida.global.response.BaseResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @RestController
 @RequestMapping("/v1/members/me")
+@Tag(name = "MyPage")
 @RequiredArgsConstructor
 public class MyPageController {
 
