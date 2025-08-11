@@ -300,7 +300,6 @@ const demoButton = css`
 
   &:hover {
     background: #f9fafb;
-    border-color: #3182f6;
     transform: translateY(-1px);
   }
 

@@ -71,7 +71,7 @@ const GlobalStyles = () => (
         background-color: transparent !important; 
         color: var(--color-text);
         caret-color: transparent;
-        overflow: hidden; 
+        // overflow: hidden; 
       }
     `}
   />

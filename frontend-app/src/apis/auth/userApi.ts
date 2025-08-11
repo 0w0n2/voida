@@ -13,6 +13,7 @@ export const getUser = () => {
 export const getUserSettings = () => {
   return apiInstance.get('/v1/members/me/setting');
 };
+
 // 유저 quickslots 조회
 export const getUserQuickSlots = () => {
   return apiInstance.get('/v1/members/me/quick-slots');

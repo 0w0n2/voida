@@ -7,11 +7,13 @@ import { User, LogOut } from 'lucide-react';
 import { logout } from '@/apis/auth/authApi';
 import { getUser } from '@/apis/auth/userApi';
 import { useAuthStore } from '@/stores/authStore';
+import { useAlertStore } from '@/stores/useAlertStore';
 
 export default function Header() {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const { user, setUser, clearUser } = useAuthStore();
+  const { showConfirm } = useAlertStore();
   const accessToken = localStorage.getItem('accessToken');
 
   useEffect(() => {
@@ -50,8 +52,8 @@ export default function Header() {
   };
 
   const handleLogout = async () => {
-    const confirmLogout = window.confirm('로그아웃 하시겠습니까?');
-    if (confirmLogout) {
+    const confirmed = await showConfirm('로그아웃 하시겠습니까?', 'top');
+    if (confirmed) {
       await logout();
       localStorage.removeItem('accessToken');
       clearUser();
@@ -101,7 +103,7 @@ export default function Header() {
               css={dropdownAvatar}
             />
             <div css={dropdownTitle}>
-              <strong>{ProfileName}</strong> 님, 안녕하세요!
+              <strong>{ProfileName}</strong> 님<br/>안녕하세요!
             </div>
             <hr css={divider} />
             <button css={menuButton} onClick={handleEditProfile}>
@@ -242,6 +244,7 @@ const dropdownAvatar = css`
 const dropdownTitle = css`
   font-size: 16px;
   text-align: center;
+  line-height: 1.5;
 
   @media (max-width: 600px) {
     font-size: 14px;

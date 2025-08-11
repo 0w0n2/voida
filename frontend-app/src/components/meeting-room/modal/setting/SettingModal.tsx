@@ -96,10 +96,15 @@ const closeButton = css`
   position: absolute;
   top: 20px;
   right: 20px;
-  font-size: 24px;
-  border: none;
   background: transparent;
+  border: none;
   cursor: pointer;
+  padding: 4px;
+  color: #888;
+  transition: color 0.2s ease;
+  &:hover {
+    color: #000;
+  }
 `;
 
 const tabList = css`
