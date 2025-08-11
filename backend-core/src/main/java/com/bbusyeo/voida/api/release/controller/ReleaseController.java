@@ -7,6 +7,7 @@ import com.bbusyeo.voida.api.release.vo.DesktopAppRequestVo;
 import com.bbusyeo.voida.global.response.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +40,7 @@ public class ReleaseController {
         description = "(ADMIN Only) version 형식은 `0.0.0`과 같은 형식을 사용하세요.")
     @PostMapping("/versions/{version}")
     public BaseResponse<Void> registerReleaseByVersion(
-        @PathVariable String version, @RequestBody DesktopAppRequestVo requestVo) {
+        @PathVariable String version, @RequestBody @Valid DesktopAppRequestVo requestVo) {
 
         releaseService.createRelease(DesktopAppRequestDto.toDto(version, requestVo));
         return new BaseResponse<>();
