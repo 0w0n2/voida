@@ -1,4 +1,5 @@
 /** @jsxImportSource @emotion/react */
+import axios from 'axios';
 import { css } from '@emotion/react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -12,6 +13,27 @@ const bp = {
 };
 
 export default function MainPage() {
+  const downloadFile = async () => {
+    try {
+      const res = await axios.get(
+        `${
+          import.meta.env.VITE_SPRING_API_URL
+        }/v1/releases/desktop-apps/latest`,
+      );
+      console.log(res);
+      const version = res.data.result.version;
+      const url = res.data.result.url;
+      const fileUrl = `${import.meta.env.VITE_CDN_URL}/${url}`;
+      console.log('파일 URL:', fileUrl);
+      const a = document.createElement('a');
+      a.href = fileUrl;
+      a.download = `Voida-${version}.exe`;
+      document.body.appendChild(a);
+      a.click();
+    } catch (error) {
+      console.error('오류 발생함여', error);
+    }
+  };
   return (
     <div css={pageCss}>
       <Header />
@@ -23,7 +45,7 @@ export default function MainPage() {
           입술의 움직임을 글자로 바꾸는 실시간 대화 플랫폼 입니다.
         </p>
 
-        <button css={downloadButtonCss}>
+        <button css={downloadButtonCss} onClick={downloadFile}>
           <img
             src={Window}
             alt="Windows"
