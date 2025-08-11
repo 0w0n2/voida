@@ -21,8 +21,8 @@ public final class MemberValue {
             new QuickSlotDefault("감사합니다.", "/default_thanks.mp3", "`2"),
             new QuickSlotDefault("도움이 필요합니다.", "/default_help.mp3", "`3"),
             new QuickSlotDefault("잠시만 기다려주세요.", "/default_wait.mp3", "`4"),
-            new QuickSlotDefault("죄송합니다.", "default_sorry.mp3", "`5"),
-            new QuickSlotDefault("좋은 하루 되세요.", "default_good_luck.mp3", "`6")
+            new QuickSlotDefault("죄송합니다.", "/default_sorry.mp3", "`5"),
+            new QuickSlotDefault("좋은 하루 되세요.", "/default_good_luck.mp3", "`6")
     );
     
     // S3 경로
