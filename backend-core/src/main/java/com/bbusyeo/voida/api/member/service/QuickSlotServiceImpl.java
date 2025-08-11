@@ -30,7 +30,8 @@ public class QuickSlotServiceImpl implements QuickSlotService {
     private final MemberQuickSlotRepository memberQuickSlotRepository;
     private final QuickSlotUpdateService quickSlotUpdateService;
     
-    // 퀵슬롯 수정 담당
+    // 퀵슬롯 수정 담당, 변경된 메시지에 대해 TTS 음성을 생성하고 S3 에 업로드
+    // DB 업데이트는 별도의 트랜잭션 메소드에서 처리
     @Override
     public void changeQuickSlots(Long memberId, ChangeQuickSlotsRequestDto requestDto) {
         // 퀵슬롯 ID와 요청 DTO를 매핑하는 Map 생성
@@ -86,27 +87,5 @@ public class QuickSlotServiceImpl implements QuickSlotService {
     private String generateAndUploadSound(String message) {
         MultipartFile ttsAudioData = ttsService.createSpeechByText(message).block();    // TTS 를 통해 음성 파일 테이터 생성
         return s3Uploader.upload(ttsAudioData, MemberValue.S3_QUICK_SLOT_SOUND_DIR);    // S3에 음성 파일 업로드 후 URL 반환
-    }
-
-    // S3 업로드 및 기존 데이터 삭제 담당 메소드
-    private String handleSoundFileUpdate(MemberQuickSlot memberQuickSlot, String newMessage) {
-        String oldSoundUrl = memberQuickSlot.getUrl();
-        String newSoundUrl = null;
-        try {
-            newSoundUrl = generateAndUploadSound(newMessage); // 새 파일 업로드
-            if (oldSoundUrl != null && !oldSoundUrl.contains("default")) { // 기본 사운드가 아닐 경우 기존 음성 삭제
-                s3Uploader.delete(oldSoundUrl);
-            }
-            return newSoundUrl;
-        } catch (Exception e) { // 보상 트랜잭션 로직 : 실패 시 새로 업로드한 파일이 있다면 삭제
-            if (newSoundUrl != null) {
-                s3Uploader.delete(newSoundUrl);
-            }
-            if (e instanceof BaseException) {
-                throw e;
-            } else {
-                throw new BaseException(BaseResponseStatus.FILE_UPLOAD_FAILED);
-            }
-        }
     }
 }
