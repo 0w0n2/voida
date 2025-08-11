@@ -85,12 +85,11 @@ const MemberPanel = () => {
             css={css`
               ${roomButton};
               color: ${categoryColors[roomInfo?.category || ''] || '#666'};
-              background-color: ${categoryColors[roomInfo?.category || ''] ||
-              '#999'}20;
+              background-color: ${categoryColors[roomInfo?.category || ''] || '#999'}20;
               border: none;
             `}
           >
-            {roomInfo?.category}
+            {categoryLabels[roomInfo?.category || ''] || '기타'}
           </button>
         </div>
 
@@ -114,6 +113,14 @@ const categoryColors: Record<string, string> = {
   study: '#333333',
   meeting: '#27ae60',
   free: '#3498db',
+};
+
+const categoryLabels: Record<string, string> = {
+  game: '게임',
+  talk: '일상',
+  study: '학습',
+  meeting: '회의',
+  free: '자유',
 };
 
 const panelStyle = css`
@@ -437,7 +444,7 @@ const roomButton = css`
 const roomInfoLeft = css`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   align-items: flex-start;
 
   h4 {

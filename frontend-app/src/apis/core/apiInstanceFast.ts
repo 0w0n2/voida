@@ -2,13 +2,13 @@ import axios from 'axios';
 import { reissueToken } from '@/apis/auth/authApi';
 import { useAlertStore } from '@/stores/useAlertStore';
 
-const apiInstance = axios.create({
+const apiInstanceFast = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
   timeout: 5000,
 });
 
-apiInstance.interceptors.request.use(
+apiInstanceFast.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('accessToken');
     const excludedUrls = [
@@ -27,7 +27,7 @@ apiInstance.interceptors.request.use(
   },
 );
 
-apiInstance.interceptors.response.use(
+apiInstanceFast.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
@@ -55,7 +55,7 @@ apiInstance.interceptors.response.use(
             const response = await reissueToken();
             localStorage.setItem('accessToken', response.data.accessToken);
             originalRequest.headers.Authorization = `Bearer ${response.data.accessToken}`;
-            return apiInstance(originalRequest);
+            return apiInstanceFast(originalRequest);
           } catch (refreshError) {
             useAlertStore.getState().showAlert('로그인이 필요합니다.', 'top');
             return Promise.reject(refreshError);
@@ -85,4 +85,4 @@ apiInstance.interceptors.response.use(
   },
 );
 
-export default apiInstance;
+export default apiInstanceFast;

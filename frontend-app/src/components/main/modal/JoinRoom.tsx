@@ -104,14 +104,22 @@ const JoinRoomModal = ({ onClose }: JoinRoomModalProps) => {
 
   const handleEnter = async () => {
     const inviteCode = codeValues.join('');
+    const res = await verifyInviteCode(inviteCode); 
 
-    try {
-      await verifyInviteCode(inviteCode);
+    if (res.includes('요청')) {
       useAlertStore.getState().showAlert('방 입장에 성공했습니다!', 'top');
-      setTimeout(() => { window.location.reload() }, 500);
-    } catch (error) {
-      console.error('초대코드 검증 실패:', error);
+      setTimeout(() => window.location.reload(), 500);
+      return;
+    }
+
+    if (res.includes('가득')) {
+      useAlertStore.getState().showAlert('방 인원이 가득 찼습니다.', 'top');
+    } else if (res.includes('초대코드')) {
       useAlertStore.getState().showAlert('유효하지 않은 초대코드입니다.', 'top');
+    } else if (res.includes('이미')) {
+      useAlertStore.getState().showAlert('이미 참여 중인 방입니다.', 'top');
+    } else {
+      useAlertStore.getState().showAlert(res || '알 수 없는 응답입니다.', 'top');
     }
   };
 

@@ -1,4 +1,4 @@
-import apiInstance from '@/apis/core/apiInstance';
+import apiInstance from '@/apis/core/apiInstanceSpring';
 
 // 로그인
 export const login = (email: string, password: string) => {

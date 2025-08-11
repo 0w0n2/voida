@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import type { RoomInfo, RoomParticipant, ChatMessage } from '@/apis/meeting-room/meetingRoomApi';
+import type { RoomInfo, RoomParticipant } from '@/apis/meeting-room/meetingRoomApi';
+import type { ChatMessage } from '@/apis/stomp/meetingRoomStomp';
 
 type State = {
   roomInfo: RoomInfo | null;

@@ -1,7 +1,7 @@
 // openvidu 연결 중 녹음/녹화 업로드
 // FastApI 통신
 
-import apiInstance from '@/apis/core/apiInstance';
+import apiInstance from '@/apis/core/apiInstanceSpring';
 
 export const uploadLipTestVideo = async (file: Blob) => {
   const formData = new FormData();

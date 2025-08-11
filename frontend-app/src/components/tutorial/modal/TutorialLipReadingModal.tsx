@@ -6,8 +6,8 @@ import FailFace from '@/assets/images/lip-reading-tutorial4.png';
 interface TutorialModalProps {
   isOpen: boolean;
   result: null | 'success' | 'fail';
-  onRetry?: () => void;
-  onGoHome?: () => void;
+  onRetry: () => void;  
+  onGoHome: () => void;  
 }
 
 export default function TutorialModal({
@@ -51,10 +51,8 @@ export default function TutorialModal({
               </div>
             </div>
             <div css={buttonGroup}>
-              <button className="disabled">다시 하기</button>
-              <button className="main" onClick={onGoHome}>
-                메인으로 가기
-              </button>
+              <button className="retry" onClick={onRetry}>다시 하기</button>
+              <button className="main" onClick={onGoHome}>메인으로 가기</button>
             </div>
           </>
         )}
@@ -76,10 +74,8 @@ export default function TutorialModal({
               </div>
             </div>
             <div css={buttonGroup}>
-              <button className="retry" onClick={onRetry}>
-                다시 하기
-              </button>
-              <button className="disabled">메인으로 가기</button>
+              <button className="retry" onClick={onRetry}>다시 하기</button>
+              <button className="disabled" onClick={onGoHome}>메인으로 가기</button>
             </div>
           </>
         )}
@@ -154,23 +150,13 @@ const dotsWrapper = css`
     animation: pulse 3s infinite ease-in-out;
   }
 
-  .dot:nth-of-type(1) {
-    animation-delay: 0s;
-  }
-  .dot:nth-of-type(2) {
-    animation-delay: 0.4s;
-  }
-  .dot:nth-of-type(3) {
-    animation-delay: 0.6s;
-  }
-  .dot:nth-of-type(4) {
-    animation-delay: 0.8s;
-  }
+  .dot:nth-of-type(1) { animation-delay: 0s; }
+  .dot:nth-of-type(2) { animation-delay: 0.4s; }
+  .dot:nth-of-type(3) { animation-delay: 0.6s; }
+  .dot:nth-of-type(4) { animation-delay: 0.8s; }
 
   @keyframes pulse {
-    0%,
-    80%,
-    100% {
+    0%, 80%, 100% {
       background-color: #ccc;
       transform: scale(1);
     }
@@ -213,27 +199,6 @@ const iconWrapper = css`
     height: 140px;
     margin-right: 2.5rem;
   }
-
-  .status {
-    position: absolute;
-    bottom: -6px;
-    right: -6px;
-    font-size: 18px;
-    font-weight: bold;
-    border-radius: 50%;
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-  }
-  .status.success {
-    background: #10b981;
-  }
-  .status.fail {
-    background: #ef4444;
-  }
 `;
 
 const buttonGroup = css`
@@ -258,26 +223,21 @@ const buttonGroup = css`
       max-width: 300px;
     }
   }
-    
+
   .disabled {
     background: #e5e7eb;
     color: #9ca3af;
-    cursor: default;
   }
 
   .main {
     background: #10b981;
     color: #fff;
-    &:hover {
-      background: #059669;
-    }
+    &:hover { background: #059669; }
   }
 
   .retry {
     background: #ef4444;
     color: #fff;
-    &:hover {
-      background: #dc2626;
-    }
+    &:hover { background: #dc2626; }
   }
 `;

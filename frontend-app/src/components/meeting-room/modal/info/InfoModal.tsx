@@ -18,7 +18,7 @@ const SettingModal = ({ onClose }: SettingModalProps) => {
   return (
     <div css={overlay}>
       <div css={modal}>
-        <X css={closeButton} onClick={onClose} />
+        <X size={30} css={closeButton} onClick={onClose} />
 
         <div css={tabList}>
           <button
