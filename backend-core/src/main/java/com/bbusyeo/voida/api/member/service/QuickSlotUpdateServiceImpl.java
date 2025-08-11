@@ -14,7 +14,7 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
-public class QuickSlotUpdateImpl implements QuickSlotUpdateService {
+public class QuickSlotUpdateServiceImpl implements QuickSlotUpdateService {
 
     private final S3Uploader s3Uploader;
 
