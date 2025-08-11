@@ -1,14 +1,33 @@
 /** @jsxImportSource @emotion/react */
-import { css,  keyframes } from '@emotion/react';
+import { css, keyframes } from '@emotion/react';
 import { useState } from 'react';
 import { Plus, ArrowRight } from 'lucide-react';
 import mainHome from '@/assets/icons/main-home.png';
 import CreateRoomModal from '@/components/main/modal/CreateRoom';
 import JoinRoomModal from '@/components/main/modal/JoinRoom';
+import { useAlertStore } from '@/stores/useAlertStore';
 
 const NoRoomMainForm = () => {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isJoinOpen, setIsJoinOpen] = useState(false);
+  const showAlert = useAlertStore((state) => state.showAlert);
+  const accessToken = localStorage.getItem('accessToken');
+
+  const handleCreateClick = () => {
+    if (!accessToken) {
+      showAlert('로그인 후 이용 가능합니다.', 'top');
+      return;
+    }
+    setIsCreateOpen(true);
+  };
+
+  const handleJoinClick = () => {
+    if (!accessToken) {
+      showAlert('로그인 후 이용 가능합니다.', 'top');
+      return;
+    }
+    setIsJoinOpen(true);
+  };
 
   return (
     <div css={mainWrapper}>
@@ -25,13 +44,13 @@ const NoRoomMainForm = () => {
       <div css={buttonWrapperStyle}>
         <div css={buttonContainerStyle}>
           <h3>새로운</h3>
-          <button css={roomCreateButtonStyle} onClick={() => setIsCreateOpen(true)}>
+          <button css={roomCreateButtonStyle} onClick={handleCreateClick}>
             <Plus /> 방 생성하기
           </button>
         </div>
         <div css={buttonContainerStyle}>
           <h3>코드로</h3>
-          <button css={roomButtonStyle} onClick={() => setIsJoinOpen(true)}>
+          <button css={roomButtonStyle} onClick={handleJoinClick}>
             <ArrowRight /> 방 들어가기
           </button>
         </div>
@@ -41,9 +60,7 @@ const NoRoomMainForm = () => {
       <div css={blurBg2} /> 
       <div css={blurBg3} />
 
-      {isCreateOpen && (
-        <CreateRoomModal onClose={() => setIsCreateOpen(false)} />
-      )}
+      {isCreateOpen && <CreateRoomModal onClose={() => setIsCreateOpen(false)} />}
       {isJoinOpen && <JoinRoomModal onClose={() => setIsJoinOpen(false)} />}
     </div>
   );
