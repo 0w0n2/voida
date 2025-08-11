@@ -16,13 +16,9 @@
 
 ### 📢 Description
 
-Production 긴급 수정을 위한 Hotfix MR입니다.
+(ex. 긴급 수정을 위한 Hotfix MR입니다.)
 
 <!-- 작업 내용을 명확하게 설명해주세요 -->
-
-### 💬 Related Issue
-
-- #(긴급 대응 이슈 번호 입력 후 Enter)
 
 ### ✔️ PR Checklist
 
