@@ -127,7 +127,7 @@ export const postInviteCode = async (meetingRoomId: string): Promise<{ inviteCod
 
 // 초대 코드 검증
 export const verifyInviteCode = async (inviteCode: string): Promise<string> => {
-  const res = await apiInstanceSpring.post(`/v1/meeting-rooms/verify-invite-code`, { inviteCode });
-  return res.data.result;
+  const res = await apiInstanceSpring.post(`/v1/meeting-rooms/verify-invite-code`, { inviteCode });  
+  return res.data.message;
 };
 

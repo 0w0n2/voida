@@ -25,44 +25,48 @@ const ChatPanel = ({ meetingRoomId }: ChatPanelProps) => {
   const { user, setUser, clearUser } = useAuthStore();
   const accessToken = localStorage.getItem('accessToken');
 
-
-useEffect(() => {
-  const run = async () => {
-    if (accessToken && !user) {
-      try {
-        const res = await getUser();
-        const data = res.data.result.member;
-        setUser({
-          email: data.email,
-          nickname: data.nickname,
-          profileImage: data.profileImageUrl || '',
-          memberUuid: data.memberUuid,
-        });
-      } catch (err) {
-        console.error('유저 정보 로드 실패', err);
-        clearUser();
+  // 유저 정보 & STOMP 연결
+  useEffect(() => {
+    const run = async () => {
+      if (accessToken && !user) {
+        try {
+          const res = await getUser();
+          const data = res.data.result.member;
+          setUser({
+            email: data.email,
+            nickname: data.nickname,
+            profileImage: data.profileImageUrl || '',
+            memberUuid: data.memberUuid,
+          });
+        } catch (err) {
+          console.error('유저 정보 로드 실패', err);
+          clearUser();
+        }
       }
-    }
 
-    connectStomp(meetingRoomId, (msg) => {
-      const myUuid = useAuthStore.getState().user?.memberUuid;
-      const mine = msg.senderUuid === myUuid;
-      addChatMessage({ ...msg, mine });
-    });
-  };
+      connectStomp(meetingRoomId, (msg) => {
+        const myUuid = useAuthStore.getState().user?.memberUuid;
+        const isMine = msg.isMine ?? (msg.senderUuid === myUuid);
+        addChatMessage({ ...msg, isMine });
+      });
+    };
 
-  run();
+    run();
+    return () => {
+      disconnectStomp();
+    };
+  }, [meetingRoomId, accessToken, user, setUser, clearUser, addChatMessage]);
 
-  return () => {
-    disconnectStomp();
-  };
-}, [meetingRoomId, accessToken, user, setUser, clearUser, addChatMessage]);
-
+  // 초기 채팅 로딩
   useEffect(() => {
     const loadInitial = async () => {
       try {
         const res = await getRoomChatHistory(meetingRoomId, 0, 20);
-        setChatMessages(res.content);
+        const myUuid = useAuthStore.getState().user?.memberUuid;
+        const pageItems = [...res.content]
+          .map(m => ({ ...m, isMine: m.isMine ?? (m.senderUuid === myUuid) }))
+          .reverse();
+        setChatMessages(pageItems);
         setPage(res.number);
 
         requestAnimationFrame(() => {
@@ -78,6 +82,7 @@ useEffect(() => {
     loadInitial();
   }, [meetingRoomId, setChatMessages]);
 
+  // 이전 채팅 불러오기
   const fetchOldMessages = useCallback(async () => {
     if (loading || !chatBoxRef.current) return;
     setLoading(true);
@@ -88,15 +93,19 @@ useEffect(() => {
     try {
       const nextPage = page + 1;
       const res = await getRoomChatHistory(meetingRoomId, nextPage, 20);
-      
-      setChatMessages([...res.content, ...chatMessages], true);
-        setPage(nextPage);
+      const myUuid = useAuthStore.getState().user?.memberUuid;
+      const pageItems = [...res.content]
+        .map(m => ({ ...m, isMine: m.isMine ?? (m.senderUuid === myUuid) }))
+        .reverse();
 
-        requestAnimationFrame(() => {
-          if (chatBoxRef.current) {
-            chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight - prevScrollHeight;
-          }
-        });
+      setChatMessages([...pageItems, ...chatMessages], true);
+      setPage(nextPage);
+
+      requestAnimationFrame(() => {
+        if (chatBoxRef.current) {
+          chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight - prevScrollHeight;
+        }
+      });
     } catch (error) {
       console.error('이전 메시지 로딩 실패:', error);
     }
@@ -104,6 +113,7 @@ useEffect(() => {
     setLoading(false);
   }, [loading, meetingRoomId, chatMessages, setChatMessages, page]);
 
+  // 스크롤 이벤트
   const handleScroll = () => {
     const el = chatBoxRef.current;
     if (!el || loading) return;
@@ -114,16 +124,22 @@ useEffect(() => {
     setShowScrollButton(!nearBottom);
   };
 
+  // 새 메시지 도착 시 자동 스크롤
   useEffect(() => {
     if (loading || !chatBoxRef.current) return;
 
+    const el = chatBoxRef.current;
     const lastMessage = chatMessages[chatMessages.length - 1];
-    if (lastMessage && lastMessage.sendedAt !== lastMessageId.current) {
-      if (lastMessage.mine) {
-        chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
-      }
+    if (!lastMessage || lastMessage.sendedAt === lastMessageId.current) return;
+
+    const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 100;
+
+    // 내가 보낸 메시지이거나, 현재 스크롤이 거의 아래에 있을 경우
+    if (lastMessage.isMine || isNearBottom) {
+      el.scrollTop = el.scrollHeight;
     }
-    lastMessageId.current = lastMessage?.sendedAt ?? null;
+
+    lastMessageId.current = lastMessage.sendedAt;
   }, [chatMessages, loading]);
 
   const handleSend = () => {
@@ -137,8 +153,8 @@ useEffect(() => {
       <ChatHeader isLive />
       <div css={chatBox} ref={chatBoxRef} onScroll={handleScroll}>
         {chatMessages.map((m, index) => (
-          <div key={index} css={[chatItem, m.mine && myItem]}>
-            {!m.mine && m.profileImageUrl && (
+          <div key={index} css={[chatItem, m.isMine && myItem]}>
+            {!m.isMine && m.profileImageUrl && (
               <img
                 src={`${import.meta.env.VITE_CDN_URL}/${m.profileImageUrl}`}
                 alt={m.senderNickname}
@@ -146,7 +162,7 @@ useEffect(() => {
               />
             )}
             <div css={contentBox}>
-              {!m.mine && (
+              {!m.isMine && (
                 <div css={metaRow}>
                   <span css={nickname}>{m.senderNickname}</span>
                   <span css={time}>
@@ -159,7 +175,7 @@ useEffect(() => {
                   </span>
                 </div>
               )}
-              <div css={[bubble, m.mine ? mine : other]}>{m.content}</div>
+              <div css={[bubble, m.isMine ? mine : other]}>{m.content}</div>
             </div>
           </div>
         ))}

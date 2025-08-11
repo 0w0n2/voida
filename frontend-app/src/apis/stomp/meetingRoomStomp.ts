@@ -6,7 +6,7 @@ export interface ChatMessage {
   profileImageUrl?: string;
   content: string;
   sendedAt: string;
-  mine?: boolean;
+  isMine?: boolean;
 }
 
 export interface PageableChatHistory {
