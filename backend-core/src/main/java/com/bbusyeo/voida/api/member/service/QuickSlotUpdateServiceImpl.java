@@ -31,7 +31,7 @@ public class QuickSlotUpdateServiceImpl implements QuickSlotUpdateService {
 
             if (requestSlot != null) {
                 String finalSoundUrl = quickSlot.getUrl();
-                if (!newSoundUrls.containsKey(quickSlot.getId())) { // S3에 새로 업로드된 URL이 있다면 업데이트
+                if (newSoundUrls.containsKey(quickSlot.getId())) { // S3에 새로 업로드된 URL이 있다면 업데이트
                     finalSoundUrl = newSoundUrls.get(quickSlot.getId());
                     // 디폴트 음성이 아닌 기존 파일은 삭제
                     String oldSoundUrl = quickSlot.getUrl();
