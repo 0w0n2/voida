@@ -5,7 +5,7 @@ import ChatHeader from './ChatHeader';
 import SendIcon from '@/assets/icons/send.png';
 import ScrollDown from '@/assets/icons/scroll-down.png';
 import { useAuthStore } from '@/stores/authStore';
-import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
+import { useMeetingRoomStore } from '@/stores/useMeetingRoomStore';
 import { getRoomChatHistory } from '@/apis/stomp/meetingRoomStomp';
 import { getUser } from '@/apis/auth/userApi';
 import { connectStomp, disconnectStomp, publishMessage } from '@/apis/stomp/stompClient';
@@ -15,7 +15,9 @@ interface ChatPanelProps {
 }
 
 const ChatPanel = ({ meetingRoomId }: ChatPanelProps) => {
-  const { chatMessages, setChatMessages, addChatMessage } = useMeetingRoomStore();
+  const { chatMessages, setChatMessages, addChatMessage, clearChatMessages } = useMeetingRoomStore();
+  const roomMessages = chatMessages[meetingRoomId] || [];
+
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
@@ -25,6 +27,7 @@ const ChatPanel = ({ meetingRoomId }: ChatPanelProps) => {
   const { user, setUser, clearUser } = useAuthStore();
   const accessToken = localStorage.getItem('accessToken');
 
+  // 유저 정보 + STOMP 연결
   useEffect(() => {
     const run = async () => {
       if (accessToken && !user) {
@@ -46,16 +49,18 @@ const ChatPanel = ({ meetingRoomId }: ChatPanelProps) => {
       connectStomp(meetingRoomId, (msg) => {
         const myUuid = useAuthStore.getState().user?.memberUuid;
         const isMine = msg.isMine ?? (msg.senderUuid === myUuid);
-        addChatMessage({ ...msg, isMine });
+        addChatMessage(meetingRoomId, { ...msg, isMine });
       });
     };
 
     run();
     return () => {
       disconnectStomp();
+      clearChatMessages(meetingRoomId); // 방 나가면 채팅 초기화
     };
-  }, [meetingRoomId, accessToken, user, setUser, clearUser, addChatMessage]);
+  }, [meetingRoomId, accessToken, user, setUser, clearUser, addChatMessage, clearChatMessages]);
 
+  // 초기 채팅 불러오기
   useEffect(() => {
     const loadInitial = async () => {
       try {
@@ -64,23 +69,22 @@ const ChatPanel = ({ meetingRoomId }: ChatPanelProps) => {
         const pageItems = [...res.content]
           .map(m => ({ ...m, isMine: m.isMine ?? (m.senderUuid === myUuid) }))
           .reverse();
-        setChatMessages(pageItems);
+
+        setChatMessages(meetingRoomId, pageItems, true);
         setPage(res.number);
 
         requestAnimationFrame(() => {
-          if (chatBoxRef.current) {
-            chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
-          }
+          chatBoxRef.current && (chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight);
         });
       } catch (error) {
         console.error('채팅 기록 초기 로딩 실패:', error);
-        setChatMessages([]);
+        setChatMessages(meetingRoomId, [], true);
       }
     };
     loadInitial();
   }, [meetingRoomId, setChatMessages]);
 
-  // 이전 채팅 불러오기
+  // 예전 메시지 불러오기
   const fetchOldMessages = useCallback(async () => {
     if (loading || !chatBoxRef.current) return;
     setLoading(true);
@@ -96,7 +100,7 @@ const ChatPanel = ({ meetingRoomId }: ChatPanelProps) => {
         .map(m => ({ ...m, isMine: m.isMine ?? (m.senderUuid === myUuid) }))
         .reverse();
 
-      setChatMessages([...pageItems, ...chatMessages], true);
+      setChatMessages(meetingRoomId, [...pageItems, ...roomMessages], true);
       setPage(nextPage);
 
       requestAnimationFrame(() => {
@@ -107,35 +111,32 @@ const ChatPanel = ({ meetingRoomId }: ChatPanelProps) => {
     } catch (error) {
       console.error('이전 메시지 로딩 실패:', error);
     }
-
     setLoading(false);
-  }, [loading, meetingRoomId, chatMessages, setChatMessages, page]);
+  }, [loading, meetingRoomId, page, roomMessages, setChatMessages]);
 
+  // 스크롤 이벤트
   const handleScroll = () => {
     const el = chatBoxRef.current;
     if (!el || loading) return;
 
     if (el.scrollTop === 0) fetchOldMessages();
-
     const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 50;
     setShowScrollButton(!nearBottom);
   };
 
+  // 새 메시지 도착 시 스크롤
   useEffect(() => {
     if (loading || !chatBoxRef.current) return;
-
     const el = chatBoxRef.current;
-    const lastMessage = chatMessages[chatMessages.length - 1];
+    const lastMessage = roomMessages[roomMessages.length - 1];
     if (!lastMessage || lastMessage.sendedAt === lastMessageId.current) return;
 
     const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 100;
-
     if (lastMessage.isMine || isNearBottom) {
       el.scrollTop = el.scrollHeight;
     }
-
     lastMessageId.current = lastMessage.sendedAt;
-  }, [chatMessages, loading]);
+  }, [roomMessages, loading]);
 
   const handleSend = () => {
     if (!input.trim()) return;
@@ -147,7 +148,7 @@ const ChatPanel = ({ meetingRoomId }: ChatPanelProps) => {
     <div css={panel}>
       <ChatHeader isLive />
       <div css={chatBox} ref={chatBoxRef} onScroll={handleScroll}>
-        {chatMessages.map((m, index) => (
+        {roomMessages.map((m, index) => (
           <div key={index} css={[chatItem, m.isMine && myItem]}>
             {!m.isMine && m.profileImageUrl && (
               <img
@@ -174,22 +175,18 @@ const ChatPanel = ({ meetingRoomId }: ChatPanelProps) => {
             </div>
           </div>
         ))}
-
         {showScrollButton && (
           <button
             css={scrollButton}
             onClick={() => {
-              if (chatBoxRef.current) {
-                chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
-                setShowScrollButton(false);
-              }
+              chatBoxRef.current && (chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight);
+              setShowScrollButton(false);
             }}
           >
             <img src={ScrollDown} alt="아래로 스크롤" css={scroll} />
           </button>
         )}
       </div>
-
       <div css={inputRow}>
         <div css={inputWrapper}>
           <input

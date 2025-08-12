@@ -2,33 +2,52 @@
 import { css } from '@emotion/react';
 import VoidaLogo from '@/assets/logo/voida-logo.png';
 import { Wifi, WifiOff } from 'lucide-react';
-// import { startVoiceSession } from '@/apis/voiceService';
-// import { connectStompChat } from '@/apis/chatService';
+import { startVoiceSession, isConnected, setChatHandler } from '@/apis/live-room/openviduService';
+import { useMeetingRoomStore } from '@/stores/useMeetingRoomStore';
 
 interface ChatHeaderProps {
   isLive?: boolean;
+  sessionId?: string;      // 방/세션 아이디(없으면 기본값 사용)
+  nickname?: string;       // 표시용 닉네임(없으면 guest-타임스탬프)
 }
 
-const ChatHeader = ({ isLive = false }: ChatHeaderProps) => {
-    const handleJoinLive = async () => {
+const ChatHeader = ({ isLive = false, sessionId = 'voice-room', nickname }: ChatHeaderProps) => {
+  const addChatMessage = useMeetingRoomStore((s) => s.addChatMessage);
+
+  const handleJoinLive = async () => {
     try {
-      // // 1. OpenVidu 연결
-      // await startVoiceSession(); // openvidu 연결
+      // OpenVidu 채팅 수신 → 채팅창으로 올리기 (서버 응답 전용)
+      setChatHandler(({ text }) => {
+        addChatMessage({
+          content: text,
+          isMine: false,                       // 서버 응답이므로 항상 왼쪽(상대)
+          senderNickname: '시스템',            // 필요시 서버 닉네임으로 변경 가능
+          profileImageUrl: '',
+          sendedAt: new Date().toISOString(),
+          senderUuid: 'system'
+        });
+      });
 
-      // // 2. STOMP 연결 + 채팅 불러오기
-      // await connectStompChat(); // stomp subscribe 및 초기 히스토리 로드
+      // 이미 연결되어 있지 않으면 연결 (입장만: 퍼블리시 X)
+      if (!isConnected()) {
+        await startVoiceSession({
+          sessionId,
+          nickname: nickname || `guest-${Date.now()}`,
+          publish: false, // 청취 전용
+        });
+      }
 
-      // 3. Electron 오버레이 실행
-      window.electronAPI.openOverlay(); // preload → main → overlayWindow.ts 흐름
+      // Electron 오버레이 실행 (옵셔널 체이닝)
+      window.electronAPI?.openOverlay?.();
     } catch (err) {
-      console.error("라이브 참여 실패", err);
+      console.error('라이브 참여 실패', err);
     }
   };
 
   return (
     <div css={header}>
       <img src={VoidaLogo} alt="VOIDA 로고" css={logo} />
-      <button css={joinBtn} onClick={handleJoinLive}>
+      <button type="button" css={joinBtn} onClick={handleJoinLive}>
         {isLive ? <Wifi css={liveIcon} /> : <WifiOff css={liveIcon} />}
         <span>라이브 참여하기</span>
       </button>
@@ -46,43 +65,22 @@ const header = css`
   padding-bottom: 1rem;
   background: transparent;
 
-  @media (max-width: 1400px) {
-    padding: 2rem;
-  }
-
-  @media (max-width: 1200px) {
-    padding: 1.5rem;
-  }
-
+  @media (max-width: 1400px) { padding: 2rem; }
+  @media (max-width: 1200px) { padding: 1.5rem; }
   @media (max-width: 900px) {
     flex-direction: column;
     gap: 1rem;
     padding: 1.2rem;
   }
-
-  @media (max-width: 600px) {
-    padding: 1rem;
-  }
+  @media (max-width: 600px) { padding: 1rem; }
 `;
 
 const logo = css`
   height: 40px;
-
-  @media (max-width: 1400px) {
-    height: 36px;
-  }
-
-  @media (max-width: 1200px) {
-    height: 32px;
-  }
-
-  @media (max-width: 900px) {
-    height: 28px;
-  }
-
-  @media (max-width: 600px) {
-    height: 24px;
-  }
+  @media (max-width: 1400px) { height: 36px; }
+  @media (max-width: 1200px) { height: 32px; }
+  @media (max-width: 900px) { height: 28px; }
+  @media (max-width: 600px) { height: 24px; }
 `;
 
 const joinBtn = css`
@@ -97,54 +95,24 @@ const joinBtn = css`
   align-items: center;
   gap: 12px;
 
-  &:hover {
-    background: var(--color-green-dark);
-  }
+  &:hover { background: var(--color-green-dark); }
 
-  @media (max-width: 1400px) {
-    padding: 9px 14px;
-    font-size: 15px;
-  }
-
-  @media (max-width: 1200px) {
-    padding: 8px 12px;
-    font-size: 14px;
-  }
-
+  @media (max-width: 1400px) { padding: 9px 14px; font-size: 15px; }
+  @media (max-width: 1200px) { padding: 8px 12px; font-size: 14px; }
   @media (max-width: 900px) {
     padding: 8px 12px;
     font-size: 14px;
     width: 80%;
     justify-content: center;
   }
-
-  @media (max-width: 600px) {
-    padding: 8px 10px;
-    font-size: 13px;
-  }
+  @media (max-width: 600px) { padding: 8px 10px; font-size: 13px; }
 `;
 
 const liveIcon = css`
   width: 22px;
   height: 22px;
-
-  @media (max-width: 1400px) {
-    width: 20px;
-    height: 20px;
-  }
-
-  @media (max-width: 1200px) {
-    width: 18px;
-    height: 18px;
-  }
-
-  @media (max-width: 900px) {
-    width: 18px;
-    height: 18px;
-  }
-
-  @media (max-width: 600px) {
-    width: 16px;
-    height: 16px;
-  }
+  @media (max-width: 1400px) { width: 20px; height: 20px; }
+  @media (max-width: 1200px) { width: 18px; height: 18px; }
+  @media (max-width: 900px) { width: 18px; height: 18px; }
+  @media (max-width: 600px) { width: 16px; height: 16px; }
 `;

@@ -6,7 +6,7 @@ import MemberPanel from '@/components/meeting-room/members/MemberPanel';
 import ChatPanel from '@/components/meeting-room/chat/ChatPanel';
 import { getRoomInfo, getRoomMembers } from '@/apis/meeting-room/meetingRoomApi';
 import { getRoomChatHistory } from '@/apis/stomp/meetingRoomStomp';
-import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
+import { useMeetingRoomStore } from '@/stores/useMeetingRoomStore';
 
 const MeetingRoomPage = () => {
   const { meetingRoomId } = useParams<{ meetingRoomId: string }>();
