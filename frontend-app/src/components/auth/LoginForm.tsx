@@ -98,15 +98,13 @@ const LoginForm = () => {
         profileImage: response.data.result.member.profileImageUrl || '',
         memberUuid: response.data.result.member.memberUuid,
       };
-      console.log(user);
       setUser(user);
 
-      console.log(isNewbie);
       if (isNewbie) {
-        navigate('/tutorial');
+        navigate('/main');
         return;
       } else {
-        navigate('/main');
+        navigate('/tutorial');
         return;
       }
 
