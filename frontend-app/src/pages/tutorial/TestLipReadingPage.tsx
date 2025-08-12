@@ -36,7 +36,6 @@ const TestLipReadingPage = () => {
     },
   });
 
-  // 스트림을 video 태그에 연결
   if (stream && videoRef.current && !videoRef.current.srcObject) {
     videoRef.current.srcObject = stream;
   }
@@ -90,7 +89,7 @@ const TestLipReadingPage = () => {
           </div>
         </div>
       </div>
-      <TutorialFooter items={'튜토리얼 건너뛰기'} />
+      <TutorialFooter items="튜토리얼 건너뛰기" customCss={footerStyle} />
       <TutorialModal
         isOpen={isAnalyzing}
         result={analysisResult}
@@ -119,37 +118,75 @@ const pageWrapperStyle = css`
 `;
 
 const contentWrapperStyle = css`
-  max-width: 960px;
+  flex: 1;
+  max-width: 80%;
+  min-height: 100%;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 0 2rem;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 
+  @media (max-width: 1400px) {
+    max-width: 72rem;
+  }
   @media (max-width: 1200px) {
-    max-width: 800px;
+    max-width: 64rem; 
+  }
+  @media (max-width: 900px) {
+    max-width: 80%;
+    padding: 0 1.5rem;
+  }
+  @media (max-width: 600px) {
+    max-width: 80%;
+    padding: 0 1rem;
   }
 
-  @media (max-width: 900px) {
-    max-width: 90%;
-    padding: 1rem;
+  @media (min-height: 900px) {
+    padding-top: 0rem;
+    padding-bottom: 0rem;
+  }
+  @media (min-height: 1000px) {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+  @media (min-height: 1300px) {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+    max-width: 70%;
   }
 `;
 
 const titleStyle = css`
   font-size: 40px;
   font-family: 'NanumSquareEB';
+  // margin-top: 2rem;
   margin-bottom: 1rem;
   text-align: center;
 
-  @media (max-width: 900px) {
+  @media (max-width: 1400px) {
+    font-size: 36px;
+  }
+  @media (max-width: 1200px) {
     font-size: 32px;
   }
-
+  @media (max-width: 900px) {
+    font-size: 28px;
+  }
   @media (max-width: 600px) {
-    font-size: 26px;
+    font-size: 24px;
+  }
+
+  @media (min-height: 900px) {
+    margin-top: 2rem;
+  }
+  @media (min-height: 1000px) {
+    margin-top: 0.5rem;
+  }
+  @media (min-height: 1300px) {
+    margin-top: 0.5rem;
   }
 `;
 
@@ -159,12 +196,16 @@ const subtitleStyle = css`
   text-align: center;
   font-size: 20px;
 
-  @media (max-width: 900px) {
+  @media (max-width: 1200px) {
     font-size: 18px;
   }
 
-  @media (max-width: 600px) {
+  @media (max-width: 900px) {
     font-size: 16px;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 15px;
   }
 `;
 
@@ -325,4 +366,8 @@ const progressBar = (progress: number) => css`
   width: ${progress}%;
   background: linear-gradient(to right, #3182f6, #a162e5);
   transition: width 0.1s linear;
+`;
+
+const footerStyle = css`
+  max-width: 90%;
 `;

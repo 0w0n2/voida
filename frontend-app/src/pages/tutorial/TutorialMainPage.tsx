@@ -74,7 +74,6 @@ export default function TutorialMainPage() {
 
 const pageWrapperStyle = css`
   min-height: 100vh;
-  background-color: var(--color-bg-white);
 `;
 
 const cardWrapperStyle = css`
@@ -113,8 +112,6 @@ const cardWrapperStyle = css`
     max-width: 70%;
   }
 `;
-
-
 
 const titleStyle = css`
   font-size: 2.5rem;
