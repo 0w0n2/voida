@@ -4,7 +4,7 @@ import VoidaLogo from '@/assets/logo/voida-logo.png';
 import { Wifi } from 'lucide-react';
 import { getRoomStatus, startLiveSession, getLiveToken, connectOpenVidu } from '@/apis/live-room/openViduApi';
 import { useOpenViduChat } from '@/hooks/useOpenViduChat';
-import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
+import { useMeetingRoomStore } from '@/stores/useMeetingRoomStore';
 
 const ChatHeader = () => {
   const roomInfo = useMeetingRoomStore((state) => state.roomInfo);

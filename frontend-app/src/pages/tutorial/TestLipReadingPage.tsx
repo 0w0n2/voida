@@ -27,7 +27,9 @@ const TestLipReadingPage = () => {
     onStop: async ({ blob }) => {
       setIsAnalyzing(true);
       try {
-        const res = await uploadLipTestVideo(blob);
+        const file = new File([blob], 'lip-test.webm', { type: blob.type });
+
+        const res = await uploadLipTestVideo(file, '0');
         setAnalysisResult(res.data.result);
       } catch (err) {
         console.error(err);

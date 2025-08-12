@@ -1,11 +1,11 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useRef, useState, useEffect } from 'react';
-import Header from '../components/Header';
-import ProfileTab from '../components/my-page/ProfileTab';
-import SettingsTab from '../components/my-page/SettingsTab';
-import ShortcutsTab from '../components/my-page/ShortcutsTab';
-import OverlayTab from '../components/my-page/OverlayTab';
+import { useState } from 'react';
+import Header from '@/components/Header';
+import ProfileTab from '@/components/my-page/ProfileTab';
+import SettingsTab from '@/components/my-page/SettingsTab';
+import ShortcutsTab from '@/components/my-page/ShortcutsTab';
+import OverlayTab from '@/components/my-page/OverlayTab';
 import settings from '@/assets/icons/mp-setting.png';
 import shortcuts from '@/assets/icons/mp-shortcut.png';
 import overlay from '@/assets/icons/mp-overlay.png';
@@ -74,7 +74,7 @@ const MyPage = () => {
   );
 };
 
-export const navigationStyle = css`
+const navigationStyle = css`
   width: 100%;
   max-width: 90%;
   margin: 0 auto;
@@ -97,7 +97,7 @@ export const navigationStyle = css`
   }
 `;
 
-export const selectorBoxStyle = css`
+const selectorBoxStyle = css`
   width: 100%;
   max-width: 90%;
   display: flex;
@@ -118,7 +118,7 @@ export const selectorBoxStyle = css`
   }
 `;
 
-export const navTabStyle = (active: boolean) => css`
+const navTabStyle = (active: boolean) => css`
   position: relative;
   z-index: 1;
   display: flex;
@@ -146,11 +146,11 @@ export const navTabStyle = (active: boolean) => css`
   }
 `;
 
-export const tabTextStyle = css`
+const tabTextStyle = css`
   font-family: 'NanumSquareR', sans-serif;
 `;
 
-export const mainContentStyle = css`
+const mainContentStyle = css`
   display: flex;
   gap: 3%;
   padding: 3%;

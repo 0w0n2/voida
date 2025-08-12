@@ -30,11 +30,22 @@ export const uploadTutorialAudio = async (file: Blob) => {
   return res.data.result;
 };
 
-export const uploadLipTestVideo = async (file: Blob) => {
+export const uploadLipTestVideo = async (
+  file: File,
+  sessionNumber: string, 
+) => {
   console.log(file);
-  const formData = new FormData();
-  formData.append('file', file, buildFileName(file, 'lip-test', 'webm'));
+  console.log(sessionNumber);
 
-  const res = await apiInstanceFast.post('/upload/lip-test', formData);
-  return res.data.result;
+  const formData = new FormData();
+
+  formData.append('videoFile', file);
+  formData.append('sessionNumber', sessionNumber);
+
+  const res = await apiInstanceFast.post('/v1/lip', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+
+  console.log(res);
+  return res.data; 
 };
