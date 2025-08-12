@@ -26,6 +26,7 @@ const ChatHeader = () => {
 
       const token = await getLiveToken(meetingRoomId);
       await connectOpenVidu(token, handleSignalMessage);
+      
       window.electronAPI?.openOverlay?.();
     } catch (err) {
       console.error('라이브 참여 실패', err);
@@ -36,9 +37,9 @@ const ChatHeader = () => {
     <div css={header}>
       <img src={VoidaLogo} alt="VOIDA 로고" css={logo} />
       <button css={joinBtn} onClick={handleJoinLive} disabled={!meetingRoomId}>
-          <Wifi css={liveIcon} />
-          <span>라이브 참여하기</span>
-        </button>
+        <Wifi css={liveIcon} />
+        <span>라이브 참여하기</span>
+      </button>
     </div>
   );
 };

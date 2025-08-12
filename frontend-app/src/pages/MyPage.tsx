@@ -6,16 +6,17 @@ import ProfileTab from '@/components/my-page/ProfileTab';
 import SettingsTab from '@/components/my-page/SettingsTab';
 import ShortcutsTab from '@/components/my-page/ShortcutsTab';
 import OverlayTab from '@/components/my-page/OverlayTab';
-import settings from '@/assets/icons/mp-setting.png';
-import shortcuts from '@/assets/icons/mp-shortcut.png';
-import overlay from '@/assets/icons/mp-overlay.png';
-import profile from '@/assets/icons/mp-profile.png';
+import { UserCog, Settings, Keyboard, Scan } from 'lucide-react';
+// import settings from '@/assets/icons/mp-setting.png';
+// import shortcuts from '@/assets/icons/mp-shortcut.png';
+// import overlay from '@/assets/icons/mp-overlay.png';
+// import profile from '@/assets/icons/mp-profile.png';
 
 const tabList = [
-  { key: 'profile', label: '프로필', icon: profile, component: <ProfileTab /> },
-  { key: 'settings', label: '설정', icon: settings, component: <SettingsTab /> },
-  { key: 'shortcuts', label: '단축키', icon: shortcuts, component: <ShortcutsTab /> },
-  { key: 'overlay', label: '오버레이', icon: overlay, component: <OverlayTab /> },
+  { key: 'profile', label: '프로필', icon: UserCog, component: <ProfileTab /> },
+  { key: 'settings', label: '설정', icon: Settings, component: <SettingsTab /> },
+  { key: 'shortcuts', label: '단축키', icon: Keyboard, component: <ShortcutsTab /> },
+  { key: 'overlay', label: '오버레이', icon: Scan, component: <OverlayTab /> },
 ];
 
 export default function MyPage() {
@@ -34,11 +35,8 @@ export default function MyPage() {
   return (
     <main>
       <Header />
-
-      {/* 네비게이션 */}
       <nav css={navWrapper}>
         <div css={navContainer}>
-          {/* 하이라이트 박스 */}
           <span css={highlightBox(highlightStyle.left, highlightStyle.width)} />
 
           {tabList.map((tab, index) => (
@@ -48,14 +46,14 @@ export default function MyPage() {
               css={navTab(index === activeIndex)}
               onClick={() => setActiveIndex(index)}
             >
-              <img src={tab.icon} alt={tab.label} css={iconStyle} />
+              {/* <img src={tab.icon} alt={tab.label} css={iconStyle} /> */}
+              <tab.icon size={18} />
               {tab.label}
             </button>
           ))}
         </div>
       </nav>
 
-      {/* 슬라이더 콘텐츠 */}
       <div css={sliderWrapper}>
         <div css={sliderTrack(activeIndex)}>
           {tabList.map((tab) => (
@@ -70,41 +68,36 @@ export default function MyPage() {
 }
 
 const navWrapper = css`
-  width: 100%;
-  overflow-x: auto;
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 8px 0;
-  display: flex;
-  justify-content: center;
 `;
 
 const navContainer = css`
-  display: flex;
+  display: inline-flex;
   position: relative;
   background: #f3f4f6;
-  border-radius: 999px;
-  padding: 6px; 
-  gap: 6px;
+  border-radius: 10px;
+  margin: 0px 40px;
+  padding: 10px 0px;
+  gap: 10px;
 `;
 
 const navTab = (active: boolean) => css`
   background: none;
   border: none;
-  font-size: 15px; 
-  font-weight: ${active ? 800 : 600}; 
+  font-size: 18px; 
+  font-family: ${active ? 'NanumSquareEB' : 'NanumSquareR'}; 
   color: ${active ? '#000' : '#555'};
   cursor: pointer;
-  padding: 10px 20px;
+  padding: 10px 30px;
+  margin: 0px 5px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  border-radius: 999px;
+  gap: 14px;
+  border-radius: 10px;
   z-index: 1;
   transition: color 0.3s ease;
-`;
-
-const iconStyle = css`
-  width: 16px;
-  height: 16px;
 `;
 
 const highlightBox = (left: number, width: number) => css`
@@ -114,7 +107,7 @@ const highlightBox = (left: number, width: number) => css`
   width: ${width}px;
   height: calc(100% - 8px);
   background-color: #fff;
-  border-radius: 999px; /* 완전 둥근 */
+  border-radius: 10px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
   z-index: 0;
