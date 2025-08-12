@@ -79,8 +79,10 @@ dependencies {
 	// WebSocket & STOMP
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
-	// webClient
+	// WebClient
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	// MultipartEntityBuilder
+	implementation 'org.apache.httpcomponents:httpmime:4.5.14'
 }
 
 tasks.named('test') {

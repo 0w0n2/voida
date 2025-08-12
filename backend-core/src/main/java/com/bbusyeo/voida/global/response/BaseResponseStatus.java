@@ -73,6 +73,8 @@ public enum BaseResponseStatus {
     UNSUPPORTED_OVERLAY_POSITION(HttpStatus.BAD_REQUEST, false, 904, "지원하지 않는 오버레이 위치 값입니다."),
     INVALID_QUICK_SLOT_ID(HttpStatus.BAD_REQUEST, false, 905, "유저의 퀵슬롯 아이디가 유효하지 않습니다."),
     TTS_CONVERSION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, false, 906, "단축키 음성 TTS 변환 과정에서 오류가 발생했습니다."),
+    FILE_CONVERSION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, false, 907, "음성 파일 변환 과정에서 오류가 발생했습니다."),
+    STT_CONVERSION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, false, 908, "라이브 음성 STT 변환 과정에서 오류가 발생했습니다."),
 
     /**
      * 1000: 소셜 에러.

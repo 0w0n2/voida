@@ -9,6 +9,7 @@ public class GMSTtsRequestDto {
     private String model;
     private String input;
     private String voice;
+    private String instructions;
     private String response_format;
 
     // voice 와 response_format 은 기본값으로 하드코딩
@@ -16,6 +17,7 @@ public class GMSTtsRequestDto {
         return GMSTtsRequestDto.builder()
                 .model(model)
                 .voice("nova")
+                .instructions("Take a brief pause before beginning.")
                 .input(message)
                 .response_format("mp3")
                 .build();
