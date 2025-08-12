@@ -73,8 +73,8 @@ public class ChatServiceImpl implements ChatService {
                 .sendedAt(LocalDateTime.now())
                 .build();
 
-        meetingChatRepository.save(chat);
+        MeetingChat savedChat = meetingChatRepository.save(chat);
         // (/sub/chat/meetingRoom/{meetingRoomId}로 브로드 캐스팅
-        messagingTemplate.convertAndSend("/sub/chat/meetingRoom/" + meetingRoomId, ChatMessageResponseDto.from(chat, sender));
+        messagingTemplate.convertAndSend("/sub/chat/meetingRoom/" + meetingRoomId, ChatMessageResponseDto.from(savedChat, sender));
     }
 }
