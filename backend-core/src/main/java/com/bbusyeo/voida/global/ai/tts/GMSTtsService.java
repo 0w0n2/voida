@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.Duration;
+
 /**
  * SSAFY GMS - gpt-4o-mini-tts 모델 활용하여 TTS 생성하는 서비스 구현체
  */
@@ -51,6 +53,7 @@ public class GMSTtsService implements TtsService {
                 .map(this::toMultipartFile)
                 .cast(MultipartFile.class)
                 .onErrorMap(e -> new BaseException(BaseResponseStatus.TTS_CONVERSION_FAILED))
+                .timeout(Duration.ofSeconds(20))
                 .block();
     }
 

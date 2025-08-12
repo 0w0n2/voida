@@ -16,6 +16,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Objects;
 
 /**
@@ -68,6 +69,7 @@ public class GMSSttService implements SttService {
                     .bodyValue(multipartBytes)
                     .retrieve()
                     .bodyToMono(GMSSttResponseDto.class)
+                    .timeout(Duration.ofSeconds(20))
                     .block()).getText();
         } catch (IOException e) {
             throw new BaseException(BaseResponseStatus.FILE_CONVERSION_FAILED);
