@@ -7,7 +7,7 @@ export default function TutorialFooter({ items }: { items: string }) {
 
   return (
     <div css={footerWrapperStyle}>
-      <button css={skipButtonStyle} onClick={() => navigate('/rooms')}>
+      <button css={skipButtonStyle} onClick={() => navigate('/main')}>
         {items}
       </button>
     </div>
@@ -16,8 +16,7 @@ export default function TutorialFooter({ items }: { items: string }) {
 
 const footerWrapperStyle = css`
   display: flex;
-  justify-content: flex-end;
-  margin-right: 10rem;
+  justify-content: right;
 
   @media (max-width: 1400px) {
     margin-right: 8rem;
@@ -37,6 +36,7 @@ const footerWrapperStyle = css`
     margin-top: 2rem;
   }
 `;
+
 const buttonStyle = css`
   padding: 0.75rem 2.5rem;
   border: none;
