@@ -394,6 +394,7 @@ const roomInfoBox = css`
   margin-right: -1.5rem;
   margin-bottom: -1.5rem;
   width: calc(100% + 3rem);
+  max-height: 120px;
   padding: 1.5rem;
   display: flex;
   justify-content: space-between;
@@ -411,17 +412,14 @@ const roomInfoBox = css`
     height: 100px;
     padding: 12px 40px;
   }
-
   @media (max-width: 1200px) {
     height: 90px;
     padding: 10px 30px;
   }
-
   @media (max-width: 900px) {
     height: 80px;
     padding: 8px 20px;
   }
-
   @media (max-width: 600px) {
     height: 70px;
     padding: 6px 12px;
