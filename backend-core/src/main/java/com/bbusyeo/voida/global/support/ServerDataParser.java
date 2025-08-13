@@ -60,8 +60,6 @@ public final class ServerDataParser {
         return m.get(key);
     }
 
-    // ---- 내부 헬퍼 ----
-
     private static Map<String, String> toStringMap(Map<String, Object> src) {
         if (src == null) return Collections.emptyMap();
 

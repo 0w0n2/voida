@@ -74,6 +74,7 @@ public enum BaseResponseStatus {
     UNSUPPORTED_OVERLAY_POSITION(HttpStatus.BAD_REQUEST, false, 904, "지원하지 않는 오버레이 위치 값입니다."),
     INVALID_QUICK_SLOT_ID(HttpStatus.BAD_REQUEST, false, 905, "유저의 퀵슬롯 아이디가 유효하지 않습니다."),
     TTS_CONVERSION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, false, 906, "단축키 음성 TTS 변환 과정에서 오류가 발생했습니다."),
+    MEMBER_SETTING_NOT_FOUND(HttpStatus.NOT_FOUND, false, 914, "존재하지 않는 회원 설정입니다."),
 
     /**
      * 1000: 소셜 에러.
@@ -86,8 +87,13 @@ public enum BaseResponseStatus {
      * 1500: 릴리스 에러.
      */
     INVALID_VERSION(HttpStatus.BAD_REQUEST, false, 1500, "해당 버전의 릴리스가 존재하지 않습니다."),
-    RELEASE_NOT_FOUND(HttpStatus.NOT_FOUND, false, 1504, "존재하지 않는 릴리스 정보입니다.");
-    
+    RELEASE_NOT_FOUND(HttpStatus.NOT_FOUND, false, 1504, "존재하지 않는 릴리스 정보입니다."),
+
+    /**
+     * 1800: 라이브룸 에러.
+     */
+    OPENVIDU_SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, false, 1804, "존재하지 않는 세션입니다.");
+
     private final HttpStatus httpStatus;
     private final boolean isSuccess;
     private final int code;
