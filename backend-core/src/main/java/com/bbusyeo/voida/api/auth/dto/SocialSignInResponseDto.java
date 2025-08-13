@@ -1,12 +1,12 @@
 package com.bbusyeo.voida.api.auth.dto;
 
-import com.bbusyeo.voida.api.member.domain.Member;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
- * 일반 로그인 응답 DTO
+ * 소셜 로그인 응답 DTO
  */
 @ToString
 @Getter
@@ -14,4 +14,11 @@ import lombok.ToString;
 public class SocialSignInResponseDto {
     private Boolean isFirstLogin;
     private Boolean isNewbie;
+
+    public String toQueryParams() {
+        return UriComponentsBuilder.newInstance()
+                .queryParam("isFirstLogin", isFirstLogin)
+                .queryParam("isNewbie", isNewbie)
+                .build().getQuery();
+    }
 }

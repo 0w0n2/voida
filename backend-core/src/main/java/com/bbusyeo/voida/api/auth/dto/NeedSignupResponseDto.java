@@ -3,6 +3,7 @@ package com.bbusyeo.voida.api.auth.dto;
 import com.bbusyeo.voida.global.security.dto.OAuth2UserInfo;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Getter
 @Builder
@@ -17,5 +18,13 @@ public class NeedSignupResponseDto {
                 .email(oAuth2UserInfo.getProviderEmail())
                 .providerName(oAuth2UserInfo.getProvideName())
                 .build();
+    }
+
+    public String toQueryParams() {
+        return UriComponentsBuilder.newInstance()
+                .queryParam("isFirstLogin", isFirstLogin)
+                .queryParam("email", email)
+                .queryParam("providerName", providerName)
+                .build().getQuery();
     }
 }
