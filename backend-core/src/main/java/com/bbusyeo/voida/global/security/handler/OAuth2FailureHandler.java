@@ -16,7 +16,7 @@ import java.io.IOException;
 @Component
 public class OAuth2FailureHandler implements AuthenticationFailureHandler { ;
 
-    @Value("${security.oauth.client-endpoint-fail}")
+    @Value("${security.oauth.client-endpoint}")
     private String redirectUri;
 
     @Override

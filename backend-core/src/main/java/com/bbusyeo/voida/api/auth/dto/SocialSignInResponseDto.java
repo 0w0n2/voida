@@ -14,9 +14,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class SocialSignInResponseDto {
     private Boolean isFirstLogin;
     private Boolean isNewbie;
+    private Integer code;
 
     public String toQueryParams() {
         return UriComponentsBuilder.newInstance()
+                .queryParam("code", 200)
                 .queryParam("isFirstLogin", isFirstLogin)
                 .queryParam("isNewbie", isNewbie)
                 .build().getQuery();

@@ -11,6 +11,7 @@ public class NeedSignupResponseDto {
     private final Boolean isFirstLogin;
     private final String email;
     private final String providerName;
+    private final Integer code;
 
     public static NeedSignupResponseDto toDto(OAuth2UserInfo oAuth2UserInfo) {
         return NeedSignupResponseDto.builder()
@@ -22,6 +23,7 @@ public class NeedSignupResponseDto {
 
     public String toQueryParams() {
         return UriComponentsBuilder.newInstance()
+                .queryParam("code", 200)
                 .queryParam("isFirstLogin", isFirstLogin)
                 .queryParam("email", email)
                 .queryParam("providerName", providerName)
