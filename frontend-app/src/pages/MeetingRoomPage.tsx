@@ -8,8 +8,6 @@ import { getRoomInfo, getRoomMembers } from '@/apis/meeting-room/meetingRoomApi'
 import { getRoomChatHistory } from '@/apis/stomp/meetingRoomStomp';
 import { useMeetingRoomStore } from '@/stores/useMeetingRoomStore';
 
-const SIDEBAR_WIDTH = 400; // 필요 시 조절
-
 const MeetingRoomPage = () => {
   const { meetingRoomId } = useParams<{ meetingRoomId: string }>();
   const { setRoomInfo, setParticipants, setChatMessages } = useMeetingRoomStore();
@@ -20,6 +18,20 @@ const MeetingRoomPage = () => {
   useEffect(() => {
     if (!meetingRoomId) return;
 
+/*************  ✨ Windsurf Command ⭐  *************/
+/**
+ * Fetches and sets the meeting room information, participants, and chat history.
+ * 
+ * This function performs the following asynchronous operations:
+ * 1. Retrieves the room information using `getRoomInfo` and updates the store.
+ * 2. Fetches the list of participants via `getRoomMembers` and updates the store.
+ * 3. Loads the chat history using `getRoomChatHistory` and updates the store.
+ * 
+ * If any of these operations fail, an error message is logged to the console.
+ * Once all data is fetched successfully, it sets the `isReady` state to true.
+ */
+
+/*******  efd4a416-cb2d-4192-86d9-1bc53d9eed8a  *******/
     const fetchData = async () => {
       try {
         const roomData = await getRoomInfo(meetingRoomId);
@@ -104,15 +116,28 @@ const container = css`
 `;
 
 const sidebar = (open: boolean) => css`
-  width: ${open ? `${SIDEBAR_WIDTH}px` : '0px'};
+  width: ${open ? `400px` : '0px'};
   transition: width 0.25s ease;
   border-right: ${open ? '1px solid #eef1f5' : 'none'};
   background: #ffffff;
   overflow: hidden;
+
+  @media (max-width: 1400px) {
+    flex: none;
+    width: 400px;
+  }
+  @media (max-width: 1200px) {
+    flex: none;
+    width: 350px;
+  }
+  @media (max-width: 900px) {
+    flex: none;
+    width: 300px;
+  }
 `;
 
 const sidebarInner = (open: boolean) => css`
-  width: ${SIDEBAR_WIDTH}px; /* 내부 폭은 고정 */
+  flex: 1;
   height: 100%;
   opacity: ${open ? 1 : 0};
   transition: opacity 0.2s ease;
@@ -133,7 +158,7 @@ const floatIn = keyframes`
 
 const edgeHitbox = (open: boolean) => css`
   position: absolute;
-  left: ${open ? `${SIDEBAR_WIDTH - 6}px` : '0px'};
+  left: ${open ? `394px` : '0px'};
   top: 50%;
   transform: translateY(-50%);
   width: 16px;        
@@ -141,7 +166,7 @@ const edgeHitbox = (open: boolean) => css`
   display: flex;
   align-items: center;
   justify-content: ${open ? 'flex-end' : 'flex-start'};
-  z-index: 9999;
+  z-index: 10;
 
   @media (max-width: 900px) {
     width: 22px;
@@ -173,6 +198,7 @@ const edgeHandle = css`
     background: linear-gradient(135deg, #5a7de0, #9466d6);
   }
 
+  /* 라벨 스타일 */
   .label {
     position: absolute;
     left: 34px;
@@ -186,9 +212,37 @@ const edgeHandle = css`
     transition: opacity 0.12s ease;
     pointer-events: none;
   }
-
   &:hover .label,
   &:focus-visible .label {
     opacity: 0.9;
+  }
+
+  /* 반응형 */
+  @media (max-width: 1200px) {
+    width: 26px;
+    height: 64px;
+    gap: 5px;
+    .label {
+      font-size: 11px;
+      left: 30px;
+    }
+  }
+  @media (max-width: 900px) {
+    width: 24px;
+    height: 58px;
+    gap: 4px;
+    .label {
+      font-size: 10px;
+      left: 28px;
+    }
+  }
+  @media (max-width: 600px) {
+    width: 22px;
+    height: 52px;
+    gap: 3px;
+    .label {
+      font-size: 9px;
+      left: 26px;
+    }
   }
 `;

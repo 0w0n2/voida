@@ -135,22 +135,17 @@ const panelStyle = css`
   @media (max-width: 1400px) {
     flex: none;
     width: 400px;
+    border-right: 1px solid #ddd;
   }
   @media (max-width: 1200px) {
     flex: none;
     width: 350px;
+    border-right: 1px solid #ddd;
   }
   @media (max-width: 900px) {
-    width: 100%;
-    height: auto;
-    border-right: none;
-    border-top: 1px solid #ddd;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  @media (max-width: 600px) {
-    padding: 1rem;
+    flex: none;
+    width: 300px;
+    border-right: 1px solid #ddd;
   }
 `;
 
