@@ -14,7 +14,8 @@ import RecordIcon from '@/assets/icons/record.png';
 const TestGeneralPage = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<null | 'success' | 'fail'>(null);
-  const navigate = useNavigate();
+  const [analysisText, setAnalysisText] = useState<string | null>(null);
+    const navigate = useNavigate();
 
   const { hasPermission, isRecording, start, stop } = useAudioRecorder({
     mimeType: 'audio/webm;codecs=opus',
@@ -22,11 +23,14 @@ const TestGeneralPage = () => {
     onStop: async ({ blob }) => {
       setIsAnalyzing(true);
       try {
-        const res = await uploadTutorialAudio(blob);
-        setAnalysisResult(res.data.result);
+        const file = new File([blob], 'general-test.webm', { type: blob.type });
+        const res = await uploadTutorialAudio(file, '0');
+        setAnalysisResult(res.isSuccess ? 'success' : 'fail');
+        setAnalysisText(res.result?.text || null); 
       } catch (err) {
         console.error(err);
         setAnalysisResult('fail');
+        setAnalysisText(null);
       }
     },
   });
@@ -69,17 +73,21 @@ const handleRecordToggle = () => {
       <TutorialModal
         isOpen={isAnalyzing}
         result={analysisResult}
-      onRetry={() => {
-        setIsAnalyzing(false);
-        setAnalysisResult(null);
+        text={analysisText} 
+        onRetry={() => {
+          setIsAnalyzing(false);
+          setAnalysisResult(null);
+          setAnalysisText(null);
 
-        setTimeout(() => {
           window.location.href = `${import.meta.env.VITE_APP_URL}/#/tutorial/test/general`;
-        }, 0);
-      }}
+          // setTimeout(() => {
+          //   window.location.href = `${import.meta.env.VITE_APP_URL}/#/tutorial/test/general`;
+          // }, 0);
+        }}
         onGoHome={() => {
           setIsAnalyzing(false);
           setAnalysisResult(null);
+          setAnalysisText(null);
           navigate('/main');
         }}
       />
