@@ -80,7 +80,7 @@ const badge = css`
   font-family: 'NanumSquareEB';
   font-size: 48px;
   line-height: 1;
-  padding: 8px 20px;
+  padding: 8px 20px;  
   border-radius: 16px;
   color: var(--color-primary, #8035ff);
   margin-bottom: 16px;
