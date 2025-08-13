@@ -34,6 +34,7 @@ public enum BaseResponseStatus {
      * 500: 기타 에러.
      */
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, false, 500, "서버에서 예기치 않은 오류가 발생했습니다."),
+    OPENVIDU_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, false, 500, "OpenVidu 서버에서 예기치 않은 오류가 발생했습니다."),
     DATABASE_CONSTRAINT_VIOLATION(HttpStatus.CONFLICT, false, 509, "데이터베이스 제약 조건을 위반했습니다. "
         + "(유니크 키 중복, 외래 키 위반, NOT NULL 위반 등에서 발생합니다.)"),
 
@@ -86,7 +87,7 @@ public enum BaseResponseStatus {
      */
     INVALID_VERSION(HttpStatus.BAD_REQUEST, false, 1500, "해당 버전의 릴리스가 존재하지 않습니다."),
     RELEASE_NOT_FOUND(HttpStatus.NOT_FOUND, false, 1504, "존재하지 않는 릴리스 정보입니다.");
-
+    
     private final HttpStatus httpStatus;
     private final boolean isSuccess;
     private final int code;
