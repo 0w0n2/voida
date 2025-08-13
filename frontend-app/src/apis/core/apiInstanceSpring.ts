@@ -58,6 +58,11 @@ apiInstanceSpring.interceptors.response.use(
             return apiInstanceSpring(originalRequest);
           } catch (refreshError) {
             useAlertStore.getState().showAlert('로그인이 필요합니다.', 'top');
+            
+            setTimeout(() => {
+              window.location.href = '#/login';
+            }, 3000);
+
             return Promise.reject(refreshError);
           }
         }

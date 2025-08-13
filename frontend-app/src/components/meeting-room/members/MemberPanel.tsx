@@ -124,7 +124,8 @@ const categoryLabels: Record<string, string> = {
 };
 
 const panelStyle = css`
-  width: 450px;
+  flex: 1;
+  height: 100%;
   background: #f9f9f9;
   padding: 1.5rem;
   border-right: 1px solid #ddd;
@@ -132,13 +133,16 @@ const panelStyle = css`
   flex-direction: column;
 
   @media (max-width: 1400px) {
+    flex: none;
     width: 400px;
   }
   @media (max-width: 1200px) {
+    flex: none;
     width: 350px;
   }
   @media (max-width: 900px) {
     width: 100%;
+    height: auto;
     border-right: none;
     border-top: 1px solid #ddd;
     flex-direction: row;
@@ -354,7 +358,6 @@ const lipIconWrapper = css`
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
   padding: 4px;
   transition: background-color 0.2s ease;
   margin-bottom: 12px;
