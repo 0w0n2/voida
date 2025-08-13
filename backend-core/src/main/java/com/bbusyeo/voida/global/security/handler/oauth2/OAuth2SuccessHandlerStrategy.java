@@ -1,6 +1,5 @@
 package com.bbusyeo.voida.global.security.handler.oauth2;
 
-import com.bbusyeo.voida.global.response.BaseResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;

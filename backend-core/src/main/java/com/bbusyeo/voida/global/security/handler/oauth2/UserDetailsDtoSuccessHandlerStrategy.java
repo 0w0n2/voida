@@ -1,21 +1,14 @@
 package com.bbusyeo.voida.global.security.handler.oauth2;
 
-import com.bbusyeo.voida.api.auth.dto.SignInResponseDto;
 import com.bbusyeo.voida.api.auth.dto.SocialSignInResponseDto;
 import com.bbusyeo.voida.api.auth.service.TokenAuthService;
-import com.bbusyeo.voida.global.response.BaseResponse;
 import com.bbusyeo.voida.global.security.dto.UserDetailsDto;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.DefaultRedirectStrategy;
-import org.springframework.security.web.RedirectStrategy;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 

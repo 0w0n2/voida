@@ -1,10 +1,8 @@
 package com.bbusyeo.voida.global.security.handler;
 
 import com.bbusyeo.voida.global.exception.BaseException;
-import com.bbusyeo.voida.global.response.BaseResponse;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
 import com.bbusyeo.voida.global.security.handler.oauth2.OAuth2SuccessHandlerStrategy;
-import com.bbusyeo.voida.global.security.util.ResponseWriter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

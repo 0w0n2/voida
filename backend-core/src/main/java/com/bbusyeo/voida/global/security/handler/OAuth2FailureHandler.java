@@ -1,10 +1,7 @@
 package com.bbusyeo.voida.global.security.handler;
 
 import com.bbusyeo.voida.global.exception.BaseException;
-import com.bbusyeo.voida.global.response.BaseResponse;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
-import com.bbusyeo.voida.global.security.util.ResponseWriter;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,10 +25,9 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler { ;
                 baseException.getStatus().getCode() :
                 BaseResponseStatus.INTERNAL_SERVER_ERROR.getCode();
 
-        response.sendRedirect(UriComponentsBuilder.fromUriString(redirectUri)
-                .queryParam("code", code)
-                .build().toString()
-        );
+        String queryParams = UriComponentsBuilder.fromUriString(redirectUri).queryParam("code", code).build().getQuery();
+        String targetUrl = redirectUri + "?" + queryParams;
+        response.setStatus(HttpServletResponse.SC_FOUND);
+        response.setHeader("Location", targetUrl);
     }
-
 }
