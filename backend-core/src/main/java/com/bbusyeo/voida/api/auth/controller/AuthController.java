@@ -47,7 +47,7 @@ public class AuthController {
         return new BaseResponse<>(tokenAuthService.issueJwtAndReturnDto(userDetails, response));
     }
 
-    @GetMapping("/reissue")
+    @PostMapping("/reissue")
     public BaseResponse<Void> refresh(@CookieValue(value = "refreshToken") String refreshToken, HttpServletResponse response) {
         tokenAuthService.refreshAccessToken(refreshToken, response);
         return new BaseResponse<>();
