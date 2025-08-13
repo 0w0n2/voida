@@ -259,6 +259,12 @@ const categorySelect = css`
   background-position: right center;
   background-size: 12px 12px;
   border-right: 1px solid #ccc;
+  text-align: center;
+  text-align-last: center;
+
+  option {
+    text-align: center;
+  }
 `;
 
 const searchInput = css`
