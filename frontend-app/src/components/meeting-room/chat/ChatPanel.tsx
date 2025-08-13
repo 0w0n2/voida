@@ -337,6 +337,7 @@ const inputWrapper = css`
   display:flex; 
   align-items:center; 
   margin:0 50px;
+  min-width: 150px;
   &:hover input { border-color: var(--color-primary); background:#f0f7ff; }
 `;
 
