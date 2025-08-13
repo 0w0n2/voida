@@ -98,5 +98,7 @@ export const getRandomNickname = () => {
 
 // 토큰 재발급
 export const reissueToken = () => {
-  return apiInstance.post('/v1/auth/reissue');
+  const res = apiInstance.post('/v1/auth/reissue');
+  console.log(res);
+  return;
 };

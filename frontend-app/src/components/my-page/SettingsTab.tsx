@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { getUserSettings, updateGuideMode } from '../../apis/auth/userApi';
 import { useAuthStore } from '../../stores/userStore';
 import { useAlertStore } from '@/stores/useAlertStore';
@@ -15,9 +15,7 @@ interface UserSettings {
 const SettingsTab = () => {
   const { user } = useAuthStore();
   const [userSpeech, setUserSpeech] = useState<UserSettings | null>(null);
-  const [loading, setLoading] = useState(true);
   const [hasChanged, setHasChanged] = useState(false);
-  const [showDoneModal, setShowDoneModal] = useState(false);
   const navigate = useNavigate();
 
   // 유저 설정 불러오기
@@ -31,8 +29,6 @@ const SettingsTab = () => {
         setUserSpeech({ useLipTalkMode: lipTalkMode });
       } catch (err) {
         console.error('유저 설정 조회 실패:', err);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -68,7 +64,6 @@ const SettingsTab = () => {
     setShowDoneModal(false);
   };
 
-  // TODO: API 연동 시 구현
   const handleGuidebook = () => {
     navigate('/tutorial');
   };
@@ -131,38 +126,6 @@ const SettingsTab = () => {
 };
 
 export default SettingsTab;
-
-const loadingContainerStyle = css`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  background-color: var(--color-bg-white);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-`;
-
-const loadingTextStyle = css`
-  font-family: 'NanumSquareR', sans-serif;
-  font-size: 16px;
-  color: var(--color-gray-600);
-`;
-
-const errorContainerStyle = css`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  background-color: var(--color-bg-white);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-`;
-
-const errorTextStyle = css`
-  font-family: 'NanumSquareR', sans-serif;
-  font-size: 16px;
-  color: var(--color-red);
-`;
 
 const settingsPanelStyle = css`
   width: 100%;
@@ -341,9 +304,9 @@ const guidebookButtonStyle = css`
   transition: all 0.25s ease;
 
   &:hover {
-    background: linear-gradient(90deg, #5c7de5, #965fe0); /* 색상 살짝 진하게 */
-    transform: scale(1.05); /* 살짝 확대 */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* 그림자 강조 */
+    background: linear-gradient(90deg, #5c7de5, #965fe0);
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     font-family: 'NanumSquareB';
   }
 `;
