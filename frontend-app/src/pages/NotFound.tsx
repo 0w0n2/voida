@@ -8,7 +8,6 @@ export default function NotFound() {
 
   return (
     <div css={wrap}>
-      {/* 유리(Glass) 카드 */}
       <div css={card}>
         <div css={badge}>404</div>
         <h1 css={title}>페이지를 찾을 수 없어요</h1>

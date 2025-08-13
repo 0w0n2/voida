@@ -38,6 +38,8 @@ const MainForm = ({ rooms = [] }: MainFormProps) => {
   const itemsPerPage = 6;
   const categories = ['전체', ...Object.values(categoryLabels)];
 
+  console.log(rooms);
+
   const filteredRooms = rooms.filter((room) => {
     const normalizedCategory = room.categoryName?.toLowerCase().trim();
     const roomCategoryKo = categoryLabels[normalizedCategory] || '기타';

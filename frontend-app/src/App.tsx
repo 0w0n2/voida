@@ -23,7 +23,7 @@ function App() {
     <HashRouter>
       <GlobalAlert />
       <Routes>
-        <Route path="/404" element={<NotFound />} />
+        <Route path="*" element={<NotFound />} />
         <Route path="/" element={<StartingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
