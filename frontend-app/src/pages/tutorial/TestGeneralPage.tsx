@@ -15,7 +15,7 @@ const TestGeneralPage = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<null | 'success' | 'fail'>(null);
   const [analysisText, setAnalysisText] = useState<string | null>(null);
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const { hasPermission, isRecording, start, stop } = useAudioRecorder({
     mimeType: 'audio/webm;codecs=opus',
@@ -79,10 +79,7 @@ const handleRecordToggle = () => {
           setAnalysisResult(null);
           setAnalysisText(null);
 
-          window.location.href = `${import.meta.env.VITE_APP_URL}/#/tutorial/test/general`;
-          // setTimeout(() => {
-          //   window.location.href = `${import.meta.env.VITE_APP_URL}/#/tutorial/test/general`;
-          // }, 0);
+          navigate('/tutorial/general', { replace: true });
         }}
         onGoHome={() => {
           setIsAnalyzing(false);

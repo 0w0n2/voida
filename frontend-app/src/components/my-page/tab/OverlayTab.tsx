@@ -1,9 +1,9 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useState, useEffect } from 'react';
-import { getUserSettings, updateOverlay } from '../../apis/auth/userApi';
-import { useAuthStore } from '../../stores/userStore';
-import UpdateDoneModal from './UpdateDoneModal';
+import { getUserSettings, updateOverlay } from '@/apis/auth/userApi';
+import { useAuthStore } from '@/stores/userStore';
+import UpdateDoneModal from '@/components/my-page/modal/UpdateDoneModal';
 
 type OverlayPosition = 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT';
 
@@ -14,8 +14,6 @@ const OverlayTab = () => {
   const [liveFontSize, setLiveFontSize] = useState<number>(0);
   const [overlayTransparency, setOverlayTransparency] = useState<number>(0);
   const [changed, setChanged] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
   const [showDoneModal, setShowDoneModal] = useState(false);
 
   // 유저 설정 불러오기
@@ -30,7 +28,6 @@ const OverlayTab = () => {
         setOverlayTransparency(res.data.result.setting.overlayTransparency);
       } catch (err) {
         console.error('유저 설정 조회 실패:', err);
-        setError('유저 설정을 불러오는데 실패했습니다.');
       }
     };
     fetchUserSettings();

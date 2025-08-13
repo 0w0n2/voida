@@ -3,10 +3,10 @@ import { css } from '@emotion/react';
 import { useEffect, useRef, useState } from 'react';
 import { UserCog, Settings, Keyboard, Scan } from 'lucide-react';
 import Header from '@/components/Header';
-import ProfileTab from '@/components/my-page/ProfileTab';
-import SettingsTab from '@/components/my-page/SettingsTab';
-import ShortcutsTab from '@/components/my-page/ShortcutsTab';
-import OverlayTab from '@/components/my-page/OverlayTab';
+import ProfileTab from '@/components/my-page/tab/ProfileTab';
+import SettingsTab from '@/components/my-page/tab/SettingsTab';
+import ShortcutsTab from '@/components/my-page/tab/ShortcutsTab';
+import OverlayTab from '@/components/my-page/tab/OverlayTab';
 
 const tabList = [
   { key: 'profile', label: '프로필', icon: UserCog, component: <ProfileTab /> },

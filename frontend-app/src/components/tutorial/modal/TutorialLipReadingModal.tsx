@@ -8,6 +8,7 @@ interface TutorialModalProps {
   result: null | 'success' | 'fail';
   onRetry: () => void;  
   onGoHome: () => void;  
+  text?: string | null; 
 }
 
 export default function TutorialModal({
@@ -15,8 +16,12 @@ export default function TutorialModal({
   result,
   onRetry,
   onGoHome,
+  text,
 }: TutorialModalProps) {
   if (!isOpen) return null;
+
+  console.log(result);
+  console.log(text);
 
   return (
     <div css={overlayStyle}>
@@ -48,6 +53,11 @@ export default function TutorialModal({
                   <br />
                   모든 준비가 끝났습니다.
                 </p>
+                {text && (
+                  <p css={recognizedText}>
+                    <strong>인식된 문장:</strong> {text}
+                  </p>
+                )}
               </div>
             </div>
             <div css={buttonGroup}>
@@ -188,6 +198,13 @@ const contentRow = css`
 
 const textCol = css`
   text-align: left;
+`;
+
+const recognizedText = css`
+  margin-top: 0.75rem;
+  font-size: clamp(13px, 1.6vw, 16px);
+  color: #374151;
+  word-break: keep-all;
 `;
 
 const iconWrapper = css`

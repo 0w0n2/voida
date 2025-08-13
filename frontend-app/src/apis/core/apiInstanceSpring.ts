@@ -16,6 +16,7 @@ apiInstanceSpring.interceptors.request.use(
       '/v1/auth/verify-email',
       '/v1/auth/check-nickname',
       '/v1/auth/check-email',
+      '/v1/auth/reissue',
     ];
     if (token && !excludedUrls.includes(config.url || '')) {
       config.headers.Authorization = `${token}`;
@@ -44,17 +45,16 @@ apiInstanceSpring.interceptors.response.use(
 
     switch (status) {
       case 400:
-        useAlertStore
-          .getState()
-          .showAlert(data.message || '입력값을 다시 확인해주세요.', 'top');
+        useAlertStore.getState().showAlert(data.message || '입력값을 다시 확인해주세요.', 'top');
         break;
       case 401:
         if (!originalRequest._retry) {
           originalRequest._retry = true;
           try {
             const response = await reissueToken();
-            localStorage.setItem('accessToken', response.data.accessToken);
-            originalRequest.headers.Authorization = `Bearer ${response.data.accessToken}`;
+            console.log(response);
+            localStorage.setItem('accessToken', response.headers.authorization);
+            originalRequest.headers.Authorization = `Bearer ${response.headers.authorization}`;
             return apiInstanceSpring(originalRequest);
           } catch (refreshError) {
             useAlertStore.getState().showAlert('로그인이 필요합니다.', 'top');

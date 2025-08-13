@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useAuthStore } from '@/stores/authStore';
-import defaultProfile from '../../assets/profiles/defaultProfile.png';
+import defaultProfile from '@/assets/profiles/defaultProfile.png';
 
 interface UpdateDoneModalProps {
   isOpen: boolean;

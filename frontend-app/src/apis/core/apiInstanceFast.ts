@@ -5,7 +5,6 @@ import { useAlertStore } from '@/stores/useAlertStore';
 const apiInstanceFast = axios.create({
   baseURL: import.meta.env.VITE_FAST_API_URL,
   withCredentials: true,
-  timeout: 5000,
 });
 
 apiInstanceFast.interceptors.request.use(

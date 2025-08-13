@@ -9,13 +9,14 @@ import TutorialModal from '@/components/tutorial/modal/TutorialLipReadingModal';
 import RecordButton from '@/assets/icons/record.png';
 import { useVideoRecorder } from '@/hooks/useVideoRecorder';
 
-const maxDuration = 7000;
+const maxDuration = 5000;
 
 const TestLipReadingPage = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [progress, setProgress] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<null | 'success' | 'fail'>(null);
+  const [analysisText, setAnalysisText] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const { hasPermission, isRecording, stream, start, stop } = useVideoRecorder({
@@ -28,12 +29,15 @@ const TestLipReadingPage = () => {
       setIsAnalyzing(true);
       try {
         const file = new File([blob], 'lip-test.webm', { type: blob.type });
-
         const res = await uploadLipTestVideo(file, '0');
-        setAnalysisResult(res.data.result);
+        console.log(res.videoResult);
+        console.log(res.transText);
+        setAnalysisResult(res.videoResult ? 'success' : 'fail');
+        setAnalysisText(res.transText || null); 
       } catch (err) {
         console.error(err);
         setAnalysisResult('fail');
+        setAnalysisText(null);
       }
     },
   });
@@ -87,7 +91,7 @@ const TestLipReadingPage = () => {
           )}
 
           <div css={textBox(progress)}>
-            <p>“Hello, My name is John.”</p>
+            <p>“Hello, World!”</p>
           </div>
         </div>
       </div>
@@ -95,17 +99,18 @@ const TestLipReadingPage = () => {
       <TutorialModal
         isOpen={isAnalyzing}
         result={analysisResult}
-      onRetry={() => {
+        text={analysisText} 
+        onRetry={() => {
         setIsAnalyzing(false);
         setAnalysisResult(null);
+        setAnalysisText(null);
 
-        setTimeout(() => {
-          window.location.href = `${import.meta.env.VITE_APP_URL}/#/tutorial/test/lip-reading`;
-        }, 0);
+         navigate('/tutorial/lip-reading', { replace: true });
       }}
         onGoHome={() => {
           setIsAnalyzing(false);
           setAnalysisResult(null);
+          setAnalysisText(null);
           navigate('/main');
         }}
       />

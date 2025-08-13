@@ -6,10 +6,10 @@ import { Camera, UserCog, Settings, Mail, Globe } from 'lucide-react';
 import defaultProfile from '@/assets/profiles/defaultProfile.png';
 import { deleteUser, updateUser } from '@/apis/auth/userApi';
 import { useAuthStore } from '@/stores/authStore';
-import UpdatePasswordModal from './UpdatePasswordModal';
-import GetOutModal from './GetOutModal';
+import UpdatePasswordModal from '../modal/UpdatePasswordModal';
+import GetOutModal from '../modal/GetOutModal';
 import google from '@/assets/icons/google-logo.png';
-import UpdateDoneModal from './UpdateDoneModal';
+import UpdateDoneModal from '../modal/UpdateDoneModal';
 
 interface UserProfile {
   nickname: string;

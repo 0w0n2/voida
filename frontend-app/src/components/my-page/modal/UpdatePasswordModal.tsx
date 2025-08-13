@@ -5,7 +5,7 @@ import { checkCurrentPassword, updatePassword } from '@/apis/auth/userApi';
 import EyeIcon from '@/assets/icons/eye.png';
 import EyeCloseIcon from '@/assets/icons/crossed-eye.png';
 import { Eye } from 'lucide-react';
-import UpdatePasswordDoneModal from '@/components/my-page/UpdatePasswordDoneModal';
+import UpdatePasswordDoneModal from '@/components/my-page/modal/UpdatePasswordDoneModal';
 
 interface UpdatePasswordModalProps {
   isOpen: boolean;

@@ -1,9 +1,9 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useState, useEffect } from 'react';
-import { getUserQuickSlots, updateQuickslots } from '../../apis/auth/userApi';
-import { useAuthStore } from '../../stores/userStore';
-import UpdateDoneModal from './UpdateDoneModal';
+import { getUserQuickSlots, updateQuickslots } from '@/apis/auth/userApi';
+import { useAuthStore } from '@/stores/authStore';
+import UpdateDoneModal from '@/components/my-page/modal/UpdateDoneModal';
 
 interface Shortcut {
   quickSlotId: number;
