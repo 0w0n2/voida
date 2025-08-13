@@ -3,7 +3,6 @@ import { css } from '@emotion/react';
 import { useState, useEffect } from 'react';
 import { getUserQuickSlots, updateQuickslots } from '../../apis/auth/userApi';
 import { useAuthStore } from '../../stores/userStore';
-import { useAlertStore } from '@/stores/useAlertStore';
 import UpdateDoneModal from './UpdateDoneModal';
 
 interface Shortcut {
@@ -58,22 +57,20 @@ const ShortcutsTab = () => {
     const newShortcuts = [...shortcuts];
     newShortcuts[index].message = value;
     setShortcuts(newShortcuts);
-
-    setHasChanged(true);
   };
 
   const handleSave = async () => {
     try {
+      setSaving(true);
+
       await updateQuickslots(shortcuts);
       setShowDoneModal(true);
+      setSaving(false);
       console.log('단축키 저장 완료');
       console.log(shortcuts);
-      setHasChanged(false);
-      useAlertStore
-        .getState()
-        .showAlert('유저 정보가 업데이트되었습니다.', 'top');
     } catch (err) {
       console.error('단축키 저장 실패:', err);
+      setSaving(false);
     }
   };
 
@@ -85,12 +82,8 @@ const ShortcutsTab = () => {
     <div css={shortcutsPanelStyle}>
       <div css={shortcutsHeaderStyle}>
         <h2 css={panelTitleStyle}>단축키 설정</h2>
-        <button
-          css={saveButtonStyle}
-          onClick={handleSave}
-          disabled={!hasChanged}
-        >
-          저장하기
+        <button css={saveButtonStyle} onClick={handleSave} disabled={saving}>
+          {saving ? '저장 중...' : '저장하기'}
         </button>
       </div>
       <p css={panelSubtitleStyle}>
@@ -115,11 +108,11 @@ const ShortcutsTab = () => {
         ))}
       </div>
 
-      {/* <UpdateDoneModal
+      <UpdateDoneModal
         isOpen={showDoneModal}
         onClose={handleCloseModal}
         userName={user?.nickname || '사용자'}
-      /> */}
+      />
     </div>
   );
 };
@@ -130,20 +123,8 @@ const shortcutsPanelStyle = css`
   width: 100%;
   background-color: var(--color-bg-white);
   border-radius: 12px;
-  padding: 3%;
+  padding: 32px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-
-  @media (max-width: 1024px) {
-    padding: 2.5%;
-  }
-
-  @media (max-width: 768px) {
-    padding: 20px;
-  }
-
-  @media (max-width: 480px) {
-    padding: 15px;
-  }
 `;
 
 const shortcutsHeaderStyle = css`

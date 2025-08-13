@@ -422,7 +422,7 @@ const actionButtonsStyle = css`
 const withdrawButtonStyle = css`
   padding: 8px 16px;
   background-color: var(--color-gray-300);
-  color: var(--color-text-white);
+  color: var(--color-gray-500);
   border: none;
   border-radius: 6px;
   font-family: 'NanumSquareR', sans-serif;
@@ -433,6 +433,7 @@ const withdrawButtonStyle = css`
 
   &:hover {
     background-color: var(--color-red-dark);
+    color: var(--color-text-white);
   }
 
   &:disabled {

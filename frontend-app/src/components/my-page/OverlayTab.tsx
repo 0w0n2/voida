@@ -3,7 +3,6 @@ import { css } from '@emotion/react';
 import { useState, useEffect } from 'react';
 import { getUserSettings, updateOverlay } from '../../apis/auth/userApi';
 import { useAuthStore } from '../../stores/userStore';
-import { useAlertStore } from '@/stores/useAlertStore';
 import UpdateDoneModal from './UpdateDoneModal';
 
 type OverlayPosition = 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT';
@@ -109,12 +108,12 @@ const OverlayTab = () => {
               게임 중 채팅의 글자 크기를 지정할 수 있습니다.
             </p>
             <div css={sliderContainerStyle}>
-              <span css={sliderLabelStyle}>0</span>
+              <span css={sliderLabelStyle}>가</span>
               <input
-                css={fontSliderStyle(liveFontSize)}
+                css={sliderStyle}
                 type="range"
-                min="0"
-                max="100"
+                min="12"
+                max="48"
                 value={liveFontSize}
                 onChange={(e) => handleFontSizeChange(Number(e.target.value))}
               />
@@ -135,7 +134,7 @@ const OverlayTab = () => {
             <div css={sliderContainerStyle}>
               <span css={sliderLabelStyle}>0%</span>
               <input
-                css={sliderStyle(overlayTransparency)}
+                css={sliderStyle}
                 type="range"
                 min="0"
                 max="100"
@@ -165,20 +164,8 @@ const overlayPanelStyle = css`
   width: 100%;
   background-color: var(--color-bg-white);
   border-radius: 12px;
-  padding: 3%;
+  padding: 32px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-
-  @media (max-width: 1024px) {
-    padding: 2.5%;
-  }
-
-  @media (max-width: 768px) {
-    padding: 20px;
-  }
-
-  @media (max-width: 480px) {
-    padding: 15px;
-  }
 `;
 
 const overlayHeaderStyle = css`
@@ -316,48 +303,8 @@ const sliderStyle = css`
   background: linear-gradient(
     to right,
     var(--color-primary) 0%,
-    var(--color-primary) ${val}%,
-    var(--color-gray-200) ${val}%,
-    var(--color-gray-200) 100%
-  );
-  border-radius: 3px;
-  outline: none;
-  -webkit-appearance: none;
-  appearance: none;
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  &::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 18px;
-    height: 18px;
-    background: var(--color-primary);
-    border-radius: 50%;
-    cursor: pointer;
-  }
-
-  &::-moz-range-thumb {
-    width: 18px;
-    height: 18px;
-    background: var(--color-primary);
-    border-radius: 50%;
-    cursor: pointer;
-    border: none;
-  }
-`;
-
-const fontSliderStyle = (val: number) => css`
-  flex: 1;
-  height: 6px;
-  background: linear-gradient(
-    to right,
-    var(--color-primary) 0%,
-    var(--color-primary) ${val}%,
-    var(--color-gray-200) ${val}%,
+    var(--color-primary) 50%,
+    var(--color-gray-200) 50%,
     var(--color-gray-200) 100%
   );
   border-radius: 3px;
