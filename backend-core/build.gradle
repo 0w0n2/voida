@@ -80,6 +80,9 @@ dependencies {
 
 	// OpenVidu
 	implementation 'io.openvidu:openvidu-java-client:2.31.0'
+	 
+	// MultipartEntityBuilder
+	implementation 'org.apache.httpcomponents:httpmime:4.5.14'
 }
 
 tasks.named('test') {

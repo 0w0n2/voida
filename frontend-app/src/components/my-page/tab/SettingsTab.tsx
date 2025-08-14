@@ -1,11 +1,13 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import React, { useState, useEffect } from 'react';
-import { getUserSettings, updateGuideMode } from '../../apis/auth/userApi';
-import { useAuthStore } from '../../stores/userStore';
+import { useState, useEffect } from 'react';
+import { getUserSettings, updateGuideMode } from '@/apis/auth/userApi';
+import { useAuthStore } from '@/stores/userStore';
+import { useAlertStore } from '@/stores/useAlertStore';
 import { useNavigate } from 'react-router-dom';
-import UpdateDoneModal from './UpdateDoneModal';
+import UpdateDoneModal from '@/components/my-page/modal/UpdateDoneModal';
 import guide from '@/assets/icons/mp-guide.png';
+
 
 interface UserSettings {
   useLipTalkMode: boolean;
@@ -14,9 +16,7 @@ interface UserSettings {
 const SettingsTab = () => {
   const { user } = useAuthStore();
   const [userSpeech, setUserSpeech] = useState<UserSettings | null>(null);
-  const [loading, setLoading] = useState(true);
   const [hasChanged, setHasChanged] = useState(false);
-  const [showDoneModal, setShowDoneModal] = useState(false);
   const navigate = useNavigate();
 
   // 유저 설정 불러오기
@@ -30,8 +30,6 @@ const SettingsTab = () => {
         setUserSpeech({ useLipTalkMode: lipTalkMode });
       } catch (err) {
         console.error('유저 설정 조회 실패:', err);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -55,6 +53,7 @@ const SettingsTab = () => {
       console.log('변경된 값:', userSpeech?.useLipTalkMode);
       setShowDoneModal(true);
       setHasChanged(false);
+      useAlertStore.getState().showAlert('유저 정보가 업데이트되었습니다.', 'top');
     } catch (err) {
       console.error('설정 저장 실패:', err);
     }
@@ -64,7 +63,6 @@ const SettingsTab = () => {
     setShowDoneModal(false);
   };
 
-  // TODO: API 연동 시 구현
   const handleGuidebook = () => {
     navigate('/tutorial');
   };
@@ -117,77 +115,56 @@ const SettingsTab = () => {
         </div>
       </div>
 
-      <UpdateDoneModal
+      {/* <UpdateDoneModal
         isOpen={showDoneModal}
         onClose={handleCloseModal}
         userName={user?.nickname || '사용자'}
-      />
+      /> */}
     </div>
   );
 };
 
 export default SettingsTab;
 
-const loadingContainerStyle = css`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  background-color: var(--color-bg-white);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-`;
-
-const loadingTextStyle = css`
-  font-family: 'NanumSquareR', sans-serif;
-  font-size: 16px;
-  color: var(--color-gray-600);
-`;
-
-const errorContainerStyle = css`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  background-color: var(--color-bg-white);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-`;
-
-const errorTextStyle = css`
-  font-family: 'NanumSquareR', sans-serif;
-  font-size: 16px;
-  color: var(--color-red);
-`;
-
 const settingsPanelStyle = css`
   width: 100%;
   background-color: var(--color-bg-white);
   border-radius: 12px;
-  padding: 32px;
+  padding: 3%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 1024px) {
+    padding: 2.5%;
+  }
+
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 15px;
+  }
 `;
 
 const settingsHeaderStyle = css`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
 `;
 
 const panelTitleStyle = css`
-  font-family: 'NanumSquareB', sans-serif;
-  font-size: 20px;
-  font-weight: 800;
+  font-family: 'NanumSquareEB';
+  font-size: 22px;
   color: var(--color-text);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  text-align: center;
 `;
 
 const panelSubtitleStyle = css`
   font-family: 'NanumSquareR', sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--color-gray-600);
-  margin-bottom: 24px;
+  margin-bottom: 48px;
 `;
 
 const saveButtonStyle = css`
@@ -221,8 +198,17 @@ const settingsSectionStyle = css`
 
 const horizontalContainerStyle = css`
   display: flex;
-  gap: 40px;
+  gap: 3%;
   width: 100%;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 15px;
+  }
 `;
 
 const settingsItemStyle = css`
@@ -230,70 +216,97 @@ const settingsItemStyle = css`
   justify-content: space-between;
   align-items: center;
   padding: 20px 0;
-  border-bottom: 1px solid var(--color-gray-200);
+  // border-bottom: 1px solid var(--color-gray-200);
   flex: 1;
+  border-radius: 12px;
+  background-color: var(--color-gray-100);
+  padding: 24px;
 `;
 
 const settingsItemLeftStyle = css`
   flex: 1;
+  margin-left: 20px;
 `;
 
 const settingsItemTitleStyle = css`
-  font-family: 'NanumSquareB', sans-serif;
-  font-size: 16px;
-  font-weight: 700;
+  font-family: 'NanumSquareEB';
+  font-size: 18px;
   color: var(--color-text);
-  margin-bottom: 4px;
+  margin-bottom: 10px;
 `;
 
 const settingsItemDescriptionStyle = css`
   font-family: 'NanumSquareR', sans-serif;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--color-gray-600);
 `;
 
 const toggleSwitchStyle = (enabled: boolean, disabled?: boolean) => css`
-  width: 50px;
-  height: 24px;
-  margin-right: 80px;
+  width: 60px;
+  height: 32px;
+  margin-right: 40px;
   background-color: ${enabled
     ? 'var(--color-primary)'
     : 'var(--color-gray-200)'};
-  border-radius: 12px;
+  border-radius: 20px;
   position: relative;
   cursor: ${disabled ? 'not-allowed' : 'pointer'};
-  transition: background-color 0.2s ease;
+  transition: background-color 0.25s ease, box-shadow 0.25s ease;
   opacity: ${disabled ? 0.6 : 1};
+
+  &:hover {
+    box-shadow: ${disabled
+      ? 'none'
+      : enabled
+      ? '0 0 6px rgba(0, 150, 255, 0.5)'
+      : '0 0 6px rgba(150, 150, 150, 0.5)'};
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
 `;
 
 const toggleSliderStyle = (enabled: boolean) => css`
-  width: 20px;
-  height: 20px;
+  width: 28px;
+  height: 28px;
   background-color: var(--color-bg-white);
   border-radius: 50%;
   position: absolute;
   top: 2px;
   left: ${enabled ? '28px' : '2px'};
-  transition: left 0.2s ease;
+  transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.9);
+  }
 `;
+
 
 const guidebookButtonStyle = css`
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 16px;
+  padding: 12px 18px;
+  margin-right: 20px;
   background: linear-gradient(90deg, #6e8efb, #a777e3);
   color: var(--color-text-white);
   border: none;
   border-radius: 6px;
-  font-family: 'NanumSquareR', sans-serif;
+  font-family: 'NanumSquareR';
   font-size: 14px;
-  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.25s ease;
 
   &:hover {
-    background-color: #1e8a5a;
+    background: linear-gradient(90deg, #5c7de5, #965fe0);
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    font-family: 'NanumSquareB';
   }
 `;

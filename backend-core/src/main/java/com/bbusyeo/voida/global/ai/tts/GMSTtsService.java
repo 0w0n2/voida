@@ -1,6 +1,6 @@
 package com.bbusyeo.voida.global.ai.tts;
 
-import com.bbusyeo.voida.global.ai.tts.dto.CustomMultipartFile;
+import com.bbusyeo.voida.global.support.CustomMultipartFile;
 import com.bbusyeo.voida.global.ai.tts.dto.GMSTtsRequestDto;
 import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
@@ -11,7 +11,8 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
+
+import java.time.Duration;
 
 /**
  * SSAFY GMS - gpt-4o-mini-tts 모델 활용하여 TTS 생성하는 서비스 구현체
@@ -41,7 +42,7 @@ public class GMSTtsService implements TtsService {
     }
 
     @Override
-    public Mono<MultipartFile> createSpeechByText(String message) {
+    public MultipartFile createSpeechByText(String message) {
         GMSTtsRequestDto requestDto = GMSTtsRequestDto.toDto(model, message); // 요청 본문
 
         return webClient.post()
@@ -51,7 +52,9 @@ public class GMSTtsService implements TtsService {
                 .bodyToMono(byte[].class)
                 .map(this::toMultipartFile)
                 .cast(MultipartFile.class)
-                .onErrorMap(e -> new BaseException(BaseResponseStatus.TTS_CONVERSION_FAILED));
+                .onErrorMap(e -> new BaseException(BaseResponseStatus.TTS_CONVERSION_FAILED))
+                .timeout(Duration.ofSeconds(20))
+                .block();
     }
 
     // byte[] 를 MultipartFile 객체로 변환

@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { login } from '@/apis/auth/authApi';
 import { getUser } from '@/apis/auth/userApi';
@@ -20,10 +20,22 @@ const LoginForm = () => {
   const { setUser } = useAuthStore();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const blockEnter = (e: KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.stopPropagation();
+      }
+    };
+    document.addEventListener('keydown', blockEnter, true);
+    return () => {
+      document.removeEventListener('keydown', blockEnter, true);
+    };
+  }, []);
+
   // 구글 로그인 리다이렉트 함수
   const handleGoogleLogin = () => {
     const provider = 'google';
-    window.location.href = `${import.meta.env.VITE_API_URL}/oauth2/authorization/${provider}`;
+    window.location.href = `${import.meta.env.VITE_SPRING_API_URL}/oauth2/authorization/${provider}`;
   };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,24 +110,15 @@ const LoginForm = () => {
         profileImage: response.data.result.member.profileImageUrl || '',
         memberUuid: response.data.result.member.memberUuid,
       };
-      console.log(user);
       setUser(user);
 
-      console.log(isNewbie);
       if (isNewbie) {
-        navigate('/tutorial');
-        return;
-      } else {
         navigate('/main');
-        return;
+      } else {
+        navigate('/tutorial');
       }
-
-      // 비밀번호 틀릴  때
-      setPasswordError('비밀번호가 일치하지 않습니다.');
     } catch (e) {
       console.log(e);
-      // const axiosError = err as AxiosError<{ message: string }>;
-      // setError(axiosError.response?.data?.message || '로그인 실패');
     }
   };
 

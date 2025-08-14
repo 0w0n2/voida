@@ -1,8 +1,8 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Home, Copy, Camera, Grid, UserPlus } from 'lucide-react';
-import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
+import { Home, RefreshCw, Copy, Camera, Grid, UserPlus } from 'lucide-react';
+import { useMeetingRoomStore } from '@/stores/useMeetingRoomStore';
 import { getInviteCode, postInviteCode, getRoomInfo, updateRoomInfo } from '@/apis/meeting-room/meetingRoomApi';
 import { useAlertStore } from '@/stores/useAlertStore';
 
@@ -11,7 +11,9 @@ const SettingRoom = () => {
   const [title, setTitle] = useState(roomInfo?.title ?? '');
   const [category, setCategory] = useState(roomInfo?.category ?? '');
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
-  const [thumbnailPreview, setThumbnailPreview] = useState<string>(roomInfo?.thumbnailImageUrl?.toString() || '');
+  const [thumbnailPreview, setThumbnailPreview] = useState<string>(
+    roomInfo?.thumbnailImageUrl?.toString() || '',
+  );
   const [inviteCode, setInviteCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -37,6 +39,12 @@ const SettingRoom = () => {
   useEffect(() => {
     fetchInviteCode();
   }, [fetchInviteCode]);
+
+  const refreshCode = async () => {
+    if (!roomInfo?.meetingRoomId) return;
+    const res = await postInviteCode(roomInfo.meetingRoomId);
+    setInviteCode(res.inviteCode);
+  };
 
   const copyCode = () => {
     if (!inviteCode) return;
@@ -169,6 +177,9 @@ const SettingRoom = () => {
           <UserPlus />
         </div>
         <input css={fieldInput} value={inviteCode ?? ''} readOnly />
+        <button css={refreshButton} onClick={refreshCode}>
+          <RefreshCw />
+        </button>
         <button css={codeButton} onClick={copyCode}>
           <Copy />
         </button>
@@ -179,7 +190,10 @@ const SettingRoom = () => {
           변경사항 저장
         </button>
       </div>
-      {copied &&  useAlertStore.getState().showAlert('초대코드가 복사되었습니다!', 'bottom') }
+      {copied &&
+        useAlertStore
+          .getState()
+          .showAlert('초대코드가 복사되었습니다!', 'bottom')}
     </>
   );
 };
@@ -268,6 +282,25 @@ const select = css`
 
   @media (max-width: 600px) {
     font-size: 15px;
+  }
+`;
+
+const refreshButton = css`
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+  }
+
+  &:hover {
+    opacity: 0.8;
   }
 `;
 

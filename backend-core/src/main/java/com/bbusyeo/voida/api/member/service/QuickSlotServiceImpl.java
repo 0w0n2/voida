@@ -64,7 +64,6 @@ public class QuickSlotServiceImpl implements QuickSlotService {
                 }
             }
         }
-
         // 파일 업로드 모두 성공 후 DB 업데이트를 위한 별도의 트랜잭션 메소드 호출
         try {
             quickSlotUpdateService.updateQuickSlotsInTransaction(memberQuickSlots, requestSlotMap, newSoundUrls);
@@ -85,7 +84,7 @@ public class QuickSlotServiceImpl implements QuickSlotService {
     
     // message 문자열을 입력 받아 TTS 로 변환하고, S3에 업로드
     private String generateAndUploadSound(String message) {
-        MultipartFile ttsAudioData = ttsService.createSpeechByText(message).block();    // TTS 를 통해 음성 파일 테이터 생성
+        MultipartFile ttsAudioData = ttsService.createSpeechByText(message);    // TTS 를 통해 음성 파일 테이터 생성
         return s3Uploader.upload(ttsAudioData, MemberValue.S3_QUICK_SLOT_SOUND_DIR);    // S3에 음성 파일 업로드 후 URL 반환
     }
 }

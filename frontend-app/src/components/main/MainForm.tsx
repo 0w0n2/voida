@@ -38,6 +38,8 @@ const MainForm = ({ rooms = [] }: MainFormProps) => {
   const itemsPerPage = 6;
   const categories = ['전체', ...Object.values(categoryLabels)];
 
+  console.log(rooms);
+
   const filteredRooms = rooms.filter((room) => {
     const normalizedCategory = room.categoryName?.toLowerCase().trim();
     const roomCategoryKo = categoryLabels[normalizedCategory] || '기타';
@@ -217,16 +219,15 @@ const container = css`
 
 const searchContainer = css`
   ${glassStyle};
-  position: fixed;
-  top: 90px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 100;
+  position: sticky;
+  top: 0;
+  z-index: 10;
   width: 100%;
   max-width: 800px;
+  margin: 0 auto;
 
   @media (min-height: 1000px) {
-    top: 110px;
+    top: 20px;
   }
 `;
 
@@ -260,6 +261,12 @@ const categorySelect = css`
   background-position: right center;
   background-size: 12px 12px;
   border-right: 1px solid #ccc;
+  text-align: center;
+  text-align-last: center;
+
+  option {
+    text-align: center;
+  }
 `;
 
 const searchInput = css`
@@ -297,11 +304,10 @@ const cardGrid = css`
   justify-content: center;
   grid-auto-rows: 290px;
   gap: 32px;
-  margin-top: 110px;
-  margin-bottom: 40px;
+  margin: 40px;
 
   @media (min-height: 1000px) {
-    margin-top: 170px;
+    margin-top: 110px;
     gap: 50px;
   }
 `;
@@ -371,14 +377,13 @@ const participants = css`
 `;
 
 const pagination = css`
-  position: fixed;
-  bottom: clamp(40px, 6vh, 60px);
-  left: 50%;
-  transform: translateX(-50%);
   display: flex;
   justify-content: center;
-  gap: 8px;
-  z-index: 100;
+  gap: 10px;
+  margin-bottom: 40px;
+  @media (min-height: 1000px) {
+    margin-top: 80px;
+  }
 `;
 
 const pageBtn = css`

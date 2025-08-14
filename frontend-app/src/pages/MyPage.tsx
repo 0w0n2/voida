@@ -1,130 +1,161 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useRef, useState, useEffect } from 'react';
-import Header from '../components/Header';
-import ProfileTab from '../components/my-page/ProfileTab';
-import SettingsTab from '../components/my-page/SettingsTab';
-import ShortcutsTab from '../components/my-page/ShortcutsTab';
-import OverlayTab from '../components/my-page/OverlayTab';
-import settings from '@/assets/icons/mp-setting.png';
-import shortcuts from '@/assets/icons/mp-shortcut.png';
-import overlay from '@/assets/icons/mp-overlay.png';
-import profile from '@/assets/icons/mp-profile.png';
+import { useEffect, useRef, useState } from 'react';
+import { UserCog, Settings, Keyboard, Scan } from 'lucide-react';
+import Header from '@/components/Header';
+import ProfileTab from '@/components/my-page/tab/ProfileTab';
+import SettingsTab from '@/components/my-page/tab/SettingsTab';
+import ShortcutsTab from '@/components/my-page/tab/ShortcutsTab';
+import OverlayTab from '@/components/my-page/tab/OverlayTab';
 
-const MyPage = () => {
-  const [activeTab, setActiveTab] = useState('profile');
+const tabList = [
+  { key: 'profile', label: '프로필', icon: UserCog, component: <ProfileTab /> },
+  {
+    key: 'settings',
+    label: '설정',
+    icon: Settings,
+    component: <SettingsTab />,
+  },
+  {
+    key: 'shortcuts',
+    label: '단축키',
+    icon: Keyboard,
+    component: <ShortcutsTab />,
+  },
+  { key: 'overlay', label: '오버레이', icon: Scan, component: <OverlayTab /> },
+];
 
-  const handleTabClick = (tab: string) => {
-    setActiveTab(tab);
-  };
+export default function MyPage() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [highlightStyle, setHighlightStyle] = useState({ left: 0, width: 0 });
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'profile':
-        return <ProfileTab />;
-      case 'settings':
-        return <SettingsTab />;
-      case 'shortcuts':
-        return <ShortcutsTab />;
-      case 'overlay':
-        return <OverlayTab />;
-      default:
-        return null;
+  useEffect(() => {
+    const currentTab = tabRefs.current[activeIndex];
+    if (currentTab) {
+      const { offsetLeft, offsetWidth } = currentTab;
+      setHighlightStyle({ left: offsetLeft, width: offsetWidth });
     }
-  };
+  }, [activeIndex]);
 
   return (
-    <main>
+    <main css={mainWrapper}>
       <Header />
-      <nav css={navigationStyle}>
-        <div css={selectorBoxStyle}>
-          
-          <button
-            css={navTabStyle(activeTab === 'profile')}
-            onClick={() => handleTabClick('profile')}
-          >
-            <img src={profile} alt="profile" />
-            <span css={tabTextStyle}>프로필</span>
-          </button>
-          <button
-            css={navTabStyle(activeTab === 'settings')}
-            onClick={() => handleTabClick('settings')}
-          >
-            <img src={settings} alt="settings" />
-            <span css={tabTextStyle}>설정</span>
-          </button>
-          <button
-            css={navTabStyle(activeTab === 'shortcuts')}
-            onClick={() => handleTabClick('shortcuts')}
-          >
-            <img src={shortcuts} alt="shortcuts" />
-            <span css={tabTextStyle}>단축키</span>
-          </button>
-          <button
-            css={navTabStyle(activeTab === 'overlay')}
-            onClick={() => handleTabClick('overlay')}
-          >
-            <img src={overlay} alt="overlay" />
-            <span css={tabTextStyle}>오버레이</span>
-          </button>
+      <nav css={navWrapper}>
+        <div css={navContainer}>
+          <span css={highlightBox(highlightStyle.left, highlightStyle.width)} />
+
+          {tabList.map((tab, index) => (
+            <button
+              key={tab.key}
+              ref={(el) => (tabRefs.current[index] = el)}
+              css={navTab(index === activeIndex)}
+              onClick={() => setActiveIndex(index)}
+            >
+              <tab.icon size={18} />
+              {tab.label}
+            </button>
+          ))}
         </div>
       </nav>
 
-      <section css={mainContentStyle}>{renderContent()}</section>
+      <div css={sliderWrapper}>
+        <div css={sliderTrack(activeIndex)}>
+          {tabList.map((tab) => (
+            <div css={sliderItem} key={tab.key}>
+              {tab.component}
+            </div>
+          ))}
+        </div>
+      </div>
     </main>
   );
-};
+}
 
-export const navigationStyle = css`
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 16px;
-  padding: 0 24px;
+const mainWrapper = css`
+  min-height: 100vh;
 `;
 
-export const selectorBoxStyle = css`
-  width: 100%;
+const navWrapper = css`
   max-width: 1200px;
-  display: flex;
-  align-items: center;
   margin: 0 auto;
-  gap: 16px;
-  padding: 0 24px;
+  padding: 10px 0;
+  @media (min-height: 900px) {
+    padding: 20px 0px;
+  }
+  @media (min-height: 1000px) {
+    padding-top: 60px;
+    padding: 50px 0px;
+  }
+  @media (min-height: 1300px) {
+    padding: 50px 0px;
+  }
 `;
 
-export const navTabStyle = (active: boolean) => css`
+const navContainer = css`
+  display: inline-flex;
   position: relative;
-  z-index: 1; 
+  background: #f3f4f6;
+  border-radius: 10px;
+  margin: 0px 40px;
+  padding: 10px 0px;
+  gap: 10px;
+`;
+
+const navTab = (active: boolean) => css`
+  background: none;
+  border: none;
+  font-size: 18px;
+  font-family: ${active ? 'NanumSquareEB' : 'NanumSquareR'};
+  color: ${active ? '#000' : '#555'};
+  cursor: pointer;
+  padding: 10px 30px;
+  margin: 0px 5px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 16px;
-  border: none;
-  background: none;
-  font-weight: ${active ? '700' : '400'};
-  color: ${active ? '#000' : '#888'};
-  cursor: pointer;
-  font-size: 14px;
-  border-radius: 12px;
-
+  gap: 14px;
+  border-radius: 10px;
+  z-index: 1;
+  transition: color 0.3s ease;
 `;
 
-export const tabTextStyle = css`
-  font-family: 'NanumSquareR', sans-serif;
+const highlightBox = (left: number, width: number) => css`
+  position: absolute;
+  top: 4px;
+  left: ${left}px;
+  width: ${width}px;
+  height: calc(100% - 8px);
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  z-index: 0;
 `;
 
-export const mainContentStyle = css`
-  display: flex;
-  gap: 24px;
-  padding: 40px;
+const sliderWrapper = css`
+  overflow: hidden;
   max-width: 1200px;
-  width: 100%;
   margin: auto;
+  @media (min-height: 900px) {
+    padding: 10px 0px;
+  }
+  @media (min-height: 1000px) {
+    padding: 30px 0px;
+    padding-top: 0px;
+  }
+  @media (min-height: 1300px) {
+    padding: 30px 0px;
+  }
 `;
 
-export default MyPage;
+const sliderTrack = (activeIndex: number) => css`
+  display: flex;
+  transition: transform 0.4s ease;
+  transform: translateX(-${activeIndex * 100}%);
+`;
+
+const sliderItem = css`
+  min-width: 1200px;
+  padding: 40px;
+  box-sizing: border-box;
+`;

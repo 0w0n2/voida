@@ -1,17 +1,13 @@
-import apiInstance from '@/apis/core/apiInstanceSpring';
+import apiInstanceSpring from '@/apis/core/apiInstanceSpring';
 
 // 로그인
 export const login = (email: string, password: string) => {
-  return apiInstance.post(
-    '/v1/auth/sign-in',
-    { email, password },
-    { withCredentials: false },
-  );
+  return apiInstanceSpring.post('/v1/auth/sign-in', { email, password });
 };
 
 // 로그아웃
 export const logout = () => {
-  return apiInstance.post('/v1/auth/sign-out');
+  return apiInstanceSpring.post('/v1/auth/sign-out');
 };
 
 // 회원가입
@@ -48,7 +44,7 @@ export const register = (
     formData.append('profileImage', 'null');
   }
 
-  return apiInstance.post('/v1/auth/sign-up', formData, {
+  return apiInstanceSpring.post('/v1/auth/sign-up', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
@@ -57,7 +53,7 @@ export const register = (
 
 // 이메일 중복 확인
 export const checkEmailDuplicate = (email: string) => {
-  return apiInstance.post(
+  return apiInstanceSpring.post(
     '/v1/auth/check-email',
     { email },
     { withCredentials: false },
@@ -66,7 +62,7 @@ export const checkEmailDuplicate = (email: string) => {
 
 // 닉네임 중복 확인
 export const checkNicknameDuplicate = (nickname: string) => {
-  return apiInstance.post(
+  return apiInstanceSpring.post(
     '/v1/auth/check-nickname',
     { nickname },
     { withCredentials: false },
@@ -75,7 +71,7 @@ export const checkNicknameDuplicate = (nickname: string) => {
 
 // 이메일 인증 코드 발송
 export const sendEmailVerification = (email: string) => {
-  return apiInstance.post(
+  return apiInstanceSpring.post(
     '/v1/auth/email-code',
     { email: email.trim() },
     { withCredentials: false },
@@ -84,7 +80,7 @@ export const sendEmailVerification = (email: string) => {
 
 // 이메일 인증 코드 확인
 export const verifyEmailCode = (email: string, code: string) => {
-  return apiInstance.post(
+  return apiInstanceSpring.post(
     '/v1/auth/verify-email',
     { email, code },
     { withCredentials: false },
@@ -93,10 +89,12 @@ export const verifyEmailCode = (email: string, code: string) => {
 
 // 회원가입 닉네임 랜덤 생성
 export const getRandomNickname = () => {
-  return apiInstance.get('/v1/auth/random-nickname');
+  return apiInstanceSpring.get('/v1/auth/random-nickname');
 };
 
 // 토큰 재발급
 export const reissueToken = () => {
-  return apiInstance.post('/v1/auth/reissue');
+  const res = apiInstanceSpring.post('/v1/auth/reissue', { withCredentials: true });
+  console.log(res);
+  return res;
 };

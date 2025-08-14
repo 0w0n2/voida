@@ -62,15 +62,11 @@ public class TokenUtils {
 
     // JWT 토큰 복호화 -> 검증 및 파싱 모두 수행
     public Claims parseClaims(String token) {
-        try {
-            return Jwts.parser()
-                    .verifyWith(secretKey)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-        } catch (ExpiredJwtException e) {
-            return e.getClaims();
-        }
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     // 토큰 정보 검증
@@ -83,13 +79,13 @@ public class TokenUtils {
             parseClaims(token);
             return false;
         } catch (SecurityException | MalformedJwtException e) {
-            log.debug("Invalid JWT Token", e);
+            log.debug("Invalid JWT Token");
         } catch (ExpiredJwtException e) {
-            log.info("Expired JWT Token", e);
+            log.debug("Expired JWT Token");
         } catch (UnsupportedJwtException e) {
-            log.info("Unsupported JWT Token", e);
+            log.debug("Unsupported JWT Token");
         } catch (IllegalArgumentException e) {
-            log.info("JWT claims string is empty", e);
+            log.debug("JWT claims string is empty");
         }
         return true;
     }

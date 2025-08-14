@@ -1,39 +1,30 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useAuthStore } from '@/stores/authStore';
-import defaultProfile from '../../assets/profiles/defaultProfile.png';
 
 interface UpdateDoneModalProps {
   isOpen: boolean;
   onClose: () => void;
+  userName?: string;
 }
 
-const UpdatePasswordDoneModal = ({ isOpen, onClose }: UpdateDoneModalProps) => {
+const UpdateDoneModal = ({
+  isOpen,
+  onClose,
+  userName = '사용자',
+}: UpdateDoneModalProps) => {
   if (!isOpen) return null;
-
-  const user = useAuthStore((state) => state.user);
-  console.log(user);
-  const userImage = user?.profileImage;
-  const userNickname = user?.nickname;
 
   return (
     <div css={overlayStyle}>
       <div css={modalStyle}>
         <div css={profileImageContainer}>
           <div css={profileImagePlaceholder}>
-            <img
-              src={
-                `${import.meta.env.VITE_CDN_URL}/${userImage}` || defaultProfile
-              }
-              alt="프로필 사진"
-              css={largeProfileImageStyle}
-            />
           </div>
         </div>
 
         <div css={messageContainer}>
           <h2 css={mainMessageStyle}>
-            {userNickname}님 <br/>비밀번호 수정이 완료되었습니다.
+            {userName}님 회원정보 수정이 완료되었습니다.
           </h2>
           <p css={subMessageStyle}>Voida 에서 많은 사람들과 소통해보세요!</p>
         </div>
@@ -43,23 +34,20 @@ const UpdatePasswordDoneModal = ({ isOpen, onClose }: UpdateDoneModalProps) => {
         </button>
       </div>
     </div>
+    
   );
 };
 
-export default UpdatePasswordDoneModal;
+export default UpdateDoneModal;
 
 const overlayStyle = css`
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  backdrop-filter: blur(2px);
+  z-index: 999;
 `;
 
 const modalStyle = css`
@@ -132,7 +120,7 @@ const confirmButtonStyle = css`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
   &:hover {
-    background: var(--color-primary);
+    background: var(--color-gray-300);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
@@ -140,11 +128,4 @@ const confirmButtonStyle = css`
   &:active {
     transform: translateY(0);
   }
-`;
-
-const largeProfileImageStyle = css`
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  object-fit: cover;
 `;

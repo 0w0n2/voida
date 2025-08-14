@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface UseVideoRecorderOptions {
-  mimeType?: string;              // 기본: 'video/webm;codecs=vp9,opus'
+  mimeType?: string; 
   maxDurationMs?: number;
   onProgress?: (percent: number) => void;
   onStop?: (r: { blob: Blob; mimeType: string; durationMs: number }) => void;
-  audioConstraints?: MediaStreamConstraints['audio']; // 마이크 선택
-  videoConstraints?: MediaStreamConstraints['video']; // 카메라/해상도 선택
+  audioConstraints?: MediaStreamConstraints['audio'];
+  videoConstraints?: MediaStreamConstraints['video'];
 }
 
 export function useVideoRecorder(opts: UseVideoRecorderOptions = {}) {

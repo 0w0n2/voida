@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
+import { useMeetingRoomStore } from '@/stores/useMeetingRoomStore';
 import Lip from '@/assets/icons/lip-blue.png';
 import Crown from '@/assets/icons/crown.png';
 
@@ -130,7 +130,7 @@ const roleBadge = css`
 `;
 
 const lipIcon = css`
-  background: #eaf4ff;
+  background: #ffffffff;
   color: var(--color-primary);
   display: inline-flex;
   align-items: center;

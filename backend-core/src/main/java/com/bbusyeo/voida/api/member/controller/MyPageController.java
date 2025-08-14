@@ -6,16 +6,21 @@ import com.bbusyeo.voida.api.member.dto.*;
 import com.bbusyeo.voida.api.member.service.DeleteAccountService;
 import com.bbusyeo.voida.api.member.service.MyPageService;
 import com.bbusyeo.voida.api.member.service.QuickSlotService;
+import com.bbusyeo.voida.api.member.service.SocialLinkService;
 import com.bbusyeo.voida.global.response.BaseResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 /**
  * 마이페이지 회원 정보 관련 컨트롤러
@@ -30,6 +35,7 @@ public class MyPageController {
     private final DeleteAccountService deleteAccountService;
     private final TokenAuthService tokenAuthService;
     private final QuickSlotService quickSlotService;
+    private final SocialLinkService socialLinkService;
 
     @PatchMapping("/newbie")
     public BaseResponse<Void> isNewbie(
@@ -56,11 +62,6 @@ public class MyPageController {
         return new BaseResponse<>(MeResponseInfoDto.toMeResponseDto(quickSlotService.getMeQuickSlots(member.getId())));
     }
 
-    @GetMapping("/social-accounts")
-    public BaseResponse<MeSocialAccountsResponseDto> getSocialAccounts(@AuthenticationPrincipal(expression = "member") Member member) {
-        return new BaseResponse<>(MeSocialAccountsResponseDto.toDto(myPageService.getSocialAccounts(member.getId())));
-    }
-
     @PutMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<Void> updateProfile(
             @RequestPart UpdateMeProfileRequestDto requestDto,
@@ -74,7 +75,7 @@ public class MyPageController {
     public BaseResponse<VerifyPasswordResponseDto> verifyPassword(
             @Valid @RequestBody VerifyPasswordRequestDto requestDto,
             @AuthenticationPrincipal(expression = "member") Member member
-    ){
+    ) {
         return new BaseResponse<>(VerifyPasswordResponseDto.toDto(myPageService.verifyPassword(member, requestDto.getPassword())));
     }
 
@@ -82,7 +83,7 @@ public class MyPageController {
     public BaseResponse<Void> changePassword(
             @Valid @RequestBody ChangePasswordRequestDto requestDto,
             @AuthenticationPrincipal(expression = "member") Member member
-    ){
+    ) {
         myPageService.changePassword(member.getId(), requestDto);
         return new BaseResponse<>();
     }
@@ -124,4 +125,18 @@ public class MyPageController {
         return new BaseResponse<>();
     }
 
+    @Operation(summary = "연결된 소셜 계정 조회 API")
+    @GetMapping("/social-accounts")
+    public BaseResponse<MeSocialAccountsResponseDto> getSocialAccounts(@AuthenticationPrincipal(expression = "member") Member member) {
+        return new BaseResponse<>(MeSocialAccountsResponseDto.toDto(myPageService.getSocialAccounts(member.getId())));
+    }
+
+    @Operation(summary = "소셜 추가 연동 API" 
+        , description = "세션에 추가 연동 정보를 저장하고, 리다이렉션해야할 경로를 응답합니다.")
+    @PostMapping("/social-accounts/{providerName}")
+    public BaseResponse<OAuthLinkResponseDto> startOAuthLink(
+            @PathVariable String providerName, HttpServletRequest request,
+            @AuthenticationPrincipal(expression = "member") Member member) {
+        return new BaseResponse<>(socialLinkService.initialSocialLink(request, member, providerName));
+    }
 }

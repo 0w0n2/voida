@@ -1,12 +1,161 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useState } from 'react';
-import { ChevronDown, ChevronUp, X } from 'lucide-react';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import exit from '@/assets/icons/exitIcon.png';
 import user from '@/assets/icons/user.png';
+import lip from '@/assets/icons/lips.png';
+import { useSearchParams } from 'react-router-dom';
+import recording from '@/assets/icons/soundRecording.png';
+import { getUserQuickSlots } from '@/apis/auth/userApi';
+import {
+  getRoomStatus,
+  startLiveSession,
+  getLiveToken,
+  connectOpenVidu,
+} from '@/apis/live-room/openViduApi';
 
+interface ApiQuickSlot {
+  quickSlotId: number;
+  message: string;
+  hotkey: string;
+  url: string;
+}
+// prop 받아서 구화여부 보여주기 필요
 const LiveOverlay = () => {
   const [isExpanded, setIsExpanded] = useState(true);
+  const hotkeyMapRef = useRef(new Map<string, string>());
+  const ttsUrlMapRef = useRef(new Map<string, string>());
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [params] = useSearchParams();
+  const roomIdFromQuery = useMemo(() => params.get('roomId'), [params]);
+
+  const [roomId, setRoomId] = useState<string | null>(roomIdFromQuery);
+
+  useEffect(() => {
+    if (roomIdFromQuery) {
+      setRoomId(roomIdFromQuery);
+    }
+  }, [roomIdFromQuery]);
+
+  const { handleSignalMessage } = useOpenViduChat();
+  useEffect(() => {
+    if (!roomId) return;
+    (async () => {
+      try {
+        // const statusRes = await getRoomStatus(roomId);
+
+        // if (statusRes.status === 'IDLE') {
+        //   await startLiveSession(roomId);
+        // }
+
+        // const token = await getLiveToken(roomId);
+        // await connectOpenVidu(token, handleSignalMessage);
+      } catch (err) {
+        console.error('라이브 참여 실패', err);
+        window.electronAPI?.logError?.(`라이브 참여 실패: ${String(err)}`);
+      }
+    })();
+  }, [roomId]);
+
+  // 오디오 초기화 및 정리
+  useEffect(() => {
+    audioRef.current = new Audio();
+    audioRef.current.preload = 'auto';
+    const el = audioRef.current;
+
+    const onError = () => console.error('오디오 로드/재생 에러:', el.error);
+    el.addEventListener('error', onError);
+
+    return () => {
+      el.removeEventListener('error', onError);
+      el.pause();
+      audioRef.current = null;
+    };
+  }, []);
+
+  // 라이브 창 켜지면 api 호출로 단축키 불러오고 파싱해서 등록
+  useEffect(() => {
+    const fetchQuickSlots = async () => {
+      const res = await getUserQuickSlots();
+      const quickSlots: ApiQuickSlot[] = res.data.result.quickSlots;
+      const parseHotkey = (hotkey: string) => {
+        return hotkey.trim().toLowerCase().replace(/^`/, '');
+      };
+
+      const hotkeyMap = hotkeyMapRef.current;
+      const urlMap = ttsUrlMapRef.current;
+      hotkeyMap.clear();
+      urlMap.clear();
+      for (const slot of quickSlots) {
+        const message: string = slot.message;
+        const sigKey = parseHotkey(slot.hotkey);
+        const ttsUrl = slot.url;
+        // Map 전용 키-값 저장
+        hotkeyMap.set(sigKey, message);
+        urlMap.set(sigKey, ttsUrl);
+      }
+    };
+
+    fetchQuickSlots();
+  }, []);
+
+  // 단축키 음성 출력
+  useEffect(() => {
+    let backtickDown = false;
+
+    const onKeyDown = async (e: KeyboardEvent) => {
+      if (e.repeat) return; //중복 방지
+      if (e.key === '`') {
+        console.log('백틱 눌림');
+        backtickDown = true;
+        console.log(backtickDown);
+        return;
+      }
+      if (!backtickDown) return;
+
+      const map = hotkeyMapRef.current;
+      const sigKey = e.key.toLowerCase();
+      // console.log('sigKey:', sigKey, 'map.has(sigKey):', map.has(sigKey));
+      if (map.has(sigKey)) {
+        const message = map.get(sigKey);
+        const url = ttsUrlMapRef.current.get(sigKey);
+        if (message) {
+          e.preventDefault();
+          console.log(`단축키 ${sigKey} 실행: ${message}`);
+          // window.electronAPI.sendQuickMessage(message);
+        }
+
+        // 단축키 오디오 재생
+        if (url && audioRef.current) {
+          try {
+            const el = audioRef.current;
+            el.pause(); // 현재 재생 중이면 멈춤
+            el.src = `${import.meta.env.VITE_CDN_URL}/${url}`; // 새 URL 설정
+            await el.play(); // 재생
+          } catch (err) {
+            console.error('오디오 재생 실패:', err);
+          }
+        }
+      }
+    };
+
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.key === '`') {
+        console.log('백틱 떼짐');
+        backtickDown = false;
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+    };
+  }, []);
+
+  const { messages } = useOpenViduChat();
 
   const dummy = [
     {
@@ -92,8 +241,7 @@ const LiveOverlay = () => {
   ];
 
   const exitLive = () => {
-    // window.electron.closeOverlay()
-    // setOverlayActive(false)
+    window.electronAPI.closeOverlay();
   };
 
   return (
@@ -102,34 +250,40 @@ const LiveOverlay = () => {
         <div css={header}>
           <div css={headerLeft}>
             {Array.from(
-              new Map(dummy.map((msg) => [msg.user.userId, msg.user])).values(),
+              // new Map(dummy.map((msg) => [msg.user.userId, msg.user])).values(),
+              new Map(messages.map((msg) => [msg.userId, msg])).values(),
             ).map((user) => (
-              <img
-                key={user.userId}
-                src={user.userImageUrl}
-                alt={user.userNickname}
-                title={user.userNickname}
-                css={profile}
-              />
+              <div key={user.userId} css={profileWrap}>
+                <img
+                  src={user.userImageUrl}
+                  alt={user.userNickname}
+                  title={user.userNickname}
+                  css={profile}
+                />
+                {/* 구화 사용 여부 노출 */}
+                <div css={micBadge} aria-label="구화모드 사용중">
+                  🎤
+                </div>
+              </div>
             ))}
           </div>
           <div css={headerRight}>
             <img src={user} alt="User" css={iconBtn} />
-            <p>{dummy.length}</p>
+            {/* <p>{dummy.length}</p> */}
+            <p>{messages.length}</p>
             <img
               src={exit}
               alt="Exit"
-              css={iconBtn}
+              css={outBtn}
               onClick={() => exitLive()}
             />
           </div>
         </div>
-
         {isExpanded && (
           <div css={body}>
             <div css={messagesWrap}>
-              {dummy.slice(-6).map((msg) => (
-                <div key={msg.messageId} css={messageRow}>
+              {dummy.slice(-6).map((msg, idx) => (
+                <div key={idx} css={messageRow}>
                   <img
                     src={msg.user.userImageUrl}
                     alt={msg.user.userNickname}
@@ -143,9 +297,18 @@ const LiveOverlay = () => {
             </div>
           </div>
         )}
-        <div>
-          
-        </div>
+        <hr />
+        {/* 구화여부에 따른 버튼 노출 */}
+        {/* {lipTalk ? ( */}
+        <button css={lipiconWrapper}>
+          <img src={lip} alt="녹음" css={lipIcon} />
+        </button>
+        {/* ) : ( */}
+        {/* <button css={lipiconWrapper}>
+          <img src={recording} alt="녹음" css={lipIcon} onClick={} />
+        </button> */}
+        {/* )} */}
+        <div>{/* 영상 노출 부분 */}</div>
         <button onClick={() => setIsExpanded(!isExpanded)} css={toggleBtn}>
           {isExpanded ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
         </button>
@@ -190,7 +353,7 @@ const header = css`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
+  padding: 12px 10px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 `;
 
@@ -204,11 +367,21 @@ const headerRight = css`
   align-items: center;
 `;
 
-const iconBtn = css`
+const userBtn = css`
   width: 20px;
   height: 20px;
   cursor: pointer;
+  margin-left: 10px;
+  &:hover {
+    color: #f87171;
+  }
+`;
 
+const outBtn = css`
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+  margin-left: 10px;
   &:hover {
     color: #f87171;
   }
@@ -256,4 +429,52 @@ const messagesWrap = css`
   flex-direction: column;
   justify-content: flex-end;
   gap: 8px;
+`;
+
+const micBadge = css`
+  position: absolute;
+  right: 8px;
+  bottom: -7px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--color-green);
+  color: #fff;
+  font-size: 10px;
+  line-height: 14px;
+  text-align: center;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+  pointer-events: none; /* 클릭 막지 않게 */
+`;
+
+const profileWrap = css`
+  position: relative;
+  width: 30px;
+  height: 30px;
+  display: inline-block;
+`;
+
+const lipIcon = css`
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
+`;
+
+const lipiconWrapper = css`
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin: 15px;
+  margin-left: 90px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
 `;

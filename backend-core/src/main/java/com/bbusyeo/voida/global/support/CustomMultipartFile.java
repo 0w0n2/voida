@@ -1,4 +1,4 @@
-package com.bbusyeo.voida.global.ai.tts.dto;
+package com.bbusyeo.voida.global.support;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;

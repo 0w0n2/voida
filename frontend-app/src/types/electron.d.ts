@@ -4,7 +4,12 @@ export {};
 declare global {
   interface Window {
     electronAPI: {
-      openOverlay: () => void;
+      openOverlay: (init: { roomId: string }) => void;
+      closeOverlay: () => void;
+      sendQuickMessage: (message: string) => void;
+
+      // onOverlayInit?: (cb: (data: { roomId: string }) => void) => () => void;
+      // getOverlayInit?: () => Promise<{ roomId: string }>;
     };
   }
 }

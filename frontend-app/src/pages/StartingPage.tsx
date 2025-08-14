@@ -6,6 +6,8 @@ import ChatImage from '@/assets/icons/main-chat.png';
 import LipIcon from '@/assets/icons/lip-blue.png';
 import StartIcon from '@/assets/icons/start.png';
 import DemoVideoIcon from '@/assets/icons/demo-video.png';
+import download from '@/assets/icons/download.png';
+import { Download } from 'lucide-react';
 
 const MainPage = () => {
   const navigate = useNavigate();
@@ -34,14 +36,18 @@ const MainPage = () => {
           <div css={buttonBox}>
             <button css={startButton} onClick={() => navigate('/login')}>
               지금 시작하기
-              <img src={StartIcon || '/placeholder.svg'} alt="화살표 아이콘" />
-            </button>
-            <button css={demoButton} onClick={() => navigate('/tutorial')}>
               <img
-                src={DemoVideoIcon || '/placeholder.svg'}
-                alt="재생 아이콘"
+                src={StartIcon || '/placeholder.svg'}
+                alt="화살표 아이콘"
+                css={startIconStyle}
               />
-              튜토리얼
+            </button>
+            <button
+              css={demoButton}
+              onClick={() => window.open('https://www.test.voida.site/')}
+            >
+              <Download />
+              지금 받기
             </button>
           </div>
         </div>
@@ -443,4 +449,8 @@ const decorCircle3 = css`
     width: 60px;
     height: 60px;
   }
+`;
+
+const startIconStyle = css`
+  margin-top: 4px;
 `;

@@ -1,9 +1,9 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import React, { useState, useEffect } from 'react';
-import { getUserQuickSlots, updateQuickslots } from '../../apis/auth/userApi';
-import { useAuthStore } from '../../stores/userStore';
-import UpdateDoneModal from './UpdateDoneModal';
+import { useState, useEffect } from 'react';
+import { getUserQuickSlots, updateQuickslots } from '@/apis/auth/userApi';
+import { useAuthStore } from '@/stores/authStore';
+import UpdateDoneModal from '@/components/my-page/modal/UpdateDoneModal';
 
 interface Shortcut {
   quickSlotId: number;
@@ -15,8 +15,6 @@ interface Shortcut {
 const ShortcutsTab = () => {
   const { user } = useAuthStore();
   const [shortcuts, setShortcuts] = useState<Shortcut[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [showDoneModal, setShowDoneModal] = useState(false);
   const [quickSlotMessages, setQuickSlotMessages] = useState<string[]>([]);
@@ -28,8 +26,6 @@ const ShortcutsTab = () => {
   useEffect(() => {
     const fetchUserQuickSlots = async () => {
       try {
-        setLoading(true);
-
         const res = await getUserQuickSlots();
         console.log(res);
 
@@ -42,10 +38,7 @@ const ShortcutsTab = () => {
         setQuickSlotUrls(quickSlots.map((slot: any) => slot.url));
       } catch (err) {
         console.error('유저 단축키 조회 실패:', err);
-        setError('유저 단축키를 불러오는데 실패했습니다.');
-      } finally {
-        setLoading(false);
-      }
+      } 
     };
 
     fetchUserQuickSlots();
@@ -61,7 +54,6 @@ const ShortcutsTab = () => {
     setShortcuts(newShortcuts);
   };
 
-  // TODO: API 연동 시 구현
   const handleSave = async () => {
     try {
       setSaving(true);
@@ -122,39 +114,6 @@ const ShortcutsTab = () => {
 
 export default ShortcutsTab;
 
-// CSS 스타일
-const loadingContainerStyle = css`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  background-color: var(--color-bg-white);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-`;
-
-const loadingTextStyle = css`
-  font-family: 'NanumSquareR', sans-serif;
-  font-size: 16px;
-  color: var(--color-gray-600);
-`;
-
-const errorContainerStyle = css`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  background-color: var(--color-bg-white);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-`;
-
-const errorTextStyle = css`
-  font-family: 'NanumSquareR', sans-serif;
-  font-size: 16px;
-  color: var(--color-red);
-`;
-
 const shortcutsPanelStyle = css`
   width: 100%;
   background-color: var(--color-bg-white);
@@ -167,22 +126,21 @@ const shortcutsHeaderStyle = css`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
 `;
 
 const panelTitleStyle = css`
-  font-family: 'NanumSquareB', sans-serif;
-  font-size: 20px;
-  font-weight: 900;
+  font-family: 'NanumSquareEB';
+  font-size: 22px;
   color: var(--color-text);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  text-align: center;
 `;
 
 const panelSubtitleStyle = css`
   font-family: 'NanumSquareR', sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--color-gray-600);
-  margin-bottom: 24px;
+  margin-bottom: 48px;
 `;
 
 const saveButtonStyle = css`
@@ -211,7 +169,7 @@ const saveButtonStyle = css`
 const shortcutsGridStyle = css`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 30px;
 `;
 
 const shortcutItemStyle = css`
@@ -219,9 +177,10 @@ const shortcutItemStyle = css`
   align-items: center;
   gap: 16px;
   padding: 16px;
-  background-color: var(--color-gray-50);
-  border-radius: 8px;
-  border: 1px solid var(--color-gray-200);
+  flex: 1;
+  border-radius: 12px;
+  background-color: var(--color-gray-100);
+  padding: 30px;
 `;
 
 const keyContainerStyle = css`
@@ -232,73 +191,71 @@ const keyContainerStyle = css`
 `;
 
 const backtickKeyStyle = css`
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   background-color: var(--color-gray-600);
   color: var(--color-text-white);
   border: none;
   border-radius: 6px;
   font-family: 'NanumSquareR', sans-serif;
-  font-size: 14px;
+  font-size: 26px;
   font-weight: 600;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: var(--color-gray-700);
-  }
 `;
 
 const plusSignStyle = css`
-  font-size: 16px;
+  font-size: 26px;
   font-weight: 600;
   color: var(--color-text);
   margin: 0 4px;
 `;
 
 const numberKeyStyle = css`
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   background-color: var(--color-gray-600);
   color: var(--color-text-white);
   border: none;
   border-radius: 6px;
   font-family: 'NanumSquareR', sans-serif;
-  font-size: 14px;
+  font-size: 22px;
   font-weight: 600;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: var(--color-gray-700);
-  }
 `;
 
 const shortcutInputStyle = css`
   flex: 1;
   padding: 12px 16px;
-  border: 1px solid var(--color-gray-300);
+  margin-left: 16px;
+  border: none;
   border-radius: 6px;
-  font-family: 'NanumSquareR', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  background-color: var(--color-bg-white);
+  font-family: 'NanumSquareEB', sans-serif;
+  font-size: 18px;
+  background-color: var(--color-gray-100);
   color: var(--color-text);
   min-height: 40px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
 
   &:focus {
     outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    background-color: var(--color-bg-white);
+    box-shadow: 0 0 0 1px rgba(156, 163, 175, 0.3);
+  }
+
+  &:hover {
+    background-color: var(--color-gray-200);
   }
 
   &::placeholder {
     color: var(--color-gray-400);
+    font-family: 'NanumSquareR';
+    font-size: 16px;
   }
 `;

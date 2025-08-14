@@ -2,7 +2,7 @@
 import { css } from '@emotion/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
+import { useMeetingRoomStore } from '@/stores/useMeetingRoomStore';
 import SettingModal from '@/components/meeting-room/modal/setting/SettingModal';
 import InfoModal from '@/components/meeting-room/modal/info/InfoModal';
 import Lip from '@/assets/icons/lip-blue.png';
@@ -85,7 +85,8 @@ const MemberPanel = () => {
             css={css`
               ${roomButton};
               color: ${categoryColors[roomInfo?.category || ''] || '#666'};
-              background-color: ${categoryColors[roomInfo?.category || ''] || '#999'}20;
+              background-color: ${categoryColors[roomInfo?.category || ''] ||
+              '#999'}20;
               border: none;
             `}
           >
@@ -95,7 +96,9 @@ const MemberPanel = () => {
 
         {roomInfo?.thumbnailImageUrl && (
           <img
-            src={`${import.meta.env.VITE_CDN_URL}/${roomInfo.thumbnailImageUrl}`}
+            src={`${import.meta.env.VITE_CDN_URL}/${
+              roomInfo.thumbnailImageUrl
+            }`}
             alt="방 썸네일"
             css={thumbnailStyle}
           />
@@ -124,7 +127,8 @@ const categoryLabels: Record<string, string> = {
 };
 
 const panelStyle = css`
-  width: 450px;
+  flex: 1;
+  height: 100%;
   background: #f9f9f9;
   padding: 1.5rem;
   border-right: 1px solid #ddd;
@@ -132,21 +136,19 @@ const panelStyle = css`
   flex-direction: column;
 
   @media (max-width: 1400px) {
+    flex: none;
     width: 400px;
+    border-right: 1px solid #ddd;
   }
   @media (max-width: 1200px) {
+    flex: none;
     width: 350px;
+    border-right: 1px solid #ddd;
   }
   @media (max-width: 900px) {
-    width: 100%;
-    border-right: none;
-    border-top: 1px solid #ddd;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  @media (max-width: 600px) {
-    padding: 1rem;
+    flex: none;
+    width: 300px;
+    border-right: 1px solid #ddd;
   }
 `;
 
@@ -354,7 +356,6 @@ const lipIconWrapper = css`
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
   padding: 4px;
   transition: background-color 0.2s ease;
   margin-bottom: 12px;
@@ -394,6 +395,7 @@ const roomInfoBox = css`
   margin-right: -1.5rem;
   margin-bottom: -1.5rem;
   width: calc(100% + 3rem);
+  max-height: 120px;
   padding: 1.5rem;
   display: flex;
   justify-content: space-between;
@@ -411,17 +413,14 @@ const roomInfoBox = css`
     height: 100px;
     padding: 12px 40px;
   }
-
   @media (max-width: 1200px) {
     height: 90px;
     padding: 10px 30px;
   }
-
   @media (max-width: 900px) {
     height: 80px;
     padding: 8px 20px;
   }
-
   @media (max-width: 600px) {
     height: 70px;
     padding: 6px 12px;
