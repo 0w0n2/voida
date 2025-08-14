@@ -7,4 +7,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   closeOverlay: () => {
     ipcRenderer.send('close-overlay');
   },
+
+  sendQuickMessage: (message: string) => {
+    ipcRenderer.send('send-quickslot', message);
+  },
 });

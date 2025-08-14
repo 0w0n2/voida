@@ -39,4 +39,9 @@ app.whenReady().then(() => {
       win.focus();
     }
   });
+
+  ipcMain.on('send-quickslot', (event, message) => {
+    event.sender.send('quickslot-message', message);
+    console.log(`Received quickslot: ${message}`);
+  });
 });

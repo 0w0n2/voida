@@ -1,17 +1,85 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { ChevronDown, ChevronUp, X } from 'lucide-react';
 import exit from '@/assets/icons/exitIcon.png';
 import user from '@/assets/icons/user.png';
-import { useOpenViduChat } from '@/hooks/useOpenViduChat';
-
 import lip from '@/assets/icons/lips.png';
 import recording from '@/assets/icons/soundRecording.png';
+import { getUserQuickSlots } from '@/apis/auth/userApi';
 
-// prop 받아서 구화여부 보여주기
+interface ApiQuickSlot {
+  quickSlotId: number;
+  message: string;
+  hotkey: string;
+  url: string;
+}
+
+// prop 받아서 구화여부 보여주기 필요
 const LiveOverlay = () => {
   const [isExpanded, setIsExpanded] = useState(true);
+  const hotkeyMapRef = useRef(new Map<string, string>());
+
+  // 라이브 창 켜지면 api 호출로 단축키 불러오고 파싱해서 등록
+  useEffect(() => {
+    const fetchQuickSlots = async () => {
+      const res = await getUserQuickSlots();
+      const quickSlots: ApiQuickSlot[] = res.data.result.quickSlots;
+
+      const parseHotkey = (hotkey: string) => {
+        return hotkey.trim().toLowerCase();
+      };
+
+      const map = hotkeyMapRef.current;
+      map.clear();
+
+      for (const slot of quickSlots) {
+        const message: string = slot.message;
+        const sigKey = parseHotkey(slot.hotkey);
+
+        // Map 전용 키-값 저장
+        map.set(sigKey, message);
+      }
+    };
+
+    fetchQuickSlots();
+  }, []);
+
+  // 단축키 출력
+  useEffect(() => {
+    let backtickDown = false;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === '`') {
+        backtickDown = true;
+        return;
+      }
+      if (!backtickDown) return;
+
+      const map = hotkeyMapRef.current;
+      const sigKey = e.key.toLowerCase();
+
+      if (map.has(sigKey)) {
+        const message = map.get(sigKey);
+        if (message) {
+          e.preventDefault();
+          window.electronAPI.sendQuickMessage(message);
+        }
+      }
+    };
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.key === '`') {
+        backtickDown = false;
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+    };
+  }, []);
 
   const { messages } = useOpenViduChat();
 

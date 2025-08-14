@@ -6,6 +6,7 @@ declare global {
     electronAPI: {
       openOverlay: () => void;
       closeOverlay: () => void;
+      sendQuickMessage: (message: string) => void;
     };
   }
 }
