@@ -1,8 +1,5 @@
 package com.bbusyeo.voida.api.liveroom.service;
 
-import static com.bbusyeo.voida.global.response.BaseResponseStatus.MEETING_ROOM_MEMBER_NOT_FOUND;
-import static com.bbusyeo.voida.global.response.BaseResponseStatus.MEMBER_NOT_FOUND;
-import static com.bbusyeo.voida.global.response.BaseResponseStatus.MEMBER_SETTING_NOT_FOUND;
 import static com.bbusyeo.voida.global.response.BaseResponseStatus.OPENVIDU_SERVER_ERROR;
 import static com.bbusyeo.voida.global.response.BaseResponseStatus.OPENVIDU_SESSION_NOT_FOUND;
 import static io.openvidu.java.client.ConnectionProperties.DefaultValues.role;
@@ -10,24 +7,17 @@ import static io.openvidu.java.client.ConnectionProperties.DefaultValues.role;
 import com.bbusyeo.voida.api.liveroom.domain.model.Participant;
 import com.bbusyeo.voida.api.liveroom.dto.out.SessionResponseDto;
 import com.bbusyeo.voida.api.liveroom.dto.out.TokenResponseDto;
-import com.bbusyeo.voida.api.meetingroom.domain.enums.MemberMeetingRoomState;
-import com.bbusyeo.voida.api.meetingroom.repository.MemberMeetingRoomRepository;
-import com.bbusyeo.voida.api.member.domain.Member;
-import com.bbusyeo.voida.api.member.repository.MemberRepository;
-import com.bbusyeo.voida.api.member.repository.MemberSettingRepository;
 import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.properties.OpenViduSessionProperties;
 import io.openvidu.java.client.Connection;
 import io.openvidu.java.client.ConnectionProperties;
 import io.openvidu.java.client.OpenVidu;
 import io.openvidu.java.client.OpenViduException;
-import io.openvidu.java.client.OpenViduHttpException;
 import io.openvidu.java.client.Session;
 import io.openvidu.java.client.SessionProperties;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -35,10 +25,7 @@ public class LiveRoomServiceImpl implements LiveRoomService {
 
     private final OpenVidu openVidu;
     private final OpenViduSessionProperties sessionProps;
-
-    private final MemberRepository memberRepository;
-    private final MemberSettingRepository memberSettingRepository;
-    private final MemberMeetingRoomRepository memberMeetingRoomRepository;
+    private final ParticipantService participantService;
 
     @Override
     public SessionResponseDto createOrGetSession(String memberUuid, Long meetingRoomId) {
@@ -75,7 +62,7 @@ public class LiveRoomServiceImpl implements LiveRoomService {
                 throw new BaseException(OPENVIDU_SESSION_NOT_FOUND);
             }
 
-            Participant participant = loadParticipant(memberUuid, meetingRoomId);
+            Participant participant = participantService.loadParticipant(memberUuid, meetingRoomId);
 
             String serverData = String.format(
                 "{\"memberUuid\":\"%s\",\"nickname\":\"%s\",\"profileImageUrl\":\"%s\","
@@ -106,23 +93,6 @@ public class LiveRoomServiceImpl implements LiveRoomService {
 
     private String generateCustomSessionId(Long meetingRoomId) {
         return sessionProps.getPrefix() + meetingRoomId;
-    }
-
-    private Participant loadParticipant(String memberUuid, Long meetingRoomId) {
-        Member member = memberRepository.findByMemberUuid(memberUuid)
-            .orElseThrow(() -> new BaseException(MEMBER_NOT_FOUND));
-
-        MemberMeetingRoomState state = memberMeetingRoomRepository
-            .findByMemberUuidAndMeetingRoomId(memberUuid, meetingRoomId)
-            .orElseThrow(() -> new BaseException(MEETING_ROOM_MEMBER_NOT_FOUND))
-            .getState();
-
-        Boolean lipTalkMode = memberSettingRepository
-            .findMemberSettingsByMemberId(member.getId())
-            .orElseThrow(() -> new BaseException(MEMBER_SETTING_NOT_FOUND))
-            .getLipTalkMode();
-
-        return Participant.from(member, state, lipTalkMode);
     }
 
 }
