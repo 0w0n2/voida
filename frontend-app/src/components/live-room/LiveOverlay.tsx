@@ -1,8 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import axios from 'axios';
-import { useEffect, useRef, useState, useMemo } from 'react';
-import { ChevronDown, ChevronUp, X } from 'lucide-react';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import exit from '@/assets/icons/exitIcon.png';
 import user from '@/assets/icons/user.png';
 import lip from '@/assets/icons/lips.png';

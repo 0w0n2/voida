@@ -1,8 +1,5 @@
 import { create } from 'zustand';
-import type {
-  RoomInfo,
-  RoomParticipant,
-} from '@/apis/meeting-room/meetingRoomApi';
+import type { RoomInfo, RoomParticipant } from '@/apis/meeting-room/meetingRoomApi';
 import type { ChatMessage } from '@/apis/stomp/meetingRoomStomp';
 
 type State = {
@@ -13,11 +10,7 @@ type State = {
   setRoomInfo: (info: RoomInfo) => void;
   setParticipants: (info: RoomParticipant) => void;
 
-  setChatMessages: (
-    roomId: string,
-    msgs: ChatMessage[],
-    replace?: boolean,
-  ) => void;
+  setChatMessages: (roomId: string, msgs: ChatMessage[], replace?: boolean) => void;
   addChatMessage: (roomId: string, msg: ChatMessage) => void;
   clearChatMessages: (roomId: string) => void;
 };
@@ -34,9 +27,7 @@ export const useMeetingRoomStore = create<State>((set) => ({
     set((state) => ({
       chatMessages: {
         ...state.chatMessages,
-        [roomId]: replace
-          ? msgs
-          : [...(state.chatMessages[roomId] || []), ...msgs],
+        [roomId]: replace ? msgs : [...(state.chatMessages[roomId] || []), ...msgs],
       },
     })),
 

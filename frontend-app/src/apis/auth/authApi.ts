@@ -94,9 +94,7 @@ export const getRandomNickname = () => {
 
 // 토큰 재발급
 export const reissueToken = () => {
-  const res = apiInstanceSpring.post('/v1/auth/reissue', {
-    withCredentials: true,
-  });
+  const res = apiInstanceSpring.post('/v1/auth/reissue', { withCredentials: true });
   console.log(res);
   return res;
 };

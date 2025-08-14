@@ -21,7 +21,6 @@ const MeetingRoomPage = () => {
 
   useEffect(() => {
     if (!meetingRoomId) return;
-
     const fetchData = async () => {
       try {
         const roomData = await getRoomInfo(meetingRoomId);
@@ -76,11 +75,11 @@ const MeetingRoomPage = () => {
         <button
           css={edgeHandle}
           aria-label={showMembers ? '참여자 패널 닫기' : '참여자 패널 열기'}
-          onClick={() => setShowMembers((v) => !v)}
+          onClick={() => setShowMembers(v => !v)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();
-              setShowMembers((v) => !v);
+              setShowMembers(v => !v);
             }
           }}
         >
@@ -102,7 +101,7 @@ const container = css`
   height: 100vh;
   overflow: hidden;
   background: #fff;
-  position: relative;
+  position: relative; 
 `;
 
 const sidebar = (open: boolean) => css`
@@ -151,8 +150,8 @@ const edgeHitbox = (open: boolean) => css`
   left: ${open ? `394px` : '0px'};
   top: 50%;
   transform: translateY(-50%);
-  width: 16px;
-  height: 160px;
+  width: 16px;        
+  height: 160px;    
   display: flex;
   align-items: center;
   justify-content: ${open ? 'flex-end' : 'flex-start'};
@@ -166,7 +165,7 @@ const edgeHitbox = (open: boolean) => css`
 
 const edgeHandle = css`
   border: none;
-  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  background: linear-gradient(135deg, #6e8efb, #a777e3); 
   width: 28px;
   height: 72px;
   border-radius: 999px;

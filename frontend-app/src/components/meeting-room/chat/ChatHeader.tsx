@@ -2,23 +2,33 @@
 import { css } from '@emotion/react';
 import VoidaLogo from '@/assets/logo/voida-logo.png';
 import { Wifi } from 'lucide-react';
-import {
-  getRoomStatus,
-  startLiveSession,
-  getLiveToken,
-  connectOpenVidu,
-} from '@/apis/live-room/openViduApi';
+import { getRoomStatus, startLiveSession, getLiveToken, connectOpenVidu } from '@/apis/live-room/openViduApi';
 import { useOpenViduChat } from '@/hooks/useOpenViduChat';
 import { useMeetingRoomStore } from '@/stores/useMeetingRoomStore';
 
 const ChatHeader = () => {
   const roomInfo = useMeetingRoomStore((state) => state.roomInfo);
   const meetingRoomId = roomInfo?.meetingRoomId ?? '';
-  console.log(meetingRoomId);
+
+  const { handleSignalMessage } = useOpenViduChat();
+
   const handleJoinLive = async () => {
     if (!meetingRoomId) {
       console.warn('roomId가 없습니다.');
       return;
+    }
+    try {
+      // const statusRes = await getRoomStatus(meetingRoomId);
+
+      // if (statusRes.status === 'IDLE') {
+      //   await startLiveSession(meetingRoomId);
+      // }
+
+      // const token = await getLiveToken(meetingRoomId);
+      // await connectOpenVidu(token, handleSignalMessage);
+      window.electronAPI?.openOverlay?.();
+    } catch (err) {
+      console.error('라이브 참여 실패', err);
     }
     window.electronAPI?.openOverlay?.({ roomId: meetingRoomId });
   };
@@ -27,9 +37,9 @@ const ChatHeader = () => {
     <div css={header}>
       <img src={VoidaLogo} alt="VOIDA 로고" css={logo} />
       <button css={joinBtn} onClick={handleJoinLive} disabled={!meetingRoomId}>
-        <Wifi css={liveIcon} />
-        <span>라이브 참여하기</span>
-      </button>
+          <Wifi css={liveIcon} />
+          <span>라이브 참여하기</span>
+        </button>
     </div>
   );
 };

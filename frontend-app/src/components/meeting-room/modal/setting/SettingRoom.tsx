@@ -1,14 +1,9 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Home, Copy, Camera, Grid, UserPlus } from 'lucide-react';
+import { Home, RefreshCw, Copy, Camera, Grid, UserPlus } from 'lucide-react';
 import { useMeetingRoomStore } from '@/stores/useMeetingRoomStore';
-import {
-  getInviteCode,
-  postInviteCode,
-  getRoomInfo,
-  updateRoomInfo,
-} from '@/apis/meeting-room/meetingRoomApi';
+import { getInviteCode, postInviteCode, getRoomInfo, updateRoomInfo } from '@/apis/meeting-room/meetingRoomApi';
 import { useAlertStore } from '@/stores/useAlertStore';
 
 const SettingRoom = () => {
