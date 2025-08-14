@@ -25,8 +25,9 @@ export const getUserSocialAccounts = () => {
 };
 
 // 유저 소셜 계정 연동
-export const linksocialAccount = (providerName: string) => {
-  return apiInstanceSpring.post(`/v1/members/me/social-accounts/${providerName}`);
+// GET,POST 결정 안 됨
+export const linksocialAccount = () => {
+  return apiInstanceSpring.post('/v1/members/me/social-accounts/link');
 };
 
 // 현재 비밀번호 일치 확인

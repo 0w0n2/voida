@@ -324,16 +324,47 @@ const inputWrapper = css`
 `;
 
 const inputStyle = css`
-  width:100%; 
-  border:2px solid #ccc; 
-  border-radius:999px;
-  padding: 14px 80px 14px 80px; 
-  font-size:16px; outline:none; height:70%; background:#fff; transition:all .2s ease;
-  @media (max-width:1400px){ font-size:15px; padding:12px 52px 12px 52px; }
-  @media (max-width:1200px){ font-size:14px; padding:12px 48px 12px 48px; }
-  @media (max-width:900px){ font-size:13px; padding:10px 44px 10px 44px; }
-  @media (max-width:600px){ font-size:12px; padding:8px 40px 8px 40px; }
+  width: 100%;
+  border: 2px solid #ccc;
+  border-radius: 999px;
+  padding: 14px 80px; /* 기본 여백 */
+  font-size: 16px;
+  outline: none;
+  height: 70%;
+  background: #fff;
+  transition: all 0.2s ease;
+
+  @media (max-width: 1400px) {
+    font-size: 15px;
+    padding-left: 80px;
+    padding-right: 52px;
+  }
+
+  @media (max-width: 1200px) {
+    font-size: 14px;
+    padding-left: 80px;
+    padding-right: 52px;
+  }
+
+  @media (max-width: 900px) {
+    font-size: 13px;
+    padding-left: 80px;
+    padding-right: 52px;
+  }
+
+  @media (max-width: 700px) {
+    padding-left: 80px;
+    &::placeholder {
+      color: transparent;
+    }
+  }
+
+  @media (max-width: 600px) {
+    font-size: 12px;
+    padding: 8px 40px;
+  }
 `;
+
 
 const emojiArea = css`
   position:absolute; 
@@ -375,23 +406,40 @@ const emojiPickerWrapper = css`
 `;
 
 const sendIconBtn = css`
-  position:absolute; 
-  right:16px; 
-  top:50%; 
-  transform:translateY(-50%);
-  border:none; 
-  background:transparent; 
-  cursor:pointer; 
-  display:flex; 
-  align-items:center; 
-  justify-content:center;
-  margin-right:20px; 
-  width:40px; 
-  height:40px; 
-  border-radius:50%; 
-  transition:background-color .2s ease;
-  &:hover{ background:#e0edff; }
-  img{ width:24px; height:24px; object-fit:contain; }
-  @media (max-width:900px){ width:36px; height:36px; margin-right:16px; }
-  @media (max-width:600px){ width:32px; height:32px; margin-right:10px; }
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: #e0edff;
+  }
+
+  img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+  }
+
+  @media (max-width: 900px) {
+    width: 32px;
+    height: 32px;
+    margin-right: 16px;
+
+    img {
+      width: 20px;
+      height: 20px;
+    }
+  }
 `;

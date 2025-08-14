@@ -1,27 +1,53 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useState, useRef, useEffect, useMemo } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
-import exit from '@/assets/icons/exitIcon.png';
-import user from '@/assets/icons/user.png';
-import lip from '@/assets/icons/lips.png';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import recording from '@/assets/icons/soundRecording.png';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import User from '@/assets/icons/user.png';
+import ExitWhite from '@/assets/icons/exit-white.png';
+import ExitBlue from '@/assets/icons/exit-blue.png';
 import { getUserQuickSlots } from '@/apis/auth/userApi';
+import { useOpenViduChat } from '@/hooks/useOpenViduChat';
+import { useQuickSlot } from '@/hooks/useQuickSlot';
+
 import {
-  getRoomStatus,
-  startLiveSession,
+  getSession,
   getLiveToken,
   connectOpenVidu,
+  disconnectOpenVidu,
+  sendChatSignal,
+  getUserOverview,
 } from '@/apis/live-room/openViduApi';
 
-interface ApiQuickSlot {
+import type { UserOverview } from '@/apis/live-room/openViduApi';
+
+import { useAudioRecorder } from '@/hooks/useAudioRecorder'; 
+import { useVideoRecorder } from '@/hooks/useVideoRecorder';
+
+export interface ApiQuickSlot {
   quickSlotId: number;
   message: string;
   hotkey: string;
   url: string;
 }
-// prop 받아서 구화여부 보여주기 필요
+
+// 메시지/유저 로컬 타입(훅 반환 형태와 호환되면 OK)
+type ChatUser = {
+  userId: string;
+  userNickname: string;
+  userImageUrl: string;
+  lipTalkMode?: boolean;
+};
+
+type IncomingMessage = {
+  userId: string;
+  userNickname: string;
+  userImageUrl: string;
+  content: string;
+  timestamp?: string;
+  lipTalkMode?: boolean;
+};
+
 const LiveOverlay = () => {
   const [isExpanded, setIsExpanded] = useState(true);
   const hotkeyMapRef = useRef(new Map<string, string>());
@@ -29,40 +55,36 @@ const LiveOverlay = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [params] = useSearchParams();
   const roomIdFromQuery = useMemo(() => params.get('roomId'), [params]);
-
-  const [roomId, setRoomId] = useState<string | null>(roomIdFromQuery);
+  const [roomId, setRoomId] = useState<string | null>(roomIdFromQuery ?? null);
+  const [currentUser, setCurrentUser] = useState<UserOverview['member'] | null>(null);
+  const [currentSettings, setCurrentSettings] = useState<UserOverview['setting'] | null>(null);
+  const [audioPreviewUrl, setAudioPreviewUrl] = useState<string | null>(null);
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (roomIdFromQuery) {
-      setRoomId(roomIdFromQuery);
-    }
+    if (roomIdFromQuery) setRoomId(roomIdFromQuery);
   }, [roomIdFromQuery]);
 
-  const { handleSignalMessage } = useOpenViduChat();
+  // 채팅 훅 (실시간 메시지/시그널 처리)
+  // const { handleSignalMessage, messages } = useOpenViduChat<IncomingMessage>();
+
+  // 1) 사용자 정보 로딩
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       const { member, setting } = await getUserOverview();
+  //       setCurrentUser(member);
+  //       setCurrentSettings(setting);
+  //     } catch (err) {
+  //       console.error('사용자 정보 불러오기 실패:', err);
+  //     }
+  //   })();
+  // }, []);
+
   useEffect(() => {
-    if (!roomId) return;
-    (async () => {
-      try {
-        // const statusRes = await getRoomStatus(roomId);
-
-        // if (statusRes.status === 'IDLE') {
-        //   await startLiveSession(roomId);
-        // }
-
-        // const token = await getLiveToken(roomId);
-        // await connectOpenVidu(token, handleSignalMessage);
-      } catch (err) {
-        console.error('라이브 참여 실패', err);
-        window.electronAPI?.logError?.(`라이브 참여 실패: ${String(err)}`);
-      }
-    })();
-  }, [roomId]);
-
-  // 오디오 초기화 및 정리
-  useEffect(() => {
-    audioRef.current = new Audio();
-    audioRef.current.preload = 'auto';
-    const el = audioRef.current;
+    const el = new Audio();
+    el.preload = 'auto';
+    audioRef.current = el;
 
     const onError = () => console.error('오디오 로드/재생 에러:', el.error);
     el.addEventListener('error', onError);
@@ -74,243 +96,243 @@ const LiveOverlay = () => {
     };
   }, []);
 
-  // 라이브 창 켜지면 api 호출로 단축키 불러오고 파싱해서 등록
   useEffect(() => {
-    const fetchQuickSlots = async () => {
-      const res = await getUserQuickSlots();
-      const quickSlots: ApiQuickSlot[] = res.data.result.quickSlots;
-      const parseHotkey = (hotkey: string) => {
-        return hotkey.trim().toLowerCase().replace(/^`/, '');
-      };
+    (async () => {
+      try {
+        const res = await getUserQuickSlots();
+        const quickSlots: ApiQuickSlot[] = res?.data?.result?.quickSlots ?? [];
+        const parseHotkey = (hotkey: string) =>
+          hotkey.trim().toLowerCase().replace(/^`/, '');
 
-      const hotkeyMap = hotkeyMapRef.current;
-      const urlMap = ttsUrlMapRef.current;
-      hotkeyMap.clear();
-      urlMap.clear();
-      for (const slot of quickSlots) {
-        const message: string = slot.message;
-        const sigKey = parseHotkey(slot.hotkey);
-        const ttsUrl = slot.url;
-        // Map 전용 키-값 저장
-        hotkeyMap.set(sigKey, message);
-        urlMap.set(sigKey, ttsUrl);
+        const hotkeyMap = hotkeyMapRef.current;
+        const urlMap = ttsUrlMapRef.current;
+        hotkeyMap.clear();
+        urlMap.clear();
+        for (const slot of quickSlots) {
+          const message: string = slot.message;
+          const sigKey = parseHotkey(slot.hotkey);
+          const ttsUrl = slot.url;
+          hotkeyMap.set(sigKey, message);
+          urlMap.set(sigKey, ttsUrl);
+        }
+      } catch (e) {
+        console.error('퀵슬롯 불러오기 실패:', e);
       }
-    };
-
-    fetchQuickSlots();
+    })();
   }, []);
 
-  // 단축키 음성 출력
-  useEffect(() => {
-    let backtickDown = false;
+  useQuickSlot(hotkeyMapRef, ttsUrlMapRef, audioRef);
 
-    const onKeyDown = async (e: KeyboardEvent) => {
-      if (e.repeat) return; //중복 방지
-      if (e.key === '`') {
-        console.log('백틱 눌림');
-        backtickDown = true;
-        console.log(backtickDown);
-        return;
-      }
-      if (!backtickDown) return;
+  // 5) OpenVidu 연결 (roomId + 사용자/설정 로딩 이후 한 번)
+  // useEffect(() => {
+  //   if (!roomId) return;
+  //   if (!currentUser || !currentSettings) return;
 
-      const map = hotkeyMapRef.current;
-      const sigKey = e.key.toLowerCase();
-      // console.log('sigKey:', sigKey, 'map.has(sigKey):', map.has(sigKey));
-      if (map.has(sigKey)) {
-        const message = map.get(sigKey);
-        const url = ttsUrlMapRef.current.get(sigKey);
-        if (message) {
-          e.preventDefault();
-          console.log(`단축키 ${sigKey} 실행: ${message}`);
-          // window.electronAPI.sendQuickMessage(message);
-        }
+  //   (async () => {
+  //     try {
+  //       await getSession(roomId); // 존재 확인/메타 읽기 (필요 시)
+  //       const token = await getLiveToken(roomId);
 
-        // 단축키 오디오 재생
-        if (url && audioRef.current) {
-          try {
-            const el = audioRef.current;
-            el.pause(); // 현재 재생 중이면 멈춤
-            el.src = `${import.meta.env.VITE_CDN_URL}/${url}`; // 새 URL 설정
-            await el.play(); // 재생
-          } catch (err) {
-            console.error('오디오 재생 실패:', err);
-          }
-        }
-      }
-    };
+  //       await connectOpenVidu(
+  //         token,
+  //         // 수신 시그널 처리기
+  //         (data: string) => {
+  //           try {
+  //             const parsed = JSON.parse(data) as IncomingMessage;
+  //             handleSignalMessage({
+  //               userId: parsed.userId ?? 'unknown',
+  //               userNickname: parsed.userNickname ?? 'unknown',
+  //               userImageUrl: parsed.userImageUrl ?? '',
+  //               content: parsed.content ?? '',
+  //               timestamp: parsed.timestamp,
+  //               lipTalkMode: parsed.lipTalkMode,
+  //             });
+  //           } catch {
+  //             handleSignalMessage({
+  //               userId: 'unknown',
+  //               userNickname: 'unknown',
+  //               userImageUrl: '',
+  //               content: String(data),
+  //             });
+  //           }
+  //         },
+  //         // 내 메타데이터
+  //         {
+  //           userId: currentUser.memberUuid,
+  //           userNickname: currentUser.nickname,
+  //           userImageUrl: currentUser.profileImageUrl,
+  //           lipTalkMode: currentSettings.lipTalkMode,
+  //         }
+  //       );
+  //     } catch (err) {
+  //       console.error('OpenVidu bootstrap error', err);
+  //       // Electron 환경 로그 보조
+  //       // @ts-expect-error - 런타임 주입 API
+  //       window?.electronAPI?.logError?.(`OpenVidu bootstrap error: ${String(err)}`);
+  //     }
+  //   })();
 
-    const onKeyUp = (e: KeyboardEvent) => {
-      if (e.key === '`') {
-        console.log('백틱 떼짐');
-        backtickDown = false;
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    window.addEventListener('keyup', onKeyUp);
+  //   return () => {
+  //     disconnectOpenVidu();
+  //   };
+  // }, [roomId, currentUser, currentSettings, handleSignalMessage]);
 
-    return () => {
-      window.removeEventListener('keydown', onKeyDown);
-      window.removeEventListener('keyup', onKeyUp);
-    };
-  }, []);
+  // 6) 채팅 전송 API
+  // const sendChat = async (text: string) => {
+  //   if (!text?.trim()) return;
+  //   await sendChatSignal({
+  //     userId: currentUser?.memberUuid,
+  //     userNickname: currentUser?.nickname,
+  //     userImageUrl: currentUser?.profileImageUrl,
+  //     content: text.trim(),
+  //     timestamp: new Date().toISOString(),
+  //     lipTalkMode: currentSettings?.lipTalkMode,
+  //   });
+  // };
 
-  const { messages } = useOpenViduChat();
+  // 7) 녹화/종료 버튼 (실구현은 별도 훅과 연동)
+// 오디오 훅
+const { 
+  hasPermission: hasAudioPermission, 
+  isRecording: isAudioRecording, 
+  start: startAudio, 
+  stop: stopAudio 
+} = useAudioRecorder({
+  onStop: ({ blob }) => {
+    const url = URL.createObjectURL(blob);
+    setAudioPreviewUrl(url);
+  }
+});
 
-  const dummy = [
-    {
-      messageId: 'msg-001',
-      user: {
-        userId: 'user-abc',
-        userNickname: '이진모',
-        userImageUrl: 'https://i.pravatar.cc/40?u=user-abc',
-      },
-      content: '안녕하세요! 여기로 와주세요.',
-      timestamp: '2025-08-11T10:58:01Z',
-    },
-    {
-      messageId: 'msg-002',
-      user: {
-        userId: 'user-abc',
-        userNickname: '이혜원',
-        userImageUrl: 'https://i.pravatar.cc/40?u=user-abc',
-      },
-      content: '안녕하세요! 여기로 와주세요.',
-      timestamp: '2025-08-11T10:58:02Z',
-    },
-    {
-      messageId: 'msg-003',
-      user: {
-        userId: 'user-def',
-        userNickname: '전사123',
-        userImageUrl: 'https://i.pravatar.cc/40?u=user-def',
-      },
-      content: '네, 지금 바로 가겠습니다!',
-      timestamp: '2025-08-11T10:58:15Z',
-    },
-    {
-      messageId: 'msg-004',
-      user: {
-        userId: 'user-ghi',
-        userNickname: '김규찬',
-        userImageUrl: 'https://i.pravatar.cc/40?u=user-ghi',
-      },
-      content: '저도 퀘스트 같이 해도 될까요?',
-      timestamp: '2025-08-11T10:58:25Z',
-    },
-    {
-      messageId: 'msg-005',
-      user: {
-        userId: 'user-abc',
-        userNickname: '이민희',
-        userImageUrl: 'https://i.pravatar.cc/40?u=user-abc',
-      },
-      content: '네 그럼요! 같이 해요 ㅎㅎ',
-      timestamp: '2025-08-11T10:58:31Z',
-    },
-    {
-      messageId: 'msg-006',
-      user: {
-        userId: 'user-def',
-        userNickname: '이석재',
-        userImageUrl: 'https://i.pravatar.cc/40?u=user-def',
-      },
-      content: 'ㅋㅋㅋ 좋아요!',
-      timestamp: '2025-08-11T10:58:40Z',
-    },
-    {
-      messageId: 'msg-007',
-      user: {
-        userId: 'gm-01',
-        userNickname: '김수민',
-        userImageUrl: 'https://i.pravatar.cc/40?u=gm-01',
-      },
-      content: '잠시 후 11시부터 10분간 긴급 서버 점검이 있을 예정입니다.',
-      timestamp: '2025-08-11T10:59:00Z',
-    },
-    {
-      messageId: 'msg-008',
-      user: {
-        userId: 'user-ghi',
-        userNickname: '법사GOD',
-        userImageUrl: 'https://i.pravatar.cc/40?u=user-ghi',
-      },
-      content: '헐... 점검이래요. 빨리 잡아야겠네요!',
-      timestamp: '2025-08-11T10:59:12Z',
-    },
-  ];
+// 비디오 훅
+const { 
+  hasPermission: hasVideoPermission, 
+  isRecording: isVideoRecording, 
+  stream: videoStream, 
+  start: startVideo, 
+  stop: stopVideo 
+} = useVideoRecorder({
+  onStop: ({ blob }) => {
+    const url = URL.createObjectURL(blob);
+    setVideoPreviewUrl(url);
+  }
+});
 
   const exitLive = () => {
-    window.electronAPI.closeOverlay();
+    disconnectOpenVidu();
+    window?.electronAPI?.closeOverlay?.();
   };
+
+  // 8) 표시용 유니크 유저 목록/카운트 (messages 단일 출처 사용)
+  // const uniqueUsers: ChatUser[] = Array.from(
+  //   new Map(
+  //     (messages as IncomingMessage[]).map((m) => [
+  //       m.userId,
+  //       {
+  //         userId: m.userId,
+  //         userNickname: m.userNickname,
+  //         userImageUrl: m.userImageUrl,
+  //         lipTalkMode: m.lipTalkMode,
+  //       } as ChatUser,
+  //     ])
+  //   ).values()
+  // );
+  // const participantCount = uniqueUsers.length;
+
+  // 최근 N개 메시지
+  // const recentMessages = (messages as IncomingMessage[]).slice(-6);
 
   return (
     <div css={overlayContainer}>
       <div css={[overlayContent, isExpanded ? expanded : collapsed]}>
         <div css={header}>
           <div css={headerLeft}>
-            {Array.from(
-              // new Map(dummy.map((msg) => [msg.user.userId, msg.user])).values(),
-              new Map(messages.map((msg) => [msg.userId, msg])).values(),
-            ).map((user) => (
-              <div key={user.userId} css={profileWrap}>
+            {/* {uniqueUsers.map((u) => (
+              <div key={u.userId} css={profileWrap}>
                 <img
-                  src={user.userImageUrl}
-                  alt={user.userNickname}
-                  title={user.userNickname}
+                  src={u.userImageUrl}
+                  alt={u.userNickname}
+                  title={u.userNickname}
                   css={profile}
                 />
-                {/* 구화 사용 여부 노출 */}
-                <div css={micBadge} aria-label="구화모드 사용중">
-                  🎤
-                </div>
+                {u.lipTalkMode && (
+                  <div css={micBadge} aria-label="구화모드 사용중">
+                    🎤
+                  </div>
+                )}
               </div>
-            ))}
+            ))} */}
           </div>
           <div css={headerRight}>
-            <img src={user} alt="User" css={iconBtn} />
-            {/* <p>{dummy.length}</p> */}
-            <p>{messages.length}</p>
-            <img
-              src={exit}
-              alt="Exit"
-              css={outBtn}
-              onClick={() => exitLive()}
-            />
+            <img src={User} alt="User" css={userIcon} />
+            {/* <p>{participantCount}</p> */}
+            <div css={outBtn} onClick={exitLive} />
           </div>
         </div>
+
         {isExpanded && (
           <div css={body}>
             <div css={messagesWrap}>
-              {dummy.slice(-6).map((msg, idx) => (
-                <div key={idx} css={messageRow}>
+              {/* {recentMessages.map((msg, idx) => (
+                <div key={`${msg.userId}-${idx}`} css={messageRow}>
                   <img
-                    src={msg.user.userImageUrl}
-                    alt={msg.user.userNickname}
+                    src={msg.userImageUrl}
+                    alt={msg.userNickname}
                     css={profile}
                   />
                   <p>
-                    {msg.user.userNickname}: {msg.content}
+                    {msg.userNickname}: {msg.content}
                   </p>
                 </div>
-              ))}
+              ))} */}
             </div>
           </div>
         )}
-        <hr />
-        {/* 구화여부에 따른 버튼 노출 */}
-        {/* {lipTalk ? ( */}
-        <button css={lipiconWrapper}>
-          <img src={lip} alt="녹음" css={lipIcon} />
-        </button>
-        {/* ) : ( */}
-        {/* <button css={lipiconWrapper}>
-          <img src={recording} alt="녹음" css={lipIcon} onClick={} />
-        </button> */}
-        {/* )} */}
-        <div>{/* 영상 노출 부분 */}</div>
+{isExpanded &&
+  (currentSettings?.lipTalkMode ? (
+    <div css={normalUserControls}>
+      <button css={recordBtn} onClick={isAudioRecording ? stopAudio : startAudio}>
+        {isAudioRecording ? '중지' : '녹음'}
+      </button>
+
+      {audioPreviewUrl && (
+        <audio
+          controls
+          src={audioPreviewUrl}
+          style={{ marginTop: '8px', width: '100%' }}
+        />
+      )}
+    </div>
+
+  ) : (
+
+
+    <div css={lipUserControls}>
+      <video
+        ref={(el) => {
+          if (el && videoStream) {
+            el.srcObject = videoStream;
+            el.play().catch(() => {});
+          }
+        }}
+        autoPlay
+        muted
+        css={cameraPreview}
+      />
+      <button css={recordBtn} onClick={isVideoRecording ? stopVideo : startVideo}>
+        {isVideoRecording ? '중지' : '녹화'}
+      </button>
+      {/* {videoPreviewUrl && (
+        <video
+          controls
+          src={videoPreviewUrl}
+          style={{ marginTop: '8px', width: '100%', borderRadius: '8px' }}
+        />
+      )} */}
+    </div>
+  ))}
         <button onClick={() => setIsExpanded(!isExpanded)} css={toggleBtn}>
-          {isExpanded ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+          {isExpanded ? <ChevronUp size={30} /> : <ChevronDown size={30} />}
         </button>
       </div>
     </div>
@@ -320,109 +342,130 @@ const LiveOverlay = () => {
 export default LiveOverlay;
 
 const overlayContainer = css`
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100vh;         
   background: transparent;
   display: flex;
-  justify-content: flex-end;
-  align-items: flex-start;
+  justify-content: center;   
+  align-items: top;    
   padding: 16px;
 `;
 
 const overlayContent = css`
   background: rgba(0, 0, 0, 0.4);
   color: white;
-  border-radius: 24px;
+  border-radius: 10px;
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
   overflow: hidden;
+  position: relative;
 `;
 
 const expanded = css`
-  width: 300px;
-  height: 460px;
+  width: 100%;
+  height: 60vh;             
+  max-width: 960px;        
 `;
-
 const collapsed = css`
-  width: 320px;
+  width: 100%;
+  max-width: 960px;
   height: 60px;
 `;
-
 const header = css`
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 12px 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 `;
-
 const headerLeft = css`
+  display: flex;
+  gap: 8px;
+  align-items: center;
   font-size: 14px;
   font-weight: bold;
+  min-height: 30px;
 `;
-
 const headerRight = css`
   display: flex;
   align-items: center;
+  gap: 8px;
 `;
-
-const userBtn = css`
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  margin-left: 10px;
-  &:hover {
-    color: #f87171;
-  }
+const userIcon = css`
+  width: 18px;
+  height: 18px;
+  margin-right: 2px;
 `;
-
 const outBtn = css`
-  width: 25px;
-  height: 25px;
+  position: relative;
+  width: 28px;
+  height: 28px;
+  background-image: url(${ExitWhite});
+  background-size: cover;
   cursor: pointer;
-  margin-left: 10px;
+  margin-left: 4px;
   &:hover {
-    color: #f87171;
+    background-image: url(${ExitBlue});
+  }
+  &::after {
+    content: '나가기';
+    position: absolute;
+    top: 130%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 1);
+    color: #000;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  &:hover::after {
+    opacity: 1;
   }
 `;
-
 const body = css`
   flex: 1;
-  padding: 8px 4px;
+  padding: 8px 4px 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 5px;
 `;
-
 const toggleBtn = css`
   position: absolute;
   bottom: 6px;
-  right: 6px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 9999px;
-  padding: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: none;
+  border: none;
+  padding: 10px 0px;
   cursor: pointer;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
-`;
-
-const profile = css`
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  object-fit: cover;
-`;
-
-const messageRow = css`
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  svg {
+    color: white;
+    transition: color 0.2s ease;
+  }
+  &:hover svg {
+    color: #ccc;
+  }
 `;
-
+// const profile = css`
+//   width: 30px;
+//   height: 30px;
+//   border-radius: 50%;
+//   object-fit: cover;
+// `;
+// const messageRow = css`
+//   display: flex;
+//   align-items: center;
+//   gap: 8px;
+// `;
 const messagesWrap = css`
   min-height: 100%;
   display: flex;
@@ -430,51 +473,40 @@ const messagesWrap = css`
   justify-content: flex-end;
   gap: 8px;
 `;
-
-const micBadge = css`
-  position: absolute;
-  right: 8px;
-  bottom: -7px;
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
-  background: var(--color-green);
-  color: #fff;
-  font-size: 10px;
-  line-height: 14px;
-  text-align: center;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
-  pointer-events: none; /* 클릭 막지 않게 */
-`;
-
-const profileWrap = css`
-  position: relative;
-  width: 30px;
-  height: 30px;
-  display: inline-block;
-`;
-
-const lipIcon = css`
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  overflow: hidden;
+// 
+const lipUserControls = css`
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  background-color: #f0f0f0;
+  margin: 8px 0 12px;
+  gap: 6px;
 `;
 
-const lipiconWrapper = css`
-  position: relative;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  margin: 15px;
-  margin-left: 90px;
-  overflow: hidden;
+const normalUserControls = css`
   display: flex;
-  align-items: center;
   justify-content: center;
-  background-color: #f0f0f0;
+  margin: 8px 0 12px;
+`;
+
+const cameraPreview = css`
+  width: 90%;
+  height: 180px;
+  background: black;
+  border-radius: 8px;
+  object-fit: cover;
+  transform: scaleX(-1);
+`;
+
+const recordBtn = css`
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  margin-top: 8px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  &:hover {
+    background: rgba(255, 255, 255, 0.4);
+  }
 `;

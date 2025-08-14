@@ -1,16 +1,16 @@
 /** @jsxImportSource @emotion/react */
 import { css, keyframes } from '@emotion/react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import VoidaLogo from '@/assets/logo/voida-logo.png';
 import ChatImage from '@/assets/icons/main-chat.png';
 import LipIcon from '@/assets/icons/lip-blue.png';
 import StartIcon from '@/assets/icons/start.png';
-import DemoVideoIcon from '@/assets/icons/demo-video.png';
-import download from '@/assets/icons/download.png';
 import { Download } from 'lucide-react';
 
 const MainPage = () => {
   const navigate = useNavigate();
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
 
   return (
     <div css={wrapper}>
@@ -44,10 +44,17 @@ const MainPage = () => {
             </button>
             <button
               css={demoButton}
+              onMouseEnter={() => setIsTooltipVisible(true)}
+              onMouseLeave={() => setIsTooltipVisible(false)}
               onClick={() => window.open('https://www.test.voida.site/')}
             >
               <Download />
               지금 받기
+              {isTooltipVisible && (
+                <span css={tooltipStyle}>
+                  공식 웹사이트에서 Desktop App을 설치해보세요!
+                </span>
+              )}
             </button>
           </div>
         </div>
@@ -289,6 +296,7 @@ const startButton = css`
 `;
 
 const demoButton = css`
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -308,13 +316,49 @@ const demoButton = css`
     background: #f9fafb;
     transform: translateY(-1px);
   }
+`;
 
-  img {
-    width: clamp(16px, 1.6vw, 18px);
-    height: clamp(16px, 1.6vw, 18px);
-    margin-right: clamp(8px, 1vw, 10px);
+const tooltipStyle = css`
+  position: absolute;
+  top: 145%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, rgba(49, 130, 246, 0.95), rgba(155, 107, 255, 0.95));
+  color: white;
+  padding: 14px 18px;
+  font-size: 16px;
+  font-family: 'NanumSquareB';
+  border-radius: 12px;
+  white-space: nowrap;
+  box-shadow: 0px 8px 25px rgba(49, 130, 246, 0.35);
+  backdrop-filter: blur(6px);
+  animation: fadeInDown 0.3s ease-out;
+  z-index: 20;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 10px;
+    border-style: solid;
+    border-color: transparent transparent rgba(49, 130, 246, 0.95) transparent;
+    filter: drop-shadow(0px -2px 2px rgba(49, 130, 246, 0.2));
+  }
+
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
   }
 `;
+
 
 const right = css`
   flex: 1;

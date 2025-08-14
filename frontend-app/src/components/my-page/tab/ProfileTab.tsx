@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Camera, UserCog, Settings, Mail, Globe } from 'lucide-react';
 import defaultProfile from '@/assets/profiles/defaultProfile.png';
-import { deleteUser, updateUser, linksocialAccount } from '@/apis/auth/userApi';
+import { deleteUser, updateUser } from '@/apis/auth/userApi';
 import { useAuthStore } from '@/stores/authStore';
 import UpdatePasswordModal from '../modal/UpdatePasswordModal';
 import GetOutModal from '../modal/GetOutModal';
@@ -95,11 +95,8 @@ const ProfileTab = () => {
 
   // 구글 계정 연동 클릭 시 api 연결
   const handleGoogleLink = async () => {
-    const res = await linksocialAccount('google');
-    const redirectUrl = res.data.result.redirectUrl;
-    window.location.href = `${import.meta.env.VITE_SPRING_API_URL}${redirectUrl}`;
+    // const res = await linksocialAccount(accessToken!);
     // response 오는거에 따라 연동 여부 변경하기
-
   };
 
   // 탈퇴하기 버튼 클릭 시 모달 열기

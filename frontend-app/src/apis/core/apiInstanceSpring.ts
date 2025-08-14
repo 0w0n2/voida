@@ -38,6 +38,9 @@ apiInstanceSpring.interceptors.response.use(
       useAlertStore
         .getState()
         .showAlert('서버와 연결할 수 없습니다. 인터넷을 확인해주세요..', 'top');
+        setTimeout(() => {
+          window.location.href = '#/';
+        }, 3000);
       return Promise.reject(error);
     }
 
@@ -48,13 +51,10 @@ apiInstanceSpring.interceptors.response.use(
         useAlertStore.getState().showAlert(data.message || '입력값을 다시 확인해주세요.', 'top');
         break;
       case 401:
-        const response = await reissueToken();
-        console.log('토큰 재발급 성공:', response.data);
         if (!originalRequest._retry) {
           originalRequest._retry = true;
           try {
             const response = await reissueToken();
-            console.log(response);
             localStorage.setItem('accessToken', response.headers.authorization);
             originalRequest.headers.Authorization = `Bearer ${response.headers.authorization}`;
             return apiInstanceSpring(originalRequest);
@@ -63,7 +63,7 @@ apiInstanceSpring.interceptors.response.use(
             
             setTimeout(() => {
               window.location.href = '#/login';
-            }, 3000);
+            }, 1000);
 
             return Promise.reject(refreshError);
           }

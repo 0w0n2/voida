@@ -50,10 +50,9 @@ const RegisterForm = () => {
     setIsRegistered(false);
   };
 
-  // 소셜 로그인시 이메일 및 providerName 자동 입력
+  // 소셜 로그인시 이메일 자동 입력
   const location = useLocation();
   const socialEmail = location.state?.socialEmail;
-  const providerName = location.state?.providerName ?? undefined;
 
   const [showPassword, setShowPassword] = useState(false);
   const [showCheckPassword, setShowCheckPassword] = useState(false);
@@ -61,7 +60,6 @@ const RegisterForm = () => {
     if (socialEmail) {
       setEmail(socialEmail);
       setIsEmailChecked(true);
-      setIsEmailVerified(true);
     }
   }, []);
 
@@ -307,6 +305,10 @@ const RegisterForm = () => {
     try {
       // 소셜 로그인 여부 확인
       const isSocial = !!socialEmail;
+      let providerName = undefined;
+      if (isSocial) {
+        providerName = 'GOOGLE';
+      }
 
       // register API 호출
       await register(
@@ -565,6 +567,7 @@ const inputStyle = css`
   font-family: 'NanumSquareR', sans-serif;
   background: #ffffffff;
   outline: none;
+  caret-color: black;
   &:focus {
     border-color: var(--color-primary);
     background: var(--color-bg-white);
@@ -581,6 +584,7 @@ const emailInputStyle = css`
   font-family: 'NanumSquareR', sans-serif;
   background: #ffffffff;
   outline: none;
+  caret-color: black;
   &:focus {
     border-color: var(--color-primary);
     background: var(--color-bg-white);
@@ -598,6 +602,7 @@ const nicknameInputStyle = css`
   font-family: 'NanumSquareR', sans-serif;
   background: #ffffffff;
   outline: none;
+  caret-color: black;
   &:focus {
     border-color: var(--color-primary);
     background: var(--color-bg-white);

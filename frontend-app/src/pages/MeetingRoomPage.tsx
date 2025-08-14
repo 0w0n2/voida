@@ -4,21 +4,16 @@ import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import MemberPanel from '@/components/meeting-room/members/MemberPanel';
 import ChatPanel from '@/components/meeting-room/chat/ChatPanel';
-import {
-  getRoomInfo,
-  getRoomMembers,
-} from '@/apis/meeting-room/meetingRoomApi';
+import { getRoomInfo, getRoomMembers } from '@/apis/meeting-room/meetingRoomApi';
 import { getRoomChatHistory } from '@/apis/stomp/meetingRoomStomp';
 import { useMeetingRoomStore } from '@/stores/useMeetingRoomStore';
 
 const MeetingRoomPage = () => {
   const { meetingRoomId } = useParams<{ meetingRoomId: string }>();
-  const { setRoomInfo, setParticipants, setChatMessages } =
-    useMeetingRoomStore();
+  const { setRoomInfo, setParticipants, setChatMessages } = useMeetingRoomStore();
   const [isReady, setIsReady] = useState(false);
   const [showMembers, setShowMembers] = useState(true);
-  const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
+  const hoverTimer = useRef<number | null>(null);
   useEffect(() => {
     if (!meetingRoomId) return;
     const fetchData = async () => {
@@ -38,8 +33,10 @@ const MeetingRoomPage = () => {
 
       try {
         const chatData = await getRoomChatHistory(meetingRoomId);
-        const chatList = chatData?.chatHistory?.content ?? [];
-        setChatMessages(chatList);
+        const chatList = chatData?.content ?? [];
+        const currentPage = chatData?.number ?? 0;
+        const append = currentPage > 0;
+        setChatMessages(meetingRoomId, chatList, append);
       } catch (err) {
         console.error('채팅 기록 로딩 실패:', err);
       }
@@ -112,16 +109,13 @@ const sidebar = (open: boolean) => css`
   overflow: hidden;
 
   @media (max-width: 1400px) {
-    flex: none;
-    width: 400px;
+    width: ${open ? '400px' : '0px'};
   }
   @media (max-width: 1200px) {
-    flex: none;
-    width: 350px;
+    width: ${open ? '350px' : '0px'};
   }
   @media (max-width: 900px) {
-    flex: none;
-    width: 300px;
+    width: ${open ? '300px' : '0px'};
   }
 `;
 
@@ -157,9 +151,17 @@ const edgeHitbox = (open: boolean) => css`
   justify-content: ${open ? 'flex-end' : 'flex-start'};
   z-index: 10;
 
+  @media (max-width: 1400px) {
+    flex: none;
+    left: ${open ? '394px' : '0px'};
+  }
+  @media (max-width: 1200px) {
+    flex: none;
+    left: ${open ? '344px' : '0px'};
+  }
   @media (max-width: 900px) {
-    width: 22px;
-    height: 200px;
+    flex: none;
+    left: ${open ? '294px' : '0px'};
   }
 `;
 
@@ -187,7 +189,6 @@ const edgeHandle = css`
     background: linear-gradient(135deg, #5a7de0, #9466d6);
   }
 
-  /* 라벨 스타일 */
   .label {
     position: absolute;
     left: 34px;
@@ -205,8 +206,7 @@ const edgeHandle = css`
   &:focus-visible .label {
     opacity: 0.9;
   }
-
-  /* 반응형 */
+    
   @media (max-width: 1200px) {
     width: 26px;
     height: 64px;

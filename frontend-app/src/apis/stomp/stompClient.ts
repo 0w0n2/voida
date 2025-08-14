@@ -45,7 +45,7 @@ export async function connectStomp(meetingRoomId: string, onMessage: OnMessage) 
   // 클라이언트 생성/재연결
   if (!client) {
     const accessToken = localStorage.getItem('accessToken');
-    console.log(WS_ENDPOINT);
+    // console.log(WS_ENDPOINT);
     client = new Client({
       webSocketFactory: () => new SockJS(WS_ENDPOINT),
       connectHeaders: {
@@ -54,7 +54,7 @@ export async function connectStomp(meetingRoomId: string, onMessage: OnMessage) 
       reconnectDelay: 2000,
       heartbeatIncoming: 10000,
       heartbeatOutgoing: 10000,
-      debug: (str) => console.log('[STOMP DEBUG]', str),
+      // debug: (str) => console.log('[STOMP DEBUG]', str),
       onStompError: (frame) => {
         console.error('[STOMP ERROR]', frame.headers['message'], frame.body);
       },
@@ -72,7 +72,7 @@ export async function connectStomp(meetingRoomId: string, onMessage: OnMessage) 
 
   // 구독 시작
   const topic = `${TOPIC_PREFIX}${meetingRoomId}`;
-  console.log('구독 시작', topic);
+  // console.log('구독 시작', topic);
   onMessageRef = onMessage;
   subscription = client.subscribe(topic, (message: IMessage) => {
     try {

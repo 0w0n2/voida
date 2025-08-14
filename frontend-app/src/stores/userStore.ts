@@ -17,7 +17,6 @@ type User = {
   memberUuid: string;
 };
 
-// 유저 정보 조회 setting
 type OverlayPosition = 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT';
 
 type Settings = {
@@ -31,7 +30,6 @@ type SettingResponse = {
   setting: Settings;
 };
 
-// 유저 정보 조회 quickSlots
 type QuickSlots = {
   quickSlotId: number;
   message:string

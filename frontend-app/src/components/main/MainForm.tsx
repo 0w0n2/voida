@@ -38,8 +38,6 @@ const MainForm = ({ rooms = [] }: MainFormProps) => {
   const itemsPerPage = 6;
   const categories = ['전체', ...Object.values(categoryLabels)];
 
-  console.log(rooms);
-
   const filteredRooms = rooms.filter((room) => {
     const normalizedCategory = room.categoryName?.toLowerCase().trim();
     const roomCategoryKo = categoryLabels[normalizedCategory] || '기타';
@@ -278,6 +276,7 @@ const searchInput = css`
   padding: 0 12px;
   outline: none;
   color: #333;
+  caret-color: black;
 
   &::placeholder {
     color: #aaa;

@@ -14,7 +14,6 @@ const MainPage = () => {
       try {
         const res = await getRooms();
         setMeetingRooms(res ?? []);
-        console.log(res);
       } catch (error) {
         console.error('참여 중인 방 조회 실패:', error);
         setMeetingRooms([]); 

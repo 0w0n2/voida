@@ -11,7 +11,6 @@ export const logout = () => {
 };
 
 // 회원가입
-// api/auth.ts
 export const register = (
   email: string,
   password: string,
@@ -94,7 +93,5 @@ export const getRandomNickname = () => {
 
 // 토큰 재발급
 export const reissueToken = () => {
-  const res = apiInstanceSpring.post('/v1/auth/reissue', { withCredentials: true });
-  console.log(res);
-  return res;
+  return apiInstanceSpring.post('/v1/auth/reissue', { withCredentials: true });
 };
