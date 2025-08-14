@@ -4,6 +4,10 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
 var __copyProps = (to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
@@ -20,12 +24,15 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
   mod
 ));
-
-// electron/main.ts
-var import_electron2 = require("electron");
-var path2 = __toESM(require("path"), 1);
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // electron/overlayWindow.ts
+var overlayWindow_exports = {};
+__export(overlayWindow_exports, {
+  closeOverlayWindow: () => closeOverlayWindow,
+  createOverlayWindow: () => createOverlayWindow
+});
+module.exports = __toCommonJS(overlayWindow_exports);
 var import_electron = require("electron");
 var path = __toESM(require("path"), 1);
 var overlayWin = null;
@@ -73,60 +80,8 @@ function closeOverlayWindow() {
   overlayWin.close();
   overlayWin = null;
 }
-
-// electron/main.ts
-var win;
-import_electron2.app.whenReady().then(() => {
-  win = new import_electron2.BrowserWindow({
-    width: 1440,
-    height: 900,
-    icon: path2.join(__dirname, "assets", "icon.ico"),
-    webPreferences: {
-      preload: path2.join(__dirname, "preload.js"),
-      nodeIntegration: false,
-      contextIsolation: true,
-      devTools: true
-    }
-  });
-  const isDev = !!process.env.ELECTRON_DEV;
-  if (isDev) {
-    win.loadURL("http://localhost:5173");
-  } else {
-    win.loadFile(path2.join(__dirname, "../../dist/index.html"));
-  }
-  import_electron2.ipcMain.on("open-overlay", (_e, init) => {
-    const roomId = init?.roomId;
-    if (!roomId) {
-      console.error("[open-overlay] roomId \uB204\uB77D");
-      return;
-    }
-    win?.hide();
-    const overlayWin2 = createOverlayWindow(isDev);
-    if (isDev) {
-      const overlayUrl = `http://localhost:5173/#/live-overlay?roomId=${encodeURIComponent(
-        roomId
-      )}`;
-      overlayWin2.loadURL(overlayUrl);
-    } else {
-      const prodHTML = path2.join(__dirname, "../../dist/index.html");
-      const hash = `/live-overlay?roomId=${encodeURIComponent(roomId)}`;
-      overlayWin2.loadFile(prodHTML, { hash });
-    }
-    overlayWin2.show();
-    overlayWin2.focus();
-  });
-  import_electron2.ipcMain.on("close-overlay", () => {
-    closeOverlayWindow();
-    if (win) {
-      win.show();
-      win.focus();
-    }
-  });
-  import_electron2.ipcMain.on("send-quickslot", (event, message) => {
-    event.sender.send("quickslot-message", message);
-    console.log(`Received quickslot: ${message}`);
-  });
-  import_electron2.ipcMain.on("overlay-log", (_e, msg) => {
-    console.log("[OVERLAY]", msg);
-  });
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {
+  closeOverlayWindow,
+  createOverlayWindow
 });

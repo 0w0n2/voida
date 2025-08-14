@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { checkCurrentPassword, updatePassword } from '@/apis/auth/userApi';
 import EyeIcon from '@/assets/icons/eye.png';
 import EyeCloseIcon from '@/assets/icons/crossed-eye.png';
@@ -10,11 +10,13 @@ import UpdatePasswordDoneModal from '@/components/my-page/modal/UpdatePasswordDo
 interface UpdatePasswordModalProps {
   isOpen: boolean;
   onClose: () => void;
+  closeAll: () => void;
 }
 
 const UpdatePasswordModal = ({
   isOpen,
   onClose,
+  closeAll,
 }: UpdatePasswordModalProps) => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -46,6 +48,11 @@ const UpdatePasswordModal = ({
       return '영문, 숫자, 특수문자를 포함해야 합니다.';
     return '';
   };
+
+  useEffect(() => {
+    if (isOpen) document.body.classList.add('modal-open');
+    else document.body.classList.remove('modal-open');
+  }, [isOpen]);
 
   // 현재 비밀번호 변경 핸들러
   const handleCurrentPasswordChange = async (
@@ -129,7 +136,6 @@ const UpdatePasswordModal = ({
       return;
     }
 
-
     setIsLoading(true);
     setError('');
 
@@ -156,10 +162,14 @@ const UpdatePasswordModal = ({
     onClose();
   };
 
+  const closeDoneModal = () => {
+    setIsSuccessModalOpen(false);
+  };
+
   if (!isOpen) return null;
 
   return (
-    <div css={overlayStyle}>
+    <div data-modal-root css={overlayStyle}>
       <div css={modalStyle}>
         <button
           type="button"
@@ -294,8 +304,10 @@ const UpdatePasswordModal = ({
       {/* 비밀번호 수정 성공 시 모달 */}
       <UpdatePasswordDoneModal
         isOpen={isSuccessModalOpen}
-        onClose={()=>setIsSuccessModalOpen(false)}
-
+        onClose={() => setIsSuccessModalOpen(false)}
+        closeAll={closeAll}
+        closeDoneModal={closeDoneModal}
+        handleClose={handleClose}
       />
     </div>
   );
@@ -305,16 +317,12 @@ export default UpdatePasswordModal;
 
 const overlayStyle = css`
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  backdrop-filter: blur(2px);
+  background: rgba(15, 23, 42, 0.45);
+  z-index: 100000;
 `;
 
 const modalStyle = css`
