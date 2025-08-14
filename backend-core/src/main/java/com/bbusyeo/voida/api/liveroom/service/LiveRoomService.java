@@ -9,4 +9,6 @@ public interface LiveRoomService {
 
     TokenResponseDto createToken(String memberUuid, Long meetingRoomId);
 
+    void leaveSession(String memberUuid, Long meetingRoomId);
+
 }

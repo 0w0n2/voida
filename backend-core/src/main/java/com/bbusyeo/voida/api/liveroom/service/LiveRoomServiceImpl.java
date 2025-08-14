@@ -1,10 +1,6 @@
 package com.bbusyeo.voida.api.liveroom.service;
 
-import static com.bbusyeo.voida.global.response.BaseResponseStatus.MEETING_ROOM_MEMBER_NOT_FOUND;
-import static com.bbusyeo.voida.global.response.BaseResponseStatus.MEMBER_NOT_FOUND;
-import static com.bbusyeo.voida.global.response.BaseResponseStatus.MEMBER_SETTING_NOT_FOUND;
-import static com.bbusyeo.voida.global.response.BaseResponseStatus.OPENVIDU_SERVER_ERROR;
-import static com.bbusyeo.voida.global.response.BaseResponseStatus.OPENVIDU_SESSION_NOT_FOUND;
+import static com.bbusyeo.voida.global.response.BaseResponseStatus.*;
 import static io.openvidu.java.client.ConnectionProperties.DefaultValues.role;
 
 import com.bbusyeo.voida.api.liveroom.domain.model.Participant;
@@ -17,17 +13,12 @@ import com.bbusyeo.voida.api.member.repository.MemberRepository;
 import com.bbusyeo.voida.api.member.repository.MemberSettingRepository;
 import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.properties.OpenViduSessionProperties;
-import io.openvidu.java.client.Connection;
-import io.openvidu.java.client.ConnectionProperties;
-import io.openvidu.java.client.OpenVidu;
-import io.openvidu.java.client.OpenViduException;
-import io.openvidu.java.client.OpenViduHttpException;
-import io.openvidu.java.client.Session;
-import io.openvidu.java.client.SessionProperties;
+import com.bbusyeo.voida.global.support.ServerDataParser;
+import io.openvidu.java.client.*;
+
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -43,7 +34,7 @@ public class LiveRoomServiceImpl implements LiveRoomService {
     @Override
     public SessionResponseDto createOrGetSession(String memberUuid, Long meetingRoomId) {
 
-        String customSessionId = generateCustomSessionId(meetingRoomId);
+        final String customSessionId = generateCustomSessionId(meetingRoomId);
 
         try {
             openVidu.fetch(); // 최신 상태 동기화
@@ -57,7 +48,7 @@ public class LiveRoomServiceImpl implements LiveRoomService {
 
             return SessionResponseDto.from(session);
 
-        } catch (Exception e) {
+        } catch (OpenViduJavaClientException | OpenViduHttpException e) {
             throw new BaseException(OPENVIDU_SERVER_ERROR);
         }
     }
@@ -65,15 +56,13 @@ public class LiveRoomServiceImpl implements LiveRoomService {
     @Override
     public TokenResponseDto createToken(String memberUuid, Long meetingRoomId) {
 
-        String customSessionId = generateCustomSessionId(meetingRoomId);
+        final String customSessionId = generateCustomSessionId(meetingRoomId);
 
         try {
             openVidu.fetch(); // 최신 상태 동기화
 
             Session session = openVidu.getActiveSession(customSessionId);
-            if (session == null) {
-                throw new BaseException(OPENVIDU_SESSION_NOT_FOUND);
-            }
+            if (session == null) throw new BaseException(OPENVIDU_SESSION_NOT_FOUND);
 
             Participant participant = loadParticipant(memberUuid, meetingRoomId);
 
@@ -95,11 +84,36 @@ public class LiveRoomServiceImpl implements LiveRoomService {
             Connection connection = session.createConnection(props);
             return new TokenResponseDto(connection.getToken());
 
-        } catch (BaseException be) {
-            throw be;
-        } catch (OpenViduException oe) {
+        } catch (OpenViduJavaClientException | OpenViduHttpException e) {
             throw new BaseException(OPENVIDU_SERVER_ERROR);
-        } catch (Exception e) {
+        }
+    }
+
+    @Override
+    public void leaveSession(String memberUuid, Long meetingRoomId) {
+
+        final String customSessionId = generateCustomSessionId(meetingRoomId);
+
+        try {
+            openVidu.fetch();
+
+            Session session = openVidu.getActiveSession(customSessionId);
+            if (session == null) throw new BaseException(OPENVIDU_SESSION_NOT_FOUND);
+
+            Connection connection = session.getActiveConnections().stream()
+                    .filter(c -> memberUuid.equals(
+                            ServerDataParser.getText(ServerDataParser.parse(c.getServerData()), "memberUuid")
+                    )).findFirst().orElseThrow(() -> new BaseException(OPENVIDU_TOKEN_NOT_FOUND));
+
+            int participantCount = session.getActiveConnections().size();
+
+            if (participantCount == 1) {
+                session.close();
+            } else {
+                session.forceDisconnect(connection);
+            }
+
+        } catch (OpenViduJavaClientException | OpenViduHttpException e) {
             throw new BaseException(OPENVIDU_SERVER_ERROR);
         }
     }
