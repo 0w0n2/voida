@@ -44,22 +44,32 @@ public class MyPageController {
         return new BaseResponse<>();
     }
 
+    @Operation(summary = "유저 profile과 setting을 조회하는 API")
+    @GetMapping("/overview")
+    public BaseResponse<MeResponseInfoDto> overview(
+            @AuthenticationPrincipal(expression = "member") Member member) {
+        return new BaseResponse<>(MeResponseInfoDto.builder()
+                .member(myPageService.getMeProfile(member))
+                .setting(myPageService.getMeSetting(member.getId()))
+                .build());
+    }
+
     @GetMapping("/profile")
     public BaseResponse<MeResponseInfoDto> getProfile(
             @AuthenticationPrincipal(expression = "member") Member member) {
-        return new BaseResponse<>(MeResponseInfoDto.toMeResponseDto(myPageService.getMeProfile(member)));
+        return new BaseResponse<>(MeResponseInfoDto.builder().member(myPageService.getMeProfile(member)).build());
     }
 
     @GetMapping("/setting")
     public BaseResponse<MeResponseInfoDto> getSetting(
             @AuthenticationPrincipal(expression = "member") Member member) {
-        return new BaseResponse<>(MeResponseInfoDto.toMeResponseDto(myPageService.getMeSetting(member.getId())));
+        return new BaseResponse<>(MeResponseInfoDto.builder().setting(myPageService.getMeSetting(member.getId())).build());
     }
 
     @GetMapping("/quick-slots")
     public BaseResponse<MeResponseInfoDto> getQuickSlots(
             @AuthenticationPrincipal(expression = "member") Member member) {
-        return new BaseResponse<>(MeResponseInfoDto.toMeResponseDto(quickSlotService.getMeQuickSlots(member.getId())));
+        return new BaseResponse<>(MeResponseInfoDto.builder().quickSlots(quickSlotService.getMeQuickSlots(member.getId())).build());
     }
 
     @PutMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
