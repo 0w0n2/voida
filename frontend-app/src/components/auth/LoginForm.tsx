@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { login } from '@/apis/auth/authApi';
 import { getUser } from '@/apis/auth/userApi';
@@ -19,6 +19,18 @@ const LoginForm = () => {
   const [passwordError, setPasswordError] = useState('');
   const { setUser } = useAuthStore();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const blockEnter = (e: KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.stopPropagation();
+      }
+    };
+    document.addEventListener('keydown', blockEnter, true);
+    return () => {
+      document.removeEventListener('keydown', blockEnter, true);
+    };
+  }, []);
 
   // 구글 로그인 리다이렉트 함수
   const handleGoogleLogin = () => {
@@ -102,18 +114,11 @@ const LoginForm = () => {
 
       if (isNewbie) {
         navigate('/main');
-        return;
       } else {
         navigate('/tutorial');
-        return;
       }
-
-      // 비밀번호 틀릴  때
-      setPasswordError('비밀번호가 일치하지 않습니다.');
     } catch (e) {
       console.log(e);
-      // const axiosError = err as AxiosError<{ message: string }>;
-      // setError(axiosError.response?.data?.message || '로그인 실패');
     }
   };
 

@@ -1,9 +1,10 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, X } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import exit from '@/assets/icons/exitIcon.png';
 import user from '@/assets/icons/user.png';
+import { useOpenViduChat } from '@/hooks/useOpenViduChat';
 
 import lip from '@/assets/icons/lips.png';
 import recording from '@/assets/icons/soundRecording.png';
@@ -11,6 +12,8 @@ import recording from '@/assets/icons/soundRecording.png';
 // prop 받아서 구화여부 보여주기
 const LiveOverlay = () => {
   const [isExpanded, setIsExpanded] = useState(true);
+
+  const { messages } = useOpenViduChat();
 
   const dummy = [
     {
@@ -105,7 +108,8 @@ const LiveOverlay = () => {
         <div css={header}>
           <div css={headerLeft}>
             {Array.from(
-              new Map(dummy.map((msg) => [msg.user.userId, msg.user])).values(),
+              // new Map(dummy.map((msg) => [msg.user.userId, msg.user])).values(),
+              new Map(messages.map((msg) => [msg.userId, msg])).values(),
             ).map((user) => (
               <div key={user.userId} css={profileWrap}>
                 <img
@@ -122,8 +126,9 @@ const LiveOverlay = () => {
             ))}
           </div>
           <div css={headerRight}>
-            <img src={user} alt="User" css={userBtn} />
-            <p>{dummy.length}</p>
+            <img src={user} alt="User" css={iconBtn} />
+            {/* <p>{dummy.length}</p> */}
+            <p>{messages.length}</p>
             <img
               src={exit}
               alt="Exit"
@@ -135,8 +140,8 @@ const LiveOverlay = () => {
         {isExpanded && (
           <div css={body}>
             <div css={messagesWrap}>
-              {dummy.slice(-6).map((msg) => (
-                <div key={msg.messageId} css={messageRow}>
+              {dummy.slice(-6).map((msg, idx) => (
+                <div key={idx} css={messageRow}>
                   <img
                     src={msg.user.userImageUrl}
                     alt={msg.user.userNickname}
