@@ -14,7 +14,6 @@ import {
   getLiveToken,
   connectOpenVidu,
 } from '@/apis/live-room/openViduApi';
-import { useOpenViduChat } from '@/hooks/useOpenViduChat';
 
 interface ApiQuickSlot {
   quickSlotId: number;
