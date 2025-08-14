@@ -6,10 +6,11 @@ import { Camera, UserCog, Settings, Mail, Globe } from 'lucide-react';
 import defaultProfile from '@/assets/profiles/defaultProfile.png';
 import { deleteUser, updateUser } from '@/apis/auth/userApi';
 import { useAuthStore } from '@/stores/authStore';
-import UpdatePasswordModal from '../modal/UpdatePasswordModal';
-import GetOutModal from '../modal/GetOutModal';
+import UpdatePasswordModal from './UpdatePasswordModal';
+import GetOutModal from './GetOutModal';
 import google from '@/assets/icons/google-logo.png';
-import UpdateDoneModal from '../modal/UpdateDoneModal';
+import UpdateDoneModal from './UpdateDoneModal';
+
 
 interface UserProfile {
   nickname: string;
@@ -74,9 +75,7 @@ const ProfileTab = () => {
       try {
         await updateUser(userNickname, profileImageFile);
         console.log('유저 정보 업데이트 완료');
-        useAlertStore
-          .getState()
-          .showAlert('유저 정보가 업데이트되었습니다.', 'top');
+        useAlertStore.getState().showAlert('유저 정보가 업데이트되었습니다.', 'top');
         setShowDoneModal(true);
         setChanged(false);
       } catch (err) {
@@ -122,75 +121,84 @@ const ProfileTab = () => {
 
   return (
     <>
-      <div css={profileTabContainer}>
-        <div css={profilePanelStyle}>
-          <h2 css={panelTitleStyle}>프로필 사진</h2>
-          <p css={panelSubtitleStyle}>클릭하여 사진을 변경하세요.</p>
-          <div css={gradientBorderStyle}>
-            <div css={profileImageContainerStyle}>
-              <img
-                src={
-                  userImage
-                    ? userImage.startsWith('blob:')
-                      ? userImage
-                      : `${import.meta.env.VITE_CDN_URL}/${userImage.replace(
-                          /^\/+/,
-                          '',
-                        )}`
-                    : defaultProfile
-                }
-                alt="프로필 사진"
-                css={largeProfileImageStyle}
-              />
-            </div>
-          </div>
-          <button
-            onClick={handleProfileImageChange}
-            css={changePhotoButtonStyle}
-          >
-            <Camera size={22} />
-            사진 변경
-          </button>
-        </div>
-
-        <div css={infoPanelStyle}>
-          <div css={infoHeaderStyle}>
-            <h2 css={panelTitleStyle}>기본 정보</h2>
-            <div css={actionButtonsStyle}>
-              <button onClick={handleWithdraw} css={withdrawButtonStyle}>
-                탈퇴하기
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={!Changed}
-                css={saveButtonStyle}
-              >
-                수정하기
-              </button>
-            </div>
-          </div>
-
-          <p css={secondSubtitleStyle}>개인 정보를 관리하세요.</p>
-
-          <div css={infoSectionStyle}>
-            <label css={infoLabelStyle}>
-              <UserCog size={24} />
-              닉네임
-            </label>
-            <input
-              type="text"
-              value={userNickname}
-              onChange={(e) => handleNicknameChange(e.target.value)}
-              placeholder="닉네임을 입력하세요"
-              css={inputFieldStyle}
+    <div css={profileTabContainer}>
+      <div css={profilePanelStyle}>
+        <h2 css={panelTitleStyle}>프로필 사진</h2>
+        <p css={panelSubtitleStyle}>클릭하여 사진을 변경하세요.</p>
+        <div css={gradientBorderStyle}>
+          <div css={profileImageContainerStyle}>
+            <img
+              src={
+                userImage
+                  ? userImage.startsWith('blob:')
+                    ? userImage
+                    : `${import.meta.env.VITE_CDN_URL}/${userImage.replace(/^\/+/, '')}`
+                  : defaultProfile
+              }
+              alt="프로필 사진"
+              css={largeProfileImageStyle}
             />
           </div>
+        </div>
+        <button onClick={handleProfileImageChange} css={changePhotoButtonStyle}>
+          <Camera size={22} />
+          사진 변경
+        </button>
+      </div>
 
-          <div css={infoSectionStyle}>
+      <div css={infoPanelStyle}>
+        <div css={infoHeaderStyle}>
+          <h2 css={panelTitleStyle}>기본 정보</h2>
+          <div css={actionButtonsStyle}>
+            <button onClick={handleWithdraw} css={withdrawButtonStyle}>
+              탈퇴하기
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={!Changed}
+              css={saveButtonStyle}
+            >
+              수정하기
+            </button>
+          </div>
+        </div>
+
+        <p css={secondSubtitleStyle}>개인 정보를 관리하세요.</p>
+
+        <div css={infoSectionStyle}>
+          <label css={infoLabelStyle}>
+            <UserCog size={24} />
+            닉네임
+          </label>
+          <input
+            type="text"
+            value={userNickname}
+            onChange={(e) => handleNicknameChange(e.target.value)}
+            placeholder="닉네임을 입력하세요"
+            css={inputFieldStyle}
+          />
+        </div>
+
+        <div css={infoSectionStyle}>
+          <label css={infoLabelStyle}>
+            <Mail size={24} />
+            이메일
+            <span css={cannotEditButtonStyle}>수정불가</span>
+          </label>
+          <input
+            type="email"
+            value={userEmail}
+            disabled
+            placeholder="이메일을 입력하세요"
+            css={inputFieldStyle}
+          />
+        </div>
+
+        <div css={horizontalContainerStyle}>
+          <div css={halfSectionStyle}>
             <label css={infoLabelStyle}>
-              <Mail size={24} />
-              이메일
-              <span css={cannotEditButtonStyle}>수정불가</span>
+              <Settings size={24} />
+              비밀번호 수정
             </label>
             <input
               type="email"
@@ -201,34 +209,23 @@ const ProfileTab = () => {
             />
           </div>
 
-          <div css={horizontalContainerStyle}>
-            <div css={halfSectionStyle}>
-              <label css={infoLabelStyle}>
-                <Settings size={24} />
-                비밀번호 수정
-              </label>
-              <button onClick={handlePasswordChange} css={actionButtonStyle}>
-                비밀번호 수정하기
-              </button>
-            </div>
-
-            <div css={halfSectionStyle}>
-              <label css={infoLabelStyle}>
-                <Globe size={24} />
-                소셜 연동 여부
-              </label>
-              <button
-                onClick={handleGoogleLink}
-                disabled={Changed}
-                css={googleButtonStyle}
-              >
-                <img src={google} alt="google" css={iconStyle} />
-                Google 계정 연동
-              </button>
-            </div>
+          <div css={halfSectionStyle}>
+            <label css={infoLabelStyle}>
+              <Globe size={24} />
+              소셜 연동 여부
+            </label>
+            <button
+              onClick={handleGoogleLink}
+              disabled={Changed}
+              css={googleButtonStyle}
+            >
+              <img src={google} alt="google" css={iconStyle} />
+              Google 계정 연동
+            </button>
           </div>
         </div>
       </div>
+    </div>
       <UpdatePasswordModal
         isOpen={isPasswordModalOpen}
         onClose={() => setIsPasswordModalOpen(false)}
@@ -250,6 +247,10 @@ const ProfileTab = () => {
 
 export default ProfileTab;
 
+<<<<<<< HEAD:frontend-app/src/components/my-page/tab/ProfileTab.tsx
+=======
+
+>>>>>>> 883a495 ([FE] feat: 단축키 텍스트,음성 테스트 출력 구현):frontend-app/src/components/my-page/ProfileTab.tsx
 const profileTabContainer = css`
   display: flex;
   gap: 24px;
@@ -269,7 +270,7 @@ const profilePanelStyle = css`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 100%; 
   min-height: 500px;
 `;
 

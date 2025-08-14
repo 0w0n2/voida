@@ -94,7 +94,12 @@ export const getRandomNickname = () => {
 
 // 토큰 재발급
 export const reissueToken = () => {
+<<<<<<< HEAD
   const res = apiInstanceSpring.post('/v1/auth/reissue', { withCredentials: true });
   console.log(res);
   return res;
+=======
+  const response = apiInstance.post('/v1/auth/reissue');
+  console.log('토큰 재발급 요청:', response);
+>>>>>>> 883a495 ([FE] feat: 단축키 텍스트,음성 테스트 출력 구현)
 };

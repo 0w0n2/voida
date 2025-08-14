@@ -16,29 +16,49 @@ interface ApiQuickSlot {
 }
 
 // prop 받아서 구화여부 보여주기 필요
+
 const LiveOverlay = () => {
   const [isExpanded, setIsExpanded] = useState(true);
   const hotkeyMapRef = useRef(new Map<string, string>());
+  const ttsUrlMapRef = useRef(new Map<string, string>());
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // 오디오 초기화 및 정리
+  useEffect(() => {
+    audioRef.current = new Audio();
+    audioRef.current.preload = 'auto';
+    const el = audioRef.current;
+
+    const onError = () => console.error('오디오 로드/재생 에러:', el.error);
+    el.addEventListener('error', onError);
+
+    return () => {
+      el.removeEventListener('error', onError);
+      el.pause();
+      audioRef.current = null;
+    };
+  }, []);
 
   // 라이브 창 켜지면 api 호출로 단축키 불러오고 파싱해서 등록
   useEffect(() => {
     const fetchQuickSlots = async () => {
       const res = await getUserQuickSlots();
       const quickSlots: ApiQuickSlot[] = res.data.result.quickSlots;
-
       const parseHotkey = (hotkey: string) => {
-        return hotkey.trim().toLowerCase();
+        return hotkey.trim().toLowerCase().replace(/^`/, '');
       };
 
-      const map = hotkeyMapRef.current;
-      map.clear();
-
+      const hotkeyMap = hotkeyMapRef.current;
+      const urlMap = ttsUrlMapRef.current;
+      hotkeyMap.clear();
+      urlMap.clear();
       for (const slot of quickSlots) {
         const message: string = slot.message;
         const sigKey = parseHotkey(slot.hotkey);
-
+        const ttsUrl = slot.url;
         // Map 전용 키-값 저장
-        map.set(sigKey, message);
+        hotkeyMap.set(sigKey, message);
+        urlMap.set(sigKey, ttsUrl);
       }
     };
 
@@ -49,26 +69,45 @@ const LiveOverlay = () => {
   useEffect(() => {
     let backtickDown = false;
 
-    const onKeyDown = (e: KeyboardEvent) => {
+    const onKeyDown = async (e: KeyboardEvent) => {
+      if (e.repeat) return; //중복 방지
       if (e.key === '`') {
+        console.log('백틱 눌림');
         backtickDown = true;
+        console.log(backtickDown);
         return;
       }
       if (!backtickDown) return;
 
       const map = hotkeyMapRef.current;
       const sigKey = e.key.toLowerCase();
-
+      // console.log('sigKey:', sigKey, 'map.has(sigKey):', map.has(sigKey));
       if (map.has(sigKey)) {
         const message = map.get(sigKey);
+        const url = ttsUrlMapRef.current.get(sigKey);
         if (message) {
           e.preventDefault();
-          window.electronAPI.sendQuickMessage(message);
+          console.log(`단축키 ${sigKey} 실행: ${message}`);
+          // window.electronAPI.sendQuickMessage(message);
+        }
+
+        // 단축키 오디오 재생
+        if (url && audioRef.current) {
+          try {
+            const el = audioRef.current;
+            el.pause(); // 현재 재생 중이면 멈춤
+            el.src = `${import.meta.env.VITE_CDN_URL}/${url}`; // 새 URL 설정
+            await el.play(); // 재생
+          } catch (err) {
+            console.error('오디오 재생 실패:', err);
+          }
         }
       }
     };
+
     const onKeyUp = (e: KeyboardEvent) => {
       if (e.key === '`') {
+        console.log('백틱 떼짐');
         backtickDown = false;
       }
     };

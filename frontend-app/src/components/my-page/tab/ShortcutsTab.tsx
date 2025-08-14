@@ -38,12 +38,16 @@ const ShortcutsTab = () => {
         setQuickSlotUrls(quickSlots.map((slot: any) => slot.url));
       } catch (err) {
         console.error('유저 단축키 조회 실패:', err);
+<<<<<<< HEAD:frontend-app/src/components/my-page/tab/ShortcutsTab.tsx
 <<<<<<< HEAD
         setError('유저 단축키를 불러오는데 실패했습니다.');
       }
 =======
       } 
 >>>>>>> ca4a50f ([FE] style: 마이페이지 UI 수정)
+=======
+      } 
+>>>>>>> 883a495 ([FE] feat: 단축키 텍스트,음성 테스트 출력 구현):frontend-app/src/components/my-page/ShortcutsTab.tsx
     };
 
     fetchUserQuickSlots();
