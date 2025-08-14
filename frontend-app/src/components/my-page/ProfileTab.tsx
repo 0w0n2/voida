@@ -1,21 +1,15 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import React, { useState, useEffect } from 'react';
-import defaultProfile from '../../assets/profiles/defaultProfile.png';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Camera, UserCog, Settings, Mail, Globe } from 'lucide-react';
+import defaultProfile from '@/assets/profiles/defaultProfile.png';
 import { deleteUser, updateUser } from '@/apis/auth/userApi';
-import { useAuthStore, type User } from '@/stores/authStore';
-import { useAlertStore } from '@/stores/useAlertStore';
+import { useAuthStore } from '@/stores/authStore';
 import UpdatePasswordModal from './UpdatePasswordModal';
 import GetOutModal from './GetOutModal';
-import camera from '@/assets/icons/mp-camera.png';
-import global from '@/assets/icons/mp-global.png';
-import profile from '@/assets/icons/mp-profile.png';
-import mail from '@/assets/icons/mp-mail.png';
-import settings from '@/assets/icons/mp-setting.png';
 import google from '@/assets/icons/google-logo.png';
-import { useNavigate } from 'react-router-dom';
 import UpdateDoneModal from './UpdateDoneModal';
-
 
 interface UserProfile {
   nickname: string;
@@ -39,13 +33,6 @@ const ProfileTab = () => {
   const [showDoneModal, setShowDoneModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 유저 정보 조회(변수에 사진, 닉네임, 이메일 할당)
-  // const user = useAuthStore((state) => state.user);
-  // console.log(user);
-  // const userImage = user?.profileImage;
-  // const userNickname = user?.nickname;
-  // const userEmail = user?.email;
-
   useEffect(() => {
     setUserNickname(user?.nickname ?? '');
     setUserEmail(user?.email ?? '');
@@ -53,46 +40,26 @@ const ProfileTab = () => {
     setChanged(false);
   }, [user]);
 
-  // 변수에 입력받은 닉네임 할당
-  // const handleNicknameChange = (newNickname: string) => {
-  //   if (userProfile) {
-  //     setUserNickname(newNickname);
-  //     setUserProfile({
-  //       ...userProfile,
-  //       nickname: newNickname,
-  //     });
-  //   }
-  // };
-
-  // 닉네임 변경하기
   const handleNicknameChange = (newNickname: string) => {
     setUserNickname(newNickname);
     setChanged(true);
   };
 
-  // 변수에 입력받은 사진 할당 (사진 보여주기도 포함)
   const handleProfileImageChange = () => {
-    console.log(userImage);
-    // 이미지 파일 선택 및 미리보기
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = 'image/*';
     fileInput.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
-        // 파일 크기 검증 (5MB 이하)
         if (file.size > 5 * 1024 * 1024) {
           alert('파일 크기는 5MB 이하여야 합니다.');
           return;
         }
-
-        // 이미지 파일 타입 검증
         if (!file.type.startsWith('image/')) {
           alert('이미지 파일만 업로드 가능합니다.');
           return;
         }
-
-        // 이미지 미리보기 URL 생성
         const imageUrl = URL.createObjectURL(file);
         setUserImage(imageUrl);
         setProfileImageFile(file);
@@ -102,13 +69,14 @@ const ProfileTab = () => {
     fileInput.click();
   };
 
-  // 수정하기 버튼 클릭 시 한번에 수정 API 호출
   const handleSave = async () => {
     if (profileImageFile || userNickname !== user?.nickname) {
       try {
         await updateUser(userNickname, profileImageFile);
         console.log('유저 정보 업데이트 완료');
-        useAlertStore.getState().showAlert('유저 정보가 업데이트되었습니다.', 'top');
+        useAlertStore
+          .getState()
+          .showAlert('유저 정보가 업데이트되었습니다.', 'top');
         setShowDoneModal(true);
         setChanged(false);
       } catch (err) {
@@ -154,118 +122,113 @@ const ProfileTab = () => {
 
   return (
     <>
-      {/* 좌측: 프로필 사진 섹션 */}
-      <div css={profilePanelStyle}>
-        <h2 css={panelTitleStyle}>프로필 사진</h2>
-        <p css={panelSubtitleStyle}>클릭하여 사진을 변경하세요.</p>
-        <div css={gradientBorderStyle}>
-          <div css={profileImageContainerStyle}>
-            {/* <img
-              src={
-                `${import.meta.env.VITE_CDN_URL}/${userImage}` || defaultProfile
-              }
-              alt="프로필 사진"
-              css={largeProfileImageStyle}
-            /> */}
-            <img
-              src={
-                userImage
-                  ? userImage.startsWith('blob:')
-                    ? userImage
-                    : `${import.meta.env.VITE_CDN_URL}/${userImage.replace(
-                        /^\/+/,
-                        '',
-                      )}`
-                  : defaultProfile
-              }
-              alt="프로필 사진"
-              css={largeProfileImageStyle}
+      <div css={profileTabContainer}>
+        <div css={profilePanelStyle}>
+          <h2 css={panelTitleStyle}>프로필 사진</h2>
+          <p css={panelSubtitleStyle}>클릭하여 사진을 변경하세요.</p>
+          <div css={gradientBorderStyle}>
+            <div css={profileImageContainerStyle}>
+              <img
+                src={
+                  userImage
+                    ? userImage.startsWith('blob:')
+                      ? userImage
+                      : `${import.meta.env.VITE_CDN_URL}/${userImage.replace(
+                          /^\/+/,
+                          '',
+                        )}`
+                    : defaultProfile
+                }
+                alt="프로필 사진"
+                css={largeProfileImageStyle}
+              />
+            </div>
+          </div>
+          <button
+            onClick={handleProfileImageChange}
+            css={changePhotoButtonStyle}
+          >
+            <Camera size={22} />
+            사진 변경
+          </button>
+        </div>
+
+        <div css={infoPanelStyle}>
+          <div css={infoHeaderStyle}>
+            <h2 css={panelTitleStyle}>기본 정보</h2>
+            <div css={actionButtonsStyle}>
+              <button onClick={handleWithdraw} css={withdrawButtonStyle}>
+                탈퇴하기
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={!Changed}
+                css={saveButtonStyle}
+              >
+                수정하기
+              </button>
+            </div>
+          </div>
+
+          <p css={secondSubtitleStyle}>개인 정보를 관리하세요.</p>
+
+          <div css={infoSectionStyle}>
+            <label css={infoLabelStyle}>
+              <UserCog size={24} />
+              닉네임
+            </label>
+            <input
+              type="text"
+              value={userNickname}
+              onChange={(e) => handleNicknameChange(e.target.value)}
+              placeholder="닉네임을 입력하세요"
+              css={inputFieldStyle}
             />
           </div>
-        </div>
 
-        <button onClick={handleProfileImageChange} css={changePhotoButtonStyle}>
-          <img src={camera} alt="camera" className="icon" />
-          사진 변경
-        </button>
-      </div>
-
-      {/* 우측: 기본 정보 섹션 */}
-      <div css={infoPanelStyle}>
-        <div css={infoHeaderStyle}>
-          <h2 css={panelTitleStyle}>기본 정보</h2>
-          <div css={actionButtonsStyle}>
-            <button onClick={handleWithdraw} css={withdrawButtonStyle}>
-              탈퇴하기
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={!Changed}
-              css={saveButtonStyle}
-            >
-              수정하기
-            </button>
-          </div>
-        </div>
-
-        <p css={secondSubtitleStyle}>개인 정보를 관리하세요.</p>
-
-        <div css={infoSectionStyle}>
-          <label css={infoLabelStyle}>
-            <img src={profile} alt="profile" />
-            닉네임
-          </label>
-          <input
-            type="text"
-            value={userNickname}
-            onChange={(e) => handleNicknameChange(e.target.value)}
-            placeholder="닉네임을 입력하세요"
-            css={inputFieldStyle}
-          />
-        </div>
-
-        <div css={infoSectionStyle}>
-          <label css={infoLabelStyle}>
-            <img src={mail} alt="mail" />
-            이메일
-            <span css={cannotEditButtonStyle}>수정불가</span>
-          </label>
-          <input
-            type="email"
-            value={userEmail}
-            disabled
-            placeholder="이메일을 입력하세요"
-            css={inputFieldStyle}
-          />
-        </div>
-        <div css={horizontalContainerStyle}>
-          <div css={halfSectionStyle}>
+          <div css={infoSectionStyle}>
             <label css={infoLabelStyle}>
-              <img src={settings} alt="settings" />
-              비밀번호 수정
+              <Mail size={24} />
+              이메일
+              <span css={cannotEditButtonStyle}>수정불가</span>
             </label>
-            <button onClick={handlePasswordChange} css={actionButtonStyle}>
-              비밀번호 수정하기
-            </button>
+            <input
+              type="email"
+              value={userEmail}
+              disabled
+              placeholder="이메일을 입력하세요"
+              css={inputFieldStyle}
+            />
           </div>
 
-          <div css={halfSectionStyle}>
-            <label css={infoLabelStyle}>
-              <img src={global} alt="global" />
-              소셜 연동 여부
-            </label>
-            <button
-              onClick={handleGoogleLink}
-              disabled={Changed}
-              css={googleButtonStyle}
-            >
-              <img src={google} alt="google" css={iconStyle} />
-              Google 계정 연동
-            </button>
+          <div css={horizontalContainerStyle}>
+            <div css={halfSectionStyle}>
+              <label css={infoLabelStyle}>
+                <Settings size={24} />
+                비밀번호 수정
+              </label>
+              <button onClick={handlePasswordChange} css={actionButtonStyle}>
+                비밀번호 수정하기
+              </button>
+            </div>
+
+            <div css={halfSectionStyle}>
+              <label css={infoLabelStyle}>
+                <Globe size={24} />
+                소셜 연동 여부
+              </label>
+              <button
+                onClick={handleGoogleLink}
+                disabled={Changed}
+                css={googleButtonStyle}
+              >
+                <img src={google} alt="google" css={iconStyle} />
+                Google 계정 연동
+              </button>
+            </div>
           </div>
         </div>
       </div>
-
       <UpdatePasswordModal
         isOpen={isPasswordModalOpen}
         onClose={() => setIsPasswordModalOpen(false)}
@@ -287,6 +250,15 @@ const ProfileTab = () => {
 
 export default ProfileTab;
 
+const profileTabContainer = css`
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: wrap;
+  align-items: stretch;
+`;
+
 const profilePanelStyle = css`
   background-color: var(--color-bg-white);
   border-radius: 12px;
@@ -295,20 +267,10 @@ const profilePanelStyle = css`
   align-items: center;
   padding: 3%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-
-  @media (max-width: 1024px) {
-    min-width: 35%;
-    padding: 2.5%;
-  }
-
-  @media (max-width: 768px) {
-    min-width: 100%;
-    padding: 20px;
-  }
-
-  @media (max-width: 480px) {
-    padding: 15px;
-  }
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 500px;
 `;
 
 const infoPanelStyle = css`
@@ -319,27 +281,15 @@ const infoPanelStyle = css`
   padding: 3%;
   margin: 0 auto;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-
-  @media (max-width: 1024px) {
-    min-width: 50%;
-    padding: 2.5%;
-  }
-
-  @media (max-width: 768px) {
-    min-width: 100%;
-    padding: 20px;
-  }
-
-  @media (max-width: 480px) {
-    padding: 15px;
-  }
+  height: 100%;
+  min-height: 500px;
 `;
 
 const panelTitleStyle = css`
   font-family: 'NanumSquareEB';
-  font-size: 20px;
+  font-size: 22px;
   color: var(--color-text);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   text-align: center;
 
   @media (max-width: 768px) {
@@ -353,7 +303,7 @@ const panelTitleStyle = css`
 
 const panelSubtitleStyle = css`
   font-family: 'NanumSquareR', sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--color-gray-600);
   text-align: center;
 
@@ -370,19 +320,9 @@ const panelSubtitleStyle = css`
 
 const secondSubtitleStyle = css`
   font-family: 'NanumSquareR', sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--color-gray-600);
-  margin-bottom: 24px;
-
-  @media (max-width: 768px) {
-    font-size: 13px;
-    margin-bottom: 20px;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 12px;
-    margin-bottom: 15px;
-  }
+  margin-bottom: 48px;
 `;
 
 const profileImageContainerStyle = css`
@@ -438,17 +378,15 @@ const largeProfileImageStyle = css`
 const changePhotoButtonStyle = css`
   display: flex;
   align-items: center;
-  gap: 20px;
-  width: 50%;
-  padding: 12px;
+  gap: 12px;
+  width: 40%;
+  padding: 14px;
   background-color: var(--color-bg-white);
   color: var(--color-text);
   border: 1px solid var(--color-gray-300);
   border-radius: 8px;
-  margin-left: 25%;
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
-  font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s ease;
 
@@ -463,22 +401,10 @@ const changePhotoButtonStyle = css`
     cursor: not-allowed;
   }
 
-  .icon {
-    width: 20px;
-    height: 20px;
-    margin-left: 30px;
-  }
-
-  @media (max-width: 768px) {
-    width: 80%;
-    margin-left: 10%;
-  }
-
-  @media (max-width: 480px) {
-    width: 90%;
-    margin-left: 5%;
-    padding: 10px;
-    font-size: 13px;
+  svg {
+    margin-left: 8px;
+    margin-top: 2px;
+    display: block;
   }
 `;
 
@@ -486,7 +412,6 @@ const infoHeaderStyle = css`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
 `;
 
 const actionButtonsStyle = css`
@@ -552,7 +477,7 @@ const infoLabelStyle = css`
   font-size: 14px;
   font-weight: 600;
   color: var(--color-text);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 `;
 
 const cannotEditButtonStyle = css`
@@ -574,6 +499,7 @@ const inputFieldStyle = css`
   font-size: 14px;
   background-color: var(--color-bg-white);
   color: var(--color-text);
+  margin-bottom: 16px;
 
   &:focus {
     outline: none;
@@ -627,51 +553,13 @@ const googleButtonStyle = css`
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
   font-weight: 600;
-  cursor: pointer;
   transition: all 0.2s ease;
-
-  &:hover {
-    border-color: var(--color-primary);
-    color: var(--color-primary);
-  }
 
   &:disabled {
     background-color: var(--color-gray-100);
     color: var(--color-gray-500);
     cursor: not-allowed;
   }
-`;
-
-const ChangedContainerStyle = css`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  background-color: var(--color-bg-white);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-`;
-
-const ChangedTextStyle = css`
-  font-family: 'NanumSquareR', sans-serif;
-  font-size: 16px;
-  color: var(--color-gray-600);
-`;
-
-const errorContainerStyle = css`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  background-color: var(--color-bg-white);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-`;
-
-const errorTextStyle = css`
-  font-family: 'NanumSquareR', sans-serif;
-  font-size: 16px;
-  color: var(--color-red);
 `;
 
 const horizontalContainerStyle = css`

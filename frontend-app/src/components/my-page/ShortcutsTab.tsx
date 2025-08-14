@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { getUserQuickSlots, updateQuickslots } from '../../apis/auth/userApi';
 import { useAuthStore } from '../../stores/userStore';
 import { useAlertStore } from '@/stores/useAlertStore';
@@ -16,8 +16,6 @@ interface Shortcut {
 const ShortcutsTab = () => {
   const { user } = useAuthStore();
   const [shortcuts, setShortcuts] = useState<Shortcut[]>([]);
-  const [hasChanged, setHasChanged] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [showDoneModal, setShowDoneModal] = useState(false);
   const [quickSlotMessages, setQuickSlotMessages] = useState<string[]>([]);
@@ -41,8 +39,12 @@ const ShortcutsTab = () => {
         setQuickSlotUrls(quickSlots.map((slot: any) => slot.url));
       } catch (err) {
         console.error('유저 단축키 조회 실패:', err);
+<<<<<<< HEAD
         setError('유저 단축키를 불러오는데 실패했습니다.');
       }
+=======
+      } 
+>>>>>>> ca4a50f ([FE] style: 마이페이지 UI 수정)
     };
 
     fetchUserQuickSlots();
@@ -60,7 +62,6 @@ const ShortcutsTab = () => {
     setHasChanged(true);
   };
 
-  // TODO: API 연동 시 구현
   const handleSave = async () => {
     try {
       await updateQuickslots(shortcuts);
@@ -149,40 +150,21 @@ const shortcutsHeaderStyle = css`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
 `;
 
 const panelTitleStyle = css`
-  font-family: 'NanumSquareB', sans-serif;
-  font-size: 20px;
-  font-weight: 900;
+  font-family: 'NanumSquareEB';
+  font-size: 22px;
   color: var(--color-text);
-  margin-bottom: 8px;
-
-  @media (max-width: 768px) {
-    font-size: 18px;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 16px;
-  }
+  margin-bottom: 10px;
+  text-align: center;
 `;
 
 const panelSubtitleStyle = css`
   font-family: 'NanumSquareR', sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--color-gray-600);
-  margin-bottom: 24px;
-
-  @media (max-width: 768px) {
-    font-size: 13px;
-    margin-bottom: 20px;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 12px;
-    margin-bottom: 15px;
-  }
+  margin-bottom: 48px;
 `;
 
 const saveButtonStyle = css`
@@ -211,16 +193,7 @@ const saveButtonStyle = css`
 const shortcutsGridStyle = css`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 15px;
-  }
-
-  @media (max-width: 480px) {
-    gap: 10px;
-  }
+  gap: 30px;
 `;
 
 const shortcutItemStyle = css`
@@ -228,19 +201,10 @@ const shortcutItemStyle = css`
   align-items: center;
   gap: 16px;
   padding: 16px;
-  background-color: var(--color-gray-50);
-  border-radius: 8px;
-  border: 1px solid var(--color-gray-200);
-
-  @media (max-width: 768px) {
-    gap: 12px;
-    padding: 12px;
-  }
-
-  @media (max-width: 480px) {
-    gap: 8px;
-    padding: 10px;
-  }
+  flex: 1;
+  border-radius: 12px;
+  background-color: var(--color-gray-100);
+  padding: 30px;
 `;
 
 const keyContainerStyle = css`
@@ -251,16 +215,15 @@ const keyContainerStyle = css`
 `;
 
 const backtickKeyStyle = css`
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   background-color: var(--color-gray-600);
   color: var(--color-text-white);
   border: none;
   border-radius: 6px;
   font-family: 'NanumSquareR', sans-serif;
-  font-size: 14px;
+  font-size: 26px;
   font-weight: 600;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -268,23 +231,22 @@ const backtickKeyStyle = css`
 `;
 
 const plusSignStyle = css`
-  font-size: 16px;
+  font-size: 26px;
   font-weight: 600;
   color: var(--color-text);
   margin: 0 4px;
 `;
 
 const numberKeyStyle = css`
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   background-color: var(--color-gray-600);
   color: var(--color-text-white);
   border: none;
   border-radius: 6px;
   font-family: 'NanumSquareR', sans-serif;
-  font-size: 14px;
+  font-size: 22px;
   font-weight: 600;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -294,22 +256,30 @@ const numberKeyStyle = css`
 const shortcutInputStyle = css`
   flex: 1;
   padding: 12px 16px;
-  border: 1px solid var(--color-gray-300);
+  margin-left: 16px;
+  border: none;
   border-radius: 6px;
-  font-family: 'NanumSquareR', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  background-color: var(--color-bg-white);
+  font-family: 'NanumSquareEB', sans-serif;
+  font-size: 18px;
+  background-color: var(--color-gray-100);
   color: var(--color-text);
   min-height: 40px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
 
   &:focus {
     outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    background-color: var(--color-bg-white);
+    box-shadow: 0 0 0 1px rgba(156, 163, 175, 0.3);
+  }
+
+  &:hover {
+    background-color: var(--color-gray-200);
   }
 
   &::placeholder {
     color: var(--color-gray-400);
+    font-family: 'NanumSquareR';
+    font-size: 16px;
   }
 `;

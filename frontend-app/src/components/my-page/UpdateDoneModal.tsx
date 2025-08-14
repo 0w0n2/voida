@@ -19,7 +19,6 @@ const UpdateDoneModal = ({
       <div css={modalStyle}>
         <div css={profileImageContainer}>
           <div css={profileImagePlaceholder}>
-            {/* 프로필 이미지가 들어갈 자리 */}
           </div>
         </div>
 
@@ -35,6 +34,7 @@ const UpdateDoneModal = ({
         </button>
       </div>
     </div>
+    
   );
 };
 
@@ -42,16 +42,12 @@ export default UpdateDoneModal;
 
 const overlayStyle = css`
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  backdrop-filter: blur(2px);
+  z-index: 999;
 `;
 
 const modalStyle = css`

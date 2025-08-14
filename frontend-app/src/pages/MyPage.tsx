@@ -33,7 +33,7 @@ export default function MyPage() {
   }, [activeIndex]);
 
   return (
-    <main>
+    <main css={mainWrapper}>
       <Header />
       <nav css={navWrapper}>
         <div css={navContainer}>
@@ -67,12 +67,14 @@ export default function MyPage() {
   );
 }
 
+const mainWrapper = css`
+  min-height: 100vh;
+`;
 const navWrapper = css`
   max-width: 1200px;
   margin: 0 auto;
   padding: 8px 0;
 `;
-
 const navContainer = css`
   display: inline-flex;
   position: relative;
@@ -82,7 +84,6 @@ const navContainer = css`
   padding: 10px 0px;
   gap: 10px;
 `;
-
 const navTab = (active: boolean) => css`
   background: none;
   border: none;
@@ -99,7 +100,6 @@ const navTab = (active: boolean) => css`
   z-index: 1;
   transition: color 0.3s ease;
 `;
-
 const highlightBox = (left: number, width: number) => css`
   position: absolute;
   top: 4px;
@@ -112,7 +112,6 @@ const highlightBox = (left: number, width: number) => css`
   transition: all 0.3s ease;
   z-index: 0;
 `;
-
 const sliderWrapper = css`
   overflow: hidden;
   max-width: 1200px;
@@ -137,15 +136,13 @@ const sliderWrapper = css`
     gap: 15px;
   }
 `;
-
 const sliderTrack = (activeIndex: number) => css`
   display: flex;
   transition: transform 0.4s ease;
   transform: translateX(-${activeIndex * 100}%);
 `;
-
 const sliderItem = css`
-  min-width: 100%;
+  min-width: 1200px;
   padding: 40px;
   box-sizing: border-box;
 `;
