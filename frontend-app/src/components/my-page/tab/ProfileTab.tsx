@@ -6,10 +6,10 @@ import { Camera, UserCog, Settings, Mail, Globe } from 'lucide-react';
 import defaultProfile from '@/assets/profiles/defaultProfile.png';
 import { deleteUser, updateUser } from '@/apis/auth/userApi';
 import { useAuthStore } from '@/stores/authStore';
-import UpdatePasswordModal from '@/components/my-page/modal/UpdatePasswordModal';
-import GetOutModal from '@/components/my-page/modal/GetOutModal';
+import UpdatePasswordModal from '../modal/UpdatePasswordModal';
+import GetOutModal from '../modal/GetOutModal';
 import google from '@/assets/icons/google-logo.png';
-import UpdateDoneModal from '@/components/my-page/modal/UpdateDoneModal';
+import UpdateDoneModal from '../modal/UpdateDoneModal';
 
 
 interface UserProfile {
@@ -200,13 +200,9 @@ const ProfileTab = () => {
               <Settings size={24} />
               비밀번호 수정
             </label>
-            <input
-              type="email"
-              value={userEmail}
-              disabled
-              placeholder="이메일을 입력하세요"
-              css={inputFieldStyle}
-            />
+            <button onClick={handlePasswordChange} css={actionButtonStyle}>
+              비밀번호 수정하기
+            </button>
           </div>
 
           <div css={halfSectionStyle}>
@@ -246,6 +242,7 @@ const ProfileTab = () => {
 };
 
 export default ProfileTab;
+
 
 const profileTabContainer = css`
   display: flex;

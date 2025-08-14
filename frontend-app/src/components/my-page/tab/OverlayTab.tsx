@@ -9,8 +9,7 @@ type OverlayPosition = 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT';
 
 const OverlayTab = () => {
   const { user } = useAuthStore();
-  const [overlayPosition, setOverlayPosition] =
-    useState<OverlayPosition>('TOPLEFT');
+  const [overlayPosition, setOverlayPosition] = useState<OverlayPosition>('TOPLEFT');
   const [liveFontSize, setLiveFontSize] = useState<number>(0);
   const [overlayTransparency, setOverlayTransparency] = useState<number>(0);
   const [changed, setChanged] = useState(false);
@@ -21,9 +20,7 @@ const OverlayTab = () => {
     const fetchUserSettings = async () => {
       try {
         const res = await getUserSettings();
-        setOverlayPosition(
-          res.data.result.setting.overlayPosition as OverlayPosition,
-        );
+        setOverlayPosition(res.data.result.setting.overlayPosition as OverlayPosition);
         setLiveFontSize(res.data.result.setting.liveFontSize);
         setOverlayTransparency(res.data.result.setting.overlayTransparency);
       } catch (err) {
@@ -114,10 +111,7 @@ const OverlayTab = () => {
                 value={liveFontSize}
                 onChange={(e) => handleFontSizeChange(Number(e.target.value))}
               />
-              <span
-                css={sliderLabelStyle}
-                style={{ fontSize: `${liveFontSize}px` }}
-              >
+              <span css={sliderLabelStyle} style={{ fontSize: `${liveFontSize}px` }}>
                 가
               </span>
             </div>
@@ -136,9 +130,7 @@ const OverlayTab = () => {
                 min="0"
                 max="100"
                 value={overlayTransparency}
-                onChange={(e) =>
-                  handleTransparencyChange(Number(e.target.value))
-                }
+                onChange={(e) => handleTransparencyChange(Number(e.target.value))}
               />
               <span css={sliderLabelStyle}>{overlayTransparency}%</span>
             </div>
@@ -157,6 +149,7 @@ const OverlayTab = () => {
 
 export default OverlayTab;
 
+/* === 스타일 === */
 const overlayPanelStyle = css`
   width: 100%;
   background-color: var(--color-bg-white);
@@ -206,13 +199,8 @@ const overlayContentStyle = css`
   max-width: 800px;
 `;
 
-const leftSectionStyle = css`
-  flex: 1;
-`;
-const rightSectionStyle = css`
-  flex: 1;
-  min-width: 550px;
-`;
+const leftSectionStyle = css`flex: 1;`;
+const rightSectionStyle = css`flex: 1; min-width: 550px;`;
 
 const overlaySectionStyle = css`
   margin-bottom: 40px;

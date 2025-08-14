@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import UpdateDoneModal from '@/components/my-page/modal/UpdateDoneModal';
 import guide from '@/assets/icons/mp-guide.png';
 
+
 interface UserSettings {
   useLipTalkMode: boolean;
 }
@@ -52,9 +53,7 @@ const SettingsTab = () => {
       console.log('변경된 값:', userSpeech?.useLipTalkMode);
       setShowDoneModal(true);
       setHasChanged(false);
-      useAlertStore
-        .getState()
-        .showAlert('유저 정보가 업데이트되었습니다.', 'top');
+      useAlertStore.getState().showAlert('유저 정보가 업데이트되었습니다.', 'top');
     } catch (err) {
       console.error('설정 저장 실패:', err);
     }
@@ -287,6 +286,7 @@ const toggleSliderStyle = (enabled: boolean) => css`
     transform: scale(0.9);
   }
 `;
+
 
 const guidebookButtonStyle = css`
   display: flex;
