@@ -6,10 +6,10 @@ import { Camera, UserCog, Settings, Mail, Globe } from 'lucide-react';
 import defaultProfile from '@/assets/profiles/defaultProfile.png';
 import { deleteUser, updateUser } from '@/apis/auth/userApi';
 import { useAuthStore } from '@/stores/authStore';
-import UpdatePasswordModal from './UpdatePasswordModal';
-import GetOutModal from './GetOutModal';
+import UpdatePasswordModal from '@/components/my-page/modal/UpdatePasswordModal';
+import GetOutModal from '@/components/my-page/modal/GetOutModal';
 import google from '@/assets/icons/google-logo.png';
-import UpdateDoneModal from './UpdateDoneModal';
+import UpdateDoneModal from '@/components/my-page/modal/UpdateDoneModal';
 
 
 interface UserProfile {
@@ -247,10 +247,6 @@ const ProfileTab = () => {
 
 export default ProfileTab;
 
-<<<<<<< HEAD:frontend-app/src/components/my-page/tab/ProfileTab.tsx
-=======
-
->>>>>>> 883a495 ([FE] feat: 단축키 텍스트,음성 테스트 출력 구현):frontend-app/src/components/my-page/ProfileTab.tsx
 const profileTabContainer = css`
   display: flex;
   gap: 24px;

@@ -54,15 +54,9 @@ apiInstanceSpring.interceptors.response.use(
           originalRequest._retry = true;
           try {
             const response = await reissueToken();
-<<<<<<< HEAD
             console.log(response);
             localStorage.setItem('accessToken', response.headers.authorization);
             originalRequest.headers.Authorization = `Bearer ${response.headers.authorization}`;
-=======
-            console.log('토큰 재발급 성공:', response.data);
-            localStorage.setItem('accessToken', response.data.accessToken);
-            originalRequest.headers.Authorization = `Bearer ${response.data.accessToken}`;
->>>>>>> 883a495 ([FE] feat: 단축키 텍스트,음성 테스트 출력 구현)
             return apiInstanceSpring(originalRequest);
           } catch (refreshError) {
             useAlertStore.getState().showAlert('로그인이 필요합니다.', 'top');
