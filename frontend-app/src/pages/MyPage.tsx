@@ -1,21 +1,27 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useEffect, useRef, useState } from 'react';
+import { UserCog, Settings, Keyboard, Scan } from 'lucide-react';
 import Header from '@/components/Header';
 import ProfileTab from '@/components/my-page/ProfileTab';
 import SettingsTab from '@/components/my-page/SettingsTab';
 import ShortcutsTab from '@/components/my-page/ShortcutsTab';
 import OverlayTab from '@/components/my-page/OverlayTab';
-import { UserCog, Settings, Keyboard, Scan } from 'lucide-react';
-// import settings from '@/assets/icons/mp-setting.png';
-// import shortcuts from '@/assets/icons/mp-shortcut.png';
-// import overlay from '@/assets/icons/mp-overlay.png';
-// import profile from '@/assets/icons/mp-profile.png';
 
 const tabList = [
   { key: 'profile', label: '프로필', icon: UserCog, component: <ProfileTab /> },
-  { key: 'settings', label: '설정', icon: Settings, component: <SettingsTab /> },
-  { key: 'shortcuts', label: '단축키', icon: Keyboard, component: <ShortcutsTab /> },
+  {
+    key: 'settings',
+    label: '설정',
+    icon: Settings,
+    component: <SettingsTab />,
+  },
+  {
+    key: 'shortcuts',
+    label: '단축키',
+    icon: Keyboard,
+    component: <ShortcutsTab />,
+  },
   { key: 'overlay', label: '오버레이', icon: Scan, component: <OverlayTab /> },
 ];
 
@@ -46,7 +52,6 @@ export default function MyPage() {
               css={navTab(index === activeIndex)}
               onClick={() => setActiveIndex(index)}
             >
-              {/* <img src={tab.icon} alt={tab.label} css={iconStyle} /> */}
               <tab.icon size={18} />
               {tab.label}
             </button>
@@ -70,11 +75,23 @@ export default function MyPage() {
 const mainWrapper = css`
   min-height: 100vh;
 `;
+
 const navWrapper = css`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 8px 0;
+  padding: 10px 0;
+  @media (min-height: 900px) {
+    padding: 20px 0px;
+  }
+  @media (min-height: 1000px) {
+    padding-top: 60px;
+    padding: 50px 0px;
+  }
+  @media (min-height: 1300px) {
+    padding: 50px 0px;
+  }
 `;
+
 const navContainer = css`
   display: inline-flex;
   position: relative;
@@ -84,11 +101,12 @@ const navContainer = css`
   padding: 10px 0px;
   gap: 10px;
 `;
+
 const navTab = (active: boolean) => css`
   background: none;
   border: none;
-  font-size: 18px; 
-  font-family: ${active ? 'NanumSquareEB' : 'NanumSquareR'}; 
+  font-size: 18px;
+  font-family: ${active ? 'NanumSquareEB' : 'NanumSquareR'};
   color: ${active ? '#000' : '#555'};
   cursor: pointer;
   padding: 10px 30px;
@@ -100,6 +118,7 @@ const navTab = (active: boolean) => css`
   z-index: 1;
   transition: color 0.3s ease;
 `;
+
 const highlightBox = (left: number, width: number) => css`
   position: absolute;
   top: 4px;
@@ -112,35 +131,29 @@ const highlightBox = (left: number, width: number) => css`
   transition: all 0.3s ease;
   z-index: 0;
 `;
+
 const sliderWrapper = css`
   overflow: hidden;
   max-width: 1200px;
   margin: auto;
-
-  @media (max-width: 1024px) {
-    max-width: 95%;
-    gap: 2%;
-    padding: 2%;
+  @media (min-height: 900px) {
+    padding: 10px 0px;
   }
-
-  @media (max-width: 768px) {
-    max-width: 98%;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
+  @media (min-height: 1000px) {
+    padding: 30px 0px;
+    padding-top: 0px;
   }
-
-  @media (max-width: 480px) {
-    max-width: 100%;
-    padding: 15px;
-    gap: 15px;
+  @media (min-height: 1300px) {
+    padding: 30px 0px;
   }
 `;
+
 const sliderTrack = (activeIndex: number) => css`
   display: flex;
   transition: transform 0.4s ease;
   transform: translateX(-${activeIndex * 100}%);
 `;
+
 const sliderItem = css`
   min-width: 1200px;
   padding: 40px;
