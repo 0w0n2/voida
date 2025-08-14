@@ -28,7 +28,7 @@ app.whenReady().then(() => {
   }
 
   ipcMain.on('open-overlay', (_e, init?: { roomId: string }) => {
-    const roomId = init?.roomId; // NEW
+    const roomId = init?.roomId; 
     if (!roomId) {
       console.error('[open-overlay] roomId 누락');
       return;
@@ -40,16 +40,16 @@ app.whenReady().then(() => {
     if (isDev) {
       const overlayUrl = `http://localhost:5173/#/live-overlay?roomId=${encodeURIComponent(
         roomId,
-      )}`; // NEW
-      overlayWin.loadURL(overlayUrl); // NEW
+      )}`; 
+      overlayWin.loadURL(overlayUrl); 
     } else {
       const prodHTML = path.join(__dirname, '../../dist/index.html');
-      const hash = `/live-overlay?roomId=${encodeURIComponent(roomId)}`; // NEW
-      overlayWin.loadFile(prodHTML, { hash }); // NEW
+      const hash = `/live-overlay?roomId=${encodeURIComponent(roomId)}`; 
+      overlayWin.loadFile(prodHTML, { hash }); 
     }
 
-    overlayWin.show(); // NEW
-    overlayWin.focus(); // NEW
+    overlayWin.show(); 
+    overlayWin.focus(); 
   });
 
   ipcMain.on('close-overlay', () => {
@@ -65,7 +65,6 @@ app.whenReady().then(() => {
     console.log(`Received quickslot: ${message}`);
   });
 
-  // 디버깅용 로그 띄우기
   ipcMain.on('overlay-log', (_e, msg) => {
     console.log('[OVERLAY]', msg);
   });

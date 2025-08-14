@@ -1,16 +1,12 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import VoidaLogo from '@/assets/logo/voida-logo.png';
 import { Wifi } from 'lucide-react';
-import { getRoomStatus, startLiveSession, getLiveToken, connectOpenVidu } from '@/apis/live-room/openViduApi';
-import { useOpenViduChat } from '@/hooks/useOpenViduChat';
 import { useMeetingRoomStore } from '@/stores/useMeetingRoomStore';
+import VoidaLogo from '@/assets/logo/voida-logo.png';
 
 const ChatHeader = () => {
   const roomInfo = useMeetingRoomStore((state) => state.roomInfo);
   const meetingRoomId = roomInfo?.meetingRoomId ?? '';
-
-  const { handleSignalMessage } = useOpenViduChat();
 
   const handleJoinLive = async () => {
     if (!meetingRoomId) {
@@ -18,19 +14,10 @@ const ChatHeader = () => {
       return;
     }
     try {
-      // const statusRes = await getRoomStatus(meetingRoomId);
-
-      // if (statusRes.status === 'IDLE') {
-      //   await startLiveSession(meetingRoomId);
-      // }
-
-      // const token = await getLiveToken(meetingRoomId);
-      // await connectOpenVidu(token, handleSignalMessage);
-      window.electronAPI?.openOverlay?.();
+      window.electronAPI?.openOverlay?.({ roomId: meetingRoomId });
     } catch (err) {
       console.error('라이브 참여 실패', err);
     }
-    window.electronAPI?.openOverlay?.({ roomId: meetingRoomId });
   };
 
   return (
