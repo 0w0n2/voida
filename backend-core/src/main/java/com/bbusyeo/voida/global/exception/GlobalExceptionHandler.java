@@ -1,13 +1,12 @@
 package com.bbusyeo.voida.global.exception;
 
-import static com.bbusyeo.voida.global.response.BaseResponseStatus.INTERNAL_SERVER_ERROR;
-import static com.bbusyeo.voida.global.response.BaseResponseStatus.INVALID_INPUT_VALUE;
-
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.bbusyeo.voida.global.response.BaseResponse;
 import lombok.extern.slf4j.Slf4j;
+
+import static com.bbusyeo.voida.global.response.BaseResponseStatus.*;
 
 @Slf4j
 @RestControllerAdvice

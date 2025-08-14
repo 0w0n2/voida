@@ -9,10 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/v1/live-rooms")
 @Tag(name = "Live Room")
@@ -23,7 +20,7 @@ public class LiveRoomController {
     private final LiveRoomService liveRoomService;
 
     @Operation(summary = "OpenVidu 세션 생성 및 조회 API",
-            description = "방이 `IDLE` 상태일 때, 새로운 라이브 세션을 생성합니다.")
+            description = "대기실과 매칭되는 세션이 없을 경우 새로운 라이브 세션을 생성하며, 세션 정보는 항상 반환합니다.")
     @PostMapping("/{meetingRoomId}/sessions")
     public BaseResponse<SessionResponseDto> createOrGetSession(
         @PathVariable Long meetingRoomId,
@@ -41,6 +38,17 @@ public class LiveRoomController {
 
         return new BaseResponse<>(liveRoomService.createToken(
             member.getMemberUuid(), meetingRoomId));
+    }
+
+    @Operation(summary = "OpenVidu 세션 퇴장 API",
+            description = "요청 사용자를 세션에서 퇴장시키고, 마지막 1명이었다면 세션을 종료합니다.")
+    @DeleteMapping("/{meetingRoomId}/sessions")
+    public BaseResponse<Void> leaveSession(
+            @PathVariable Long meetingRoomId,
+            @AuthenticationPrincipal(expression = "member") Member member) {
+
+        liveRoomService.leaveSession(member.getMemberUuid(), meetingRoomId);
+        return new BaseResponse<>();
     }
 
 }

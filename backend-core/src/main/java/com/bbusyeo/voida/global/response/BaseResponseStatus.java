@@ -96,7 +96,9 @@ public enum BaseResponseStatus {
     /**
      * 1800: 라이브룸 에러.
      */
+    OPENVIDU_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, false, 1800, "세션 접근 권한이 없습니다."),
     OPENVIDU_SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, false, 1804, "존재하지 않는 세션입니다.");
+
 
     private final HttpStatus httpStatus;
     private final boolean isSuccess;
