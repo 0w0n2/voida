@@ -9,6 +9,7 @@ import com.bbusyeo.voida.api.member.repository.MemberSocialRepository;
 import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.redis.dao.RedisDao;
 import com.bbusyeo.voida.global.response.BaseResponseStatus;
+import com.bbusyeo.voida.global.security.constant.OAuth2Value;
 import com.bbusyeo.voida.global.support.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -32,7 +33,6 @@ public class SignUpService {
 
     private final MemberSocialRepository memberSocialRepository;
     private final RedisDao redisDao;
-    private static final String SIGNUP_TOKEN_PREFIX = "signup-token:";
 
     public Member signUp(SignUpRequestDto requestDto, MultipartFile profileImage) {
         // 이전에 탈퇴한 회원의 재가입 시 기존 정보 제거
@@ -53,15 +53,14 @@ public class SignUpService {
         try {
             profileImageUrl = (profileImage != null && !profileImage.isEmpty()) ?
                     s3Uploader.upload(profileImage, MemberValue.S3_PROFILE_DIR) // 사용자 지정 이미지
-                    : "%s/default_profile%d.png".formatted(MemberValue.S3_PROFILE_DIR, random.nextInt(MemberValue.DEFAULT_PROFILE_IMAGE_COUNT)); // 디폴트 이미지
+                    : "%s/default_profile%d.png".formatted(MemberValue.S3_PROFILE_DIR, random.nextInt(1, MemberValue.DEFAULT_PROFILE_IMAGE_COUNT + 1)); // 디폴트 이미지
             // 4. member 테이블 저장
             Member member = memberRepository.save(requestDto.toMember(memberUuid, encodedPassword, profileImageUrl));
 
             // 5. 소셜 회원가입 처리
             if (Boolean.TRUE.equals(requestDto.getIsSocial())) {
-
                 // Redis 에서 임시 정보 가져오기
-                String redisKey = SIGNUP_TOKEN_PREFIX + requestDto.getEmail();
+                String redisKey = OAuth2Value.SOCIAL_SIGNUP_TOKEN_PREFIX + requestDto.getEmail();
                 Object providerId = redisDao.getValue(redisKey);
                 if (providerId == null) { // 소셜 회원가입 시간 만료
                     throw new BaseException(BaseResponseStatus.EXPIRED_SOCIAL_SIGNUP);

@@ -3,6 +3,7 @@ package com.bbusyeo.voida.global.security.handler.oauth2;
 import com.bbusyeo.voida.api.auth.dto.SocialSignInResponseDto;
 import com.bbusyeo.voida.api.auth.service.TokenAuthService;
 import com.bbusyeo.voida.global.security.dto.UserDetailsDto;
+import com.bbusyeo.voida.global.security.util.OAuth2Utils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +21,14 @@ import java.io.IOException;
 public class UserDetailsDtoSuccessHandlerStrategy implements OAuth2SuccessHandlerStrategy {
 
     private final TokenAuthService tokenAuthService;
+    private final OAuth2Utils oAuth2Utils;
 
     @Value("${security.oauth.client-endpoint}")
     private String redirectUri;
 
     @Override
-    public boolean supports(Object principal) {
-        return principal instanceof UserDetailsDto;
+    public boolean supports(Authentication authentication, HttpServletRequest request) {
+        return authentication.getPrincipal() instanceof UserDetailsDto && !oAuth2Utils.isSocialLink(request);
     }
 
     @Override

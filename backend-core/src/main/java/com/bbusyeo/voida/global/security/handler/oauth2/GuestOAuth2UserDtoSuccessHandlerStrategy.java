@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 /**
- * 최초 OAuth 로그인일 경우 (GuestOAuth2UserDto) -> 일반 회원가입 진행
+ * 최초 OAuth 로그인일 경우 -> 일반 회원가입 진행
  */
 @Component
 @RequiredArgsConstructor
@@ -25,8 +25,8 @@ public class GuestOAuth2UserDtoSuccessHandlerStrategy implements OAuth2SuccessHa
     private String redirectUri;
 
     @Override
-    public boolean supports(Object principal) {
-        return principal instanceof GuestOAuth2UserDto;
+    public boolean supports(Authentication authentication, HttpServletRequest request) {
+        return authentication.getPrincipal() instanceof GuestOAuth2UserDto;
     }
 
     @Override

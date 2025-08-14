@@ -82,6 +82,8 @@ public enum BaseResponseStatus {
     UNSUPPORTED_SOCIAL_PROVIDER(HttpStatus.BAD_REQUEST, false, 1000, "지원하지 않는 소셜 로그인 타입입니다."),
     EXPIRED_SOCIAL_SIGNUP(HttpStatus.NOT_FOUND, false, 1002, "회원가입 시간이 만료되었습니다. 다시 시도해주세요."),
     ALREADY_REGISTERED_EMAIL(HttpStatus.CONFLICT, false, 1003, "이미 가입된 계정입니다. 이메일 로그인 방식을 사용해주세요."),
+    SOCIAL_ACCOUNT_ALREADY_LINKED(HttpStatus.CONFLICT, false, 1004, "이미 다른 계정에 연동된 소셜 계정입니다."),
+    EXPIRED_SOCIAL_LINK(HttpStatus.NOT_FOUND, false, 1005, "계정 연동 시간이 만료되었습니다. 다시 시도해주세요."),
 
     /**
      * 1500: 릴리스 에러.

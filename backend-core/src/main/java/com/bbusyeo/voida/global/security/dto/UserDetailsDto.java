@@ -1,5 +1,7 @@
 package com.bbusyeo.voida.global.security.dto;
 
+import com.bbusyeo.voida.api.member.domain.MemberSocial;
+import com.bbusyeo.voida.api.member.domain.enums.ProviderName;
 import com.bbusyeo.voida.api.member.domain.enums.Role;
 import com.bbusyeo.voida.api.member.domain.Member;
 import lombok.*;
@@ -21,12 +23,19 @@ public class UserDetailsDto implements UserDetails, OAuth2User {
 
     @Delegate // Member 객체의 메소드를 이 클래스에서 직접 사용 가능
     private final Member member;
+    private OAuth2UserInfo oAuth2UserInfo;
 
     private Map<String, Object> attributes;
 
     // 일반 로그인 객체
     public UserDetailsDto(Member member) {
         this.member = member;
+    }
+    
+    // 일반 + OAuth2 객체
+    public UserDetailsDto(Member member, OAuth2UserInfo oAuth2UserInfo) {
+        this.member = member;
+        this.oAuth2UserInfo = oAuth2UserInfo;
     }
 
     // 사용자 권한 목록 반환
@@ -77,5 +86,14 @@ public class UserDetailsDto implements UserDetails, OAuth2User {
     @Override
     public String getName() {
         return null;
+    }
+
+    public MemberSocial toMemberSocialForLinking() {
+        return MemberSocial.builder()
+            .member(member)
+            .email(oAuth2UserInfo.getProviderEmail())
+            .providerName(ProviderName.from(oAuth2UserInfo.getProvideName()))
+            .providerId(oAuth2UserInfo.getProviderId())
+            .build();
     }
 }
