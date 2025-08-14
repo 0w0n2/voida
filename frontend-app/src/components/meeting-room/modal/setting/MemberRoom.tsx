@@ -11,12 +11,12 @@ const MemberRoom = () => {
   const { roomInfo, participants } = useMeetingRoomStore();
 
   const handleDelegate = async (memberId: number) => {
-  if (!roomInfo) return;
-  await delegateHost(roomInfo.meetingRoomId, String(memberId));
-  useAlertStore.getState().showAlert('방장이 위임되었습니다.', 'top');
-  setTimeout(() => {
-    window.location.reload();
-    }, 1000); 
+    if (!roomInfo) return;
+    await delegateHost(roomInfo.meetingRoomId, String(memberId));
+    useAlertStore.getState().showAlert('방장이 위임되었습니다.', 'top');
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
   };
 
   const handleKick = async (memberId: number) => {
@@ -25,7 +25,7 @@ const MemberRoom = () => {
     useAlertStore.getState().showAlert('참여자 강퇴가 완료되었습니다.', 'top');
     setTimeout(() => {
       window.location.reload();
-      }, 1000); 
+    }, 1000);
   };
 
   return (
@@ -50,12 +50,12 @@ const MemberRoom = () => {
               <div>
                 <div css={nameRow}>
                   <span>{user.nickname}</span>
-                    {user.state === 'HOST' && (
+                  {user.state === 'HOST' && (
                     <span css={roleBadge}>
-                        <img src={Crown} alt="방장" css={crownImg} />
-                        방장
+                      <img src={Crown} alt="방장" css={crownImg} />
+                      방장
                     </span>
-                    )}
+                  )}
                   {user.lipTalkMode && (
                     <span css={lipIcon}>
                       <img src={Lip} alt="구화" css={lipImg} />
@@ -67,28 +67,28 @@ const MemberRoom = () => {
             </div>
 
             {!user.mine && user.state !== 'HOST' && (
-            <div css={buttonArea}>
-              <div css={tooltipWrapper}>
-                <button
-                  css={changeRoleButton}
-                  onClick={() => handleDelegate(user.memberUuid)}
-                >
-                  <CrownIcon size={18} />
-                </button>
-                <span css={tooltip}>방장 위임</span>
-              </div>
+              <div css={buttonArea}>
+                <div css={tooltipWrapper}>
+                  <button
+                    css={changeRoleButton}
+                    onClick={() => handleDelegate(user.memberUuid)}
+                  >
+                    <CrownIcon size={18} />
+                  </button>
+                  <span css={tooltip}>방장 위임</span>
+                </div>
 
-              <div css={tooltipWrapper}>
-                <button
-                  css={kickButton}
-                  onClick={() => handleKick(user.memberUuid)}
-                >
-                  <UserMinus size={18} />
-                </button>
-                <span css={tooltip}>강퇴</span>
+                <div css={tooltipWrapper}>
+                  <button
+                    css={kickButton}
+                    onClick={() => handleKick(user.memberUuid)}
+                  >
+                    <UserMinus size={18} />
+                  </button>
+                  <span css={tooltip}>강퇴</span>
+                </div>
               </div>
-            </div>
-          )}
+            )}
           </div>
         ))}
       </div>
@@ -196,7 +196,6 @@ const lipImg = css`
   height: 16px;
 `;
 
-
 const buttonArea = css`
   display: flex;
   align-items: center;
@@ -215,13 +214,12 @@ const changeRoleButton = css`
   }
 
   &:hover {
-  background: #fffbea;
+    background: #fffbea;
     svg {
-        color: var(--color-yellow);
+      color: var(--color-yellow);
     }
   }
 `;
-
 
 const kickButton = css`
   padding: 6px;
@@ -235,9 +233,9 @@ const kickButton = css`
   }
 
   &:hover {
-  background: #ffeaea;
+    background: #ffeaea;
     svg {
-        color: var(--color-red);
+      color: var(--color-red);
     }
   }
 `;

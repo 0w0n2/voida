@@ -5,7 +5,7 @@ import apiInstanceSpring from '@/apis/core/apiInstanceSpring';
 let OV: OpenVidu;
 let session: any;
 
- // 라이브방 상태 조회
+// 라이브방 상태 조회
 export const getRoomStatus = async (meetingRoomId: string) => {
   const res = await apiInstanceSpring.get(`/v1/rooms/${meetingRoomId}`);
   return res.data; // { status, ovSessionId, participants }
@@ -13,18 +13,25 @@ export const getRoomStatus = async (meetingRoomId: string) => {
 
 // 세션 생성 요청
 export const startLiveSession = async (meetingRoomId: string) => {
-  const res = await apiInstanceSpring.post(`/v1/rooms/${meetingRoomId}/live/start`);
+  const res = await apiInstanceSpring.post(
+    `/v1/rooms/${meetingRoomId}/live/start`,
+  );
   return res.data; // { ovSessionId }
 };
 
 // OpenVidu 토큰 발급
 export const getLiveToken = async (meetingRoomId: string) => {
-  const res = await apiInstanceSpring.post(`/v1/rooms/${meetingRoomId}/live/token`);
+  const res = await apiInstanceSpring.post(
+    `/v1/rooms/${meetingRoomId}/live/token`,
+  );
   return res.data.token; // { token }
 };
 
 // OpenVidu 연결 (음성 + Signal 채팅)
-export const connectOpenVidu = async ( token: string, onSignalMessage: (data: string) => void) => {
+export const connectOpenVidu = async (
+  token: string,
+  onSignalMessage: (data: string) => void,
+) => {
   OV = new OpenVidu();
   session = OV.initSession();
 

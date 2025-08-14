@@ -4,13 +4,17 @@ import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import MemberPanel from '@/components/meeting-room/members/MemberPanel';
 import ChatPanel from '@/components/meeting-room/chat/ChatPanel';
-import { getRoomInfo, getRoomMembers } from '@/apis/meeting-room/meetingRoomApi';
+import {
+  getRoomInfo,
+  getRoomMembers,
+} from '@/apis/meeting-room/meetingRoomApi';
 import { getRoomChatHistory } from '@/apis/stomp/meetingRoomStomp';
 import { useMeetingRoomStore } from '@/stores/useMeetingRoomStore';
 
 const MeetingRoomPage = () => {
   const { meetingRoomId } = useParams<{ meetingRoomId: string }>();
-  const { setRoomInfo, setParticipants, setChatMessages } = useMeetingRoomStore();
+  const { setRoomInfo, setParticipants, setChatMessages } =
+    useMeetingRoomStore();
   const [isReady, setIsReady] = useState(false);
   const [showMembers, setShowMembers] = useState(true);
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -18,20 +22,6 @@ const MeetingRoomPage = () => {
   useEffect(() => {
     if (!meetingRoomId) return;
 
-/*************  ✨ Windsurf Command ⭐  *************/
-/**
- * Fetches and sets the meeting room information, participants, and chat history.
- * 
- * This function performs the following asynchronous operations:
- * 1. Retrieves the room information using `getRoomInfo` and updates the store.
- * 2. Fetches the list of participants via `getRoomMembers` and updates the store.
- * 3. Loads the chat history using `getRoomChatHistory` and updates the store.
- * 
- * If any of these operations fail, an error message is logged to the console.
- * Once all data is fetched successfully, it sets the `isReady` state to true.
- */
-
-/*******  efd4a416-cb2d-4192-86d9-1bc53d9eed8a  *******/
     const fetchData = async () => {
       try {
         const roomData = await getRoomInfo(meetingRoomId);
@@ -86,11 +76,11 @@ const MeetingRoomPage = () => {
         <button
           css={edgeHandle}
           aria-label={showMembers ? '참여자 패널 닫기' : '참여자 패널 열기'}
-          onClick={() => setShowMembers(v => !v)}
+          onClick={() => setShowMembers((v) => !v)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();
-              setShowMembers(v => !v);
+              setShowMembers((v) => !v);
             }
           }}
         >
@@ -112,7 +102,7 @@ const container = css`
   height: 100vh;
   overflow: hidden;
   background: #fff;
-  position: relative; 
+  position: relative;
 `;
 
 const sidebar = (open: boolean) => css`
@@ -161,8 +151,8 @@ const edgeHitbox = (open: boolean) => css`
   left: ${open ? `394px` : '0px'};
   top: 50%;
   transform: translateY(-50%);
-  width: 16px;        
-  height: 160px;    
+  width: 16px;
+  height: 160px;
   display: flex;
   align-items: center;
   justify-content: ${open ? 'flex-end' : 'flex-start'};
@@ -176,7 +166,7 @@ const edgeHitbox = (open: boolean) => css`
 
 const edgeHandle = css`
   border: none;
-  background: linear-gradient(135deg, #6e8efb, #a777e3); 
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   width: 28px;
   height: 72px;
   border-radius: 999px;

@@ -85,7 +85,8 @@ const MemberPanel = () => {
             css={css`
               ${roomButton};
               color: ${categoryColors[roomInfo?.category || ''] || '#666'};
-              background-color: ${categoryColors[roomInfo?.category || ''] || '#999'}20;
+              background-color: ${categoryColors[roomInfo?.category || ''] ||
+              '#999'}20;
               border: none;
             `}
           >
@@ -95,7 +96,9 @@ const MemberPanel = () => {
 
         {roomInfo?.thumbnailImageUrl && (
           <img
-            src={`${import.meta.env.VITE_CDN_URL}/${roomInfo.thumbnailImageUrl}`}
+            src={`${import.meta.env.VITE_CDN_URL}/${
+              roomInfo.thumbnailImageUrl
+            }`}
             alt="방 썸네일"
             css={thumbnailStyle}
           />

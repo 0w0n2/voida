@@ -1,12 +1,21 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useEffect, useRef, useState } from 'react';
+import axios from 'axios';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { ChevronDown, ChevronUp, X } from 'lucide-react';
 import exit from '@/assets/icons/exitIcon.png';
 import user from '@/assets/icons/user.png';
 import lip from '@/assets/icons/lips.png';
+import { useSearchParams } from 'react-router-dom';
 import recording from '@/assets/icons/soundRecording.png';
 import { getUserQuickSlots } from '@/apis/auth/userApi';
+import {
+  getRoomStatus,
+  startLiveSession,
+  getLiveToken,
+  connectOpenVidu,
+} from '@/apis/live-room/openViduApi';
+import { useOpenViduChat } from '@/hooks/useOpenViduChat';
 
 interface ApiQuickSlot {
   quickSlotId: number;
@@ -14,14 +23,42 @@ interface ApiQuickSlot {
   hotkey: string;
   url: string;
 }
-
 // prop 받아서 구화여부 보여주기 필요
-
 const LiveOverlay = () => {
   const [isExpanded, setIsExpanded] = useState(true);
   const hotkeyMapRef = useRef(new Map<string, string>());
   const ttsUrlMapRef = useRef(new Map<string, string>());
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [params] = useSearchParams();
+  const roomIdFromQuery = useMemo(() => params.get('roomId'), [params]);
+
+  const [roomId, setRoomId] = useState<string | null>(roomIdFromQuery);
+
+  useEffect(() => {
+    if (roomIdFromQuery) {
+      setRoomId(roomIdFromQuery);
+    }
+  }, [roomIdFromQuery]);
+
+  const { handleSignalMessage } = useOpenViduChat();
+  useEffect(() => {
+    if (!roomId) return;
+    (async () => {
+      try {
+        // const statusRes = await getRoomStatus(roomId);
+
+        // if (statusRes.status === 'IDLE') {
+        //   await startLiveSession(roomId);
+        // }
+
+        // const token = await getLiveToken(roomId);
+        // await connectOpenVidu(token, handleSignalMessage);
+      } catch (err) {
+        console.error('라이브 참여 실패', err);
+        window.electronAPI?.logError?.(`라이브 참여 실패: ${String(err)}`);
+      }
+    })();
+  }, [roomId]);
 
   // 오디오 초기화 및 정리
   useEffect(() => {
@@ -65,7 +102,7 @@ const LiveOverlay = () => {
     fetchQuickSlots();
   }, []);
 
-  // 단축키 출력
+  // 단축키 음성 출력
   useEffect(() => {
     let backtickDown = false;
 

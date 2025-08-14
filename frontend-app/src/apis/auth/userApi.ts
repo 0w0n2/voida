@@ -1,38 +1,38 @@
-import apiInstance from '@/apis/core/apiInstanceSpring';
+import apiInstanceSpring from '@/apis/core/apiInstanceSpring';
 
 export const postUserType = (type: 'general' | 'lip-reading') => {
-  return apiInstance.post('/user/type', { type });
+  return apiInstanceSpring.post('/user/type', { type });
 };
 
 // 유저 정보 조회
 export const getUser = () => {
-  return apiInstance.get('/v1/members/me/profile');
+  return apiInstanceSpring.get('/v1/members/me/profile');
 };
 
 // 유저 setting 조회
 export const getUserSettings = () => {
-  return apiInstance.get('/v1/members/me/setting');
+  return apiInstanceSpring.get('/v1/members/me/setting');
 };
 
 // 유저 quickslots 조회
 export const getUserQuickSlots = () => {
-  return apiInstance.get('/v1/members/me/quick-slots');
+  return apiInstanceSpring.get('/v1/members/me/quick-slots');
 };
 
 // 유저 소셜 계정 조회
 export const getUserSocialAccounts = () => {
-  return apiInstance.get('/v1/members/me/social-accounts');
+  return apiInstanceSpring.get('/v1/members/me/social-accounts');
 };
 
 // 유저 소셜 계정 연동
 // GET,POST 결정 안 됨
 export const linksocialAccount = () => {
-  return apiInstance.post('/v1/members/me/social-accounts/link');
+  return apiInstanceSpring.post('/v1/members/me/social-accounts/link');
 };
 
 // 현재 비밀번호 일치 확인
 export const checkCurrentPassword = (password: string) => {
-  return apiInstance.post('/v1/members/me/verify-password', { password });
+  return apiInstanceSpring.post('/v1/members/me/verify-password', { password });
 };
 
 // 유저 정보 수정
@@ -50,7 +50,7 @@ export const updateUser = (nickname: string, profileImage?: File | null) => {
     formData.append('profileImage', 'null');
   }
 
-  return apiInstance.put('/v1/members/me/profile', formData, {});
+  return apiInstanceSpring.put('/v1/members/me/profile', formData, {});
 };
 
 // 비밀번호 수정
@@ -58,7 +58,7 @@ export const updatePassword = (
   currentPassword: string,
   newPassword: string,
 ) => {
-  return apiInstance.put('/v1/members/me/password', {
+  return apiInstanceSpring.put('/v1/members/me/password', {
     currentPassword,
     newPassword,
   });
@@ -66,7 +66,9 @@ export const updatePassword = (
 
 // 구화 모드 수정
 export const updateGuideMode = (useLipTalkMode: boolean) => {
-  return apiInstance.put('/v1/members/me/lip-talk-mode', { useLipTalkMode });
+  return apiInstanceSpring.put('/v1/members/me/lip-talk-mode', {
+    useLipTalkMode,
+  });
 };
 
 // 오버레이 수정
@@ -75,10 +77,11 @@ export const updateOverlay = (
   overlayTransparency: number,
   liveFontSize: number,
 ) => {
-  return apiInstance.put(
-    '/v1/members/me/overlay',
-    { overlayPosition, overlayTransparency, liveFontSize },
-  );
+  return apiInstanceSpring.put('/v1/members/me/overlay', {
+    overlayPosition,
+    overlayTransparency,
+    liveFontSize,
+  });
 };
 
 // 단축키 수정
@@ -89,10 +92,10 @@ type QuickSlot = {
 };
 
 export const updateQuickslots = (quickSlots: QuickSlot[]) => {
-  return apiInstance.put('/v1/members/me/quick-slots', { quickSlots });
+  return apiInstanceSpring.put('/v1/members/me/quick-slots', { quickSlots });
 };
 
 // 회원탈퇴
 export const deleteUser = () => {
-  return apiInstance.delete('/v1/members/me', {});
+  return apiInstanceSpring.delete('/v1/members/me', {});
 };

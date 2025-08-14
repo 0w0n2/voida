@@ -30,7 +30,8 @@ const DeleteRoom = ({ onClose }: { onClose: () => void }) => {
     setTimeout(() => {
       onClose();
       navigate('/main');
-    }, 1500)};
+    }, 1500);
+  };
 
   return (
     <div>
@@ -40,17 +41,19 @@ const DeleteRoom = ({ onClose }: { onClose: () => void }) => {
 
       <div css={box}>
         <p>
-          방을 삭제하면 모든 메시지와 파일이 <strong>영구적으로 삭제</strong>됩니다.
+          방을 삭제하면 모든 메시지와 파일이 <strong>영구적으로 삭제</strong>
+          됩니다.
         </p>
 
         {confirmMode ? (
           <div css={confirmBox}>
             <p css={confirmTitle}>
-              <AlertTriangle size={15} style={{ marginTop: 2}} />
+              <AlertTriangle size={15} style={{ marginTop: 2 }} />
               정말 삭제하시겠습니까?
             </p>
             <p>
-              삭제하려면 방 이름 <strong>"{roomInfo?.title}"</strong>을 입력해주세요.
+              삭제하려면 방 이름 <strong>"{roomInfo?.title}"</strong>을
+              입력해주세요.
             </p>
             <input
               css={inputBox}
@@ -70,8 +73,8 @@ const DeleteRoom = ({ onClose }: { onClose: () => void }) => {
           </div>
         ) : (
           <button css={deleteButton} onClick={handleDeleteClick}>
-            <Trash2 size={16} style={{ marginRight: 6, marginTop: 2 }} />
-            방 삭제하기
+            <Trash2 size={16} style={{ marginRight: 6, marginTop: 2 }} />방
+            삭제하기
           </button>
         )}
       </div>
