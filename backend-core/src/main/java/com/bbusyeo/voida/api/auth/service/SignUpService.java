@@ -35,6 +35,10 @@ public class SignUpService {
     private final RedisDao redisDao;
 
     public Member signUp(SignUpRequestDto requestDto, MultipartFile profileImage) {
+        if (requestDto.getNickname().length() > 10) {
+            throw new BaseException(BaseResponseStatus.NICKNAME_TOO_LONG);
+        }
+
         // 이전에 탈퇴한 회원의 재가입 시 기존 정보 제거
         memberRepository.findByEmailAndIsDeleted(requestDto.getEmail(), true)
                 .ifPresent(member -> {

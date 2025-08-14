@@ -69,6 +69,10 @@ public class MyPageServiceImpl implements MyPageService {
     @Transactional
     @Override
     public void updateProfile(UpdateMeProfileRequestDto requestDto, MultipartFile profileImage, Long memberId) {
+        if (requestDto.getNickname().length() > 10) {
+            throw new BaseException(BaseResponseStatus.NICKNAME_TOO_LONG);
+        }
+
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
         String oldFileImageUrl = member.getProfileImageUrl();
