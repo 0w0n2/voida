@@ -3,12 +3,7 @@ import { css } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { AxiosError } from 'axios';
-import {
-  register,
-  checkEmailDuplicate,
-  checkNicknameDuplicate,
-  getRandomNickname,
-} from '@/apis/auth/authApi';
+import { register, checkEmailDuplicate, checkNicknameDuplicate, getRandomNickname } from '@/apis/auth/authApi';
 import EmailVerificationModal from './EmailVerificationModal';
 import IsRegisteredModal from './IsRegisteredModal';
 import { useAlertStore } from '@/stores/useAlertStore';
@@ -22,6 +17,7 @@ const RegisterForm = () => {
   const [nickname, setNickname] = useState('');
   const [password, setPassword] = useState('');
   const [passwordCheck, setPasswordCheck] = useState('');
+
   // 에러 관리 변수
   const [emailError, setEmailError] = useState('');
   const [nicknameError, setNicknameError] = useState('');
@@ -53,6 +49,7 @@ const RegisterForm = () => {
   // 소셜 로그인시 이메일 자동 입력
   const location = useLocation();
   const socialEmail = location.state?.socialEmail;
+  const providerName = location.state?.providerName ?? undefined;
 
   const [showPassword, setShowPassword] = useState(false);
   const [showCheckPassword, setShowCheckPassword] = useState(false);
@@ -60,6 +57,7 @@ const RegisterForm = () => {
     if (socialEmail) {
       setEmail(socialEmail);
       setIsEmailChecked(true);
+      setIsEmailVerified(true);
     }
   }, []);
 
@@ -99,7 +97,6 @@ const RegisterForm = () => {
         const response = await getRandomNickname();
         const name = response.data?.result?.nickname ?? '';
         setNickname(name);
-        console.log(name);
       } catch (error) {
         console.error('닉네임 랜덤 생성 중 오류 발생:', error);
       }
@@ -167,7 +164,6 @@ const RegisterForm = () => {
       };
       reader.readAsDataURL(file);
 
-      // File 객체 저장
       setProfileImageFile(file);
     }
   };
@@ -204,7 +200,6 @@ const RegisterForm = () => {
   };
 
   // 닉네임 중복확인
-  // api 호출 부분
   const handleNicknameCheck = async () => {
     if (!nickname.trim()) {
       setNicknameError('닉네임을 입력해주세요.');
@@ -218,7 +213,6 @@ const RegisterForm = () => {
     try {
       const response = await checkNicknameDuplicate(nickname);
       const nicknameDuplicated = response.data.nicknameDuplicated;
-      console.log(response);
       if (!nicknameDuplicated) {
         setNicknameError('');
         setIsNicknameChecked(true);
@@ -258,7 +252,6 @@ const RegisterForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 모든 필수 필드 검증
     if (
       !email.trim() ||
       !password.trim() ||
@@ -305,10 +298,6 @@ const RegisterForm = () => {
     try {
       // 소셜 로그인 여부 확인
       const isSocial = !!socialEmail;
-      let providerName = undefined;
-      if (isSocial) {
-        providerName = 'GOOGLE';
-      }
 
       // register API 호출
       await register(
@@ -319,8 +308,6 @@ const RegisterForm = () => {
         providerName,
         profileImageFile,
       );
-
-      console.log(profileImage);
 
       setIsRegistered(true);
     } catch (error) {

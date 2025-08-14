@@ -4,24 +4,16 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Camera, UserCog, Settings, Mail, Globe } from 'lucide-react';
 import defaultProfile from '@/assets/profiles/defaultProfile.png';
-import { deleteUser, updateUser } from '@/apis/auth/userApi';
+import { deleteUser, updateUser, linksocialAccount } from '@/apis/auth/userApi';
 import { useAuthStore } from '@/stores/authStore';
-import UpdatePasswordModal from '../modal/UpdatePasswordModal';
-import GetOutModal from '../modal/GetOutModal';
+import UpdatePasswordModal from '@/components/my-page/modal/UpdatePasswordModal';
+import GetOutModal from '@/components/my-page/modal/GetOutModal';
 import google from '@/assets/icons/google-logo.png';
-import UpdateDoneModal from '../modal/UpdateDoneModal';
-
-
-interface UserProfile {
-  nickname: string;
-  email: string;
-  profileImage?: string;
-}
+import { useAlertStore } from '@/stores/useAlertStore';
 
 const ProfileTab = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
   const [userNickname, setUserNickname] = useState<string>(
     user?.nickname || '',
@@ -31,8 +23,6 @@ const ProfileTab = () => {
   const [Changed, setChanged] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [isGetOutModalOpen, setIsGetOutModalOpen] = useState(false);
-  const [showDoneModal, setShowDoneModal] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setUserNickname(user?.nickname ?? '');
@@ -76,7 +66,6 @@ const ProfileTab = () => {
         await updateUser(userNickname, profileImageFile);
         console.log('유저 정보 업데이트 완료');
         useAlertStore.getState().showAlert('유저 정보가 업데이트되었습니다.', 'top');
-        setShowDoneModal(true);
         setChanged(false);
       } catch (err) {
         console.error('유저 정보 업데이트 실패:', err);
@@ -84,22 +73,17 @@ const ProfileTab = () => {
     }
   };
 
-  // TODO: API 연동 시 구현
   const handlePasswordChange = () => {
     setIsPasswordModalOpen(true);
   };
 
-  const handlePasswordUpdateSuccess = () => {
-    console.log('비밀번호 변경 완료');
-  };
-
-  // 구글 계정 연동 클릭 시 api 연결
   const handleGoogleLink = async () => {
-    // const res = await linksocialAccount(accessToken!);
-    // response 오는거에 따라 연동 여부 변경하기
+    const res = await linksocialAccount('google');
+    const redirectUrl = res.data.result.redirectUrl;
+    window.location.href = `${import.meta.env.VITE_SPRING_API_URL}${redirectUrl}`;
   };
 
-  // 탈퇴하기 버튼 클릭 시 모달 열기
+
   const handleWithdraw = () => {
     setIsGetOutModalOpen(true);
   };
@@ -112,11 +96,6 @@ const ProfileTab = () => {
     } catch (err) {
       console.error('회원탈퇴 실패:', err);
     }
-  };
-
-  // 모달 창 닫는 함수
-  const handleCloseModal = () => {
-    setShowDoneModal(false);
   };
 
   return (
@@ -230,13 +209,8 @@ const ProfileTab = () => {
         isOpen={isGetOutModalOpen}
         onClose={() => setIsGetOutModalOpen(false)}
         onConfirm={handleWithdrawConfirm}
-        userName={userNickname || userProfile?.nickname || '사용자'}
+        userName={userNickname || '사용자'}
       />
-      {/* <UpdateDoneModal
-        isOpen={showDoneModal}
-        onClose={handleCloseModal}
-        userName={userNickname || userProfile?.nickname || '사용자'}
-      /> */}
     </>
   );
 };
@@ -549,6 +523,7 @@ const googleButtonStyle = css`
   font-size: 14px;
   font-weight: 600;
   transition: all 0.2s ease;
+  cursor: pointer;
 
   &:disabled {
     background-color: var(--color-gray-100);

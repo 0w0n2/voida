@@ -35,7 +35,7 @@ const LoginForm = () => {
   // 구글 로그인 리다이렉트 함수
   const handleGoogleLogin = () => {
     const provider = 'google';
-    window.location.href = `${import.meta.env.VITE_API_URL}/oauth2/authorization/${provider}`;
+    window.location.href = `${import.meta.env.VITE_SPRING_API_URL}/oauth2/authorization/${provider}`;
   };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
