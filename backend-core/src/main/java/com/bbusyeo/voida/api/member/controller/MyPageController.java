@@ -131,6 +131,7 @@ public class MyPageController {
             HttpServletRequest request, HttpServletResponse response,
             @AuthenticationPrincipal(expression = "member") Member member
     ) {
+        deleteAccountService.checkMemberIsHost(member.getMemberUuid()); // 방장인 대기실 있는지 체크
         deleteAccountService.deleteAccount(member.getId()); // 회원 삭제
         tokenAuthService.signOut(request, response); // 로그아웃 처리
         return new BaseResponse<>();
