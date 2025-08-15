@@ -1,5 +1,14 @@
 import uvicorn
-from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, Form, APIRouter
+from fastapi import (
+    FastAPI,
+    UploadFile,
+    File,
+    HTTPException,
+    Depends,
+    Form,
+    APIRouter,
+    Response,
+)
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,6 +19,9 @@ import io
 import av
 import logging
 import base64
+import json
+import struct
+from openai import OpenAI
 
 # 로거 설정
 logging.basicConfig(
@@ -21,7 +33,13 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-from .config import JWT_SECRET_KEY, MAX_VIDEO_DURATION, ALLOWED_ORIGINS
+from .config import (
+    JWT_SECRET_KEY,
+    MAX_VIDEO_DURATION,
+    ALLOWED_ORIGINS,
+    OPENAI_API_KEY,
+    OPENAI_BASE_URL,
+)
 from .argos_runtime import get_en2ko_translator, translate_en_to_ko
 
 # JWT 보안 설정
@@ -163,6 +181,16 @@ async def lifespan(app: FastAPI):
         logger.info("Argos en→ko translator initialized")
     except Exception as e:
         logger.warning(f"Argos translator not initialized: {e}")
+    # OpenAI TTS 클라이언트 초기화 (CPU 환경: 재사용 가능하도록 lifespan에 보관)
+    try:
+        if OPENAI_API_KEY:
+            client = OpenAI(api_key=OPENAI_API_KEY, base_url=OPENAI_BASE_URL or None)
+            services["openai_client"] = client
+            logger.info("OpenAI TTS client initialized")
+        else:
+            logger.warning("OPENAI_API_KEY is empty; TTS will be skipped")
+    except Exception as e:
+        logger.warning(f"OpenAI client init failed: {e}")
     yield
     # 서비스 정리
     services.clear()
@@ -204,18 +232,24 @@ async def run_inference(
     # JWT의 sub에서 사용자 UUID 추출 (대소문자 혼용 대비)
     member_uuid = token_payload.get("sub") or token_payload.get("SUB")
 
+    def build_envelope(meta: dict, audio_bytes: bytes) -> Response:
+        json_bytes = json.dumps(meta, ensure_ascii=False).encode("utf-8")
+        prefix = struct.pack(">I", len(json_bytes))
+        body = prefix + json_bytes + (audio_bytes or b"")
+        return Response(content=body, media_type="application/octet-stream")
+
     if not videoFile.content_type.startswith("video/"):
-        return {
-            "transText": "",
-            "transTextKo": "",
+        meta = {
             "videoResult": False,
-            "transAudio": None,
+            "sessionNumber": sessionNumber,
             "memberUuid": member_uuid,
+            "transText": "",
             "error": {
                 "code": "INVALID_FILE_TYPE",
                 "message": "동영상 파일만 업로드 가능합니다.",
             },
         }
+        return build_envelope(meta, b"")
 
     try:
         # 1. 메모리로 비디오 콘텐츠 읽기
@@ -224,17 +258,17 @@ async def run_inference(
         # 2. 빠른 동영상 길이 검증
         duration = get_video_duration_fast(video_content)
         if duration > MAX_VIDEO_DURATION:
-            return {
-                "transText": "",
-                "transTextKo": "",
+            meta = {
                 "videoResult": False,
-                "transAudio": None,
+                "sessionNumber": sessionNumber,
                 "memberUuid": member_uuid,
+                "transText": "",
                 "error": {
                     "code": "VIDEO_TOO_LONG",
                     "message": f"동영상 길이({duration:.1f}초)가 최대 허용 시간({MAX_VIDEO_DURATION}초)을 초과합니다.",
                 },
             }
+            return build_envelope(meta, b"")
 
         # 3. VSR 처리
         vsr_pipeline = services["vsr_pipeline"]
@@ -242,33 +276,63 @@ async def run_inference(
 
         # 빈 문자열이면 실패로 처리
         if transcript == "":
-            return {
-                "transText": "",
-                "transTextKo": "",
+            meta = {
                 "videoResult": False,
-                "transAudio": None,
+                "sessionNumber": sessionNumber,
                 "memberUuid": member_uuid,
+                "transText": "",
             }
+            return build_envelope(meta, b"")
         else:
             # 번역은 경량이지만, 안정적 동시성을 위해 스레드풀에서 수행
             ko_transcript = await run_in_threadpool(translate_en_to_ko, transcript)
-            return {
-                "transText": transcript,
-                "transTextKo": ko_transcript,
-                "videoResult": True,
-                "transAudio": None,
-                "memberUuid": member_uuid,
-            }
 
-    except Exception:
-        # 모든 예외를 간단히 처리
-        return {
-            "transText": "",
-            "transTextKo": "",
+            # OpenAI TTS 생성 (비동기 이벤트 루프 차단 방지 위해 스레드풀에서 실행)
+            audio_bytes = b""
+            try:
+                openai_client = services.get("openai_client")
+                if openai_client and ko_transcript:
+
+                    def _tts_create():
+                        return openai_client.audio.speech.create(
+                            model="gpt-4o-mini-tts",
+                            voice="alloy",
+                            input=ko_transcript,
+                            response_format="mp3",
+                        )
+
+                    tts_response = await run_in_threadpool(_tts_create)
+                    audio_bytes = getattr(tts_response, "content", None)
+                    if audio_bytes is None:
+                        # 일부 SDK 버전 호환 처리
+                        try:
+                            audio_bytes = tts_response.read()  # type: ignore[attr-defined]
+                        except Exception:
+                            audio_bytes = b""
+            except Exception as e:
+                logger.warning(f"TTS synthesis failed: {e}")
+                audio_bytes = b""
+
+            meta = {
+                "videoResult": True,
+                "sessionNumber": sessionNumber,
+                "memberUuid": member_uuid,
+                # 한글 번역 텍스트만 반환
+                "transText": ko_transcript,
+                # 클라이언트가 Blob MIME을 알 수 있도록 메타 포함
+                "audioMime": "audio/mpeg" if audio_bytes else None,
+            }
+            return build_envelope(meta, audio_bytes)
+
+    except Exception as e:
+        meta = {
             "videoResult": False,
-            "transAudio": None,
+            "sessionNumber": sessionNumber,
             "memberUuid": member_uuid,
+            "transText": "",
+            "error": {"code": "INTERNAL_ERROR", "message": str(e)},
         }
+        return build_envelope(meta, b"")
 
 
 @app.get("/health", tags=["Check"])
