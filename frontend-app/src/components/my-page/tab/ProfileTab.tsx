@@ -4,16 +4,30 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Camera, UserCog, Settings, Mail, Globe } from 'lucide-react';
 import defaultProfile from '@/assets/profiles/defaultProfile.png';
-import { deleteUser, updateUser, linksocialAccount } from '@/apis/auth/userApi';
+import {
+  deleteUser,
+  updateUser,
+  getUser,
+  getUserSocialAccounts,
+  linksocialAccount,
+} from '@/apis/auth/userApi';
 import { useAuthStore } from '@/stores/authStore';
-import UpdatePasswordModal from '@/components/my-page/modal/UpdatePasswordModal';
-import GetOutModal from '@/components/my-page/modal/GetOutModal';
+import UpdatePasswordModal from '../modal/UpdatePasswordModal';
+import GetOutModal from '../modal/GetOutModal';
 import google from '@/assets/icons/google-logo.png';
+import UpdateDoneModal from '../modal/UpdateDoneModal';
 import { useAlertStore } from '@/stores/useAlertStore';
+
+interface UserProfile {
+  nickname: string;
+  email: string;
+  profileImage?: string;
+}
 
 const ProfileTab = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
   const [userNickname, setUserNickname] = useState<string>(
     user?.nickname || '',
@@ -22,13 +36,19 @@ const ProfileTab = () => {
   const [userImage, setUserImage] = useState<string>(user?.profileImage || '');
   const [Changed, setChanged] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isPasswordDoneModalOpen, setIsPasswordDoneModalOpen] = useState(false);
   const [isGetOutModalOpen, setIsGetOutModalOpen] = useState(false);
+  const [showDoneModal, setShowDoneModal] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isSocial, setIsSocial] = useState(false);
 
   useEffect(() => {
     setUserNickname(user?.nickname ?? '');
     setUserEmail(user?.email ?? '');
     setUserImage(user?.profileImage ?? '');
     setChanged(false);
+    checkGoogleLink();
+    console.log('구글 계정 연동 상태:', isSocial);
   }, [user]);
 
   const handleNicknameChange = (newNickname: string) => {
@@ -43,7 +63,7 @@ const ProfileTab = () => {
     fileInput.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
-        if (file.size > 5 * 1024 * 1024) {
+        if (file.size > 1 * 1024 * 1024) {
           alert('파일 크기는 5MB 이하여야 합니다.');
           return;
         }
@@ -64,8 +84,17 @@ const ProfileTab = () => {
     if (profileImageFile || userNickname !== user?.nickname) {
       try {
         await updateUser(userNickname, profileImageFile);
+        console.log(userNickname);
         console.log('유저 정보 업데이트 완료');
-        useAlertStore.getState().showAlert('유저 정보가 업데이트되었습니다.', 'top');
+        useAuthStore.getState().setUser({
+          ...user!,
+          nickname: userNickname,
+          profileImage: userImage,
+        });
+        useAlertStore
+          .getState()
+          .showAlert('유저 정보가 업데이트되었습니다.', 'top');
+        setShowDoneModal(true);
         setChanged(false);
       } catch (err) {
         console.error('유저 정보 업데이트 실패:', err);
@@ -77,13 +106,33 @@ const ProfileTab = () => {
     setIsPasswordModalOpen(true);
   };
 
+  // const handlePasswordUpdateSuccess = async () => {
+  //   const res = await getUserSocialAccounts();
+
+  // };
+
+  // 소셜 계정 연동
   const handleGoogleLink = async () => {
     const res = await linksocialAccount('google');
     const redirectUrl = res.data.result.redirectUrl;
-    window.location.href = `${import.meta.env.VITE_SPRING_API_URL}${redirectUrl}`;
+    window.location.href = `${
+      import.meta.env.VITE_SPRING_API_URL
+    }${redirectUrl}`;
   };
 
+  // 소셜 계정 조회
+  const checkGoogleLink = async () => {
+    console.log('클릭');
+    const res = await getUserSocialAccounts();
+    const socialData = res.data.result.socialAccounts;
+    if (socialData.length > 0) {
+      setIsSocial(true);
+      console.log(isSocial);
+    }
+    return isSocial;
+  };
 
+  // 탈퇴하기 버튼 클릭 시 모달 열기
   const handleWithdraw = () => {
     setIsGetOutModalOpen(true);
   };
@@ -98,125 +147,148 @@ const ProfileTab = () => {
     }
   };
 
+  // 다 닫는 함수
+  const closeAllModals = () => {
+    setIsPasswordModalOpen(false);
+    // setIsSuccessModalOpen(false);
+  };
+
+  // 모달 창 닫는 함수
+  const handleCloseModal = () => {
+    setShowDoneModal(false);
+  };
+
   return (
     <>
-    <div css={profileTabContainer}>
-      <div css={profilePanelStyle}>
-        <h2 css={panelTitleStyle}>프로필 사진</h2>
-        <p css={panelSubtitleStyle}>클릭하여 사진을 변경하세요.</p>
-        <div css={gradientBorderStyle}>
-          <div css={profileImageContainerStyle}>
-            <img
-              src={
-                userImage
-                  ? userImage.startsWith('blob:')
-                    ? userImage
-                    : `${import.meta.env.VITE_CDN_URL}/${userImage.replace(/^\/+/, '')}`
-                  : defaultProfile
-              }
-              alt="프로필 사진"
-              css={largeProfileImageStyle}
+      <div css={profileTabContainer}>
+        <div css={profilePanelStyle}>
+          <h2 css={panelTitleStyle}>프로필 사진</h2>
+          <p css={panelSubtitleStyle}>클릭하여 사진을 변경하세요.</p>
+          <div css={gradientBorderStyle}>
+            <div css={profileImageContainerStyle}>
+              <img
+                src={
+                  userImage
+                    ? userImage.startsWith('blob:')
+                      ? userImage
+                      : `${import.meta.env.VITE_CDN_URL}/${userImage.replace(
+                          /^\/+/,
+                          '',
+                        )}`
+                    : defaultProfile
+                }
+                alt="프로필 사진"
+                css={largeProfileImageStyle}
+              />
+            </div>
+          </div>
+          <button
+            onClick={handleProfileImageChange}
+            css={changePhotoButtonStyle}
+          >
+            <Camera size={22} />
+            사진 변경
+          </button>
+        </div>
+
+        <div css={infoPanelStyle}>
+          <div css={infoHeaderStyle}>
+            <h2 css={panelTitleStyle}>기본 정보</h2>
+            <div css={actionButtonsStyle}>
+              <button onClick={handleWithdraw} css={withdrawButtonStyle}>
+                탈퇴하기
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={!Changed}
+                css={saveButtonStyle}
+              >
+                수정하기
+              </button>
+            </div>
+          </div>
+
+          <p css={secondSubtitleStyle}>개인 정보를 관리하세요.</p>
+
+          <div css={infoSectionStyle}>
+            <label css={infoLabelStyle}>
+              <UserCog size={24} />
+              닉네임
+            </label>
+            <input
+              type="text"
+              value={userNickname}
+              onChange={(e) => handleNicknameChange(e.target.value)}
+              placeholder="닉네임을 입력하세요"
+              css={inputFieldStyle}
             />
           </div>
-        </div>
-        <button onClick={handleProfileImageChange} css={changePhotoButtonStyle}>
-          <Camera size={22} />
-          사진 변경
-        </button>
-      </div>
 
-      <div css={infoPanelStyle}>
-        <div css={infoHeaderStyle}>
-          <h2 css={panelTitleStyle}>기본 정보</h2>
-          <div css={actionButtonsStyle}>
-            <button onClick={handleWithdraw} css={withdrawButtonStyle}>
-              탈퇴하기
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={!Changed}
-              css={saveButtonStyle}
-            >
-              수정하기
-            </button>
-          </div>
-        </div>
-
-        <p css={secondSubtitleStyle}>개인 정보를 관리하세요.</p>
-
-        <div css={infoSectionStyle}>
-          <label css={infoLabelStyle}>
-            <UserCog size={24} />
-            닉네임
-          </label>
-          <input
-            type="text"
-            value={userNickname}
-            onChange={(e) => handleNicknameChange(e.target.value)}
-            placeholder="닉네임을 입력하세요"
-            css={inputFieldStyle}
-          />
-        </div>
-
-        <div css={infoSectionStyle}>
-          <label css={infoLabelStyle}>
-            <Mail size={24} />
-            이메일
-            <span css={cannotEditButtonStyle}>수정불가</span>
-          </label>
-          <input
-            type="email"
-            value={userEmail}
-            disabled
-            placeholder="이메일을 입력하세요"
-            css={inputFieldStyle}
-          />
-        </div>
-
-        <div css={horizontalContainerStyle}>
-          <div css={halfSectionStyle}>
+          <div css={infoSectionStyle}>
             <label css={infoLabelStyle}>
-              <Settings size={24} />
-              비밀번호 수정
+              <Mail size={24} />
+              이메일
+              <span css={cannotEditButtonStyle}>수정불가</span>
             </label>
-            <button onClick={handlePasswordChange} css={actionButtonStyle}>
-              비밀번호 수정하기
-            </button>
+            <input
+              type="email"
+              value={userEmail}
+              disabled
+              placeholder="이메일을 입력하세요"
+              css={inputFieldStyle}
+            />
           </div>
 
-          <div css={halfSectionStyle}>
-            <label css={infoLabelStyle}>
-              <Globe size={24} />
-              소셜 연동 여부
-            </label>
-            <button
-              onClick={handleGoogleLink}
-              disabled={Changed}
-              css={googleButtonStyle}
-            >
-              <img src={google} alt="google" css={iconStyle} />
-              Google 계정 연동
-            </button>
+          <div css={horizontalContainerStyle}>
+            <div css={halfSectionStyle}>
+              <label css={infoLabelStyle}>
+                <Settings size={24} />
+                비밀번호 수정
+              </label>
+              <button onClick={handlePasswordChange} css={actionButtonStyle}>
+                비밀번호 수정하기
+              </button>
+            </div>
+
+            <div css={halfSectionStyle}>
+              <label css={infoLabelStyle}>
+                <Globe size={24} />
+                소셜 연동 여부
+              </label>
+              <button
+                onClick={handleGoogleLink}
+                disabled={isSocial}
+                css={googleButtonStyle}
+              >
+                <img src={google} alt="google" css={iconStyle} />
+                {isSocial ? 'Google 연동된 계정입니다' : 'Google 계정 연동하기'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
       <UpdatePasswordModal
         isOpen={isPasswordModalOpen}
         onClose={() => setIsPasswordModalOpen(false)}
+        closeAll={closeAllModals}
       />
       <GetOutModal
         isOpen={isGetOutModalOpen}
         onClose={() => setIsGetOutModalOpen(false)}
         onConfirm={handleWithdrawConfirm}
-        userName={userNickname || '사용자'}
+        userName={userNickname || userProfile?.nickname || '사용자'}
       />
+
+      {/* <UpdateDoneModal
+        isOpen={showDoneModal}
+        onClose={handleCloseModal}
+        userName={userNickname || userProfile?.nickname || '사용자'}
+      /> */}
     </>
   );
 };
 
 export default ProfileTab;
-
 
 const profileTabContainer = css`
   display: flex;
@@ -237,7 +309,7 @@ const profilePanelStyle = css`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  height: 100%; 
+  height: 100%;
   min-height: 500px;
 `;
 
@@ -347,7 +419,7 @@ const changePhotoButtonStyle = css`
   display: flex;
   align-items: center;
   gap: 12px;
-  width: 40%;
+  width: 50%;
   padding: 14px;
   background-color: var(--color-bg-white);
   color: var(--color-text);
@@ -523,7 +595,6 @@ const googleButtonStyle = css`
   font-size: 14px;
   font-weight: 600;
   transition: all 0.2s ease;
-  cursor: pointer;
 
   &:disabled {
     background-color: var(--color-gray-100);
