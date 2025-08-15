@@ -208,11 +208,15 @@ const glassStyle = css`
 
 const container = css`
   padding: 0px 20px;
+  min-height: 88vh;
   max-width: 1300px; 
   margin: 0 auto;
   width: 100%;
   z-index: 1;
   overflow: hidden;
+  display: flex; 
+  flex-direction: column;
+  position: relative; 
 `;
 
 const searchContainer = css`
@@ -304,6 +308,8 @@ const cardGrid = css`
   grid-auto-rows: 290px;
   gap: 32px;
   margin: 40px;
+  flex: 1;
+  min-height: 0; 
 
   @media (min-height: 1000px) {
     margin-top: 110px;
@@ -380,6 +386,7 @@ const pagination = css`
   justify-content: center;
   gap: 10px;
   margin-bottom: 40px;
+  margin-top: auto; 
   @media (min-height: 1000px) {
     margin-top: 80px;
   }

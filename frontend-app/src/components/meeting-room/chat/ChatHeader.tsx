@@ -3,22 +3,31 @@ import { css } from '@emotion/react';
 import { Wifi } from 'lucide-react';
 import { useMeetingRoomStore } from '@/stores/useMeetingRoomStore';
 import VoidaLogo from '@/assets/logo/voida-logo.png';
+import { getUserOverview } from '@/apis/live-room/openViduApi';
 
 const ChatHeader = () => {
   const roomInfo = useMeetingRoomStore((state) => state.roomInfo);
   const meetingRoomId = roomInfo?.meetingRoomId ?? '';
 
-  const handleJoinLive = async () => {
-    if (!meetingRoomId) {
-      console.warn('roomId가 없습니다.');
-      return;
-    }
-    try {
-      window.electronAPI?.openOverlay?.({ roomId: meetingRoomId });
-    } catch (err) {
-      console.error('라이브 참여 실패', err);
-    }
-  };
+const handleJoinLive = async () => {
+  if (!meetingRoomId) {
+    console.warn('roomId가 없습니다.');
+    return;
+  }
+
+  try {
+    const overview = await getUserOverview(); 
+    const overlayPosition = overview?.setting?.overlayPosition ?? 'TOPRIGHT';
+
+    window.electronAPI?.openOverlay?.({
+      roomId: meetingRoomId,
+      overlayPosition,
+    });
+  } catch (err) {
+    console.error('라이브 참여 실패', err);
+  }
+};
+
 
   return (
     <div css={header}>

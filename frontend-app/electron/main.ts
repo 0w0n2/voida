@@ -1,8 +1,11 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, globalShortcut } from 'electron';
 import * as path from 'path';
 import { closeOverlayWindow, createOverlayWindow } from './overlayWindow';
 
 let win: BrowserWindow;
+
+type OverlayPos = 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT';
+let lastOverlayInit: { roomId: string; overlayPosition?: OverlayPos } | null = null;
 
 app.whenReady().then(() => {
   win = new BrowserWindow({
@@ -17,8 +20,6 @@ app.whenReady().then(() => {
     },
   });
 
-  // win.webContents.openDevTools();
-
   const isDev = !!process.env.ELECTRON_DEV;
 
   if (isDev) {
@@ -27,29 +28,83 @@ app.whenReady().then(() => {
     win.loadFile(path.join(__dirname, '../../dist/index.html'));
   }
 
-  ipcMain.on('open-overlay', (_e, init?: { roomId: string }) => {
-    const roomId = init?.roomId; 
+  // ---------- (A) 뒤로/앞으로/새로고침: IPC ----------
+  ipcMain.on('nav:back', (e) => {
+    const wc = e.sender;
+    if (wc.canGoBack()) wc.goBack();
+  });
+  ipcMain.on('nav:forward', (e) => {
+    const wc = e.sender;
+    if (wc.canGoForward()) wc.goForward();
+  });
+  ipcMain.on('nav:reload', (e) => {
+    const wc = e.sender;
+    wc.reload();
+  });
+
+  // ---------- (B) 전역 단축키(포커스된 창 기준) ----------
+  const goBackFocused = () => {
+    const focused = BrowserWindow.getFocusedWindow();
+    const wc = focused?.webContents;
+    if (wc?.canGoBack()) wc.goBack();
+  };
+  const goForwardFocused = () => {
+    const focused = BrowserWindow.getFocusedWindow();
+    const wc = focused?.webContents;
+    if (wc?.canGoForward()) wc.goForward();
+  };
+
+  // Windows/Linux: Alt+Left/Right, macOS: Cmd+[/]
+  globalShortcut.register('Alt+Left', goBackFocused);
+  globalShortcut.register('Alt+Right', goForwardFocused);
+  globalShortcut.register('CommandOrControl+[', goBackFocused);
+  globalShortcut.register('CommandOrControl+]', goForwardFocused);
+
+  app.on('will-quit', () => {
+    globalShortcut.unregisterAll();
+  });
+
+  // ---------- (C) Windows 마우스 뒤로/앞으로 버튼 ----------
+  const attachAppCommand = (bw: BrowserWindow) => {
+    bw.on('app-command', (_e, cmd) => {
+      if (cmd === 'browser-backward') goBackFocused();
+      if (cmd === 'browser-forward') goForwardFocused();
+    });
+  };
+  attachAppCommand(win);
+
+  // ---------- 오버레이 열기 ----------
+  ipcMain.on('open-overlay', (_e, init?: { roomId: string; overlayPosition?: OverlayPos }) => {
+    const roomId = init?.roomId;
+    const overlayPosition = init?.overlayPosition ?? 'TOPRIGHT';
+
     if (!roomId) {
       console.error('[open-overlay] roomId 누락');
       return;
     }
 
+    lastOverlayInit = { roomId, overlayPosition };
     win?.hide();
-    const overlayWin = createOverlayWindow(isDev);
+
+    const overlayWin = createOverlayWindow(isDev, overlayPosition);
+
+    // 오버레이에도 마우스 버튼 뒤/앞 처리 붙이기
+    attachAppCommand(overlayWin);
 
     if (isDev) {
-      const overlayUrl = `http://localhost:5173/#/live-overlay?roomId=${encodeURIComponent(
-        roomId,
-      )}`; 
-      overlayWin.loadURL(overlayUrl); 
+      const overlayUrl = `http://localhost:5173/#/live-overlay?roomId=${encodeURIComponent(roomId)}`;
+      overlayWin.loadURL(overlayUrl);
     } else {
       const prodHTML = path.join(__dirname, '../../dist/index.html');
-      const hash = `/live-overlay?roomId=${encodeURIComponent(roomId)}`; 
-      overlayWin.loadFile(prodHTML, { hash }); 
+      const hash = `/live-overlay?roomId=${encodeURIComponent(roomId)}`;
+      overlayWin.loadFile(prodHTML, { hash });
     }
+    overlayWin.webContents.once('did-finish-load', () => {
+      overlayWin.webContents.send('overlay:init', { roomId, overlayPosition });
+    });
 
-    overlayWin.show(); 
-    overlayWin.focus(); 
+    overlayWin.show();
+    overlayWin.focus();
   });
 
   ipcMain.on('close-overlay', () => {
@@ -68,4 +123,6 @@ app.whenReady().then(() => {
   ipcMain.on('overlay-log', (_e, msg) => {
     console.log('[OVERLAY]', msg);
   });
+
+  ipcMain.handle('overlay:get-init', async () => lastOverlayInit);
 });

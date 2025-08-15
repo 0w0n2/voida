@@ -29,9 +29,7 @@ const ProfileTab = () => {
   const { user } = useAuthStore();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
-  const [userNickname, setUserNickname] = useState<string>(
-    user?.nickname || '',
-  );
+  const [userNickname, setUserNickname] = useState<string>(user?.nickname || '');
   const [userEmail, setUserEmail] = useState<string>(user?.email || '');
   const [userImage, setUserImage] = useState<string>(user?.profileImage || '');
   const [Changed, setChanged] = useState(false);
@@ -68,7 +66,7 @@ const ProfileTab = () => {
           return;
         }
         if (!file.type.startsWith('image/')) {
-          alert('이미지 파일만 업로드 가능합니다.');
+          useAlertStore.getState().showAlert('이미지 파일만 업로드 가능합니다.', 'top');
           return;
         }
         const imageUrl = URL.createObjectURL(file);
@@ -433,6 +431,7 @@ const changePhotoButtonStyle = css`
   &:hover {
     border-color: var(--color-primary);
     color: var(--color-primary);
+    font-family: 'NanumSquareEB';
   }
 
   &:disabled {
@@ -545,6 +544,7 @@ const inputFieldStyle = css`
   &:focus {
     outline: none;
     border-color: var(--color-primary);
+    font-family: 'NanumSquareEB';
   }
 
   &:disabled {
@@ -563,13 +563,13 @@ const actionButtonStyle = css`
   border-radius: 8px;
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
-  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
     border-color: var(--color-primary);
     color: var(--color-primary);
+    font-family: 'NanumSquareEB';
   }
 
   &:disabled {
@@ -593,7 +593,6 @@ const googleButtonStyle = css`
   border-radius: 8px;
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
-  font-weight: 600;
   transition: all 0.2s ease;
 
   &:disabled {

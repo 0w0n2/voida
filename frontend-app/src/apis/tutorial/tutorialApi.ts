@@ -34,18 +34,14 @@ export const uploadTutorialAudio = async (file: File, sessionNumber: string) => 
 };
 
 export const uploadLipTestVideo = async (file: File, sessionNumber: string) => {
-  console.log(file);
-  console.log(sessionNumber);
-
   const formData = new FormData();
-
   formData.append('videoFile', file);
   formData.append('sessionNumber', sessionNumber);
 
   const res = await apiInstanceFast.post('/v1/lip', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
-
   console.log(res);
+
   return res.data; 
 };

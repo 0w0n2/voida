@@ -81,4 +81,24 @@ export const dummyMessages: ChatMessage[] = [
     content: '헐... 점검이래요. 빨리 잡아야겠네요!',
     timestamp: '2025-08-11T10:59:12Z',
   },
+    {
+    messageId: 'msg-008',
+    user: {
+      userId: 'user-ghi',
+      userNickname: '법사GOD',
+      userImageUrl: 'https://i.pravatar.cc/40?u=user-ghi',
+    },
+    content: '헐... 점검이래요. 빨리 잡아야겠네요!',
+    timestamp: '2025-08-11T10:59:12Z',
+  },
+    {
+    messageId: 'msg-008',
+    user: {
+      userId: 'user-ghi',
+      userNickname: '법사GOD',
+      userImageUrl: 'https://i.pravatar.cc/40?u=user-ghi',
+    },
+    content: '헐... 점검이래요. 빨리 잡아야겠네요!',
+    timestamp: '2025-08-11T10:59:12Z',
+  },
 ];

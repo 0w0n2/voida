@@ -1,29 +1,51 @@
-import { BrowserWindow, screen } from 'electron';
+import { BrowserWindow, screen, Rectangle, Display } from 'electron';
 import * as path from 'path';
 
 let overlayWin: BrowserWindow | null = null;
 
-export function createOverlayWindow(_isDev: boolean): BrowserWindow {
+type OverlayPos = 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT';
+
+function calcOverlayBounds(
+  display: Display,
+  size: { w: number; h: number },
+  pos: OverlayPos,
+  margin = 16,
+): Pick<Rectangle, 'x' | 'y' | 'width' | 'height'> {
+  const { workArea } = display; 
+  const xLeft = workArea.x + margin;
+  const xRight = workArea.x + workArea.width - size.w - margin;
+  const yTop = workArea.y + margin;
+  const yBottom = workArea.y + workArea.height - size.h - margin;
+
+  const map: Record<OverlayPos, { x: number; y: number }> = {
+    TOPLEFT: { x: xLeft, y: yTop },
+    TOPRIGHT: { x: xRight, y: yTop },
+    BOTTOMLEFT: { x: xLeft, y: yBottom },
+    BOTTOMRIGHT: { x: xRight, y: yBottom },
+  };
+
+  return { x: map[pos].x, y: map[pos].y, width: size.w, height: size.h };
+}
+export function createOverlayWindow(
+  _isDev: boolean,
+  overlayPosition: OverlayPos = 'TOPRIGHT'
+): BrowserWindow {
+  const overlaySize = { w: 400, h: 600 };
+  const targetDisplay = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+  const bounds = calcOverlayBounds(targetDisplay, overlaySize, overlayPosition);
+
   if (overlayWin && !overlayWin.isDestroyed()) {
+    overlayWin.setBounds(bounds);
     overlayWin.show();
     overlayWin.focus();
     return overlayWin;
   }
-  const primaryDisplay = screen.getPrimaryDisplay();
-  const { width: screenWidth } = primaryDisplay.workAreaSize;
-
-  const overlayWidth = 400;
-  const overlayHeight = 600;
-
-  const margin = 16;
-  const overlayX = screenWidth - overlayWidth - margin;
-  const overlayY = margin;
 
   overlayWin = new BrowserWindow({
-    width: overlayWidth,
-    height: overlayHeight,
-    x: overlayX,
-    y: overlayY,
+    width: bounds.width,
+    height: bounds.height,
+    x: bounds.x,
+    y: bounds.y,
     transparent: true,
     frame: false,
     alwaysOnTop: true,
@@ -41,10 +63,19 @@ export function createOverlayWindow(_isDev: boolean): BrowserWindow {
   });
 
   overlayWin.setIgnoreMouseEvents(false);
+  overlayWin.on('closed', () => { overlayWin = null; });
 
-  overlayWin.on('closed', () => {overlayWin = null;});
+  const realign = () => {
+    if (!overlayWin) return;
+    const disp = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+    const b = calcOverlayBounds(disp, overlaySize, overlayPosition);
+    overlayWin.setBounds(b);
+  };
+  screen.on('display-metrics-changed', realign);
+  screen.on('display-added', realign);
+  screen.on('display-removed', realign);
 
-  return overlayWin; 
+  return overlayWin;
 }
 
 export function closeOverlayWindow() {

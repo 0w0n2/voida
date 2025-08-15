@@ -9,7 +9,7 @@ import TutorialModal from '@/components/tutorial/modal/TutorialLipReadingModal';
 import RecordButton from '@/assets/icons/record.png';
 import { useVideoRecorder } from '@/hooks/useVideoRecorder';
 
-const maxDuration = 5000;
+const maxDuration = 3000;
 
 const TestLipReadingPage = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -28,12 +28,35 @@ const TestLipReadingPage = () => {
     onStop: async ({ blob }) => {
       setIsAnalyzing(true);
       try {
-        const file = new File([blob], 'lip-test.webm', { type: blob.type });
-        const res = await uploadLipTestVideo(file, '0');
-        console.log(res.videoResult);
-        console.log(res.transText);
-        setAnalysisResult(res.videoResult ? 'success' : 'fail');
-        setAnalysisText(res.transText || null); 
+      const parseJsonSafe = (data: any) => {
+        if (!data) return {};
+
+        if (typeof data === 'string') {
+          const jsonStart = data.indexOf('{');
+          const jsonEnd = data.indexOf('}', jsonStart); // 첫 번째 JSON 종료 지점 찾기
+
+          if (jsonStart !== -1 && jsonEnd !== -1) {
+            try {
+              const jsonStr = data.slice(jsonStart, jsonEnd + 1).trim(); // JSON 부분만 추출
+              return JSON.parse(jsonStr);
+            } catch (e) {
+              console.error('JSON 파싱 실패:', e, jsonStr);
+            }
+          }
+          return {};
+        }
+
+        return data; // 이미 객체면 그대로 반환
+      };
+
+      const file = new File([blob], 'lip-test.webm', { type: blob.type });
+      const rawRes = await uploadLipTestVideo(file, '0');
+      const parsed = parseJsonSafe(rawRes?.data ?? rawRes);
+      
+      console.log(parsed.audioMime);
+
+      setAnalysisResult(parsed.videoResult ? 'success' : 'fail');
+      setAnalysisText(parsed.transText || null);
       } catch (err) {
         console.error(err);
         setAnalysisResult('fail');
@@ -91,7 +114,7 @@ const TestLipReadingPage = () => {
           )}
 
           <div css={textBox(progress)}>
-            <p>“Hello, World!”</p>
+            <p>“Hello, Good Morning!”</p>
           </div>
         </div>
       </div>
