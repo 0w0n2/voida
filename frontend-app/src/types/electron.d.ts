@@ -7,6 +7,7 @@ declare global {
       openOverlay: (init: {
         roomId: string;
         overlayPosition?: 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT';
+        overlayTransparency?: number;
       }) => void;
       closeOverlay: () => void;
       sendQuickMessage: (message: string) => void;

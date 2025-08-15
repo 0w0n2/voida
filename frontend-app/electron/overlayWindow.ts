@@ -1,4 +1,5 @@
-import { BrowserWindow, screen, Rectangle, Display } from 'electron';
+import { BrowserWindow, screen } from 'electron';
+import type { Rectangle, Display } from 'electron';
 import * as path from 'path';
 
 let overlayWin: BrowserWindow | null = null;

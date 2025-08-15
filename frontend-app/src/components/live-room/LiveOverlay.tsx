@@ -10,19 +10,26 @@ import InfoWhite from '@/assets/icons/info-white.png';
 import InfoBlue from '@/assets/icons/info-blue.png';
 import { getUserQuickSlots } from '@/apis/auth/userApi';
 import { useQuickSlot } from '@/hooks/useQuickSlot';
-import { getUserOverview, getSession, getLiveToken, connectOpenVidu, disconnectOpenVidu } from '@/apis/live-room/openViduApi';
+import { getUserOverview, getSession, getLiveToken, connectOpenVidu, disconnectOpenVidu, sendChatSignal } from '@/apis/live-room/openViduApi';
 import { uploadTutorialAudio, uploadLipTestVideo } from '@/apis/tutorial/tutorialApi';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { useMicVolume } from '@/hooks/useMicVolume';
 import WaveVisualizer from '@/components/live-room/WaveVisualizar';
 import { useVideoRecorder } from '@/hooks/useVideoRecorder';
 import { dummyMessages } from './dummy';
+import { BsTransparency } from 'react-icons/bs';
 
 export interface ApiQuickSlot {
   quickSlotId: number;
   message: string;
   hotkey: string;
   url: string;
+}
+
+interface Participant {
+  profileImageUrl?: string;
+  nickname?: string;
+  lipTalkMode?: boolean;
 }
 
 export interface ChatMessage {
@@ -36,14 +43,23 @@ export interface ChatMessage {
   timestamp: string;
 }
 
+type AnalysisPayload = {
+  videoResult?: boolean;
+  transText?: string;  
+  audioMime?: string;   
+  message?: string;   
+};
+
 type OverlayPos = 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT';
 
 const LiveOverlay = () => {
   const [searchParams] = useSearchParams();
   const meetingRoomId = searchParams.get('roomId');
+  const [participants, setParticipants] = useState<Participant[]>([]);
 
   const [isExpanded, setIsExpanded] = useState(true);
   const [overlayPosition, setOverlayPosition] = useState<OverlayPos>('TOPRIGHT');
+  const [overlayTransparency, setOverlayTransparency] = useState(30);
   const isBottom = overlayPosition.startsWith('BOTTOM');
 
   // 단축키 / 오디오 레퍼런스
@@ -58,10 +74,13 @@ const LiveOverlay = () => {
 
   const [userInfo, setUserInfo] = useState<any>(null);
 
-  // 채팅 스크롤 제어
+  // 채팅 상태
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const chatListRef = useRef<HTMLDivElement | null>(null);
   const [stickBottom, setStickBottom] = useState(true);
-  const BOTTOM_THRESHOLD = 40; 
+  const BOTTOM_THRESHOLD = 40;
+
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
   const onChatScroll = () => {
     const el = chatListRef.current;
@@ -80,10 +99,13 @@ const LiveOverlay = () => {
   useEffect(() => {
     (async () => {
       try {
-        const User = await getUserOverview();
-        setUserInfo(User);
-        const pos = (User?.setting?.overlayPosition as OverlayPos) || 'TOPRIGHT';
+        const user = await getUserOverview();
+        setUserInfo(user);
+        const pos = (user?.setting?.overlayPosition as OverlayPos) || 'TOPRIGHT';
         setOverlayPosition(pos);
+        const trans = user?.setting?.overlayTransparency;
+        console.log(trans);
+        setOverlayTransparency(trans);
       } catch (err) {
         console.error('유저 정보 조회 실패:', err);
       }
@@ -91,35 +113,39 @@ const LiveOverlay = () => {
   }, []);
 
   // OpenVidu 연결
-  // useEffect(() => {
-  //   if (!userInfo || !meetingRoomId) return;
+  useEffect(() => {
+    if(!userInfo || !meetingRoomId) return;
 
-  //   (async () => {
-  //     try {
-  //       const sessionInfo = await getSession(meetingRoomId);
-  //       console.log(sessionInfo);
-  //       const token = await getLiveToken(meetingRoomId);
+    console.log(userInfo);
+    console.log(meetingRoomId);
 
-  //       await connectOpenVidu(token!, {
-  //         onSignalMessage: (msg) => {
-  //           console.log('시그널 수신:', msg);
-  //         },
-  //         clientData: {
-  //           nickname: userInfo.member.nickname,
-  //           profileImageUrl: userInfo.member.profileImageUrl,
-  //         },
-  //         audioSource: true,
-  //         videoSource: false,
-  //       });
-  //     } catch (err) {
-  //       console.error('OpenVidu 연결 실패:', err);
-  //     }
-  //   })();
+    (async () => {
+      try {
+        const sessionInfo = await getSession(meetingRoomId);
+        console.log(sessionInfo);
+        setParticipants(sessionInfo?.participants || []);
+        const ovSessionId = sessionInfo.ovSessionId;
+        console.log(ovSessionId);
 
-  //   return () => {
-  //     disconnectOpenVidu();
-  //   };
-  // }, [userInfo, meetingRoomId]);
+        const token = await getLiveToken(meetingRoomId);
+        console.log(token);
+
+        await connectOpenVidu(token);
+      } catch (err) {
+        console.error('OpenVidu 연결 실패:', err);
+      }
+    })();
+
+    return () => {
+      (async () => {
+        try {
+          await disconnectOpenVidu();
+        } catch (err) {
+          console.error('OpenVidu 연결 해제 실패:', err);
+        }
+      })();
+    }
+  }, [userInfo, meetingRoomId])
 
   // 오디오 객체 초기화
   useEffect(() => {
@@ -143,8 +169,7 @@ const LiveOverlay = () => {
       try {
         const res = await getUserQuickSlots();
         const quickSlots: ApiQuickSlot[] = res?.data?.result?.quickSlots ?? [];
-        const parseHotkey = (hotkey: string) =>
-          hotkey.trim().toLowerCase().replace(/^`/, '');
+        const parseHotkey = (hotkey: string) => hotkey.trim().toLowerCase().replace(/^`/, '');
 
         hotkeyMapRef.current.clear();
         ttsUrlMapRef.current.clear();
@@ -166,11 +191,7 @@ const LiveOverlay = () => {
 
   // 시그널 보내기
   const sendSignalMessage = (text: string) => {
-    if (window.OVSession) {
-      window.OVSession
-        .signal({ type: 'chat', data: text })
-        .catch((err) => console.error('시그널 전송 실패:', err));
-    }
+    sendChatSignal(text).catch((err) => console.error('시그널 전송 실패:', err));
   };
 
   // 오디오 녹음 onStop
@@ -205,17 +226,33 @@ const LiveOverlay = () => {
       try {
         const file = new File([blob], 'lip-test.webm', { type: blob.type });
         const res = await uploadLipTestVideo(file, '0');
-        console.log(res);
+        const buffer = await res;
+        const view = new DataView(buffer);
+        const jsonLength = view.getUint32(0, false);
+        const jsonBytes = new Uint8Array(buffer, 4, jsonLength);
+        const jsonString = new TextDecoder().decode(jsonBytes);
+        const parsedJson: AnalysisPayload = JSON.parse(jsonString);
+        const audioStartIndex = 4 + jsonLength;
+        const audioBytes = new Uint8Array(buffer, audioStartIndex);
 
-        setAnalysisResult(res.videoResult ? 'success' : 'fail');
-        console.log(res.transText);
-        setAnalysisText(res.transTextKo || null);
-        setStep('result');
+        if(audioBytes.length > 0) {
+          const audioBlob = new Blob([audioBytes], { type: parsedJson.audioMime || 'audio/mpeg' });
+          const audioUrl = URL.createObjectURL(audioBlob);
 
-        if (res.transTextKo) sendSignalMessage(res.transTextKo);
+          setAnalysisResult(parsedJson.videoResult ? 'success' : 'fail');
+          setAudioUrl(audioUrl);
+          if (audioUrl) {
+            const audio = new Audio(audioUrl);
+            audio.play().catch(err => console.error('재생 실패:', err));
+          }
 
+          setAnalysisResult(parsedJson.videoResult ? 'success' : 'fail');
+          setAnalysisText(parsedJson.transText || null);
+          sendSignalMessage(parsedJson.transText || '');
+          setStep('result');
+        }
         setTimeout(() => setStep('record'), 5000);
-      } catch(e) {
+      } catch (e) {
         console.log(e);
         setAnalysisResult('fail');
         setAnalysisText(null);
@@ -231,35 +268,58 @@ const LiveOverlay = () => {
     window?.electronAPI?.closeOverlay?.();
   };
 
-  // 채팅: 바닥 자동 스크롤 (마운트/확장변경 시, 그리고 stickBottom일 때만)
+  // 채팅: 바닥 자동 스크롤
   useEffect(() => {
     if (stickBottom) scrollToBottom();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isExpanded, stickBottom]);
 
-  // (데모) 더미 메시지 길이 변경 시에도 바닥 유지
+  // 채팅: 새 메시지 올 때도 바닥 유지
   useEffect(() => {
     if (stickBottom) scrollToBottom();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dummyMessages.length, stickBottom]);
+  }, [chatMessages.length, stickBottom]);
 
   const bars = useMicVolume(isAudioRecording, { barsCount: 20, sensitivity: 1.0, maxHeight: 8 });
 
   return (
     <div css={overlayContainer(isBottom)}>
-      <div css={[overlayContent(isBottom), isExpanded ? expanded : collapsed]}>
+      <div css={[overlayContent(isBottom, overlayTransparency), isExpanded ? expanded : collapsed]}>
         <div css={header}>
           <div css={headerLeft} />
-          <div css={headerRight}>
+            <div css={headerRight}>
+              {/* {participants.map((p, idx) => (
+                <div key={idx} css={participantWrapper}>
+                  <img
+                    src={p.profileImageUrl || User}
+                    alt={p.nickname || '참가자'}
+                    css={userIcon}
+                  />
+                  {p.lipTalkMode && <span css={lipBadge}>구화</span>}
+                </div>
+              ))} */}
+
+              {/* {dummyMessages.map((m, idx) => (
+              <div key={idx} css={participantWrapper}>
+                <img
+                  src={m.user.userImageUrl || User}
+                  alt={m.user.userNickname || '사용자'}
+                  css={userIcon}
+                />
+                {m.lipTalkMode && <span css={lipBadge}>구화</span>}
+              </div>
+              ))} */}
+
+            </div>
             <img src={User} alt="User" css={userIcon} />
+            <p>{participants.length}</p>
             <div css={infoBtn}></div>
             <div css={outBtn} onClick={exitLive} />
-          </div>
         </div>
 
         <div css={contentBody(isBottom)}>
           <div ref={chatListRef} css={chatList} onScroll={onChatScroll}>
-            {dummyMessages.map((msg) => (
+            {chatMessages.map((msg) => (
               <div key={msg.messageId} css={chatItem}>
                 <img src={msg.user.userImageUrl} alt={msg.user.userNickname} css={chatAvatar} />
                 <div css={chatContent}>
@@ -279,55 +339,54 @@ const LiveOverlay = () => {
           </div>
         </div>
 
-      {isExpanded && (
-        <div css={expandedContentWrapper}>
-          {step === 'record' && (
-            <>
-              {userInfo?.setting?.lipTalkMode ? (
-                <div css={lipUserControls}>
-                  <video
-                    ref={(el) => {
-                      if (el && videoStream) {
-                        el.srcObject = videoStream;
-                        el.play().catch(() => {});
-                      }
-                    }}
-                    autoPlay
-                    muted
-                    css={cameraPreview}
-                  />
-                  <button css={recordBtn} onClick={isVideoRecording ? stopVideo : startVideo}>
-                    {isVideoRecording ? '중지' : '녹화'}
-                  </button>
-                </div>
-              ) : (
-                <div css={normalUserControls}>
-                  <button css={recordBtn} onClick={isAudioRecording ? stopAudio : startAudio}>
-                    {isAudioRecording ? '중지' : '녹음'}
-                  </button>
-                   <WaveVisualizer bars={bars} />
-                </div>
-                
-              )}
-            </>
-          )}
+        {isExpanded && (
+          <div css={expandedContentWrapper}>
+            {step === 'record' && (
+              <>
+                {userInfo?.setting?.lipTalkMode ? (
+                  <div css={lipUserControls}>
+                    <video
+                      ref={(el) => {
+                        if (el && videoStream) {
+                          (el as any).srcObject = videoStream;
+                          el.play().catch(() => {});
+                        }
+                      }}
+                      autoPlay
+                      muted
+                      css={cameraPreview}
+                    />
+                    <button css={recordBtn} onClick={isVideoRecording ? stopVideo : startVideo}>
+                      {isVideoRecording ? '중지' : '녹화'}
+                    </button>
+                  </div>
+                ) : (
+                  <div css={normalUserControls}>
+                    <button css={recordBtn} onClick={isAudioRecording ? stopAudio : startAudio}>
+                      {isAudioRecording ? '중지' : '녹음'}
+                    </button>
+                    <WaveVisualizer bars={bars} />
+                  </div>
+                )}
+              </>
+            )}
 
-          {step === 'loading' && (
-            <div css={loadingDots}>
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-          )}
+            {step === 'loading' && (
+              <div css={loadingDots}>
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            )}
 
-          {step === 'result' && (
-            <div css={resultBox(analysisResult || 'fail')}>
-              결과: {analysisResult === 'success' ? '성공' : '실패'}
-              {analysisText && <div css={resultText}>{analysisText}</div>}
-            </div>
-          )}
-        </div>
-      )}
+            {step === 'result' && (
+              <div css={resultBox(analysisResult || 'fail')}>
+                결과: {analysisResult === 'success' ? '성공' : '실패'}
+                {analysisText && <div css={resultText}>{analysisText}</div>}
+              </div>
+            )}
+          </div>
+        )}
 
         <button onClick={() => setIsExpanded(!isExpanded)} css={toggleBtn(isBottom)}>
           {isExpanded
@@ -351,8 +410,8 @@ const overlayContainer = (isBottom: boolean) => css`
   padding: 16px;
 `;
 
-const overlayContent = (isBottom: boolean) => css`
-  background: rgba(0, 0, 0, 0.4);
+const overlayContent = (isBottom: boolean, transparency: number) => css`
+  background: rgba(0, 0, 0, ${transparency});
   color: white;
   border-radius: 10px;
   backdrop-filter: blur(10px);
@@ -380,8 +439,9 @@ const collapsed = css`
 
 const header = css`
   display: flex;
-  justify-content: space-between;
+  justify-content: right;
   align-items: center;
+  gap: 8px;
   padding: 12px 10px;
 `;
 
@@ -398,10 +458,15 @@ const headerRight = css`
   gap: 8px;
 `;
 
+const participantWrapper = css`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
 const userIcon = css`
   width: 18px;
   height: 18px;
-  margin-right: 2px;
 `;
 
 const infoBtn = css`
@@ -411,7 +476,7 @@ const infoBtn = css`
   background-image: url(${InfoWhite});
   background-size: cover;
   cursor: pointer;
-  margin-left: 4px;
+  margin-left: 6px;
   &:hover {
     background-image: url(${InfoBlue});
   }
@@ -443,7 +508,7 @@ const outBtn = css`
   background-image: url(${ExitWhite});
   background-size: cover;
   cursor: pointer;
-  margin-left: 4px;
+  margin-left: 6px;
   &:hover {
     background-image: url(${ExitBlue});
   }
@@ -475,7 +540,6 @@ const expandedContentWrapper = css`
   gap: 10px;
   margin-bottom: 20px;
 `;
-
 
 const contentBody = (isBottom: boolean) => css`
   display: flex;
@@ -600,7 +664,7 @@ const resultText = css`
 
 const chatList = css`
   flex: 1;
-  min-height: 0;     
+  min-height: 0;
   overflow-y: auto;
   padding: 8px 8px 12px 12px;
   display: flex;

@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { uploadLipTestVideo } from '@/apis/tutorial/tutorialApi';
 import Header from '@/components/Header';
@@ -11,12 +11,20 @@ import { useVideoRecorder } from '@/hooks/useVideoRecorder';
 
 const maxDuration = 3000;
 
+type AnalysisPayload = {
+  videoResult?: boolean;
+  transText?: string;  
+  audioMime?: string;   
+  message?: string;   
+};
+
 const TestLipReadingPage = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [progress, setProgress] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<null | 'success' | 'fail'>(null);
   const [analysisText, setAnalysisText] = useState<string | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const { hasPermission, isRecording, stream, start, stop } = useVideoRecorder({
@@ -27,54 +35,62 @@ const TestLipReadingPage = () => {
     onProgress: (percent) => setProgress(percent),
     onStop: async ({ blob }) => {
       setIsAnalyzing(true);
+
       try {
-      const parseJsonSafe = (data: any) => {
-        if (!data) return {};
+        const file = new File([blob], 'lip-test.webm', { type: blob.type });
+        const res = await uploadLipTestVideo(file, '0');
+        const buffer = await res;
+        const view = new DataView(buffer);
+        const jsonLength = view.getUint32(0, false);
+        const jsonBytes = new Uint8Array(buffer, 4, jsonLength);
+        const jsonString = new TextDecoder().decode(jsonBytes);
+        const parsedJson: AnalysisPayload = JSON.parse(jsonString);
+        const audioStartIndex = 4 + jsonLength;
+        const audioBytes = new Uint8Array(buffer, audioStartIndex);
 
-        if (typeof data === 'string') {
-          const jsonStart = data.indexOf('{');
-          const jsonEnd = data.indexOf('}', jsonStart); // 첫 번째 JSON 종료 지점 찾기
+        if(audioBytes.length > 0) {
+          const audioBlob = new Blob([audioBytes], { type: parsedJson.audioMime || 'audio/mpeg' });
+          const audioUrl = URL.createObjectURL(audioBlob);
 
-          if (jsonStart !== -1 && jsonEnd !== -1) {
-            try {
-              const jsonStr = data.slice(jsonStart, jsonEnd + 1).trim(); // JSON 부분만 추출
-              return JSON.parse(jsonStr);
-            } catch (e) {
-              console.error('JSON 파싱 실패:', e, jsonStr);
-            }
+          setAnalysisResult(parsedJson.videoResult ? 'success' : 'fail');
+          setAudioUrl(audioUrl);
+          if (audioUrl) {
+            const audio = new Audio(audioUrl);
+            audio.play().catch(err => console.error('재생 실패:', err));
           }
-          return {};
+
+          setAnalysisResult(parsedJson.videoResult ? 'success' : 'fail');
+          setAnalysisText(parsedJson.transText || null);
+        } else {
+          setAnalysisResult('fail');
+          setAudioUrl('');
         }
-
-        return data; // 이미 객체면 그대로 반환
-      };
-
-      const file = new File([blob], 'lip-test.webm', { type: blob.type });
-      const rawRes = await uploadLipTestVideo(file, '0');
-      const parsed = parseJsonSafe(rawRes?.data ?? rawRes);
-      
-      console.log(parsed.audioMime);
-
-      setAnalysisResult(parsed.videoResult ? 'success' : 'fail');
-      setAnalysisText(parsed.transText || null);
       } catch (err) {
-        console.error(err);
-        setAnalysisResult('fail');
-        setAnalysisText(null);
+        console.log(err);
       }
     },
   });
 
-  if (stream && videoRef.current && !videoRef.current.srcObject) {
-    videoRef.current.srcObject = stream;
-  }
+  // stream이 생길 때마다 비디오에 안정적으로 연결
+  useEffect(() => {
+    if (videoRef.current && stream && videoRef.current.srcObject !== stream) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [stream]);
 
   const handleRecordClick = () => {
     if (isRecording) {
-      stop(); 
+      stop();
     } else {
+      // 이전 상태 초기화 + URL 정리
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+        setAudioUrl(null);
+      }
       setAnalysisResult(null);
+      setAnalysisText(null);
       setIsAnalyzing(false);
+      setProgress(0);
       start();
     }
   };
@@ -90,13 +106,7 @@ const TestLipReadingPage = () => {
           <div css={videoBox}>
             {hasPermission ? (
               <>
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                  css={videoStyle}
-                />
+                <video ref={videoRef} autoPlay playsInline muted css={videoStyle} />
                 <div css={guideBox}></div>
               </>
             ) : (
@@ -118,22 +128,31 @@ const TestLipReadingPage = () => {
           </div>
         </div>
       </div>
+
       <TutorialFooter items="튜토리얼 건너뛰기" customCss={footerStyle} />
+
       <TutorialModal
         isOpen={isAnalyzing}
         result={analysisResult}
-        text={analysisText} 
+        text={analysisText}
         onRetry={() => {
-        setIsAnalyzing(false);
-        setAnalysisResult(null);
-        setAnalysisText(null);
-
-         navigate('/tutorial/lip-reading', { replace: true });
-      }}
+          setIsAnalyzing(false);
+          setAnalysisResult(null);
+          setAnalysisText(null);
+          if (audioUrl) {
+            URL.revokeObjectURL(audioUrl);
+            setAudioUrl(null);
+          }
+          navigate('/tutorial/lip-reading', { replace: true });
+        }}
         onGoHome={() => {
           setIsAnalyzing(false);
           setAnalysisResult(null);
           setAnalysisText(null);
+          if (audioUrl) {
+            URL.revokeObjectURL(audioUrl);
+            setAudioUrl(null);
+          }
           navigate('/main');
         }}
       />
@@ -143,6 +162,7 @@ const TestLipReadingPage = () => {
 
 export default TestLipReadingPage;
 
+// ----------------- 스타일 -----------------
 const pageWrapperStyle = css`
   min-height: 100vh;
 `;
@@ -163,7 +183,7 @@ const contentWrapperStyle = css`
     max-width: 72rem;
   }
   @media (max-width: 1200px) {
-    max-width: 64rem; 
+    max-width: 64rem;
   }
   @media (max-width: 900px) {
     max-width: 80%;
@@ -192,7 +212,6 @@ const contentWrapperStyle = css`
 const titleStyle = css`
   font-size: 40px;
   font-family: 'NanumSquareEB';
-  // margin-top: 2rem;
   margin-bottom: 1rem;
   text-align: center;
 
@@ -229,11 +248,9 @@ const subtitleStyle = css`
   @media (max-width: 1200px) {
     font-size: 18px;
   }
-
   @media (max-width: 900px) {
     font-size: 16px;
   }
-
   @media (max-width: 600px) {
     font-size: 15px;
   }
