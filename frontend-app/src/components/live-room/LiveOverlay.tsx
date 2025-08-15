@@ -17,7 +17,6 @@ import { useMicVolume } from '@/hooks/useMicVolume';
 import WaveVisualizer from '@/components/live-room/WaveVisualizar';
 import { useVideoRecorder } from '@/hooks/useVideoRecorder';
 import { dummyMessages } from './dummy';
-import { BsTransparency } from 'react-icons/bs';
 
 export interface ApiQuickSlot {
   quickSlotId: number;
