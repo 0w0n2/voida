@@ -2,6 +2,7 @@ package com.bbusyeo.voida.api.member.service;
 
 import com.bbusyeo.voida.api.meetingroom.domain.MeetingRoom;
 import com.bbusyeo.voida.api.meetingroom.domain.MemberMeetingRoom;
+import com.bbusyeo.voida.api.meetingroom.domain.enums.MemberMeetingRoomState;
 import com.bbusyeo.voida.api.meetingroom.repository.MemberMeetingRoomRepository;
 import com.bbusyeo.voida.api.member.domain.Member;
 import com.bbusyeo.voida.api.member.repository.MemberQuickSlotRepository;
@@ -51,5 +52,14 @@ public class DeleteAccountServiceImpl implements DeleteAccountService {
         // 7. member soft delete 처리
         member.softDelete(true);
         // TODO-MEMBER: soft delete 시 S3에 업로드 되어 있던 파일까지 삭제할 것인지
+    }
+
+    // 해당 멤버가 호스트인 대기실이 있는지 체크
+    @Transactional(readOnly = true)
+    @Override
+    public void checkMemberIsHost(String memberUuid) {
+        if (memberMeetingRoomRepository.existsByMemberUuidAndState(memberUuid, MemberMeetingRoomState.HOST)) {
+            throw new BaseException(BaseResponseStatus.HOST_CANNOT_WITHDRAW);
+        }
     }
 }

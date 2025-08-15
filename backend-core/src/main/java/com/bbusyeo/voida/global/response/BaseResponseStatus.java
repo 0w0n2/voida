@@ -77,6 +77,8 @@ public enum BaseResponseStatus {
     FILE_CONVERSION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, false, 907, "음성 파일 변환 과정에서 오류가 발생했습니다."),
     STT_CONVERSION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, false, 908, "라이브 음성 STT 변환 과정에서 오류가 발생했습니다."),
     NICKNAME_TOO_LONG(HttpStatus.BAD_REQUEST, false, 909, "10자 초과된 닉네임은 설정할 수 없습니다."),
+    NICKNAME_IS_DUPLICATED(HttpStatus.NOT_FOUND, false, 910, "중복된 닉네임은 설정할 수 없습니다."),
+    HOST_CANNOT_WITHDRAW(HttpStatus.BAD_REQUEST, false, 911, "방장인 대기실이 존재합니다. 방장은 회원탈퇴가 불가능합니다."),
     MEMBER_SETTING_NOT_FOUND(HttpStatus.NOT_FOUND, false, 914, "존재하지 않는 회원 설정입니다."),
 
     /**

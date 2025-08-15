@@ -77,6 +77,7 @@ public class MyPageController {
             @RequestPart UpdateMeProfileRequestDto requestDto,
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
             @AuthenticationPrincipal(expression = "member") Member member) {
+        myPageService.checkNicknameIsValid(requestDto.getNickname());
         myPageService.updateProfile(requestDto, profileImage, member.getId());
         return new BaseResponse<>();
     }
@@ -130,6 +131,7 @@ public class MyPageController {
             HttpServletRequest request, HttpServletResponse response,
             @AuthenticationPrincipal(expression = "member") Member member
     ) {
+        deleteAccountService.checkMemberIsHost(member.getMemberUuid()); // 방장인 대기실 있는지 체크
         deleteAccountService.deleteAccount(member.getId()); // 회원 삭제
         tokenAuthService.signOut(request, response); // 로그아웃 처리
         return new BaseResponse<>();
