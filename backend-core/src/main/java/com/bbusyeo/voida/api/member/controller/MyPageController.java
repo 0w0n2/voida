@@ -77,6 +77,7 @@ public class MyPageController {
             @RequestPart UpdateMeProfileRequestDto requestDto,
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
             @AuthenticationPrincipal(expression = "member") Member member) {
+        myPageService.checkNicknameIsValid(requestDto.getNickname());
         myPageService.updateProfile(requestDto, profileImage, member.getId());
         return new BaseResponse<>();
     }
