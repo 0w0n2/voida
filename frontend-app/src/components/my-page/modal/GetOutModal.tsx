@@ -1,14 +1,16 @@
 /** @jsxImportSource @emotion/react */
-import React from 'react';
+import React, { useEffect } from 'react';
 import { css } from '@emotion/react';
 import { deleteUser } from '@/apis/auth/userApi';
 import { useAuthStore } from '@/stores/userStore';
+import defaultProfile from '@/assets/profiles/defaultProfile.png';
 
 interface GetOutModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
   userName?: string;
+  userImage?: string;
 }
 
 const GetOutModal = ({
@@ -16,11 +18,15 @@ const GetOutModal = ({
   onClose,
   onConfirm,
   userName = '사용자',
+  userImage,
 }: GetOutModalProps) => {
+  // useEffect(() => {
+  //
+  // }, []);
   if (!isOpen) return null;
-
+  const { user } = useAuthStore();
   return (
-    <div css={overlayStyle} onClick={onClose}>
+    <div data-modal-root css={overlayStyle} onClick={onClose}>
       <div css={modalStyle} onClick={(e) => e.stopPropagation()}>
         <button
           type="button"
@@ -31,7 +37,22 @@ const GetOutModal = ({
           ✕
         </button>
         <div css={profileImageContainer}>
-          <div css={profileImagePlaceholder}></div>
+          <div css={profileImagePlaceholder}>
+            <img
+              src={
+                userImage
+                  ? userImage.startsWith('blob:')
+                    ? userImage
+                    : `${import.meta.env.VITE_CDN_URL}/${userImage.replace(
+                        /^\/+/,
+                        '',
+                      )}`
+                  : defaultProfile
+              }
+              alt="프로필 사진"
+              css={largeProfileImageStyle}
+            />
+          </div>
         </div>
 
         <div css={messageContainer}>
@@ -62,7 +83,7 @@ const overlayStyle = css`
 
 const modalStyle = css`
   background: white;
-  border-radius: 20px;
+  border-radius: 10px;
   padding: 50px 40px;
   width: 500px;
   max-width: 90vw;
@@ -82,7 +103,6 @@ const profileImagePlaceholder = css`
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -118,7 +138,7 @@ const confirmButtonStyle = css`
   background-color: var(--color-red);
   color: var(--color-text-white);
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   font-family: 'NanumSquareB', sans-serif;
   font-size: 16px;
   font-weight: 700;
@@ -150,6 +170,13 @@ const closeButtonStyle = css`
   &:hover {
     background-color: var(--color-gray-300);
   }
+`;
+
+const largeProfileImageStyle = css`
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
 `;
 
 export default GetOutModal;

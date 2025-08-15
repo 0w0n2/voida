@@ -32,7 +32,7 @@ const UpdatePasswordDoneModal = ({
   };
 
   return (
-    <div css={overlayStyle}>
+    <div data-modal-root css={overlayStyle}>
       <div css={modalStyle}>
         <div css={profileImageContainer}>
           <div css={profileImagePlaceholder}>
@@ -74,8 +74,7 @@ const overlayStyle = css`
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  backdrop-filter: blur(2px);
+  z-index: 100000;
 `;
 
 const modalStyle = css`

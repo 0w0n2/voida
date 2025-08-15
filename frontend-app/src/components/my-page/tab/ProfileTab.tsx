@@ -29,7 +29,9 @@ const ProfileTab = () => {
   const { user } = useAuthStore();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
-  const [userNickname, setUserNickname] = useState<string>(user?.nickname || '');
+  const [userNickname, setUserNickname] = useState<string>(
+    user?.nickname || '',
+  );
   const [userEmail, setUserEmail] = useState<string>(user?.email || '');
   const [userImage, setUserImage] = useState<string>(user?.profileImage || '');
   const [Changed, setChanged] = useState(false);
@@ -39,7 +41,8 @@ const ProfileTab = () => {
   const [showDoneModal, setShowDoneModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSocial, setIsSocial] = useState(false);
-
+  const [socialEmail, setSocialEmail] = useState<string | null>(null);
+  const [nicknameError, setNicknameError] = useState(false);
   useEffect(() => {
     setUserNickname(user?.nickname ?? '');
     setUserEmail(user?.email ?? '');
@@ -50,6 +53,11 @@ const ProfileTab = () => {
   }, [user]);
 
   const handleNicknameChange = (newNickname: string) => {
+    if (newNickname.length > 10) {
+      setNicknameError(true);
+    } else {
+      setNicknameError(false);
+    }
     setUserNickname(newNickname);
     setChanged(true);
   };
@@ -62,11 +70,13 @@ const ProfileTab = () => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
         if (file.size > 1 * 1024 * 1024) {
-          alert('파일 크기는 5MB 이하여야 합니다.');
+          alert('파일 크기는 1MB 이하여야 합니다.');
           return;
         }
         if (!file.type.startsWith('image/')) {
-          useAlertStore.getState().showAlert('이미지 파일만 업로드 가능합니다.', 'top');
+          useAlertStore
+            .getState()
+            .showAlert('이미지 파일만 업로드 가능합니다.', 'top');
           return;
         }
         const imageUrl = URL.createObjectURL(file);
@@ -79,6 +89,12 @@ const ProfileTab = () => {
   };
 
   const handleSave = async () => {
+    if (nicknameError) {
+      useAlertStore
+        .getState()
+        .showAlert('닉네임은 10자 이하여야 합니다.', 'top');
+      return;
+    }
     if (profileImageFile || userNickname !== user?.nickname) {
       try {
         await updateUser(userNickname, profileImageFile);
@@ -125,6 +141,7 @@ const ProfileTab = () => {
     const socialData = res.data.result.socialAccounts;
     if (socialData.length > 0) {
       setIsSocial(true);
+      setSocialEmail(socialData[0].email);
       console.log(isSocial);
     }
     return isSocial;
@@ -218,7 +235,7 @@ const ProfileTab = () => {
               value={userNickname}
               onChange={(e) => handleNicknameChange(e.target.value)}
               placeholder="닉네임을 입력하세요"
-              css={inputFieldStyle}
+              css={nicknameError ? inputFieldErrorStyle : inputFieldStyle}
             />
           </div>
 
@@ -259,7 +276,7 @@ const ProfileTab = () => {
                 css={googleButtonStyle}
               >
                 <img src={google} alt="google" css={iconStyle} />
-                {isSocial ? 'Google 연동된 계정입니다' : 'Google 계정 연동하기'}
+                {isSocial ? `${socialEmail}` : 'Google 계정 연동하기'}
               </button>
             </div>
           </div>
@@ -275,6 +292,7 @@ const ProfileTab = () => {
         onClose={() => setIsGetOutModalOpen(false)}
         onConfirm={handleWithdrawConfirm}
         userName={userNickname || userProfile?.nickname || '사용자'}
+        userImage={userImage || userProfile?.profileImage || defaultProfile}
       />
 
       {/* <UpdateDoneModal
@@ -594,6 +612,13 @@ const googleButtonStyle = css`
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
   transition: all 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    font-family: 'NanumSquareEB';
+  }
 
   &:disabled {
     background-color: var(--color-gray-100);
@@ -635,4 +660,11 @@ const iconStyle = css`
   justify-content: center;
   gap: 8px;
   width: 25px;
+`;
+
+const inputFieldErrorStyle = css`
+  ${inputFieldStyle}
+  border-color: var(--color-red);
+  background-color: var(--color-red-light);
+  color: var(--color-red-dark);
 `;

@@ -4,12 +4,14 @@ import { useState, useEffect } from 'react';
 import { getUserSettings, updateOverlay } from '@/apis/auth/userApi';
 import { useAuthStore } from '@/stores/userStore';
 import UpdateDoneModal from '@/components/my-page/modal/UpdateDoneModal';
+import { useAlertStore } from '@/stores/useAlertStore';
 
 type OverlayPosition = 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT';
 
 const OverlayTab = () => {
   const { user } = useAuthStore();
-  const [overlayPosition, setOverlayPosition] = useState<OverlayPosition>('TOPLEFT');
+  const [overlayPosition, setOverlayPosition] =
+    useState<OverlayPosition>('TOPLEFT');
   const [liveFontSize, setLiveFontSize] = useState<number>(0);
   const [overlayTransparency, setOverlayTransparency] = useState<number>(0);
   const [changed, setChanged] = useState(false);
@@ -20,7 +22,9 @@ const OverlayTab = () => {
     const fetchUserSettings = async () => {
       try {
         const res = await getUserSettings();
-        setOverlayPosition(res.data.result.setting.overlayPosition as OverlayPosition);
+        setOverlayPosition(
+          res.data.result.setting.overlayPosition as OverlayPosition,
+        );
         setLiveFontSize(res.data.result.setting.liveFontSize);
         setOverlayTransparency(res.data.result.setting.overlayTransparency);
       } catch (err) {
@@ -50,6 +54,9 @@ const OverlayTab = () => {
       await updateOverlay(overlayPosition, overlayTransparency, liveFontSize);
       setShowDoneModal(true);
       setChanged(false);
+      useAlertStore
+        .getState()
+        .showAlert('유저 정보가 업데이트되었습니다.', 'top');
     } catch (err) {
       console.error('오버레이 설정 저장 실패:', err);
     }
@@ -95,7 +102,7 @@ const OverlayTab = () => {
           </div>
         </div>
 
-        <div css={rightSectionStyle}>
+        {/* <div css={rightSectionStyle}>
           <div css={overlaySectionStyle}>
             <h3 css={overlaySectionTitleStyle}>글자 크기</h3>
             <p css={overlaySectionDescriptionStyle}>
@@ -111,7 +118,10 @@ const OverlayTab = () => {
                 value={liveFontSize}
                 onChange={(e) => handleFontSizeChange(Number(e.target.value))}
               />
-              <span css={sliderLabelStyle} style={{ fontSize: `${liveFontSize}px` }}>
+              <span
+                css={sliderLabelStyle}
+                style={{ fontSize: `${liveFontSize}px` }}
+              >
                 가
               </span>
             </div>
@@ -130,19 +140,21 @@ const OverlayTab = () => {
                 min="0"
                 max="100"
                 value={overlayTransparency}
-                onChange={(e) => handleTransparencyChange(Number(e.target.value))}
+                onChange={(e) =>
+                  handleTransparencyChange(Number(e.target.value))
+                }
               />
               <span css={sliderLabelStyle}>{overlayTransparency}%</span>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
 
-      <UpdateDoneModal
+      {/* <UpdateDoneModal
         isOpen={showDoneModal}
         onClose={() => setShowDoneModal(false)}
         userName={user?.nickname || '사용자'}
-      />
+      /> */}
     </div>
   );
 };
@@ -183,24 +195,44 @@ const saveButtonStyle = css`
   color: var(--color-text-white);
   border: none;
   border-radius: 6px;
+  font-family: 'NanumSquareR', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   &:hover {
     background-color: var(--color-primary-dark);
   }
   &:disabled {
-    background-color: var(--color-gray-400);
+    background-color: var(--color-gray-300);
+    color: var(--color-gray-500);
     cursor: not-allowed;
   }
 `;
 
 const overlayContentStyle = css`
+  // display: flex;
+  // gap: 40px;
+  // max-width: 800px;
+  margin-bottom: 40px;
+  border-radius: 12px;
+  background-color: var(--color-gray-100);
+  padding: 30px;
+
   display: flex;
-  gap: 40px;
-  max-width: 800px;
+  align-items: center;
+  justify-content: center;
 `;
 
-const leftSectionStyle = css`flex: 1;`;
-const rightSectionStyle = css`flex: 1; min-width: 550px;`;
+const leftSectionStyle = css`
+  flex: 1;
+  display: flex;
+  align-items: center; /* 세로 가운데 */
+  justify-content: center; /* 가로 가운데 */
+`;
+const rightSectionStyle = css`
+  flex: 1;
+  min-width: 550px;
+`;
 
 const overlaySectionStyle = css`
   margin-bottom: 40px;

@@ -46,7 +46,7 @@ const MainPage = () => {
               css={demoButton}
               onMouseEnter={() => setIsTooltipVisible(true)}
               onMouseLeave={() => setIsTooltipVisible(false)}
-              onClick={() => window.open('https://www.test.voida.site/')}
+              onClick={() => window.open(import.meta.env.VITE_WEB_URL)}
             >
               <Download />
               지금 받기
@@ -323,7 +323,11 @@ const tooltipStyle = css`
   top: 145%;
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(135deg, rgba(49, 130, 246, 0.95), rgba(155, 107, 255, 0.95));
+  background: linear-gradient(
+    135deg,
+    rgba(49, 130, 246, 0.95),
+    rgba(155, 107, 255, 0.95)
+  );
   color: white;
   padding: 14px 18px;
   font-size: 16px;
@@ -358,7 +362,6 @@ const tooltipStyle = css`
     }
   }
 `;
-
 
 const right = css`
   flex: 1;
