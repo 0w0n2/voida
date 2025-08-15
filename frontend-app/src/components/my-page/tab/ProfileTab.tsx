@@ -97,8 +97,15 @@ const ProfileTab = () => {
     }
     if (profileImageFile || userNickname !== user?.nickname) {
       try {
-        await updateUser(userNickname, profileImageFile);
-        console.log(userNickname);
+        const res = await updateUser(userNickname, profileImageFile);
+        // 중복 닉네임 처리
+        const resCode = res.data.code;
+        if (resCode === 910) {
+          useAlertStore
+            .getState()
+            .showAlert('이미 사용중인 닉네임입니다.', 'top');
+          return;
+        }
         console.log('유저 정보 업데이트 완료');
         useAuthStore.getState().setUser({
           ...user!,
@@ -154,7 +161,14 @@ const ProfileTab = () => {
 
   const handleWithdrawConfirm = async () => {
     try {
-      await deleteUser();
+      const res = await deleteUser();
+      if (res.data.code === 911) {
+        useAlertStore
+          .getState()
+          .showAlert('방장인 대기실이 있어 탈퇴할 수 없습니다.', 'top');
+          setShowDoneModal(false);
+        return;
+      }
       navigate('/login');
       console.log('회원탈퇴 완료');
     } catch (err) {

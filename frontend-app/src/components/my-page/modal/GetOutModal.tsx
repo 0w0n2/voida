@@ -20,11 +20,7 @@ const GetOutModal = ({
   userName = '사용자',
   userImage,
 }: GetOutModalProps) => {
-  // useEffect(() => {
-  //
-  // }, []);
   if (!isOpen) return null;
-  const { user } = useAuthStore();
   return (
     <div data-modal-root css={overlayStyle} onClick={onClose}>
       <div css={modalStyle} onClick={(e) => e.stopPropagation()}>
