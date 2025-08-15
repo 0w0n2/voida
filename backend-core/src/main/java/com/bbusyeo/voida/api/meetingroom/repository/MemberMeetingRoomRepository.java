@@ -1,6 +1,7 @@
 package com.bbusyeo.voida.api.meetingroom.repository;
 
 import com.bbusyeo.voida.api.meetingroom.domain.MemberMeetingRoom;
+import com.bbusyeo.voida.api.meetingroom.domain.enums.MemberMeetingRoomState;
 import com.bbusyeo.voida.api.member.domain.Member;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -28,4 +29,6 @@ public interface MemberMeetingRoomRepository extends JpaRepository<MemberMeeting
     List<MemberMeetingRoom> findByMemberUuid(String memberUuid);
 
     void deleteMemberMeetingRoomsByMemberUuid(String memberUuid);
+
+    boolean existsByMemberUuidAndState(String memberUuid, MemberMeetingRoomState state);
 }
