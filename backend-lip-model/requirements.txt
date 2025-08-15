@@ -48,3 +48,4 @@ numba==0.59.1
 # --- Utilities ---
 PyYAML==6.0.2               # 설정 파일 로딩
 tqdm==4.67.1                # 진행 상태 표시
+openai==1.99.9              # OpenAI SDK (TTS)
