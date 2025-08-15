@@ -109,7 +109,16 @@ export default function Header() {
         {isOpen && accessToken && user && (
           <div css={dropdownMenu}>
             <img
-              src={`${import.meta.env.VITE_CDN_URL}/${ProfileImage}`}
+              src={
+                ProfileImage
+                  ? ProfileImage.startsWith('blob:')
+                    ? ProfileImage
+                    : `${import.meta.env.VITE_CDN_URL}/${ProfileImage.replace(
+                        /^\/+/,
+                        '',
+                      )}`
+                  : defaultProfile
+              }
               alt="프로필"
               css={dropdownAvatar}
             />

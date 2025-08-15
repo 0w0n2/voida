@@ -4,7 +4,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Camera, UserCog, Settings, Mail, Globe } from 'lucide-react';
 import defaultProfile from '@/assets/profiles/defaultProfile.png';
-import { deleteUser, updateUser, getUser } from '@/apis/auth/userApi';
+import {
+  deleteUser,
+  updateUser,
+  getUser,
+  getUserSocialAccounts,
+  linksocialAccount,
+} from '@/apis/auth/userApi';
 import { useAuthStore } from '@/stores/authStore';
 import UpdatePasswordModal from '../modal/UpdatePasswordModal';
 import GetOutModal from '../modal/GetOutModal';
@@ -34,12 +40,15 @@ const ProfileTab = () => {
   const [isGetOutModalOpen, setIsGetOutModalOpen] = useState(false);
   const [showDoneModal, setShowDoneModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSocial, setIsSocial] = useState(false);
 
   useEffect(() => {
     setUserNickname(user?.nickname ?? '');
     setUserEmail(user?.email ?? '');
     setUserImage(user?.profileImage ?? '');
     setChanged(false);
+    checkGoogleLink();
+    console.log('구글 계정 연동 상태:', isSocial);
   }, [user]);
 
   const handleNicknameChange = (newNickname: string) => {
@@ -54,7 +63,7 @@ const ProfileTab = () => {
     fileInput.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
-        if (file.size > 5 * 1024 * 1024) {
+        if (file.size > 1 * 1024 * 1024) {
           alert('파일 크기는 5MB 이하여야 합니다.');
           return;
         }
@@ -97,14 +106,30 @@ const ProfileTab = () => {
     setIsPasswordModalOpen(true);
   };
 
-  const handlePasswordUpdateSuccess = () => {
-    console.log('비밀번호 변경 완료');
+  // const handlePasswordUpdateSuccess = async () => {
+  //   const res = await getUserSocialAccounts();
+
+  // };
+
+  // 소셜 계정 연동
+  const handleGoogleLink = async () => {
+    const res = await linksocialAccount('google');
+    const redirectUrl = res.data.result.redirectUrl;
+    window.location.href = `${
+      import.meta.env.VITE_SPRING_API_URL
+    }${redirectUrl}`;
   };
 
-  // 구글 계정 연동 클릭 시 api 연결
-  const handleGoogleLink = async () => {
-    // const res = await linksocialAccount(accessToken!);
-    // response 오는거에 따라 연동 여부 변경하기
+  // 소셜 계정 조회
+  const checkGoogleLink = async () => {
+    console.log('클릭');
+    const res = await getUserSocialAccounts();
+    const socialData = res.data.result.socialAccounts;
+    if (socialData.length > 0) {
+      setIsSocial(true);
+      console.log(isSocial);
+    }
+    return isSocial;
   };
 
   // 탈퇴하기 버튼 클릭 시 모달 열기
@@ -232,11 +257,11 @@ const ProfileTab = () => {
               </label>
               <button
                 onClick={handleGoogleLink}
-                disabled={Changed}
+                disabled={isSocial}
                 css={googleButtonStyle}
               >
                 <img src={google} alt="google" css={iconStyle} />
-                Google 계정 연동
+                {isSocial ? 'Google 연동된 계정입니다' : 'Google 계정 연동하기'}
               </button>
             </div>
           </div>
