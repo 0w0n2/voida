@@ -12,7 +12,7 @@ import { useVideoRecorder } from '@/hooks/useVideoRecorder';
 const maxDuration = 3000;
 
 type AnalysisPayload = {
-  videoResult?: boolean;
+  videoResult?: boolean; 
   transText?: string;  
   audioMime?: string;   
   message?: string;   

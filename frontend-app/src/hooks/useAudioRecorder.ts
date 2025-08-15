@@ -24,7 +24,8 @@ export function useAudioRecorder({
   const mrRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<BlobPart[]>([]);
   const startTimeRef = useRef(0);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const stopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // 권한 요청
   useEffect(() => {
@@ -46,7 +47,6 @@ export function useAudioRecorder({
   }, []);
 
   const start = useCallback(() => {
-    // console.log('[Recorder] start() 실행됨');
     if (!stream || isRecording) return;
 
     let type = mimeType;
@@ -62,8 +62,10 @@ export function useAudioRecorder({
     };
 
     mr.onstop = () => {
-      // console.log('[Recorder] onstop 이벤트 실행됨');
-      if (timerRef.current) clearTimeout(timerRef.current);
+      // 프로그레스 초기화
+      if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+      if (stopTimeoutRef.current) clearTimeout(stopTimeoutRef.current);
+
       const durationMs = Date.now() - startTimeRef.current;
       const finalType = mr.mimeType || 'audio/webm';
       const blob = new Blob(chunksRef.current, { type: finalType });
@@ -72,17 +74,23 @@ export function useAudioRecorder({
       onStop?.({ blob, mimeType: finalType, durationMs });
     };
 
+    // 진행률 업데이트
     if (maxDurationMs && onProgress) {
-      timerRef.current = setTimeout(() => stop(), maxDurationMs);
+      progressIntervalRef.current = setInterval(() => {
+        const elapsed = Date.now() - startTimeRef.current;
+        const percent = Math.min((elapsed / maxDurationMs) * 100, 100);
+        onProgress(percent);
+      }, 100);
+
+      // 자동 정지
+      stopTimeoutRef.current = setTimeout(() => stop(), maxDurationMs);
     }
 
     mr.start();
     setIsRecording(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stream, isRecording, mimeType, maxDurationMs, onProgress, onStop]);
 
   const stop = useCallback(() => {
-    // console.log('[Recorder] stop() 실행됨');
     if (!isRecording) return;
     setIsRecording(false);
     mrRef.current?.stop();

@@ -61,44 +61,5 @@ export const dummyMessages: ChatMessage[] = [
     content: 'ㅋㅋㅋ 좋아요!',
     timestamp: '2025-08-11T10:58:40Z',
   },
-  {
-    messageId: 'msg-007',
-    user: {
-      userId: 'gm-01',
-      userNickname: '김수민',
-      userImageUrl: 'https://i.pravatar.cc/40?u=gm-01',
-    },
-    content: '잠시 후 11시부터 10분간 긴급 서버 점검이 있을 예정입니다.',
-    timestamp: '2025-08-11T10:59:00Z',
-  },
-  {
-    messageId: 'msg-008',
-    user: {
-      userId: 'user-ghi',
-      userNickname: '법사GOD',
-      userImageUrl: 'https://i.pravatar.cc/40?u=user-ghi',
-    },
-    content: '헐... 점검이래요. 빨리 잡아야겠네요!',
-    timestamp: '2025-08-11T10:59:12Z',
-  },
-    {
-    messageId: 'msg-008',
-    user: {
-      userId: 'user-ghi',
-      userNickname: '법사GOD',
-      userImageUrl: 'https://i.pravatar.cc/40?u=user-ghi',
-    },
-    content: '헐... 점검이래요. 빨리 잡아야겠네요!',
-    timestamp: '2025-08-11T10:59:12Z',
-  },
-    {
-    messageId: 'msg-008',
-    user: {
-      userId: 'user-ghi',
-      userNickname: '법사GOD',
-      userImageUrl: 'https://i.pravatar.cc/40?u=user-ghi',
-    },
-    content: '헐... 점검이래요. 빨리 잡아야겠네요!',
-    timestamp: '2025-08-11T10:59:12Z',
-  },
+
 ];

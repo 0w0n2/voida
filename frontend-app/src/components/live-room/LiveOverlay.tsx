@@ -13,9 +13,8 @@ import { useQuickSlot } from '@/hooks/useQuickSlot';
 import { getUserOverview, getSession, getLiveToken, connectOpenVidu, disconnectOpenVidu, sendChatSignal } from '@/apis/live-room/openViduApi';
 import { uploadTutorialAudio, uploadLipTestVideo } from '@/apis/tutorial/tutorialApi';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
-import { useMicVolume } from '@/hooks/useMicVolume';
-import WaveVisualizer from '@/components/live-room/WaveVisualizar';
 import { useVideoRecorder } from '@/hooks/useVideoRecorder';
+import ProgressBar from './ProgressBar';
 import { dummyMessages } from './dummy';
 
 export interface ApiQuickSlot {
@@ -80,6 +79,7 @@ const LiveOverlay = () => {
   const BOTTOM_THRESHOLD = 40;
 
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [progress, setProgress] = useState(0);
 
   const onChatScroll = () => {
     const el = chatListRef.current;
@@ -195,6 +195,8 @@ const LiveOverlay = () => {
 
   // 오디오 녹음 onStop
   const { isRecording: isAudioRecording, start: startAudio, stop: stopAudio } = useAudioRecorder({
+    maxDurationMs: 5000,
+    onProgress: (percent) => setProgress(percent),
     onStop: async ({ blob }) => {
       setStep('loading');
       try {
@@ -220,6 +222,8 @@ const LiveOverlay = () => {
 
   // 비디오 녹화 onStop
   const { isRecording: isVideoRecording, stream: videoStream, start: startVideo, stop: stopVideo } = useVideoRecorder({
+    maxDurationMs: 5000,
+    onProgress: (percent) => setProgress(percent),
     onStop: async ({ blob }) => {
       setStep('loading');
       try {
@@ -279,121 +283,118 @@ const LiveOverlay = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatMessages.length, stickBottom]);
 
-  const bars = useMicVolume(isAudioRecording, { barsCount: 20, sensitivity: 1.0, maxHeight: 8 });
-
   return (
-    <div css={overlayContainer(isBottom)}>
-      <div css={[overlayContent(isBottom, overlayTransparency), isExpanded ? expanded : collapsed]}>
-        <div css={header}>
-          <div css={headerLeft} />
-            <div css={headerRight}>
-              {/* {participants.map((p, idx) => (
-                <div key={idx} css={participantWrapper}>
-                  <img
-                    src={p.profileImageUrl || User}
-                    alt={p.nickname || '참가자'}
-                    css={userIcon}
-                  />
-                  {p.lipTalkMode && <span css={lipBadge}>구화</span>}
-                </div>
-              ))} */}
-
-              {/* {dummyMessages.map((m, idx) => (
-              <div key={idx} css={participantWrapper}>
-                <img
-                  src={m.user.userImageUrl || User}
-                  alt={m.user.userNickname || '사용자'}
-                  css={userIcon}
-                />
-                {m.lipTalkMode && <span css={lipBadge}>구화</span>}
-              </div>
-              ))} */}
-
+  <div css={overlayContainer(isBottom)}>
+    <div css={[overlayContent(isBottom, overlayTransparency), isExpanded ? expanded : collapsed]}>
+      <div css={header}>
+        <div css={headerLeft}>
+          {dummyMessages.map((m, idx) => (
+            <div key={idx} css={participantWrapper}>
+              <img
+                src={m.user.userImageUrl || User}
+                alt={m.user.userNickname || '사용자'}
+                css={userIcon}
+              />
             </div>
-            <img src={User} alt="User" css={userIcon} />
-            <p>{participants.length}</p>
-            <div css={infoBtn}></div>
-            <div css={outBtn} onClick={exitLive} />
+          ))}
         </div>
 
-        <div css={contentBody(isBottom)}>
-          <div ref={chatListRef} css={chatList} onScroll={onChatScroll}>
-            {chatMessages.map((msg) => (
-              <div key={msg.messageId} css={chatItem}>
-                <img src={msg.user.userImageUrl} alt={msg.user.userNickname} css={chatAvatar} />
-                <div css={chatContent}>
-                  <div css={chatMeta}>
-                    <span css={chatName}>{msg.user.userNickname}</span>
-                    <span css={chatTime}>
-                      {new Date(msg.timestamp).toLocaleTimeString('ko-KR', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </span>
-                  </div>
-                  <div css={chatText}>{msg.content}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+        <div css={headerRight}>
+          <img src={User} alt="User" css={userIcon} />
+          <p>{dummyMessages.length}</p>
+          <div css={infoBtn}></div>
+          <div css={outBtn} onClick={exitLive} />
         </div>
-
-        {isExpanded && (
-          <div css={expandedContentWrapper}>
-            {step === 'record' && (
-              <>
-                {userInfo?.setting?.lipTalkMode ? (
-                  <div css={lipUserControls}>
-                    <video
-                      ref={(el) => {
-                        if (el && videoStream) {
-                          (el as any).srcObject = videoStream;
-                          el.play().catch(() => {});
-                        }
-                      }}
-                      autoPlay
-                      muted
-                      css={cameraPreview}
-                    />
-                    <button css={recordBtn} onClick={isVideoRecording ? stopVideo : startVideo}>
-                      {isVideoRecording ? '중지' : '녹화'}
-                    </button>
-                  </div>
-                ) : (
-                  <div css={normalUserControls}>
-                    <button css={recordBtn} onClick={isAudioRecording ? stopAudio : startAudio}>
-                      {isAudioRecording ? '중지' : '녹음'}
-                    </button>
-                    <WaveVisualizer bars={bars} />
-                  </div>
-                )}
-              </>
-            )}
-
-            {step === 'loading' && (
-              <div css={loadingDots}>
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-            )}
-
-            {step === 'result' && (
-              <div css={resultBox(analysisResult || 'fail')}>
-                결과: {analysisResult === 'success' ? '성공' : '실패'}
-                {analysisText && <div css={resultText}>{analysisText}</div>}
-              </div>
-            )}
-          </div>
-        )}
-
-        <button onClick={() => setIsExpanded(!isExpanded)} css={toggleBtn(isBottom)}>
-          {isExpanded
-            ? (isBottom ? <ChevronDown size={30} /> : <ChevronUp size={30} />)
-            : (isBottom ? <ChevronUp size={30} /> : <ChevronDown size={30} />)}
-        </button>
       </div>
+
+      <div css={contentBody(isBottom)}>
+        <div ref={chatListRef} css={chatList} onScroll={onChatScroll}>
+          {chatMessages.map((msg) => (
+            <div key={msg.messageId} css={chatItem}>
+              <img src={msg.user.userImageUrl} alt={msg.user.userNickname} css={chatAvatar} />
+              <div css={chatContent}>
+                <div css={chatMeta}>
+                  <span css={chatName}>{msg.user.userNickname}</span>
+                  <span css={chatTime}>
+                    {new Date(msg.timestamp).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
+                <div css={chatText}>{msg.content}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {isExpanded && (
+        <div css={expandedContentWrapper}>
+          {step === 'record' && (
+            <>
+            {userInfo?.setting?.lipTalkMode ? (
+              <div css={lipUserControls}>
+                <div css={videoWrapper}>
+                  <video
+                    ref={(el) => {
+                      if (el && videoStream) {
+                        (el as any).srcObject = videoStream;
+                        el.play().catch(() => {});
+                      }
+                    }}
+                    autoPlay
+                    muted
+                    css={cameraPreview}
+                  />
+
+                  {isVideoRecording && (
+                     <ProgressBar percent={progress} height={6} position="absolute" bottom={3} />
+                  )}
+                </div>
+
+                <button css={recordBtn(isVideoRecording)} onClick={isVideoRecording ? stopVideo : startVideo}>
+                  {isVideoRecording ? '중지' : '녹화'}
+                </button>
+              </div>
+            ) : (
+              <div css={normalUserControls}>
+                <div css={audioWrapper}>
+                  {isAudioRecording && (
+                     <ProgressBar percent={progress} height={6} position="relative" />
+                  )}
+                </div>
+
+                <button
+                  css={recordBtn(isAudioRecording)}
+                  onClick={isAudioRecording ? stopAudio : startAudio}
+                >
+                  {isAudioRecording ? '중지' : '녹음'}
+                </button>
+              </div>    
+            )}
+
+            </>
+          )}
+
+          {step === 'loading' && (
+            <div css={loadingDots}>
+              <span></span><span></span><span></span>
+            </div>
+          )}
+
+          {step === 'result' && (
+            <div css={resultBox(analysisResult || 'fail')}>
+              결과: {analysisResult === 'success' ? '성공' : '실패'}
+              {analysisText && <div css={resultText}>{analysisText}</div>}
+            </div>
+          )}
+        </div>
+      )}
+
+      <button onClick={() => setIsExpanded(!isExpanded)} css={toggleBtn(isBottom)}>
+        {isExpanded ? (isBottom ? <ChevronDown size={30} /> : <ChevronUp size={30} />)
+                  : (isBottom ? <ChevronUp size={30} /> : <ChevronDown size={30} />)}
+      </button>
     </div>
+  </div>
   );
 };
 
@@ -438,23 +439,22 @@ const collapsed = css`
 
 const header = css`
   display: flex;
-  justify-content: right;
   align-items: center;
-  gap: 8px;
   padding: 12px 10px;
+  width: 100%;
 `;
 
 const headerLeft = css`
   display: flex;
-  gap: 8px;
   align-items: center;
-  min-height: 30px;
+  gap: 10px;
+  margin-right: auto; 
 `;
 
 const headerRight = css`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 2px;
 `;
 
 const participantWrapper = css`
@@ -464,18 +464,18 @@ const participantWrapper = css`
 `;
 
 const userIcon = css`
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
 `;
 
 const infoBtn = css`
   position: relative;
-  width: 23px;
-  height: 23px;
+  width: 21px;
+  height: 21px;
   background-image: url(${InfoWhite});
   background-size: cover;
-  cursor: pointer;
-  margin-left: 6px;
+  margin-left: 12px;
   &:hover {
     background-image: url(${InfoBlue});
   }
@@ -483,7 +483,7 @@ const infoBtn = css`
     content: '단축키로 음성을 전송해보세요!';
     position: absolute;
     top: 170%;
-    right: -400%;
+    right: -430%;
     transform: translateX(-50%);
     background: rgba(255, 255, 255, 1);
     color: #000;
@@ -537,7 +537,6 @@ const expandedContentWrapper = css`
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  margin-bottom: 20px;
 `;
 
 const contentBody = (isBottom: boolean) => css`
@@ -557,6 +556,23 @@ const lipUserControls = css`
   gap: 6px;
 `;
 
+const videoWrapper = css`
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+`;
+
+const audioWrapper = css`
+  position: relative;
+  display: inline-block;
+  width: 300px; 
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  margin-bottom: 10px;
+`;
+
 const normalUserControls = css`
   display: flex;
   flex-direction: column;
@@ -567,7 +583,7 @@ const normalUserControls = css`
 `;
 
 const cameraPreview = css`
-  width: 90%;
+  width: 300px;
   height: 180px;
   background: black;
   border-radius: 8px;
@@ -575,18 +591,49 @@ const cameraPreview = css`
   transform: scaleX(-1);
 `;
 
-const recordBtn = css`
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
-  margin-top: 8px;
-  padding: 6px 12px;
-  border-radius: 6px;
+const recordBtn = (isActive?: boolean) => css`
+  all: unset;
   cursor: pointer;
-  font-size: 14px;
+  padding: 10px 20px;
+  border-radius: 9999px; 
+  font-size: 15px;
+  font-family: 'NanumSquareR';
+  letter-spacing: 0.5px;
+  color: ${isActive ? '#fff' : '#222'};
+  margin-top: 10px;
+  background: ${isActive
+    ? 'linear-gradient(90deg, #6e8efb, #a777e3)'
+    : 'rgba(255,255,255,0.85)'};
+  box-shadow: ${isActive
+    ? '0 4px 15px rgba(110, 142, 251, 0.4)'
+    : '0 4px 12px rgba(0,0,0,0.15)'};
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+
   &:hover {
-    background: rgba(255, 255, 255, 0.4);
+    font-family: 'NanumSquareB';
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: ${isActive
+      ? '0 6px 18px rgba(110, 142, 251, 0.5)'
+      : '0 6px 16px rgba(0,0,0,0.2)'};
   }
+
+  &:active {
+    transform: scale(0.98);
+  }
+  ${isActive &&
+  `
+    font-family: 'NanumSquareR';
+    animation: pulse 1.5s infinite;
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(110, 142, 251, 0.6); }
+      70% { box-shadow: 0 0 0 15px rgba(110, 142, 251, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(110, 142, 251, 0); }
+    }
+  `}
 `;
 
 const toggleBtn = (isBottom: boolean) => css`
@@ -602,11 +649,11 @@ const toggleBtn = (isBottom: boolean) => css`
   align-items: center;
   justify-content: center;
   svg {
-    color: white;
+    color: #565656ff;
     transition: color 0.2s ease;
   }
   &:hover svg {
-    color: #ccc;
+    color: #ffffffff;
   }
 `;
 
@@ -616,11 +663,12 @@ const loadingDots = css`
   align-items: center;
   gap: 13px;
   margin-top: 6px;
+  margin-bottom: 20px;
 
   span {
     width: 10px;
     height: 10px;
-    background-color: #ffffffff;
+    background: linear-gradient(90deg, #6e8efb, #a777e3);
     border-radius: 50%;
     display: inline-block;
     animation: bounce 3s infinite ease-in-out both;
@@ -670,7 +718,6 @@ const chatList = css`
   flex-direction: column;
   gap: 8px;
 
-  /* 스크롤바 살짝 커스텀(크롬/엣지) */
   &::-webkit-scrollbar { width: 8px; }
   &::-webkit-scrollbar-thumb { background: rgba(255,255,255,.25); border-radius: 8px; }
   &::-webkit-scrollbar-track { background: transparent; }
