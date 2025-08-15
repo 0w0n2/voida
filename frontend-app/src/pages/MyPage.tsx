@@ -60,7 +60,7 @@ export default function MyPage() {
       </nav>
 
       <div css={sliderWrapper}>
-        <div css={sliderTrack(activeIndex)}>
+        <div css={sliderTrack(activeIndex)} data-slider-track>
           {tabList.map((tab) => (
             <div css={sliderItem} key={tab.key}>
               {tab.component}

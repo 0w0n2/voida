@@ -42,10 +42,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
 	implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
 
-	// security
+	// Security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 
-	// jwt
+	// JWT
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
 	implementation 'io.jsonwebtoken:jjwt-impl:0.12.6'
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.6'
@@ -53,16 +53,12 @@ dependencies {
 	// OAuth
 	implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
-	// Database
+	// Databases
 	runtimeOnly 'com.mysql:mysql-connector-j'
-
-	// Redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-
-	// MongoDB
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
-	// swagger
+	// Swagger
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.7'
 
 	// Lombok
@@ -81,6 +77,10 @@ dependencies {
 
 	// WebClient
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	// OpenVidu
+	implementation 'io.openvidu:openvidu-java-client:2.31.0'
+
 	// MultipartEntityBuilder
 	implementation 'org.apache.httpcomponents:httpmime:4.5.14'
 }

@@ -6,15 +6,30 @@ import defaultProfile from '@/assets/profiles/defaultProfile.png';
 interface UpdateDoneModalProps {
   isOpen: boolean;
   onClose: () => void;
+  closeAll: () => void;
+  closeDoneModal: () => void;
+  handleClose?: () => void;
 }
 
-const UpdatePasswordDoneModal = ({ isOpen, onClose }: UpdateDoneModalProps) => {
+const UpdatePasswordDoneModal = ({
+  isOpen,
+  onClose,
+  closeAll,
+  closeDoneModal,
+  handleClose = () => {}, // 기본값으로 빈 함수 설정
+}: UpdateDoneModalProps) => {
   if (!isOpen) return null;
 
   const user = useAuthStore((state) => state.user);
   console.log(user);
   const userImage = user?.profileImage;
   const userNickname = user?.nickname;
+
+  const getIt = () => {
+    closeDoneModal();
+    closeAll();
+    handleClose();
+  };
 
   return (
     <div css={overlayStyle}>
@@ -33,12 +48,13 @@ const UpdatePasswordDoneModal = ({ isOpen, onClose }: UpdateDoneModalProps) => {
 
         <div css={messageContainer}>
           <h2 css={mainMessageStyle}>
-            {userNickname}님 <br/>비밀번호 수정이 완료되었습니다.
+            {userNickname}님 <br />
+            비밀번호 수정이 완료되었습니다.
           </h2>
           <p css={subMessageStyle}>Voida 에서 많은 사람들과 소통해보세요!</p>
         </div>
 
-        <button type="button" onClick={onClose} css={confirmButtonStyle}>
+        <button type="button" onClick={getIt} css={confirmButtonStyle}>
           확인하기
         </button>
       </div>

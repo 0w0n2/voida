@@ -34,6 +34,7 @@ public enum BaseResponseStatus {
      * 500: 기타 에러.
      */
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, false, 500, "서버에서 예기치 않은 오류가 발생했습니다."),
+    OPENVIDU_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, false, 500, "OpenVidu 서버에서 예기치 않은 오류가 발생했습니다."),
     DATABASE_CONSTRAINT_VIOLATION(HttpStatus.CONFLICT, false, 509, "데이터베이스 제약 조건을 위반했습니다. "
         + "(유니크 키 중복, 외래 키 위반, NOT NULL 위반 등에서 발생합니다.)"),
 
@@ -75,6 +76,8 @@ public enum BaseResponseStatus {
     TTS_CONVERSION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, false, 906, "단축키 음성 TTS 변환 과정에서 오류가 발생했습니다."),
     FILE_CONVERSION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, false, 907, "음성 파일 변환 과정에서 오류가 발생했습니다."),
     STT_CONVERSION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, false, 908, "라이브 음성 STT 변환 과정에서 오류가 발생했습니다."),
+    NICKNAME_TOO_LONG(HttpStatus.BAD_REQUEST, false, 909, "10자 초과된 닉네임은 설정할 수 없습니다."),
+    MEMBER_SETTING_NOT_FOUND(HttpStatus.NOT_FOUND, false, 914, "존재하지 않는 회원 설정입니다."),
 
     /**
      * 1000: 소셜 에러.
@@ -89,7 +92,14 @@ public enum BaseResponseStatus {
      * 1500: 릴리스 에러.
      */
     INVALID_VERSION(HttpStatus.BAD_REQUEST, false, 1500, "해당 버전의 릴리스가 존재하지 않습니다."),
-    RELEASE_NOT_FOUND(HttpStatus.NOT_FOUND, false, 1504, "존재하지 않는 릴리스 정보입니다.");
+    RELEASE_NOT_FOUND(HttpStatus.NOT_FOUND, false, 1504, "존재하지 않는 릴리스 정보입니다."),
+
+    /**
+     * 1800: 라이브룸 에러.
+     */
+    OPENVIDU_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, false, 1800, "세션 접근 권한이 없습니다."),
+    OPENVIDU_SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, false, 1804, "존재하지 않는 세션입니다.");
+
 
     private final HttpStatus httpStatus;
     private final boolean isSuccess;

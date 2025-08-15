@@ -8,6 +8,7 @@ import { logout } from '@/apis/auth/authApi';
 import { getUser } from '@/apis/auth/userApi';
 import { useAuthStore } from '@/stores/authStore';
 import { useAlertStore } from '@/stores/useAlertStore';
+import defaultProfile from '@/assets/profiles/defaultProfile.png';
 
 export default function Header() {
   const navigate = useNavigate();
@@ -78,12 +79,22 @@ export default function Header() {
           user ? (
             <div css={userInfoStyle} onClick={toggleMenu}>
               <img
-                src={`${import.meta.env.VITE_CDN_URL}/${ProfileImage}`}
+                src={
+                  ProfileImage
+                    ? ProfileImage.startsWith('blob:')
+                      ? ProfileImage
+                      : `${import.meta.env.VITE_CDN_URL}/${ProfileImage.replace(
+                          /^\/+/,
+                          '',
+                        )}`
+                    : defaultProfile
+                }
                 alt="프로필 이미지"
                 css={avatarStyle}
               />
               <span>
-                <span css={{ fontFamily: 'NanumSquareEB' }}>{ProfileName}</span> 님
+                <span css={{ fontFamily: 'NanumSquareEB' }}>{ProfileName}</span>{' '}
+                님
               </span>
             </div>
           ) : (
@@ -98,12 +109,22 @@ export default function Header() {
         {isOpen && accessToken && user && (
           <div css={dropdownMenu}>
             <img
-              src={`${import.meta.env.VITE_CDN_URL}/${ProfileImage}`}
+              src={
+                ProfileImage
+                  ? ProfileImage.startsWith('blob:')
+                    ? ProfileImage
+                    : `${import.meta.env.VITE_CDN_URL}/${ProfileImage.replace(
+                        /^\/+/,
+                        '',
+                      )}`
+                  : defaultProfile
+              }
               alt="프로필"
               css={dropdownAvatar}
             />
             <div css={dropdownTitle}>
-              <strong>{ProfileName}</strong> 님<br/>안녕하세요!
+              <strong>{ProfileName}</strong> 님<br />
+              안녕하세요!
             </div>
             <hr css={divider} />
             <button css={menuButton} onClick={handleEditProfile}>

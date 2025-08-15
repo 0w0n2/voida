@@ -55,7 +55,7 @@ const GlobalStyles = () => (
 
         /* Base */
         --color-background: var(--color-bg-white);
-        --color-text: #333; 
+        --color-text: #333;
         --color-text-white: #fff;
         --color-text-black: #000;
       }
@@ -68,10 +68,43 @@ const GlobalStyles = () => (
 
       body {
         font-family: 'NanumSquareR', sans-serif;
-        background-color: transparent !important; 
+        background-color: transparent !important;
         color: var(--color-text);
         caret-color: transparent;
-        // overflow: hidden; 
+        // overflow: hidden;
+      }
+
+      [data-modal-root] {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        isolation: isolate; /* 레이어 분리(선택) */
+      }
+      body:has([data-modal-root]) {
+        overflow: hidden; /* 배경 스크롤 차단 */
+        overscroll-behavior: none;
+        scrollbar-gutter: stable both-edges;
+      }
+      body:has([data-modal-root]) [data-modal-root] {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      body:has([data-modal-root]) [data-slider-track],
+      body:has([data-modal-root]) [data-slider-wrapper],
+      body:has([data-modal-root]) [data-nav-container],
+      body:has([data-modal-root]) [data-nav-inner] {
+        transform: none !important;
+        filter: none !important;
+        perspective: none !important;
+        contain: none !important;
+        will-change: auto !important;
+        transition: none !important;
+        /* overflow:hidden은 쓰지 마 — 오버레이가 잘려 */
+      }
+      body:has([data-modal-root]) [data-slider-track],
+      body:has([data-modal-root]) [data-slider-wrapper],
+      body:has([data-modal-root]) [data-nav-container],
+      body:has([data-modal-root]) [data-nav-inner] {
+        pointer-events: none !important;
       }
     `}
   />

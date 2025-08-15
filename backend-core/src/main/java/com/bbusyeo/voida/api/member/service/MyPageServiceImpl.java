@@ -52,8 +52,9 @@ public class MyPageServiceImpl implements MyPageService {
 
     @Override
     public MeSettingResponseInfoDto getMeSetting(Long memberId) {
-        MemberSetting memberSetting = memberSettingRepository.findMemberSettingsByMemberId(memberId);
-        return MeSettingResponseInfoDto.toDto(memberSetting);
+        return MeSettingResponseInfoDto.toDto(
+            memberSettingRepository.findMemberSettingsByMemberId(memberId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_SETTING_NOT_FOUND)));
     }
 
     @Override
@@ -68,6 +69,10 @@ public class MyPageServiceImpl implements MyPageService {
     @Transactional
     @Override
     public void updateProfile(UpdateMeProfileRequestDto requestDto, MultipartFile profileImage, Long memberId) {
+        if (requestDto.getNickname().length() > 10) {
+            throw new BaseException(BaseResponseStatus.NICKNAME_TOO_LONG);
+        }
+
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
         String oldFileImageUrl = member.getProfileImageUrl();
@@ -138,14 +143,16 @@ public class MyPageServiceImpl implements MyPageService {
     @Transactional
     @Override
     public void changeLipTalkMode(Long memberId, ChangeLipTalkRequestMode requestDto) {
-        MemberSetting memberSetting = memberSettingRepository.findMemberSettingsByMemberId(memberId);
+        MemberSetting memberSetting = memberSettingRepository.findMemberSettingsByMemberId(memberId)
+            .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_SETTING_NOT_FOUND));
         memberSetting.changeLipTalkMode(requestDto.getUseLipTalkMode());
     }
 
     @Transactional
     @Override
     public void changeOverlay(Long memberId, ChangeOverlayRequestDto requestDto) {
-        MemberSetting memberSetting = memberSettingRepository.findMemberSettingsByMemberId(memberId);
+        MemberSetting memberSetting = memberSettingRepository.findMemberSettingsByMemberId(memberId)
+            .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_SETTING_NOT_FOUND));
         memberSetting.changeOverlayPosition(requestDto.getOverlayPosition(), requestDto.getLiveFontSize(), requestDto.getOverlayTransparency());
     }
 }
