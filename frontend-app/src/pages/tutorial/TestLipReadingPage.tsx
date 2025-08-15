@@ -9,7 +9,7 @@ import TutorialModal from '@/components/tutorial/modal/TutorialLipReadingModal';
 import RecordButton from '@/assets/icons/record.png';
 import { useVideoRecorder } from '@/hooks/useVideoRecorder';
 
-const maxDuration = 5000;
+const maxDuration = 3000;
 
 const TestLipReadingPage = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -30,10 +30,8 @@ const TestLipReadingPage = () => {
       try {
         const file = new File([blob], 'lip-test.webm', { type: blob.type });
         const res = await uploadLipTestVideo(file, '0');
-        console.log(res.videoResult);
-        console.log(res.transText);
         setAnalysisResult(res.videoResult ? 'success' : 'fail');
-        setAnalysisText(res.transText || null); 
+        setAnalysisText(res.transTextKo || null); 
       } catch (err) {
         console.error(err);
         setAnalysisResult('fail');
@@ -91,7 +89,7 @@ const TestLipReadingPage = () => {
           )}
 
           <div css={textBox(progress)}>
-            <p>“Hello, World!”</p>
+            <p>“Hello, Good Morning!”</p>
           </div>
         </div>
       </div>

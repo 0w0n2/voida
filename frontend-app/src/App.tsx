@@ -15,14 +15,16 @@ import MyPage from '@/pages/MyPage';
 import MeetingRoomPage from '@/pages/MeetingRoomPage';
 import LiveRoomOverlay from '@/components/live-room/LiveOverlay';
 import GlobalAlert from '@/components/common/GlobalAlert';
-import NotFound from '@/pages/NotFound';
+import NotFound404 from '@/pages/NotFound404';
+import NotFound500 from '@/pages/NotFound500';
 
 function App() {
   return (
     <HashRouter>
       <GlobalAlert />
       <Routes>
-        <Route path="/error" element={<NotFound />} />
+        <Route path="*" element={<NotFound404 />} />
+        <Route path="/error" element={<NotFound500 />} />
         <Route path="/" element={<StartingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />

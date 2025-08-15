@@ -51,7 +51,7 @@ export default function TutorialModal({
                 </p>
                 {text && (
                   <p css={recognizedText}>
-                    <strong>인식된 문장:</strong> {text}
+                    <strong>인식된 문장 :</strong> {text}
                   </p>
                 )}
               </div>
@@ -113,13 +113,13 @@ const modalStyle = css`
   justify-content: center;
 
   h3 {
-    font-size: clamp(20px, 4vw, 26px);
+    font-size: clamp(22px, 4vw, 28px);
     font-family: 'NanumSquareEB';
     margin: 1rem 0 3rem;
   }
 
   p {
-    font-size: clamp(14px, 1.8vw, 18px);
+    font-size: clamp(16px, 1.8vw, 20px);
     line-height: 1.7;
     color: var(--color-gray-600);
     margin: 0.5rem 0 0;

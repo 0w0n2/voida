@@ -65,7 +65,6 @@ export function createOverlayWindow(
   overlayWin.setIgnoreMouseEvents(false);
   overlayWin.on('closed', () => { overlayWin = null; });
 
-  // 디스플레이 변경(해상도/작업표시줄 이동 등) 시 안전 재배치
   const realign = () => {
     if (!overlayWin) return;
     const disp = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());

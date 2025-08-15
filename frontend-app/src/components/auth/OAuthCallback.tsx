@@ -25,6 +25,7 @@ const CallbackPage = () => {
 
       // 로그인 성공 후 isNewbie 파라미터에 따라 이동
       const isNewbie = params.get('isNewbie');
+      console.log(isNewbie);
       if (isNewbie === 'true') {
         navigate('/tutorial');
       } else {

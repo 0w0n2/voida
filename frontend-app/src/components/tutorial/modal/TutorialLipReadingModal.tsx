@@ -55,7 +55,7 @@ export default function TutorialModal({
                 </p>
                 {text && (
                   <p css={recognizedText}>
-                    <strong>인식된 문장:</strong> {text}
+                    <strong>인식된 문장 :</strong> {text}
                   </p>
                 )}
               </div>
