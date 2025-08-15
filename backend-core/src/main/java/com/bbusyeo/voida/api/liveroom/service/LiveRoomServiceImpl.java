@@ -30,6 +30,8 @@ public class LiveRoomServiceImpl implements LiveRoomService {
 
     private final OpenVidu openVidu;
     private final OpenViduSessionProperties sessionProps;
+    private final OpenViduUrlTransformer urlTransformer;
+
     private final ParticipantService participantService;
 
     @Override
@@ -83,7 +85,7 @@ public class LiveRoomServiceImpl implements LiveRoomService {
                 .build();
 
             Connection connection = session.createConnection(props);
-            return new TokenResponseDto(connection.getToken());
+            return new TokenResponseDto(urlTransformer.transform(connection.getToken()));
 
         } catch (OpenViduJavaClientException | OpenViduHttpException e) {
             throw new BaseException(OPENVIDU_SERVER_ERROR);
