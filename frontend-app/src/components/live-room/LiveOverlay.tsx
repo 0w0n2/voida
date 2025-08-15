@@ -1,27 +1,16 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useState, useRef, useMemo, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import User from '@/assets/icons/user.png';
 import ExitWhite from '@/assets/icons/exit-white.png';
 import ExitBlue from '@/assets/icons/exit-blue.png';
 import { getUserQuickSlots } from '@/apis/auth/userApi';
-import { useOpenViduChat } from '@/hooks/useOpenViduChat';
 import { useQuickSlot } from '@/hooks/useQuickSlot';
-
-import {
-  getSession,
-  getLiveToken,
-  connectOpenVidu,
-  disconnectOpenVidu,
-  sendChatSignal,
-  getUserOverview,
-} from '@/apis/live-room/openViduApi';
-
-import type { UserOverview } from '@/apis/live-room/openViduApi';
-
-import { useAudioRecorder } from '@/hooks/useAudioRecorder'; 
+import { getUserOverview, getSession, getLiveToken, connectOpenVidu, disconnectOpenVidu } from '@/apis/live-room/openViduApi';
+import { uploadTutorialAudio, uploadLipTestVideo } from '@/apis/tutorial/tutorialApi';
+import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { useVideoRecorder } from '@/hooks/useVideoRecorder';
 
 export interface ApiQuickSlot {
@@ -31,56 +20,73 @@ export interface ApiQuickSlot {
   url: string;
 }
 
-// 메시지/유저 로컬 타입(훅 반환 형태와 호환되면 OK)
-type ChatUser = {
-  userId: string;
-  userNickname: string;
-  userImageUrl: string;
-  lipTalkMode?: boolean;
-};
-
-type IncomingMessage = {
-  userId: string;
-  userNickname: string;
-  userImageUrl: string;
-  content: string;
-  timestamp?: string;
-  lipTalkMode?: boolean;
-};
-
 const LiveOverlay = () => {
+  const [searchParms] = useSearchParams();
+  const meetingRoomId = searchParms.get('roomId');
   const [isExpanded, setIsExpanded] = useState(true);
+  type OverlayPos = 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT';
+  const [overlayPosition, setOverlayPosition] = useState<OverlayPos>('TOPRIGHT');
+  const isBottom = overlayPosition.startsWith('BOTTOM');
+
+  // 단축키 / 오디오 레퍼런스
   const hotkeyMapRef = useRef(new Map<string, string>());
   const ttsUrlMapRef = useRef(new Map<string, string>());
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [params] = useSearchParams();
-  const roomIdFromQuery = useMemo(() => params.get('roomId'), [params]);
-  const [roomId, setRoomId] = useState<string | null>(roomIdFromQuery ?? null);
-  const [currentUser, setCurrentUser] = useState<UserOverview['member'] | null>(null);
-  const [currentSettings, setCurrentSettings] = useState<UserOverview['setting'] | null>(null);
-  const [audioPreviewUrl, setAudioPreviewUrl] = useState<string | null>(null);
-  const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
+
+  // 분석 상태
+  const [step, setStep] = useState<'record' | 'loading' | 'result'>('record');
+  const [analysisResult, setAnalysisResult] = useState<null | 'success' | 'fail'>(null);
+  const [analysisText, setAnalysisText] = useState<string | null>(null);
+
+  const [userInfo, setUserInfo] = useState<any>(null);
+
+  // 유저 정보 조회
+  useEffect(() => {
+    (async () => {
+      try {
+        const User = await getUserOverview();
+        setUserInfo(User);
+        const pos = User?.setting?.overlayPosition as OverlayPos | 'TOPLEFT';
+        if (pos) setOverlayPosition(pos);
+      } catch (err) {
+        console.error('유저 정보 조회 실패:', err);
+      }
+    })();
+  }, []);
 
   useEffect(() => {
-    if (roomIdFromQuery) setRoomId(roomIdFromQuery);
-  }, [roomIdFromQuery]);
+  if (!userInfo || !meetingRoomId) return;
 
-  // 채팅 훅 (실시간 메시지/시그널 처리)
-  // const { handleSignalMessage, messages } = useOpenViduChat<IncomingMessage>();
+  (async () => {
+    try {
+      const sessionInfo = await getSession(meetingRoomId);
+      console.log(sessionInfo);
+      const token = await getLiveToken(meetingRoomId);
 
-  // 1) 사용자 정보 로딩
-  // useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       const { member, setting } = await getUserOverview();
-  //       setCurrentUser(member);
-  //       setCurrentSettings(setting);
-  //     } catch (err) {
-  //       console.error('사용자 정보 불러오기 실패:', err);
-  //     }
-  //   })();
-  // }, []);
+      // OpenVidu 연결
+      await connectOpenVidu(token!, {
+      onSignalMessage: (msg) => {
+          console.log('시그널 수신:', msg);
+        },
+        clientData: {
+          nickname: userInfo.member.nickname,
+          profileImageUrl: userInfo.member.profileImageUrl
+        },
+        audioSource: true,
+        videoSource: false
+      });
+    } catch (err) {
+      console.error('OpenVidu 연결 실패:', err);
+    }
+  })();
 
+  return () => {
+    disconnectOpenVidu();
+  };
+}, [userInfo, meetingRoomId]);
+
+
+  // 오디오 객체 초기화
   useEffect(() => {
     const el = new Audio();
     el.preload = 'auto';
@@ -96,6 +102,7 @@ const LiveOverlay = () => {
     };
   }, []);
 
+  // 퀵슬롯 로딩
   useEffect(() => {
     (async () => {
       try {
@@ -104,16 +111,14 @@ const LiveOverlay = () => {
         const parseHotkey = (hotkey: string) =>
           hotkey.trim().toLowerCase().replace(/^`/, '');
 
-        const hotkeyMap = hotkeyMapRef.current;
-        const urlMap = ttsUrlMapRef.current;
-        hotkeyMap.clear();
-        urlMap.clear();
+        hotkeyMapRef.current.clear();
+        ttsUrlMapRef.current.clear();
+
         for (const slot of quickSlots) {
-          const message: string = slot.message;
           const sigKey = parseHotkey(slot.hotkey);
-          const ttsUrl = slot.url;
-          hotkeyMap.set(sigKey, message);
-          urlMap.set(sigKey, ttsUrl);
+          if (!sigKey) continue;
+          hotkeyMapRef.current.set(sigKey, slot.message);
+          if (slot.url) ttsUrlMapRef.current.set(sigKey, slot.url);
         }
       } catch (e) {
         console.error('퀵슬롯 불러오기 실패:', e);
@@ -121,219 +126,142 @@ const LiveOverlay = () => {
     })();
   }, []);
 
+  // 단축키 훅
   useQuickSlot(hotkeyMapRef, ttsUrlMapRef, audioRef);
 
-  // 5) OpenVidu 연결 (roomId + 사용자/설정 로딩 이후 한 번)
-  // useEffect(() => {
-  //   if (!roomId) return;
-  //   if (!currentUser || !currentSettings) return;
+  // 시그널 보내기
+  const sendSignalMessage = (text: string) => {
+    // OpenVidu 연결 후 signal 전송 예시
+    if (window.OVSession) {
+      window.OVSession.signal({
+        type: 'chat',
+        data: text,
+      }).catch((err) => console.error('시그널 전송 실패:', err));
+    }
+  };
 
-  //   (async () => {
-  //     try {
-  //       await getSession(roomId); // 존재 확인/메타 읽기 (필요 시)
-  //       const token = await getLiveToken(roomId);
+  // 오디오 녹음 onStop
+  const { isRecording: isAudioRecording, start: startAudio, stop: stopAudio } = useAudioRecorder({
+    onStop: async ({ blob }) => {
+      setStep('loading');
+      try {
+        const file = new File([blob], 'general-test.webm', { type: blob.type });
+        const res = await uploadTutorialAudio(file, '0');
 
-  //       await connectOpenVidu(
-  //         token,
-  //         // 수신 시그널 처리기
-  //         (data: string) => {
-  //           try {
-  //             const parsed = JSON.parse(data) as IncomingMessage;
-  //             handleSignalMessage({
-  //               userId: parsed.userId ?? 'unknown',
-  //               userNickname: parsed.userNickname ?? 'unknown',
-  //               userImageUrl: parsed.userImageUrl ?? '',
-  //               content: parsed.content ?? '',
-  //               timestamp: parsed.timestamp,
-  //               lipTalkMode: parsed.lipTalkMode,
-  //             });
-  //           } catch {
-  //             handleSignalMessage({
-  //               userId: 'unknown',
-  //               userNickname: 'unknown',
-  //               userImageUrl: '',
-  //               content: String(data),
-  //             });
-  //           }
-  //         },
-  //         // 내 메타데이터
-  //         {
-  //           userId: currentUser.memberUuid,
-  //           userNickname: currentUser.nickname,
-  //           userImageUrl: currentUser.profileImageUrl,
-  //           lipTalkMode: currentSettings.lipTalkMode,
-  //         }
-  //       );
-  //     } catch (err) {
-  //       console.error('OpenVidu bootstrap error', err);
-  //       // Electron 환경 로그 보조
-  //       // @ts-expect-error - 런타임 주입 API
-  //       window?.electronAPI?.logError?.(`OpenVidu bootstrap error: ${String(err)}`);
-  //     }
-  //   })();
+        setAnalysisResult(res.isSuccess ? 'success' : 'fail');
+        setAnalysisText(res.result?.text || null);
 
-  //   return () => {
-  //     disconnectOpenVidu();
-  //   };
-  // }, [roomId, currentUser, currentSettings, handleSignalMessage]);
+        // 시그널 전송
+        if (res.result?.text) {
+          sendSignalMessage(res.result.text);
+        }
 
-  // 6) 채팅 전송 API
-  // const sendChat = async (text: string) => {
-  //   if (!text?.trim()) return;
-  //   await sendChatSignal({
-  //     userId: currentUser?.memberUuid,
-  //     userNickname: currentUser?.nickname,
-  //     userImageUrl: currentUser?.profileImageUrl,
-  //     content: text.trim(),
-  //     timestamp: new Date().toISOString(),
-  //     lipTalkMode: currentSettings?.lipTalkMode,
-  //   });
-  // };
+        // 0.8초 후 자동으로 버튼 UI 복귀
+        setTimeout(() => setStep('record'), 800);
+      } catch {
+        setAnalysisResult('fail');
+        setAnalysisText(null);
+        setTimeout(() => setStep('record'), 800);
+      }
+    },
+  });
 
-  // 7) 녹화/종료 버튼 (실구현은 별도 훅과 연동)
-// 오디오 훅
-const { 
-  hasPermission: hasAudioPermission, 
-  isRecording: isAudioRecording, 
-  start: startAudio, 
-  stop: stopAudio 
-} = useAudioRecorder({
-  onStop: ({ blob }) => {
-    const url = URL.createObjectURL(blob);
-    setAudioPreviewUrl(url);
-  }
-});
+  // 비디오 녹화 onStop
+  const { isRecording: isVideoRecording, stream: videoStream, start: startVideo, stop: stopVideo } = useVideoRecorder({
+    onStop: async ({ blob }) => {
+      setStep('loading');
+      try {
+        const file = new File([blob], 'lip-test.webm', { type: blob.type });
+        const res = await uploadLipTestVideo(file, '0');
 
-// 비디오 훅
-const { 
-  hasPermission: hasVideoPermission, 
-  isRecording: isVideoRecording, 
-  stream: videoStream, 
-  start: startVideo, 
-  stop: stopVideo 
-} = useVideoRecorder({
-  onStop: ({ blob }) => {
-    const url = URL.createObjectURL(blob);
-    setVideoPreviewUrl(url);
-  }
-});
+        setAnalysisResult(res.isSuccess ? 'success' : 'fail');
+        setAnalysisText(res.result?.text || null);
 
+        // 시그널 전송
+        if (res.result?.text) {
+          sendSignalMessage(res.result.text);
+        }
+
+        setTimeout(() => setStep('record'), 800);
+      } catch {
+        setAnalysisResult('fail');
+        setAnalysisText(null);
+        setTimeout(() => setStep('record'), 800);
+      }
+    },
+  });
+
+  // 나가기
   const exitLive = () => {
     disconnectOpenVidu();
     window?.electronAPI?.closeOverlay?.();
   };
 
-  // 8) 표시용 유니크 유저 목록/카운트 (messages 단일 출처 사용)
-  // const uniqueUsers: ChatUser[] = Array.from(
-  //   new Map(
-  //     (messages as IncomingMessage[]).map((m) => [
-  //       m.userId,
-  //       {
-  //         userId: m.userId,
-  //         userNickname: m.userNickname,
-  //         userImageUrl: m.userImageUrl,
-  //         lipTalkMode: m.lipTalkMode,
-  //       } as ChatUser,
-  //     ])
-  //   ).values()
-  // );
-  // const participantCount = uniqueUsers.length;
-
-  // 최근 N개 메시지
-  // const recentMessages = (messages as IncomingMessage[]).slice(-6);
-
   return (
     <div css={overlayContainer}>
       <div css={[overlayContent, isExpanded ? expanded : collapsed]}>
         <div css={header}>
-          <div css={headerLeft}>
-            {/* {uniqueUsers.map((u) => (
-              <div key={u.userId} css={profileWrap}>
-                <img
-                  src={u.userImageUrl}
-                  alt={u.userNickname}
-                  title={u.userNickname}
-                  css={profile}
-                />
-                {u.lipTalkMode && (
-                  <div css={micBadge} aria-label="구화모드 사용중">
-                    🎤
-                  </div>
-                )}
-              </div>
-            ))} */}
-          </div>
+          <div css={headerLeft} />
           <div css={headerRight}>
             <img src={User} alt="User" css={userIcon} />
-            {/* <p>{participantCount}</p> */}
             <div css={outBtn} onClick={exitLive} />
           </div>
         </div>
 
-        {isExpanded && (
-          <div css={body}>
-            <div css={messagesWrap}>
-              {/* {recentMessages.map((msg, idx) => (
-                <div key={`${msg.userId}-${idx}`} css={messageRow}>
-                  <img
-                    src={msg.userImageUrl}
-                    alt={msg.userNickname}
-                    css={profile}
-                  />
-                  <p>
-                    {msg.userNickname}: {msg.content}
-                  </p>
-                </div>
-              ))} */}
-            </div>
+    {isExpanded && (
+      <>
+        {step === 'record' && (
+          <>
+            {userInfo?.setting?.lipTalkMode ? (
+              <div css={lipUserControls}>
+                <video
+                  ref={(el) => {
+                    if (el && videoStream) {
+                      el.srcObject = videoStream;
+                      el.play().catch(() => {});
+                    }
+                  }}
+                  autoPlay
+                  muted
+                  css={cameraPreview}
+                />
+                <button css={recordBtn} onClick={isVideoRecording ? stopVideo : startVideo}>
+                  {isVideoRecording ? '중지' : '녹화'}
+                </button>
+              </div>
+            ) : (
+              <div css={normalUserControls}>
+                <button css={recordBtn} onClick={isAudioRecording ? stopAudio : startAudio}>
+                  {isAudioRecording ? '중지' : '녹음'}
+                </button>
+              </div>
+            )}
+          </>
+        )}
+
+        {step === 'loading' && (
+          <div css={loadingDots}>
+            <span></span>
+            <span></span>
+            <span></span>
           </div>
         )}
-{isExpanded &&
-  (currentSettings?.lipTalkMode ? (
-    <div css={normalUserControls}>
-      <button css={recordBtn} onClick={isAudioRecording ? stopAudio : startAudio}>
-        {isAudioRecording ? '중지' : '녹음'}
+
+        {step === 'result' && (
+          <div css={resultBox(analysisResult || 'fail')}>
+            결과: {analysisResult === 'success' ? '성공' : '실패'}
+            {analysisText && <div css={resultText}>{analysisText}</div>}
+          </div>
+        )}
+      </>
+    )}
+
+      <button onClick={() => setIsExpanded(!isExpanded)} css={toggleBtn(isBottom)}>
+        {isExpanded
+          ? (isBottom ? <ChevronDown size={30} /> : <ChevronUp size={30} />)
+          : (isBottom ? <ChevronUp size={30} /> : <ChevronDown size={30} />)
+        }
       </button>
-
-      {audioPreviewUrl && (
-        <audio
-          controls
-          src={audioPreviewUrl}
-          style={{ marginTop: '8px', width: '100%' }}
-        />
-      )}
-    </div>
-
-  ) : (
-
-
-    <div css={lipUserControls}>
-      <video
-        ref={(el) => {
-          if (el && videoStream) {
-            el.srcObject = videoStream;
-            el.play().catch(() => {});
-          }
-        }}
-        autoPlay
-        muted
-        css={cameraPreview}
-      />
-      <button css={recordBtn} onClick={isVideoRecording ? stopVideo : startVideo}>
-        {isVideoRecording ? '중지' : '녹화'}
-      </button>
-      {/* {videoPreviewUrl && (
-        <video
-          controls
-          src={videoPreviewUrl}
-          style={{ marginTop: '8px', width: '100%', borderRadius: '8px' }}
-        />
-      )} */}
-    </div>
-  ))}
-        <button onClick={() => setIsExpanded(!isExpanded)} css={toggleBtn}>
-          {isExpanded ? <ChevronUp size={30} /> : <ChevronDown size={30} />}
-        </button>
       </div>
     </div>
   );
@@ -341,17 +269,17 @@ const {
 
 export default LiveOverlay;
 
-const overlayContainer = css`
+const overlayContainer = (isBottom: boolean) => css`
   width: 100%;
-  height: 100vh;         
+  height: 100vh;
   background: transparent;
   display: flex;
-  justify-content: center;   
-  align-items: top;    
+  justify-content: center;
+  align-items: ${isBottom ? 'flex-end' : 'flex-start'};
   padding: 16px;
 `;
 
-const overlayContent = css`
+const overlayContent = (isBottom: boolean) => css`
   background: rgba(0, 0, 0, 0.4);
   color: white;
   border-radius: 10px;
@@ -360,42 +288,47 @@ const overlayContent = css`
   transition: all 0.3s ease;
   overflow: hidden;
   position: relative;
+  transform-origin: ${isBottom ? 'bottom center' : 'top center'}; /* ⬅️ 아래 기준으로 접힘 */
 `;
 
 const expanded = css`
   width: 100%;
-  height: 60vh;             
-  max-width: 960px;        
+  height: 60vh;
+  max-width: 960px;
 `;
+
 const collapsed = css`
   width: 100%;
   max-width: 960px;
   height: 60px;
 `;
+
 const header = css`
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 12px 10px;
 `;
+
 const headerLeft = css`
   display: flex;
   gap: 8px;
   align-items: center;
-  font-size: 14px;
-  font-weight: bold;
   min-height: 30px;
 `;
+
 const headerRight = css`
   display: flex;
   align-items: center;
   gap: 8px;
 `;
+
 const userIcon = css`
   width: 18px;
   height: 18px;
   margin-right: 2px;
 `;
+
 const outBtn = css`
   position: relative;
   width: 28px;
@@ -427,53 +360,7 @@ const outBtn = css`
     opacity: 1;
   }
 `;
-const body = css`
-  flex: 1;
-  padding: 8px 4px 0;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-`;
-const toggleBtn = css`
-  position: absolute;
-  bottom: 6px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: none;
-  border: none;
-  padding: 10px 0px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  svg {
-    color: white;
-    transition: color 0.2s ease;
-  }
-  &:hover svg {
-    color: #ccc;
-  }
-`;
-// const profile = css`
-//   width: 30px;
-//   height: 30px;
-//   border-radius: 50%;
-//   object-fit: cover;
-// `;
-// const messageRow = css`
-//   display: flex;
-//   align-items: center;
-//   gap: 8px;
-// `;
-const messagesWrap = css`
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: 8px;
-`;
-// 
+
 const lipUserControls = css`
   display: flex;
   flex-direction: column;
@@ -509,4 +396,75 @@ const recordBtn = css`
   &:hover {
     background: rgba(255, 255, 255, 0.4);
   }
+`;
+
+const toggleBtn = (isBottom: boolean) => css`
+  position: absolute;
+  ${isBottom ? 'top: 6px;' : 'bottom: 6px;'}
+  left: 50%;
+  transform: translateX(-50%);
+  background: none;
+  border: none;
+  padding: 10px 0px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  svg {
+    color: white;
+    transition: color 0.2s ease;
+  }
+  &:hover svg {
+    color: #ccc;
+  }
+`;
+
+const loadingDots = css`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 13px;
+  margin-top: 6px;
+
+  span {
+    width: 10px;
+    height: 10px;
+    background-color: #ffffffff;
+    border-radius: 50%;
+    display: inline-block;
+    animation: bounce 3s infinite ease-in-out both;
+  }
+
+  span:nth-of-type(1) {
+    animation-delay: -0.32s;
+  }
+  span:nth-of-type(2) {
+    animation-delay: -0.16s;
+  }
+  span:nth-of-type(3) {
+    animation-delay: 0s;
+  }
+
+  @keyframes bounce {
+    0%, 80%, 100% {
+      transform: scale(0);
+    }
+    40% {
+      transform: scale(1);
+    }
+  }
+`;
+
+const resultBox = (status: 'success' | 'fail') => css`
+  text-align: center;
+  font-size: 14px;
+  margin-top: 8px;
+  padding: 6px;
+  border-radius: 4px;
+  background: ${status === 'success' ? 'rgba(76, 175, 80, 0.3)' : 'rgba(244, 67, 54, 0.3)'};
+`;
+const resultText = css`
+  font-size: 13px;
+  margin-top: 4px;
+  color: #fff;
 `;

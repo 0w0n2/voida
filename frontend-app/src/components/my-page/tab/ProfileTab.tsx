@@ -15,9 +15,7 @@ const ProfileTab = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
-  const [userNickname, setUserNickname] = useState<string>(
-    user?.nickname || '',
-  );
+  const [userNickname, setUserNickname] = useState<string>(user?.nickname || '');
   const [userEmail, setUserEmail] = useState<string>(user?.email || '');
   const [userImage, setUserImage] = useState<string>(user?.profileImage || '');
   const [Changed, setChanged] = useState(false);
@@ -44,11 +42,11 @@ const ProfileTab = () => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
         if (file.size > 5 * 1024 * 1024) {
-          alert('파일 크기는 5MB 이하여야 합니다.');
+          useAlertStore.getState().showAlert('파일 크기는 5MB 이하여야 합니다.', 'top');
           return;
         }
         if (!file.type.startsWith('image/')) {
-          alert('이미지 파일만 업로드 가능합니다.');
+          useAlertStore.getState().showAlert('이미지 파일만 업로드 가능합니다.', 'top');
           return;
         }
         const imageUrl = URL.createObjectURL(file);
@@ -64,7 +62,6 @@ const ProfileTab = () => {
     if (profileImageFile || userNickname !== user?.nickname) {
       try {
         await updateUser(userNickname, profileImageFile);
-        console.log('유저 정보 업데이트 완료');
         useAlertStore.getState().showAlert('유저 정보가 업데이트되었습니다.', 'top');
         setChanged(false);
       } catch (err) {
@@ -347,7 +344,7 @@ const changePhotoButtonStyle = css`
   display: flex;
   align-items: center;
   gap: 12px;
-  width: 40%;
+  width: 50%;
   padding: 14px;
   background-color: var(--color-bg-white);
   color: var(--color-text);
@@ -361,6 +358,7 @@ const changePhotoButtonStyle = css`
   &:hover {
     border-color: var(--color-primary);
     color: var(--color-primary);
+    font-family: 'NanumSquareEB';
   }
 
   &:disabled {
@@ -473,6 +471,7 @@ const inputFieldStyle = css`
   &:focus {
     outline: none;
     border-color: var(--color-primary);
+    font-family: 'NanumSquareEB';
   }
 
   &:disabled {
@@ -491,13 +490,13 @@ const actionButtonStyle = css`
   border-radius: 8px;
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
-  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
     border-color: var(--color-primary);
     color: var(--color-primary);
+    font-family: 'NanumSquareEB';
   }
 
   &:disabled {
@@ -521,7 +520,6 @@ const googleButtonStyle = css`
   border-radius: 8px;
   font-family: 'NanumSquareR', sans-serif;
   font-size: 14px;
-  font-weight: 600;
   transition: all 0.2s ease;
   cursor: pointer;
 

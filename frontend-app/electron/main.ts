@@ -4,6 +4,9 @@ import { closeOverlayWindow, createOverlayWindow } from './overlayWindow';
 
 let win: BrowserWindow;
 
+type OverlayPos = 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT';
+let lastOverlayInit: { roomId: string; overlayPosition?: OverlayPos } | null = null;
+
 app.whenReady().then(() => {
   win = new BrowserWindow({
     width: 1440,
@@ -17,7 +20,6 @@ app.whenReady().then(() => {
     },
   });
 
-  // win.webContents.openDevTools();
 
   const isDev = !!process.env.ELECTRON_DEV;
 
@@ -27,29 +29,35 @@ app.whenReady().then(() => {
     win.loadFile(path.join(__dirname, '../../dist/index.html'));
   }
 
-  ipcMain.on('open-overlay', (_e, init?: { roomId: string }) => {
-    const roomId = init?.roomId; 
+  ipcMain.on('open-overlay', (_e, init?: { roomId: string; overlayPosition?: OverlayPos }) => {
+    const roomId = init?.roomId;
+    const overlayPosition = init?.overlayPosition ?? 'TOPRIGHT';
+
     if (!roomId) {
       console.error('[open-overlay] roomId 누락');
       return;
     }
 
+    lastOverlayInit = { roomId, overlayPosition };
+
     win?.hide();
-    const overlayWin = createOverlayWindow(isDev);
+
+    const overlayWin = createOverlayWindow(isDev, overlayPosition);
 
     if (isDev) {
-      const overlayUrl = `http://localhost:5173/#/live-overlay?roomId=${encodeURIComponent(
-        roomId,
-      )}`; 
-      overlayWin.loadURL(overlayUrl); 
+      const overlayUrl = `http://localhost:5173/#/live-overlay?roomId=${encodeURIComponent(roomId)}`;
+      overlayWin.loadURL(overlayUrl);
     } else {
       const prodHTML = path.join(__dirname, '../../dist/index.html');
-      const hash = `/live-overlay?roomId=${encodeURIComponent(roomId)}`; 
-      overlayWin.loadFile(prodHTML, { hash }); 
+      const hash = `/live-overlay?roomId=${encodeURIComponent(roomId)}`;
+      overlayWin.loadFile(prodHTML, { hash });
     }
+    overlayWin.webContents.once('did-finish-load', () => {
+      overlayWin.webContents.send('overlay:init', { roomId, overlayPosition });
+    });
 
-    overlayWin.show(); 
-    overlayWin.focus(); 
+    overlayWin.show();
+    overlayWin.focus();
   });
 
   ipcMain.on('close-overlay', () => {
@@ -68,4 +76,6 @@ app.whenReady().then(() => {
   ipcMain.on('overlay-log', (_e, msg) => {
     console.log('[OVERLAY]', msg);
   });
+
+  ipcMain.handle('overlay:get-init', async () => lastOverlayInit);
 });
