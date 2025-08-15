@@ -19,10 +19,7 @@ export default function TutorialModal({
   text,
 }: TutorialModalProps) {
   if (!isOpen) return null;
-
-  console.log(result);
-  console.log(text);
-
+  
   return (
     <div css={overlayStyle}>
       <div css={modalStyle}>

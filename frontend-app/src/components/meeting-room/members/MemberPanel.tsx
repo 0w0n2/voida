@@ -7,7 +7,7 @@ import SettingModal from '@/components/meeting-room/modal/setting/SettingModal';
 import InfoModal from '@/components/meeting-room/modal/info/InfoModal';
 import Lip from '@/assets/icons/lip-blue.png';
 import Setting from '@/assets/icons/room-setting.png';
-import Info from '@/assets/icons/info.png';
+import Info from '@/assets/icons/info-blue.png';
 import Home from '@/assets/icons/home-gray.png';
 import Crown from '@/assets/icons/crown.png';
 

@@ -6,11 +6,15 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import User from '@/assets/icons/user.png';
 import ExitWhite from '@/assets/icons/exit-white.png';
 import ExitBlue from '@/assets/icons/exit-blue.png';
+import InfoWhite from '@/assets/icons/info-white.png';
+import InfoBlue from '@/assets/icons/info-blue.png';
 import { getUserQuickSlots } from '@/apis/auth/userApi';
 import { useQuickSlot } from '@/hooks/useQuickSlot';
 import { getUserOverview, getSession, getLiveToken, connectOpenVidu, disconnectOpenVidu } from '@/apis/live-room/openViduApi';
 import { uploadTutorialAudio, uploadLipTestVideo } from '@/apis/tutorial/tutorialApi';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
+import { useMicVolume } from '@/hooks/useMicVolume';
+import WaveVisualizer from '@/components/live-room/WaveVisualizar';
 import { useVideoRecorder } from '@/hooks/useVideoRecorder';
 import { dummyMessages } from './dummy';
 
@@ -57,7 +61,7 @@ const LiveOverlay = () => {
   // 채팅 스크롤 제어
   const chatListRef = useRef<HTMLDivElement | null>(null);
   const [stickBottom, setStickBottom] = useState(true);
-  const BOTTOM_THRESHOLD = 40; // px
+  const BOTTOM_THRESHOLD = 40; 
 
   const onChatScroll = () => {
     const el = chatListRef.current;
@@ -87,35 +91,35 @@ const LiveOverlay = () => {
   }, []);
 
   // OpenVidu 연결
-  useEffect(() => {
-    if (!userInfo || !meetingRoomId) return;
+  // useEffect(() => {
+  //   if (!userInfo || !meetingRoomId) return;
 
-    (async () => {
-      try {
-        const sessionInfo = await getSession(meetingRoomId);
-        console.log(sessionInfo);
-        const token = await getLiveToken(meetingRoomId);
+  //   (async () => {
+  //     try {
+  //       const sessionInfo = await getSession(meetingRoomId);
+  //       console.log(sessionInfo);
+  //       const token = await getLiveToken(meetingRoomId);
 
-        await connectOpenVidu(token!, {
-          onSignalMessage: (msg) => {
-            console.log('시그널 수신:', msg);
-          },
-          clientData: {
-            nickname: userInfo.member.nickname,
-            profileImageUrl: userInfo.member.profileImageUrl,
-          },
-          audioSource: true,
-          videoSource: false,
-        });
-      } catch (err) {
-        console.error('OpenVidu 연결 실패:', err);
-      }
-    })();
+  //       await connectOpenVidu(token!, {
+  //         onSignalMessage: (msg) => {
+  //           console.log('시그널 수신:', msg);
+  //         },
+  //         clientData: {
+  //           nickname: userInfo.member.nickname,
+  //           profileImageUrl: userInfo.member.profileImageUrl,
+  //         },
+  //         audioSource: true,
+  //         videoSource: false,
+  //       });
+  //     } catch (err) {
+  //       console.error('OpenVidu 연결 실패:', err);
+  //     }
+  //   })();
 
-    return () => {
-      disconnectOpenVidu();
-    };
-  }, [userInfo, meetingRoomId]);
+  //   return () => {
+  //     disconnectOpenVidu();
+  //   };
+  // }, [userInfo, meetingRoomId]);
 
   // 오디오 객체 초기화
   useEffect(() => {
@@ -239,6 +243,8 @@ const LiveOverlay = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dummyMessages.length, stickBottom]);
 
+  const bars = useMicVolume(isAudioRecording, { barsCount: 20, sensitivity: 1.0, maxHeight: 8 });
+
   return (
     <div css={overlayContainer(isBottom)}>
       <div css={[overlayContent(isBottom), isExpanded ? expanded : collapsed]}>
@@ -246,6 +252,7 @@ const LiveOverlay = () => {
           <div css={headerLeft} />
           <div css={headerRight}>
             <img src={User} alt="User" css={userIcon} />
+            <div css={infoBtn}></div>
             <div css={outBtn} onClick={exitLive} />
           </div>
         </div>
@@ -298,7 +305,9 @@ const LiveOverlay = () => {
                   <button css={recordBtn} onClick={isAudioRecording ? stopAudio : startAudio}>
                     {isAudioRecording ? '중지' : '녹음'}
                   </button>
+                   <WaveVisualizer bars={bars} />
                 </div>
+                
               )}
             </>
           )}
@@ -354,7 +363,7 @@ const overlayContent = (isBottom: boolean) => css`
   transform-origin: ${isBottom ? 'bottom center' : 'top center'};
   display: flex;
   flex-direction: column;
-  ${isBottom ? 'padding-top: 44px;' : 'padding-bottom: 44px;'} /* 토글 버튼 공간 */
+  ${isBottom ? 'padding-top: 44px;' : 'padding-bottom: 44px;'}
 `;
 
 const expanded = css`
@@ -395,6 +404,38 @@ const userIcon = css`
   margin-right: 2px;
 `;
 
+const infoBtn = css`
+  position: relative;
+  width: 23px;
+  height: 23px;
+  background-image: url(${InfoWhite});
+  background-size: cover;
+  cursor: pointer;
+  margin-left: 4px;
+  &:hover {
+    background-image: url(${InfoBlue});
+  }
+  &::after {
+    content: '단축키로 음성을 전송해보세요!';
+    position: absolute;
+    top: 170%;
+    right: -400%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 1);
+    color: #000;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  &:hover::after {
+    opacity: 1;
+  }
+`;
+
 const outBtn = css`
   position: relative;
   width: 28px;
@@ -409,8 +450,8 @@ const outBtn = css`
   &::after {
     content: '나가기';
     position: absolute;
-    top: 130%;
-    left: 50%;
+    top: 150%;
+    left: 30%;
     transform: translateX(-50%);
     background: rgba(255, 255, 255, 1);
     color: #000;
@@ -430,6 +471,7 @@ const outBtn = css`
 const expandedContentWrapper = css`
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 10px;
   margin-bottom: 20px;
 `;
@@ -454,7 +496,10 @@ const lipUserControls = css`
 
 const normalUserControls = css`
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  width: 300px;
+  gap: 6px;
   margin: 8px 0 12px;
 `;
 
