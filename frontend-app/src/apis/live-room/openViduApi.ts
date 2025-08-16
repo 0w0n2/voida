@@ -37,25 +37,19 @@ export interface UserOverview {
   }[] | null;
 }
 
-/* ===============================
-   전역 상태 (싱글톤)
-================================ */
+// 전역 상태 (싱글톤)
 let OV: OpenVidu | null = null;
 let session: Session | null = null;
 let publisher: Publisher | null = null;
 let subscribers: Subscriber[] = [];
 
-/* ===============================
-   유틸 Getter
-================================ */
+//유틸 Getter
 export const isConnected = (): boolean => Boolean(session && session.sessionId); 
 export const getSessionInstance = (): Session | null => session;
 export const getOVInstance = (): OpenVidu | null => OV;
 export const getSubscribers = (): Subscriber[] => subscribers.slice();
 
-/* ===============================
-   Spring REST API
-================================ */
+// Spring REST API
 export const getUserOverview = async (): Promise<UserOverview> => {
   const res = await apiInstanceSpring.get('/v1/members/me/overview');
   return res.data.result;
@@ -71,9 +65,7 @@ export const getLiveToken = async (meetingRoomId: string): Promise<string> => {
   return res.data.result.token;
 };
 
-/* ===============================
-   OpenVidu 연결 (단순 음성 + 채팅)
-================================ */
+// OpenVidu 연결
 export interface ConnectOptions {
   nickname?: string;
   onChatMessage?: (data: string) => void;
@@ -117,12 +109,11 @@ export const connectOpenVidu = async (token: string, options?: ConnectOptions) =
       });
       subscribers.push(sub);
 
-      const audio = document.createElement('video');
+      const audio = document.createElement('audio');
       audio.autoplay = true;
-      audio.playsInline = true;
-      audio.style.display = 'none';
+      // audio.playsInline = true;
       audio.setAttribute('data-connection-id', event.stream.connection.connectionId);
-      sub.addVideoElement(audio);
+      sub.addVideoElement(audio as unknown as HTMLVideoElement);
 
       document.body.appendChild(audio);
 
@@ -182,9 +173,7 @@ export const connectOpenVidu = async (token: string, options?: ConnectOptions) =
   }
 };
 
-/* ===============================
-   시그널 전송 (채팅)
-================================ */
+// 시그널 전송 (채팅)
 export const sendChatSignal = async (payload: string): Promise<void> => {
   if (!session) return;
   const options: SignalOptions = {
@@ -194,9 +183,7 @@ export const sendChatSignal = async (payload: string): Promise<void> => {
   await session.signal(options);
 };
 
-/* ===============================
-   연결 해제 / 정리
-================================ */
+// 연결 해제 / 정리
 export const disconnectOpenVidu = async (): Promise<void> => {
   try {
     if (publisher) {
