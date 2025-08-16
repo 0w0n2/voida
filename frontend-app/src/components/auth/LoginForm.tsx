@@ -164,7 +164,7 @@ const LoginForm = () => {
             css={[inputStyle, passwordError && inputErrorStyle]}
           />
           <img
-            src={showPassword ? EyeCloseIcon : EyeIcon}
+            src={showPassword ? EyeIcon : EyeCloseIcon}
             alt="비밀번호 보기"
             onClick={() => setShowPassword(!showPassword)}
             css={eyeIconStyle}

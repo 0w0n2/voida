@@ -425,7 +425,7 @@ const RegisterForm = () => {
                 required
               />
               <img
-                src={showPassword ? EyeCloseIcon : EyeIcon}
+                src={showPassword ? EyeIcon : EyeCloseIcon}
                 alt="비밀번호 보기"
                 onClick={() => setShowPassword(!showPassword)}
                 css={eyeIconStyle}
@@ -449,7 +449,7 @@ const RegisterForm = () => {
                 required
               />
               <img
-                src={showCheckPassword ? EyeCloseIcon : EyeIcon}
+                src={showCheckPassword ? EyeIcon : EyeCloseIcon}
                 alt="체크 비밀번호 보기"
                 onClick={() => setShowCheckPassword(!showCheckPassword)}
                 css={eyeIconStyle}

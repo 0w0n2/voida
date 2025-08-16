@@ -27,7 +27,7 @@ export const useQuickSlot = (
 
       e.preventDefault();
       onSend?.(msg);
-      // console.log(`단축키 ${key} 실행: ${msg}`);
+      console.log(`단축키 ${key} 실행: ${msg}`);
 
       if (url && audioRef.current) {
         try {
