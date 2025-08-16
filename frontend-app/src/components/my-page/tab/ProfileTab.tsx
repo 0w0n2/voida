@@ -611,7 +611,7 @@ const actionButtonStyle = css`
   }
 `;
 
-const googleButtonStyle = css`
+const googleButtonStyle =(isSocial: boolean) => css`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -628,11 +628,14 @@ const googleButtonStyle = css`
   transition: all 0.2s ease;
   cursor: pointer;
 
+  ${!isSocial &&
+  `
   &:hover {
     border-color: var(--color-primary);
     color: var(--color-primary);
     font-family: 'NanumSquareEB';
-  }
+  }`}
+
 
   &:disabled {
     background-color: var(--color-gray-100);
