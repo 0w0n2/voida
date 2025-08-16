@@ -8,19 +8,24 @@ type OverlayPos = 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT';
 let lastOverlayInit: { roomId: string; overlayPosition?: OverlayPos; overlayTransparency?: number } | null = null;
 
 app.whenReady().then(() => {
-    win = new BrowserWindow({
-      width: 1440,
-      height: 900,
-      icon: path.join(__dirname, 'assets', 'icon.ico'),
-      webPreferences: {
-        preload: path.join(__dirname, 'preload.js'),
-        nodeIntegration: false,
-        contextIsolation: true,
-        devTools: true,
-      },
-    });
+  const isDev = !app.isPackaged;
 
-  const isDev = !!process.env.ELECTRON_DEV;
+  const preloadPath = isDev
+    ? path.join(__dirname, 'preload.js')
+    : path.join(process.resourcesPath, 'app.asar.unpacked', 'electron', 'dist', 'preload.js'); 
+
+  win = new BrowserWindow({
+    width: 1440,
+    height: 900,
+    icon: path.join(__dirname, 'assets', 'icon.ico'),
+    webPreferences: {
+      preload: preloadPath,
+      nodeIntegration: false,
+      contextIsolation: true,
+      devTools: true,
+    },
+  });
+
   if (isDev) {
     win.loadURL('http://localhost:5173');
   } else {
