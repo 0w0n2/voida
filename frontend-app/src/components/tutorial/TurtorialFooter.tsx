@@ -1,13 +1,19 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react'; 
 import { useNavigate } from 'react-router-dom';
 
-export default function TutorialFooter({ items }: { items: string }) {
+interface TutorialFooterProps {
+  items: string;
+  customCss?: SerializedStyles;
+}
+
+export default function TutorialFooter({ items, customCss }: TutorialFooterProps) {
   const navigate = useNavigate();
 
   return (
-    <div css={footerWrapperStyle}>
-      <button css={skipButtonStyle} onClick={() => navigate('/rooms')}>
+    <div css={[footerWrapperStyle, customCss]}>
+      <button css={skipButtonStyle} onClick={() => navigate('/main')}>
         {items}
       </button>
     </div>
@@ -16,27 +22,24 @@ export default function TutorialFooter({ items }: { items: string }) {
 
 const footerWrapperStyle = css`
   display: flex;
-  justify-content: flex-end;
-  margin-right: 10rem;
+  justify-content: right;
 
   @media (max-width: 1400px) {
     margin-right: 8rem;
   }
-
   @media (max-width: 1200px) {
     margin-right: 6rem;
   }
-
   @media (max-width: 900px) {
     margin-right: 3rem;
   }
-
   @media (max-width: 600px) {
     justify-content: center;
     margin-right: 0;
     margin-top: 2rem;
   }
 `;
+
 const buttonStyle = css`
   padding: 0.75rem 2.5rem;
   border: none;

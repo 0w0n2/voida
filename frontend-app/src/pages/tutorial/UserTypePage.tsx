@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { postUserType } from '@/apis/auth/userApi';
 import Header from '@/components/Header';
-import TutorialFooter from '@/components/tutorial/TurtorialFooter';
 import GeneralUserImg from '@/assets/images/general-user-gray.png';
 import GeneralUserImgHover from '@/assets/images/general-user-blue.png';
 import LipReadingUserImg from '@/assets/images/lip-reading-user-gray.png';
@@ -103,8 +102,8 @@ export default function UserType() {
             </button>
           </div>
         </div>
+        {/* <TutorialFooter items={'메인으로 가기'} /> */}
       </div>
-      <TutorialFooter items={'메인으로 가기'} />
     </div>
   );
 }
@@ -114,27 +113,39 @@ const pageWrapperStyle = css`
 `;
 
 const contentWrapperStyle = css`
-  max-width: 60rem;
+  max-width: 80%;
   margin: 0 auto;
   text-align: center;
   margin-bottom: 4.7rem;
   padding: 0 2rem;
 
   @media (max-width: 1400px) {
-    max-width: 56rem;
+    max-width: 72rem;
   }
-
   @media (max-width: 1200px) {
-    max-width: 52rem;
+    max-width: 64rem; 
   }
-
   @media (max-width: 900px) {
-    max-width: 100%;
+    max-width: 80%;
     padding: 0 1.5rem;
   }
-
   @media (max-width: 600px) {
+    max-width: 80%;
     padding: 0 1rem;
+  }
+
+  @media (min-height: 900px) {
+    padding-top: 0rem;
+    padding-bottom: 0rem;
+  }
+  @media (min-height: 1000px) {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+  @media (min-height: 1300px) {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+    max-width: 70%;
   }
 `;
 
@@ -147,17 +158,24 @@ const titleStyle = css`
   @media (max-width: 1400px) {
     font-size: 36px;
   }
-
   @media (max-width: 1200px) {
     font-size: 32px;
   }
-
   @media (max-width: 900px) {
     font-size: 28px;
   }
-
   @media (max-width: 600px) {
     font-size: 24px;
+  }
+
+  @media (min-height: 900px) {
+    margin-top: 2rem;
+  }
+  @media (min-height: 1000px) {
+    margin-top: 0.5rem;
+  }
+  @media (min-height: 1300px) {
+    margin-top: 0.5rem;
   }
 `;
 
@@ -169,13 +187,21 @@ const subtitleStyle = css`
   @media (max-width: 1200px) {
     font-size: 18px;
   }
-
   @media (max-width: 900px) {
     font-size: 16px;
   }
-
   @media (max-width: 600px) {
     font-size: 15px;
+  }
+
+  @media (min-height: 900px) {
+    margin-bottom: 2rem;
+  }
+  @media (min-height: 1000px) {
+    margin-bottom: 6rem;
+  }
+  @media (min-height: 1300px) {
+    margin-bottom: 6rem;
   }
 `;
 

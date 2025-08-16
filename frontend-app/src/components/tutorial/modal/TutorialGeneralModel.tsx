@@ -5,8 +5,9 @@ import Voice from '@/assets/images/general-tutorial2.png';
 interface TutorialModalProps {
   isOpen: boolean;
   result: null | 'success' | 'fail';
-  onRetry: () => void;  
-  onGoHome: () => void;  
+  onRetry: () => void;
+  onGoHome: () => void;
+  text?: string | null; 
 }
 
 export default function TutorialModal({
@@ -14,6 +15,7 @@ export default function TutorialModal({
   result,
   onRetry,
   onGoHome,
+  text,
 }: TutorialModalProps) {
   if (!isOpen) return null;
 
@@ -47,10 +49,15 @@ export default function TutorialModal({
                   <br />
                   모든 준비가 끝났습니다.
                 </p>
+                {text && (
+                  <p css={recognizedText}>
+                    <strong>인식된 문장 :</strong> {text}
+                  </p>
+                )}
               </div>
             </div>
             <div css={buttonGroup}>
-              <button className="disabled">다시 하기</button>
+              <button className="retry" onClick={onRetry}>다시 하기</button>
               <button className="main" onClick={onGoHome}>메인으로 가기</button>
             </div>
           </>
@@ -106,13 +113,13 @@ const modalStyle = css`
   justify-content: center;
 
   h3 {
-    font-size: clamp(20px, 4vw, 26px);
+    font-size: clamp(22px, 4vw, 28px);
     font-family: 'NanumSquareEB';
     margin: 1rem 0 3rem;
   }
 
   p {
-    font-size: clamp(14px, 1.8vw, 18px);
+    font-size: clamp(16px, 1.8vw, 20px);
     line-height: 1.7;
     color: var(--color-gray-600);
     margin: 0.5rem 0 0;
@@ -125,13 +132,8 @@ const modalStyle = css`
     margin-bottom: 0.5rem;
   }
 
-  .status-text.success {
-    color: #10b981;
-  }
-
-  .status-text.fail {
-    color: #ef4444;
-  }
+  .status-text.success { color: #10b981; }
+  .status-text.fail { color: #ef4444; }
 `;
 
 const dotsWrapper = css`
@@ -148,31 +150,14 @@ const dotsWrapper = css`
     border-radius: 50%;
     animation: pulse 3s infinite ease-in-out;
   }
-
-  .dot:nth-of-type(1) {
-    animation-delay: 0s;
-  }
-  .dot:nth-of-type(2) {
-    animation-delay: 0.4s;
-  }
-  .dot:nth-of-type(3) {
-    animation-delay: 0.6s;
-  }
-  .dot:nth-of-type(4) {
-    animation-delay: 0.8s;
-  }
+  .dot:nth-of-type(1) { animation-delay: 0s; }
+  .dot:nth-of-type(2) { animation-delay: 0.4s; }
+  .dot:nth-of-type(3) { animation-delay: 0.6s; }
+  .dot:nth-of-type(4) { animation-delay: 0.8s; }
 
   @keyframes pulse {
-    0%,
-    80%,
-    100% {
-      background-color: #ccc;
-      transform: scale(1);
-    }
-    40% {
-      background-color: var(--color-primary);
-      transform: scale(1.2);
-    }
+    0%, 80%, 100% { background-color: #ccc; transform: scale(1); }
+    40% { background-color: var(--color-primary); transform: scale(1.2); }
   }
 `;
 
@@ -187,7 +172,7 @@ const contentRow = css`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(1rem, 4vw, 2rem);
+  gap: clamp(3rem, 4vw, 5rem);
   flex-wrap: wrap;
 
   @media (max-width: 900px) {
@@ -211,10 +196,14 @@ const iconWrapper = css`
 
 const textCol = css`
   text-align: left;
+  @media (max-width: 900px) { text-align: center; }
+`;
 
-  @media (max-width: 900px) {
-    text-align: center;
-  }
+const recognizedText = css`
+  margin-top: 0.75rem;
+  font-size: clamp(13px, 1.6vw, 16px);
+  color: #374151;
+  word-break: keep-all;
 `;
 
 const buttonGroup = css`
@@ -240,24 +229,9 @@ const buttonGroup = css`
     }
   }
 
-  .disabled {
-    background: #e5e7eb;
-    color: #9ca3af;
-  }
-
-  .main {
-    background: #10b981;
-    color: #fff;
-    &:hover {
-      background: #059669;
-    }
-  }
-
-  .retry {
-    background: #ef4444;
-    color: #fff;
-    &:hover {
-      background: #dc2626;
-    }
-  }
+  .disabled { background: #e5e7eb; color: #9ca3af; }
+  .main { background: #10b981; color: #fff; }
+  .main:hover { background: #059669; }
+  .retry { background: #ef4444; color: #fff; }
+  .retry:hover { background: #dc2626; }
 `;

@@ -2,12 +2,12 @@
 import { css } from '@emotion/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
+import { useMeetingRoomStore } from '@/stores/useMeetingRoomStore';
 import SettingModal from '@/components/meeting-room/modal/setting/SettingModal';
 import InfoModal from '@/components/meeting-room/modal/info/InfoModal';
 import Lip from '@/assets/icons/lip-blue.png';
 import Setting from '@/assets/icons/room-setting.png';
-import Info from '@/assets/icons/info.png';
+import Info from '@/assets/icons/info-blue.png';
 import Home from '@/assets/icons/home-gray.png';
 import Crown from '@/assets/icons/crown.png';
 
@@ -85,7 +85,8 @@ const MemberPanel = () => {
             css={css`
               ${roomButton};
               color: ${categoryColors[roomInfo?.category || ''] || '#666'};
-              background-color: ${categoryColors[roomInfo?.category || ''] || '#999'}20;
+              background-color: ${categoryColors[roomInfo?.category || ''] ||
+              '#999'}20;
               border: none;
             `}
           >
@@ -95,7 +96,9 @@ const MemberPanel = () => {
 
         {roomInfo?.thumbnailImageUrl && (
           <img
-            src={`${import.meta.env.VITE_CDN_URL}/${roomInfo.thumbnailImageUrl}`}
+            src={`${import.meta.env.VITE_CDN_URL}/${
+              roomInfo.thumbnailImageUrl
+            }`}
             alt="방 썸네일"
             css={thumbnailStyle}
           />
@@ -124,29 +127,27 @@ const categoryLabels: Record<string, string> = {
 };
 
 const panelStyle = css`
-  width: 450px;
+  flex: 1;
+  height: 100%;
   background: #f9f9f9;
   padding: 1.5rem;
-  border-right: 1px solid #ddd;
   display: flex;
   flex-direction: column;
 
   @media (max-width: 1400px) {
+    flex: none;
     width: 400px;
+    border-right: 1px solid #ddd;
   }
   @media (max-width: 1200px) {
+    flex: none;
     width: 350px;
+    border-right: 1px solid #ddd;
   }
   @media (max-width: 900px) {
-    width: 100%;
-    border-right: none;
-    border-top: 1px solid #ddd;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  @media (max-width: 600px) {
-    padding: 1rem;
+    flex: none;
+    width: 300px;
+    border-right: 1px solid #ddd;
   }
 `;
 
@@ -157,14 +158,13 @@ const panelHeader = css`
   margin: 1rem;
 
   h3 {
-    font-size: 24px;
-    margin: 0;
+    font-size: clamp(18px, 2vw, 24px);
+    margin: 0 0 1rem 0;
     font-family: 'NanumSquareEB';
-    margin-bottom: 1rem;
   }
 
   p {
-    font-size: 16px;
+    font-size: clamp(13px, 1.5vw, 16px);
     color: var(--color-gray-600);
     margin: 6px 0 0;
   }
@@ -213,8 +213,8 @@ const tooltip = css`
 `;
 
 const iconStyle = css`
-  width: 30px;
-  height: 30px;
+  width: clamp(24px, 2vw, 30px);
+  height: clamp(24px, 2vw, 30px);
 `;
 
 const listStyle = css`
@@ -222,15 +222,16 @@ const listStyle = css`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 25px;
+  gap: clamp(16px, 2vw, 25px);
 `;
 
 const cardStyle = css`
   display: flex;
   align-items: center;
-  gap: 25px;
-  padding: 1rem 2rem;
-  padding-bottom: 1.5rem;
+  gap: clamp(12px, 2vw, 25px);
+  padding: clamp(0.75rem, 1vw, 1rem) clamp(1.2rem, 1.5vw, 2rem) 
+           clamp(1rem, 1.5vw, 1.25rem); /* 하단만 조금 더 */
+
   background: white;
   border-radius: 100px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
@@ -239,11 +240,16 @@ const cardStyle = css`
 
   @media (max-width: 900px) {
     max-width: 100%;
-    border-radius: 20px;
-    padding: 1rem;
-    gap: 16px;
+    padding: 0.75rem 1.2rem 1rem; /* 하단만 +0.25rem */
+    gap: 14px;
   }
+
   @media (max-width: 600px) {
+    padding: 0.6rem 1rem 0.85rem; /* 하단만 조금 더 */
+    gap: 10px;
+  }
+
+  @media (max-width: 360px) {
     flex-direction: column;
     align-items: flex-start;
   }
@@ -255,41 +261,24 @@ const myCardStyle = css`
 `;
 
 const avatarStyle = css`
-  width: 55px;
-  height: 55px;
+  width: clamp(32px, 4vw, 55px);
+  height: clamp(32px, 4vw, 55px);
   border-radius: 50%;
   object-fit: cover;
-
-  @media (max-width: 1400px) {
-    width: 48px;
-    height: 48px;
-  }
-  @media (max-width: 1200px) {
-    width: 42px;
-    height: 42px;
-  }
-  @media (max-width: 900px) {
-    width: 36px;
-    height: 36px;
-  }
-  @media (max-width: 600px) {
-    width: 32px;
-    height: 32px;
-  }
 `;
 
 const avatarWrapper = css`
   position: relative;
-  width: 44px;
-  height: 44px;
+  width: clamp(28px, 3.5vw, 44px);
+  height: clamp(28px, 3.5vw, 44px);
 `;
 
 const hostBadge = css`
   position: absolute;
   top: -6px;
   right: -15px;
-  width: 22px;
-  height: 22px;
+  width: clamp(16px, 2vw, 22px);
+  height: clamp(16px, 2vw, 22px);
   background-color: var(--color-yellow);
   border: 1.5px solid white;
   border-radius: 50%;
@@ -299,8 +288,8 @@ const hostBadge = css`
 `;
 
 const crownIcon = css`
-  width: 10px;
-  height: 10px;
+  width: clamp(8px, 1vw, 10px);
+  height: clamp(8px, 1vw, 10px);
 `;
 
 const infoBox = css`
@@ -308,16 +297,6 @@ const infoBox = css`
   display: flex;
   flex-direction: column;
   margin-left: 10px;
-
-  @media (max-width: 900px) {
-    height: auto;
-    padding: 1rem;
-  }
-  @media (max-width: 600px) {
-    h4 {
-      font-size: 16px;
-    }
-  }
 `;
 
 const nameRow = css`
@@ -327,34 +306,23 @@ const nameRow = css`
 `;
 
 const nicknameStyle = css`
-  font-size: 18px;
+  font-size: clamp(12px, 1.5vw, 18px);
   font-family: 'NanumSquareR';
-
-  @media (max-width: 1200px) {
-    font-size: 16px;
-  }
-  @media (max-width: 900px) {
-    font-size: 15px;
-  }
-  @media (max-width: 600px) {
-    font-size: 14px;
-  }
 `;
 
 const lipIcon = css`
-  width: 20px;
-  height: 20px;
+  width: clamp(16px, 1.5vw, 20px);
+  height: clamp(16px, 1.5vw, 20px);
 `;
 
 const lipIconWrapper = css`
   position: relative;
-  width: 28px;
-  height: 28px;
+  width: clamp(20px, 2vw, 28px);
+  height: clamp(20px, 2vw, 28px);
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
   padding: 4px;
   transition: background-color 0.2s ease;
   margin-bottom: 12px;
@@ -387,6 +355,7 @@ const lipTooltip = css`
   z-index: 10;
 `;
 
+
 const roomInfoBox = css`
   box-sizing: border-box;
   margin-top: auto;
@@ -394,6 +363,7 @@ const roomInfoBox = css`
   margin-right: -1.5rem;
   margin-bottom: -1.5rem;
   width: calc(100% + 3rem);
+  max-height: 120px;
   padding: 1.5rem;
   display: flex;
   justify-content: space-between;
@@ -410,21 +380,30 @@ const roomInfoBox = css`
   @media (max-width: 1400px) {
     height: 100px;
     padding: 12px 40px;
+    h4{
+      font-size: 17px;
+    }
   }
-
   @media (max-width: 1200px) {
     height: 90px;
     padding: 10px 30px;
+    h4{
+      font-size: 15px;
+    }
   }
-
   @media (max-width: 900px) {
     height: 80px;
     padding: 8px 20px;
+    h4{
+      font-size: 14px;
+    }
   }
-
   @media (max-width: 600px) {
     height: 70px;
     padding: 6px 12px;
+    h4{
+      font-size: 13px;
+    }
   }
 `;
 
@@ -439,6 +418,15 @@ const roomButton = css`
   &:hover {
     background: #eaeaea;
   }
+
+  @media (max-width: 900px) {
+    font-size: 13px;
+    padding: 5px 10px;
+  }
+  @media (max-width: 600px) {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
 `;
 
 const roomInfoLeft = css`
@@ -448,7 +436,7 @@ const roomInfoLeft = css`
   align-items: flex-start;
 
   h4 {
-    font-size: 18px;
+    font-size: clamp(13px, 1.5vw, 18px);
     font-family: 'NanumSquareEB';
     margin: 0;
   }
@@ -459,4 +447,17 @@ const thumbnailStyle = css`
   aspect-ratio: 16 / 9;
   border-radius: 8px;
   object-fit: cover;
+
+  @media (max-width: 1400px) {
+    width: 110px;
+  }
+  @media (max-width: 1200px) {
+    width: 100px;
+  }
+  @media (max-width: 900px) {
+    width: 90px;
+  }
+  @media (max-width: 600px) {
+    width: 80px;
+  }
 `;

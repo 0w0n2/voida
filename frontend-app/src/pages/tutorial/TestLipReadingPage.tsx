@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { uploadLipTestVideo } from '@/apis/tutorial/tutorialApi';
 import Header from '@/components/Header';
@@ -9,13 +9,22 @@ import TutorialModal from '@/components/tutorial/modal/TutorialLipReadingModal';
 import RecordButton from '@/assets/icons/record.png';
 import { useVideoRecorder } from '@/hooks/useVideoRecorder';
 
-const maxDuration = 7000;
+const maxDuration = 3000;
+
+type AnalysisPayload = {
+  videoResult?: boolean; 
+  transText?: string;  
+  audioMime?: string;   
+  message?: string;   
+};
 
 const TestLipReadingPage = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [progress, setProgress] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<null | 'success' | 'fail'>(null);
+  const [analysisText, setAnalysisText] = useState<string | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const { hasPermission, isRecording, stream, start, stop } = useVideoRecorder({
@@ -26,27 +35,62 @@ const TestLipReadingPage = () => {
     onProgress: (percent) => setProgress(percent),
     onStop: async ({ blob }) => {
       setIsAnalyzing(true);
+
       try {
-        const res = await uploadLipTestVideo(blob);
-        setAnalysisResult(res.data.result);
+        const file = new File([blob], 'lip-test.webm', { type: blob.type });
+        const res = await uploadLipTestVideo(file, '0');
+        const buffer = await res;
+        const view = new DataView(buffer);
+        const jsonLength = view.getUint32(0, false);
+        const jsonBytes = new Uint8Array(buffer, 4, jsonLength);
+        const jsonString = new TextDecoder().decode(jsonBytes);
+        const parsedJson: AnalysisPayload = JSON.parse(jsonString);
+        const audioStartIndex = 4 + jsonLength;
+        const audioBytes = new Uint8Array(buffer, audioStartIndex);
+
+        if(audioBytes.length > 0) {
+          const audioBlob = new Blob([audioBytes], { type: parsedJson.audioMime || 'audio/mpeg' });
+          const audioUrl = URL.createObjectURL(audioBlob);
+
+          setAnalysisResult(parsedJson.videoResult ? 'success' : 'fail');
+          setAudioUrl(audioUrl);
+          if (audioUrl) {
+            const audio = new Audio(audioUrl);
+            audio.play().catch(err => console.error('재생 실패:', err));
+          }
+
+          setAnalysisResult(parsedJson.videoResult ? 'success' : 'fail');
+          setAnalysisText(parsedJson.transText || null);
+        } else {
+          setAnalysisResult('fail');
+          setAudioUrl('');
+        }
       } catch (err) {
-        console.error(err);
-        setAnalysisResult('fail');
+        console.log(err);
       }
     },
   });
 
-  // 스트림을 video 태그에 연결
-  if (stream && videoRef.current && !videoRef.current.srcObject) {
-    videoRef.current.srcObject = stream;
-  }
+  // stream이 생길 때마다 비디오에 안정적으로 연결
+  useEffect(() => {
+    if (videoRef.current && stream && videoRef.current.srcObject !== stream) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [stream]);
 
   const handleRecordClick = () => {
     if (isRecording) {
-      stop(); 
+      stop();
     } else {
+      // 이전 상태 초기화 + URL 정리
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+        setAudioUrl(null);
+      }
       setAnalysisResult(null);
+      setAnalysisText(null);
       setIsAnalyzing(false);
+      setProgress(0);
       start();
     }
   };
@@ -62,13 +106,7 @@ const TestLipReadingPage = () => {
           <div css={videoBox}>
             {hasPermission ? (
               <>
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                  css={videoStyle}
-                />
+                <video ref={videoRef} autoPlay playsInline muted css={videoStyle} />
                 <div css={guideBox}></div>
               </>
             ) : (
@@ -86,25 +124,35 @@ const TestLipReadingPage = () => {
           )}
 
           <div css={textBox(progress)}>
-            <p>“Hello, My name is John.”</p>
+            <p>“Hello, Good Morning!”</p>
           </div>
         </div>
       </div>
-      <TutorialFooter items={'튜토리얼 건너뛰기'} />
+
+      <TutorialFooter items="튜토리얼 건너뛰기" customCss={footerStyle} />
+
       <TutorialModal
         isOpen={isAnalyzing}
         result={analysisResult}
-      onRetry={() => {
-        setIsAnalyzing(false);
-        setAnalysisResult(null);
-
-        setTimeout(() => {
-          window.location.href = `${import.meta.env.VITE_APP_URL}/#/tutorial/test/lip-reading`;
-        }, 0);
-      }}
+        text={analysisText}
+        onRetry={() => {
+          setIsAnalyzing(false);
+          setAnalysisResult(null);
+          setAnalysisText(null);
+          if (audioUrl) {
+            URL.revokeObjectURL(audioUrl);
+            setAudioUrl(null);
+          }
+          navigate('/tutorial/lip-reading', { replace: true });
+        }}
         onGoHome={() => {
           setIsAnalyzing(false);
           setAnalysisResult(null);
+          setAnalysisText(null);
+          if (audioUrl) {
+            URL.revokeObjectURL(audioUrl);
+            setAudioUrl(null);
+          }
           navigate('/main');
         }}
       />
@@ -114,27 +162,50 @@ const TestLipReadingPage = () => {
 
 export default TestLipReadingPage;
 
+// ----------------- 스타일 -----------------
 const pageWrapperStyle = css`
   min-height: 100vh;
 `;
 
 const contentWrapperStyle = css`
-  max-width: 960px;
+  flex: 1;
+  max-width: 80%;
+  min-height: 100%;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 0 2rem;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 
+  @media (max-width: 1400px) {
+    max-width: 72rem;
+  }
   @media (max-width: 1200px) {
-    max-width: 800px;
+    max-width: 64rem;
+  }
+  @media (max-width: 900px) {
+    max-width: 80%;
+    padding: 0 1.5rem;
+  }
+  @media (max-width: 600px) {
+    max-width: 80%;
+    padding: 0 1rem;
   }
 
-  @media (max-width: 900px) {
-    max-width: 90%;
-    padding: 1rem;
+  @media (min-height: 900px) {
+    padding-top: 0rem;
+    padding-bottom: 0rem;
+  }
+  @media (min-height: 1000px) {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+  @media (min-height: 1300px) {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+    max-width: 70%;
   }
 `;
 
@@ -144,12 +215,27 @@ const titleStyle = css`
   margin-bottom: 1rem;
   text-align: center;
 
-  @media (max-width: 900px) {
+  @media (max-width: 1400px) {
+    font-size: 36px;
+  }
+  @media (max-width: 1200px) {
     font-size: 32px;
   }
-
+  @media (max-width: 900px) {
+    font-size: 28px;
+  }
   @media (max-width: 600px) {
-    font-size: 26px;
+    font-size: 24px;
+  }
+
+  @media (min-height: 900px) {
+    margin-top: 2rem;
+  }
+  @media (min-height: 1000px) {
+    margin-top: 0.5rem;
+  }
+  @media (min-height: 1300px) {
+    margin-top: 0.5rem;
   }
 `;
 
@@ -159,12 +245,14 @@ const subtitleStyle = css`
   text-align: center;
   font-size: 20px;
 
-  @media (max-width: 900px) {
+  @media (max-width: 1200px) {
     font-size: 18px;
   }
-
-  @media (max-width: 600px) {
+  @media (max-width: 900px) {
     font-size: 16px;
+  }
+  @media (max-width: 600px) {
+    font-size: 15px;
   }
 `;
 
@@ -325,4 +413,8 @@ const progressBar = (progress: number) => css`
   width: ${progress}%;
   background: linear-gradient(to right, #3182f6, #a162e5);
   transition: width 0.1s linear;
+`;
+
+const footerStyle = css`
+  max-width: 90%;
 `;

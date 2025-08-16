@@ -52,8 +52,9 @@ public class MyPageServiceImpl implements MyPageService {
 
     @Override
     public MeSettingResponseInfoDto getMeSetting(Long memberId) {
-        MemberSetting memberSetting = memberSettingRepository.findMemberSettingsByMemberId(memberId);
-        return MeSettingResponseInfoDto.toDto(memberSetting);
+        return MeSettingResponseInfoDto.toDto(
+                memberSettingRepository.findMemberSettingsByMemberId(memberId)
+                        .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_SETTING_NOT_FOUND)));
     }
 
     @Override
@@ -63,6 +64,19 @@ public class MyPageServiceImpl implements MyPageService {
         return socialAccounts.stream()
                 .map(MeSocialAccountsInfoDto::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void checkNicknameIsValid(String currentNickname, String newNickname) {
+        if (newNickname.equals(currentNickname)) {
+            return;
+        }
+        if (memberRepository.existsByNicknameAndIsDeletedIsFalse(newNickname)) {
+            throw new BaseException(BaseResponseStatus.NICKNAME_IS_DUPLICATED);
+        }
+        if (newNickname.length() > 10) {
+            throw new BaseException(BaseResponseStatus.NICKNAME_TOO_LONG);
+        }
     }
 
     @Transactional
@@ -138,14 +152,16 @@ public class MyPageServiceImpl implements MyPageService {
     @Transactional
     @Override
     public void changeLipTalkMode(Long memberId, ChangeLipTalkRequestMode requestDto) {
-        MemberSetting memberSetting = memberSettingRepository.findMemberSettingsByMemberId(memberId);
+        MemberSetting memberSetting = memberSettingRepository.findMemberSettingsByMemberId(memberId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_SETTING_NOT_FOUND));
         memberSetting.changeLipTalkMode(requestDto.getUseLipTalkMode());
     }
 
     @Transactional
     @Override
     public void changeOverlay(Long memberId, ChangeOverlayRequestDto requestDto) {
-        MemberSetting memberSetting = memberSettingRepository.findMemberSettingsByMemberId(memberId);
+        MemberSetting memberSetting = memberSettingRepository.findMemberSettingsByMemberId(memberId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_SETTING_NOT_FOUND));
         memberSetting.changeOverlayPosition(requestDto.getOverlayPosition(), requestDto.getLiveFontSize(), requestDto.getOverlayTransparency());
     }
 }

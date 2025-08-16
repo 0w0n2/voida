@@ -3,7 +3,7 @@ import { css } from '@emotion/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, Trash2 } from 'lucide-react';
-import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
+import { useMeetingRoomStore } from '@/stores/useMeetingRoomStore';
 import { leaveRoom } from '@/apis/meeting-room/meetingRoomApi';
 import { useAlertStore } from '@/stores/useAlertStore';
 

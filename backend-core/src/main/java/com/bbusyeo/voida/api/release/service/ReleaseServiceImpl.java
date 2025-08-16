@@ -3,7 +3,6 @@ package com.bbusyeo.voida.api.release.service;
 import static com.bbusyeo.voida.global.response.BaseResponseStatus.INVALID_VERSION;
 import static com.bbusyeo.voida.global.response.BaseResponseStatus.RELEASE_NOT_FOUND;
 
-import com.bbusyeo.voida.api.release.domain.DesktopApp;
 import com.bbusyeo.voida.api.release.dto.in.DesktopAppRequestDto;
 import com.bbusyeo.voida.api.release.dto.out.DesktopAppResponseDto;
 import com.bbusyeo.voida.api.release.repository.ReleaseRepository;

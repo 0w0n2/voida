@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { Home, Grid } from 'lucide-react';
-import { useMeetingRoomStore } from '@/stores/meetingRoomStore';
+import { useMeetingRoomStore } from '@/stores/useMeetingRoomStore';
 
 const InfoRoom = () => {
   const { roomInfo } = useMeetingRoomStore();

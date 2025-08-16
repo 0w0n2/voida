@@ -20,8 +20,6 @@ public class MeetingChat {
     private String id;
     private Long meetingRoomId;
     private String senderUuid;
-    private String senderNickname;
-    private String profileImageUrl;
     private String content;
     private LocalDateTime sendedAt;
 }

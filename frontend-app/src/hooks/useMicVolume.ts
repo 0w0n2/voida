@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
 interface UseMicVolumeOptions {
-  barsCount?: number;       // 표시할 막대 개수
-  sensitivity?: number;     // 민감도 (기본 1)
-  maxHeight?: number;       // 막대 최대 높이
+  barsCount?: number;   
+  sensitivity?: number;    
+  maxHeight?: number;     
 }
 
 export const useMicVolume = (
@@ -28,10 +28,10 @@ export const useMicVolume = (
         streamRef.current = null;
       }
 
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-        audioContextRef.current = null;
-      }
+    if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
       return;
     }
 

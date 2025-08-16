@@ -22,7 +22,7 @@ public class SignInResponseDto {
 
     public SocialSignInResponseDto toSocialSignInResponseDto() {
         return SocialSignInResponseDto.builder()
-                .isNewbie(this.isNewbie)
+                .isNewbie(isNewbie)
                 .isFirstLogin(false)
                 .build();
     }

@@ -1,10 +1,13 @@
 /** @jsxImportSource @emotion/react */
+import axios from 'axios';
 import { css } from '@emotion/react';
-import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Window from '@/assets/icons/window.png';
 import Microphone from '@/assets/icons/microphone.png';
 import Keyboard from '@/assets/icons/keyboard.png';
+import overlay from '@/assets/icons/overlay.png';
+import VoidaLogo from '@/assets/logo/voida-logo.png';
+import multi from '@/assets/image/multi.png';
 
 const bp = {
   tablet: '@media (min-width: 768px)',
@@ -12,18 +15,41 @@ const bp = {
 };
 
 export default function MainPage() {
+  const downloadFile = async () => {
+    try {
+      const res = await axios.get(
+        `${
+          import.meta.env.VITE_SPRING_API_URL
+        }/v1/releases/desktop-apps/latest`,
+      );
+      console.log(res);
+      const version = res.data.result.version;
+      const url = res.data.result.url;
+      const fileUrl = `${import.meta.env.VITE_CDN_URL}/${url}`;
+      console.log('파일 URL:', fileUrl);
+      const a = document.createElement('a');
+      a.href = fileUrl;
+      a.download = `Voida-${version}.exe`;
+      document.body.appendChild(a);
+      a.click();
+    } catch (error) {
+      console.error('오류 발생함여', error);
+    }
+  };
   return (
     <div css={pageCss}>
-      <Header />
       <section css={heroCss}>
+        <img src={VoidaLogo} alt="Voida Logo" css={logoStyle} />
         <h1 css={heroTitleCss}>모두가 함께하는 소통의 공간</h1>
 
-        <p css={heroDescCss}>청각장애인과 비장애인이 함께 소통할 수 있도록,</p>
         <p css={heroDescCss}>
-          입술의 움직임을 글자로 바꾸는 실시간 대화 플랫폼 입니다.
+          <span css={vodiaCss}>VOIDA</span>는 청각장애인과 비장애인이 함께
+          소통할 수 있도록 돕는 <span css={vodiaCss}>실시간 대화 플랫폼</span>
+          입니다.
         </p>
+        <p css={heroDescCss}></p>
 
-        <button css={downloadButtonCss}>
+        <button css={downloadButtonCss} onClick={downloadFile}>
           <img
             src={Window}
             alt="Windows"
@@ -32,7 +58,15 @@ export default function MainPage() {
           Windows 다운로드
         </button>
 
-        <div css={heroPreviewBoxCss}></div>
+        <div css={heroPreviewBoxCss}>
+          <video
+            src={`${import.meta.env.VITE_CDN_URL}/official-website-assets/voidashow.mp4`}
+            loop
+            controls
+            playsInline
+            css={videoStyle}
+          ></video>
+        </div>
       </section>
 
       <section css={featureSectionCss}>
@@ -50,21 +84,43 @@ export default function MainPage() {
           >
             <div css={featureTitleBoxCss}>
               <img src={Microphone} alt="Microphone" css={featureIconCss} />
-              <span css={featureLabelCss}>음성을 텍스트로</span>
+              <span css={featureLabelCss}>실시간 통신</span>
             </div>
             <h2 css={featureTitleCss}>
               누구나 말하고,
               <br />
               누구나 들을 수 있도록
             </h2>
-            <p css={featureTextCss}>내 목소리를 실시간으로</p>
-            <p css={featureTextCss}>게임 중 대화도 채팅으로 전달됩니다.</p>
+            <p css={featureTextCss}>음성을 채팅으로,</p>
+            <p css={featureTextCss}>
+              구화를 음성과 채팅으로 변환할 수 있습니다.
+            </p>
           </div>
-          <div css={featureBoxCss}></div>
+          <div css={featureBoxCss}>
+            <video
+              src={`${import.meta.env.VITE_CDN_URL}/official-website-assets/stt.mp4`}
+              autoPlay
+              muted
+              loop
+              playsInline
+              css={videoStyle}
+            ></video>
+          </div>
         </div>
 
         <div css={[featureGridCss, { marginTop: 80 }]}>
-          <div css={[featureBoxCss, { order: 1 }]}></div>
+          <div css={[featureBoxCss, { order: 1 }]}>
+            <div css={featureBoxCss}>
+              <video
+                src={`${import.meta.env.VITE_CDN_URL}/official-website-assets/shortslot.mp4`}
+                autoPlay
+                muted
+                loop
+                playsInline
+                css={videoStyle}
+              ></video>
+            </div>
+          </div>
 
           <div
             css={{
@@ -81,15 +137,43 @@ export default function MainPage() {
           >
             <div css={featureTitleBoxCss}>
               <img src={Keyboard} alt="Keyboard" css={featureIconCss} />
-              <span css={featureLabelCss}>단축키를 텍스트로</span>
+              <span css={featureLabelCss}>단축키</span>
             </div>
             <h2 css={featureTitleCss}>
-              소리 없이도
+              쉽고 빠르게
               <br />
-              연결되는 대화
+              소통이 가능하도록
             </h2>
-            <p css={featureTextCss}>단축키로 빠르고 간편하게</p>
-            <p css={featureTextCss}>게임 중 메세지를 채팅으로 전달합니다.</p>
+            <p css={featureTextCss}>지정된 단축키를 이용해</p>
+            <p css={featureTextCss}>음성과 채팅으로 변환할 수 있습니다.</p>
+          </div>
+        </div>
+        <div css={[featureGridCss, { marginTop: 80 }]}>
+          <div
+            css={{
+              padding: 40,
+              [bp.tablet]: {
+                textAlign: 'left',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+              },
+            }}
+          >
+            <div css={featureTitleBoxCss}>
+              <img src={overlay} alt="Overlay" css={featureIconCss} />
+              <span css={featureLabelCss}>오버레이</span>
+            </div>
+            <h2 css={featureTitleCss}>
+              다른 작업중에도
+              <br />
+              함께 사용할 수 있도록
+            </h2>
+            <p css={featureTextCss}>오버레이 기능으로</p>
+            <p css={featureTextCss}>멀티태스킹이 가능합니다.</p>
+          </div>
+          <div css={featureBoxCss}>
+            <img src={multi} alt="오버레이" css={featureImageCss} />
           </div>
         </div>
       </section>
@@ -98,6 +182,21 @@ export default function MainPage() {
     </div>
   );
 }
+
+const logoStyle = css`
+  width: 360px;
+  cursor: pointer;
+  transition: opacity 0.2s ease-in-out;
+  margin-bottom: 35px;
+  &:hover {
+    opacity: 0.8;
+  }
+`;
+
+const vodiaCss = css`
+  color: var(--color-primary);
+  font-weight: bold;
+`;
 
 const pageCss = css`
   min-height: 100vh;
@@ -120,6 +219,13 @@ const heroCss = css`
   }
 `;
 
+const videoStyle = css`
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 여백 없이 꽉 차게 */
+  object-position: center 14%;
+  border-radius: 20px; /* heroPreviewBoxCss에 radius가 있으면 맞춰줘 */
+`;
 const heroTitleCss = css`
   font-size: 28px;
   font-family: NanumSquareEB;
@@ -214,10 +320,17 @@ const featureBoxCss = css`
   width: 100%;
   max-width: 480px;
   aspect-ratio: 16 / 10;
+  overflow: hidden; // ⭐️ 박스 밖으로 안 나가게
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto;
+`;
+
+const featureImageCss = css`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 `;
 
 const featureTitleBoxCss = css`

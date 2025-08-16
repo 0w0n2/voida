@@ -17,6 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -39,8 +42,21 @@ public class ChatServiceImpl implements ChatService {
 
         Page<MeetingChat> chatHistory = meetingChatRepository.findByMeetingRoomIdOrderBySendedAtDesc(meetingRoomId, pageRequest);
 
-        // 조회된 MeetingChat 페이지를 ChatMessageResponseDto 페이지로 변환 (여기서 isMine 계산)
-        return chatHistory.map(chat -> ChatMessageResponseDto.from(chat, memberUuid));
+        // 중복 제거한 senderUuid 목록 추출
+        List<String> senderUuids = chatHistory.getContent().stream()
+                .map(MeetingChat::getSenderUuid)
+                .distinct()
+                .collect(Collectors.toList());
+
+        // My SQL 에서 Member 정보 한번에 조회
+        Map<String, Member> membersMap = memberRepository.findByMemberUuidIn(senderUuids).stream()
+                .collect(Collectors.toMap(Member::getMemberUuid, member -> member));
+
+        // Member 정보와 조합하여 DTO 생성
+        return chatHistory.map(chat -> {
+            Member sender = membersMap.get(chat.getSenderUuid());
+            return ChatMessageResponseDto.from(chat, sender, memberUuid);
+        });
     }
 
     // 실시간 채팅 메시지 처리, MongoDB에 저장 및 구독 중인 member들에게 브로드캐스팅
@@ -53,14 +69,12 @@ public class ChatServiceImpl implements ChatService {
         MeetingChat chat = MeetingChat.builder()
                 .meetingRoomId(meetingRoomId)
                 .senderUuid(sender.getMemberUuid())
-                .senderNickname(sender.getNickname())
-                .profileImageUrl(sender.getProfileImageUrl())
                 .content(requestDto.getContent())
                 .sendedAt(LocalDateTime.now())
                 .build();
 
         MeetingChat savedChat = meetingChatRepository.save(chat);
         // (/sub/chat/meetingRoom/{meetingRoomId}로 브로드 캐스팅
-        messagingTemplate.convertAndSend("/sub/chat/meetingRoom/" + meetingRoomId, ChatMessageResponseDto.from(savedChat));
+        messagingTemplate.convertAndSend("/sub/chat/meetingRoom/" + meetingRoomId, ChatMessageResponseDto.from(savedChat, sender));
     }
 }

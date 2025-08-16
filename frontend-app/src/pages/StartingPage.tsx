@@ -1,14 +1,16 @@
 /** @jsxImportSource @emotion/react */
 import { css, keyframes } from '@emotion/react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import VoidaLogo from '@/assets/logo/voida-logo.png';
 import ChatImage from '@/assets/icons/main-chat.png';
 import LipIcon from '@/assets/icons/lip-blue.png';
 import StartIcon from '@/assets/icons/start.png';
-import DemoVideoIcon from '@/assets/icons/demo-video.png';
+import { Globe } from 'lucide-react';
 
 const MainPage = () => {
   const navigate = useNavigate();
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
 
   return (
     <div css={wrapper}>
@@ -29,19 +31,30 @@ const MainPage = () => {
           <p css={desc}>
             청각장애인과 비장애인이 함께 소통할 수 있도록,
             <br />
-            입술의 움직임을 글자로 바꾸는 실시간 대화 플랫폼입니다.
+            입술의 움직임을 음성으로 바꾸는 실시간 대화 플랫폼입니다.
           </p>
           <div css={buttonBox}>
             <button css={startButton} onClick={() => navigate('/login')}>
               지금 시작하기
-              <img src={StartIcon || '/placeholder.svg'} alt="화살표 아이콘" />
-            </button>
-            <button css={demoButton} onClick={() => navigate('/tutorial')}>
               <img
-                src={DemoVideoIcon || '/placeholder.svg'}
-                alt="재생 아이콘"
+                src={StartIcon || '/placeholder.svg'}
+                alt="화살표 아이콘"
+                css={startIconStyle}
               />
-              튜토리얼
+            </button>
+            <button
+              css={demoButton}
+              onMouseEnter={() => setIsTooltipVisible(true)}
+              onMouseLeave={() => setIsTooltipVisible(false)}
+              onClick={() => window.open(import.meta.env.VITE_WEB_URL)}
+            >
+              <Globe  />
+              VOIDA
+              {isTooltipVisible && (
+                <span css={tooltipStyle}>
+                  공식 웹사이트에서 Desktop App을 설치해보세요!
+                </span>
+              )}
             </button>
           </div>
         </div>
@@ -283,6 +296,7 @@ const startButton = css`
 `;
 
 const demoButton = css`
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -290,7 +304,7 @@ const demoButton = css`
   padding: clamp(10px, 1.2vw, 12px) clamp(20px, 2.5vw, 28px);
   background: #fff;
   color: var(--color-gray-600);
-  font-weight: 600;
+  font-family: 'NanumSquareEB';
   border-radius: clamp(10px, 1.2vw, 12px);
   font-size: clamp(15px, 1.6vw, 18px);
   border: 2px solid #d9d9d9;
@@ -302,11 +316,50 @@ const demoButton = css`
     background: #f9fafb;
     transform: translateY(-1px);
   }
+`;
 
-  img {
-    width: clamp(16px, 1.6vw, 18px);
-    height: clamp(16px, 1.6vw, 18px);
-    margin-right: clamp(8px, 1vw, 10px);
+const tooltipStyle = css`
+  position: absolute;
+  top: 145%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    135deg,
+    rgba(49, 130, 246, 0.95),
+    rgba(155, 107, 255, 0.95)
+  );
+  color: white;
+  padding: 14px 18px;
+  font-size: 16px;
+  font-family: 'NanumSquareB';
+  border-radius: 12px;
+  white-space: nowrap;
+  box-shadow: 0px 8px 25px rgba(49, 130, 246, 0.35);
+  backdrop-filter: blur(6px);
+  animation: fadeInDown 0.3s ease-out;
+  z-index: 20;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 10px;
+    border-style: solid;
+    border-color: transparent transparent rgba(49, 130, 246, 0.95) transparent;
+    filter: drop-shadow(0px -2px 2px rgba(49, 130, 246, 0.2));
+  }
+
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
   }
 `;
 
@@ -443,4 +496,8 @@ const decorCircle3 = css`
     width: 60px;
     height: 60px;
   }
+`;
+
+const startIconStyle = css`
+  margin-top: 4px;
 `;

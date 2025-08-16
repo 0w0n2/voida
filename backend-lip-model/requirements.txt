@@ -1,4 +1,51 @@
-fastapi
-uvicorn[standard]
-httpx
-dotenv
+# ===================================================================
+# VSR API 서버 - 핵심(Core) 의존성
+# ===================================================================
+# 이 파일은 모든 환경(로컬, 개발, 운영, Docker)에서 공통으로
+# 필요한 최소한의 필수 라이브러리를 정의합니다.
+#
+# 설치 방법:
+# pip install -r requirements.txt
+# ===================================================================
+
+# --- Web Framework ---
+fastapi==0.116.1
+uvicorn[standard]==0.35.0   # [standard]는 uvloop, httptools 등 최적화 포함
+python-multipart==0.0.20
+gunicorn==22.0.0            # Linux/macOS 환경의 운영 서버
+PyJWT==2.8.0                # JWT 토큰 인증
+python-dotenv==1.0.0        # .env 파일 로딩
+
+# --- AI/ML Core ---
+# PyTorch는 환경(CPU/GPU)에 따라 별도 설치를 권장합니다.
+# (예: pip install torch torchaudio torchvision --index-url https://download.pytorch.org/whl/cu118)
+torch==2.8.0
+torchaudio==2.8.0
+torchvision==0.23.0
+pytorch-lightning==2.5.2
+openvino-dev==2024.1.0
+nncf==2.9.0
+ctranslate2==4.6.0        # M2M100(INT8) 폴백 추론 엔진
+
+# --- Video/Image/Audio Processing ---
+opencv-python-headless==4.9.0.80 # GUI 불필요 시 headless 버전 사용
+mediapipe==0.10.14
+av==15.0.0
+scikit-image==0.24.0
+sounddevice==0.5.2          # 오디오 처리(필요시)
+
+# --- Text Processing ---
+sentencepiece==0.2.0
+argostranslate==1.9.6
+transformers==4.45.2      # M2M100 토크나이저(폴백 번역용)
+
+# --- Math & Scientific Computing ---
+numpy==1.26.4
+scipy==1.13.1
+Pillow==10.3.0
+numba==0.59.1
+
+# --- Utilities ---
+PyYAML==6.0.2               # 설정 파일 로딩
+tqdm==4.67.1                # 진행 상태 표시
+openai==1.99.9              # OpenAI SDK (TTS)

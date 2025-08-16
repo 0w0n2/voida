@@ -14,14 +14,17 @@ import MainPage from '@/pages/MainPage';
 import MyPage from '@/pages/MyPage';
 import MeetingRoomPage from '@/pages/MeetingRoomPage';
 import LiveRoomOverlay from '@/components/live-room/LiveOverlay';
-import VoiceRoom from '@/components/live-room/VoiceRoom';
 import GlobalAlert from '@/components/common/GlobalAlert';
+import NotFound404 from '@/pages/NotFound404';
+import NotFound500 from '@/pages/NotFound500';
 
 function App() {
   return (
     <HashRouter>
       <GlobalAlert />
       <Routes>
+        <Route path="*" element={<NotFound404 />} />
+        <Route path="/error" element={<NotFound500 />} />
         <Route path="/" element={<StartingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -36,7 +39,6 @@ function App() {
         <Route path="/main" element={<MainPage />} />
         <Route path="/meeting-room/:meetingRoomId" element={<MeetingRoomPage />} />
         <Route path="/mypage" element={<MyPage />} />
-        <Route path="/voice-test" element={<VoiceRoom />} />
         <Route path="/live-overlay" element={<LiveRoomOverlay />} />
       </Routes>
     </HashRouter>

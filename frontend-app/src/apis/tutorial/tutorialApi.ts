@@ -22,19 +22,26 @@ function buildFileName(file: Blob, base: string, fallbackExt = 'webm') {
   return `${base}.${ext}`;
 }
 
-export const uploadTutorialAudio = async (file: Blob) => {
+export const uploadTutorialAudio = async (file: File, sessionNumber: string) => {
   const formData = new FormData();
-  formData.append('file', file, buildFileName(file, 'record', 'webm'));
+  formData.append('soundFile', file);
+  formData.append('sessionId', sessionNumber);
 
-  const res = await apiInstanceSpring.post('/tutorial/audio', formData);
-  return res.data.result;
+  const res = await apiInstanceSpring.post('/v1/lives/stt', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return res.data;
 };
 
-export const uploadLipTestVideo = async (file: Blob) => {
-  console.log(file);
+export const uploadLipTestVideo = async (file: File, sessionNumber: string) => {
   const formData = new FormData();
-  formData.append('file', file, buildFileName(file, 'lip-test', 'webm'));
+  formData.append('videoFile', file);
+  formData.append('sessionNumber', sessionNumber);
 
-  const res = await apiInstanceFast.post('/upload/lip-test', formData);
-  return res.data.result;
+  const res = await apiInstanceFast.post('/v1/lip', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    responseType: 'arraybuffer',
+  });
+
+  return res.data; 
 };
