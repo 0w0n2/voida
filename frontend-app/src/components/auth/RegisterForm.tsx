@@ -69,7 +69,7 @@ const RegisterForm = () => {
 
     if (!value.trim()) {
       setEmailError('이메일을 입력해주세요.');
-    } else if (!/^[\w-.]+@[\w-]+\.[a-z]{2,}$/i.test(value)) {
+    } else if (!/^[\w.-]+@[\w-]+(\.[a-z]{2,})+$/i.test(value)) {
       setEmailError('올바른 이메일 형식이 아닙니다.');
     } else {
       setEmailError('');
