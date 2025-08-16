@@ -6,7 +6,7 @@ import VoidaLogo from '@/assets/logo/voida-logo.png';
 import ChatImage from '@/assets/icons/main-chat.png';
 import LipIcon from '@/assets/icons/lip-blue.png';
 import StartIcon from '@/assets/icons/start.png';
-import { Download } from 'lucide-react';
+import { Globe } from 'lucide-react';
 
 const MainPage = () => {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ const MainPage = () => {
           <p css={desc}>
             청각장애인과 비장애인이 함께 소통할 수 있도록,
             <br />
-            입술의 움직임을 글자로 바꾸는 실시간 대화 플랫폼입니다.
+            입술의 움직임을 음성으로 바꾸는 실시간 대화 플랫폼입니다.
           </p>
           <div css={buttonBox}>
             <button css={startButton} onClick={() => navigate('/login')}>
@@ -48,8 +48,8 @@ const MainPage = () => {
               onMouseLeave={() => setIsTooltipVisible(false)}
               onClick={() => window.open(import.meta.env.VITE_WEB_URL)}
             >
-              <Download />
-              지금 받기
+              <Globe  />
+              VOIDA
               {isTooltipVisible && (
                 <span css={tooltipStyle}>
                   공식 웹사이트에서 Desktop App을 설치해보세요!
@@ -304,7 +304,7 @@ const demoButton = css`
   padding: clamp(10px, 1.2vw, 12px) clamp(20px, 2.5vw, 28px);
   background: #fff;
   color: var(--color-gray-600);
-  font-weight: 600;
+  font-family: 'NanumSquareEB';
   border-radius: clamp(10px, 1.2vw, 12px);
   font-size: clamp(15px, 1.6vw, 18px);
   border: 2px solid #d9d9d9;

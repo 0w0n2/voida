@@ -28,7 +28,6 @@ interface Participant {
   nickname?: string;
   lipTalkMode?: boolean;
 }
-
 export interface ChatMessage {
   messageId: string;
   user: {
@@ -48,7 +47,6 @@ type AnalysisPayload = {
 };
 
 type OverlayPos = 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT';
-
 const LiveOverlay = () => {
   const [searchParams] = useSearchParams();
   const meetingRoomId = searchParams.get('roomId');
@@ -66,8 +64,8 @@ const LiveOverlay = () => {
 
   // 분석 상태
   const [step, setStep] = useState<'record' | 'loading' | 'result'>('record');
-  const [analysisResult, setAnalysisResult] = useState<null | 'success' | 'fail'>(null);
-  const [analysisText, setAnalysisText] = useState<string | null>(null);
+  // const [analysisResult, setAnalysisResult] = useState<null | 'success' | 'fail'>(null);
+  // const [analysisText, setAnalysisText] = useState<string | null>(null);
 
   const [userInfo, setUserInfo] = useState<any>(null);
 
@@ -103,7 +101,6 @@ const LiveOverlay = () => {
         const pos = (user?.setting?.overlayPosition as OverlayPos) || 'TOPRIGHT';
         setOverlayPosition(pos);
         const trans = user?.setting?.overlayTransparency;
-        console.log(trans);
         setOverlayTransparency(trans);
       } catch (err) {
         console.error('유저 정보 조회 실패:', err);
@@ -115,27 +112,19 @@ const LiveOverlay = () => {
   useEffect(() => {
     if(!userInfo || !meetingRoomId) return;
 
-    console.log(userInfo);
-    console.log(meetingRoomId);
-
     (async () => {
       try {
         const sessionInfo = await getSession(meetingRoomId);
-        console.log(sessionInfo);
         const initialParticipants: Participant[] = (sessionInfo?.participants || [])
-          .filter(p => p.nickname !== userInfo.member.nickname) // 또는 userId 비교
+          .filter(p => p.nickname !== userInfo.member.nickname)
           .concat({
             profileImageUrl: userInfo.member.profileImageUrl,
             nickname: userInfo.member.nickname,
             lipTalkMode: userInfo.setting.lipTalkMode,
           });
         setParticipants(initialParticipants);
-        setParticipants(initialParticipants);
-        const ovSessionId = sessionInfo.ovSessionId;
-        console.log(ovSessionId);
 
         const token = await getLiveToken(meetingRoomId);
-        console.log(token);
 
         await connectOpenVidu(token, {
         onParticipantJoin: (participant) => {
@@ -146,13 +135,13 @@ const LiveOverlay = () => {
           });
         },
 
-        onParticipantLeave: (connectionId) => {
+        onParticipantLeave: () => {
           setParticipants((prev) =>
-            prev.filter((p) => p.connectionId !== connectionId)
+            prev.filter((participant) => participant.nickname !== userInfo.member.nickname)
           );
         },
 
-        onChatMessage: (data) => {
+       onChatMessage: (data) => {
           try {
             const parsed = JSON.parse(data);
             const newMsg: ChatMessage = {
@@ -165,6 +154,29 @@ const LiveOverlay = () => {
               content: parsed.content,
               timestamp: new Date().toISOString(),
             };
+
+            if (newMsg.content.endsWith('.mp3')) {
+              const el = audioRef.current;
+              if (!el) return;
+              if (!el.paused) {
+                el.pause();  
+              }
+              el.src = import.meta.env.VITE_CDN_URL
+                ? `${import.meta.env.VITE_CDN_URL}/${newMsg.content}`
+                : newMsg.content;
+
+              try {
+                el.play(); 
+              } catch (err) {
+                console.error("오디오 재생 실패:", err);
+              }
+              return;
+            }
+
+            if(newMsg.content.startsWith('http')) {
+              const audio = new Audio(newMsg.content);
+              audio.play().catch(err => console.error('재생 실패:', err));
+            }
             setChatMessages(prev => [...prev, newMsg]);
           } catch (e) {
             console.error("채팅 메시지 파싱 실패:", e, data);
@@ -218,7 +230,6 @@ const LiveOverlay = () => {
           const sigKey = parseHotkey(slot.hotkey);
           if (!sigKey) continue;
           hotkeyMapRef.current.set(sigKey, slot.message);
-          console.log(slot.message);
           if (slot.url) ttsUrlMapRef.current.set(sigKey, slot.url);
         }
       } catch (e) {
@@ -229,9 +240,12 @@ const LiveOverlay = () => {
 
   // 단축키 훅
   useQuickSlot(hotkeyMapRef, ttsUrlMapRef, audioRef, (msg: string) => {
-    // 단축키 입력 시 실행되는 콜백
-    console.log(`1`);
-    sendSignalMessage(msg);   // 채팅으로 전송
+    const key = [...hotkeyMapRef.current].find(([k, v]) => v === msg)?.[0];
+    if (!key) return;
+    const url = ttsUrlMapRef.current.get(key);
+    const contentToSend = url || msg;
+    sendSignalMessage(contentToSend);
+    sendSignalMessage(msg);
   });
 
   // 시그널 보내기
@@ -260,8 +274,6 @@ const LiveOverlay = () => {
         const file = new File([blob], 'general-test.webm', { type: blob.type });
         const res = await uploadTutorialAudio(file, '0');
 
-        setAnalysisResult(res.isSuccess ? 'success' : 'fail');
-        setAnalysisText(res.result?.text || null);
         setStep('result');
 
         if (res.result?.text) sendSignalMessage(res.result.text);
@@ -269,8 +281,6 @@ const LiveOverlay = () => {
         setStep('record');
       } catch (e) {
         console.log(e);
-        setAnalysisResult('fail');
-        setAnalysisText(null);
         setStep('result');
         setTimeout(() => setStep('record'), 500);
       }
@@ -299,15 +309,13 @@ const LiveOverlay = () => {
           const audioBlob = new Blob([audioBytes], { type: parsedJson.audioMime || 'audio/mpeg' });
           const audioUrl = URL.createObjectURL(audioBlob);
 
-          setAnalysisResult(parsedJson.videoResult ? 'success' : 'fail');
+          console.log(audioUrl);
           setAudioUrl(audioUrl);
+          sendSignalMessage(audioUrl);
           if (audioUrl) {
             const audio = new Audio(audioUrl);
             audio.play().catch(err => console.error('재생 실패:', err));
           }
-
-          setAnalysisResult(parsedJson.videoResult ? 'success' : 'fail');
-          setAnalysisText(parsedJson.transText || null);
           sendSignalMessage(parsedJson.transText || '');
           setStep('result');
         }
@@ -315,13 +323,21 @@ const LiveOverlay = () => {
         setStep('record');
       } catch (e) {
         console.log(e);
-        setAnalysisResult('fail');
-        setAnalysisText(null);
         setStep('result');
         setTimeout(() => setStep('record'), 800);
       }
     },
   });
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    if (videoRef.current && videoStream) {
+      videoRef.current.srcObject = videoStream;
+      videoRef.current.play().catch(() => {
+        console.error("비디오 자동 재생에 실패했습니다.");
+      });
+    }
+  }, [videoStream]);
 
   // 나가기
   const exitLive = () => {
@@ -401,19 +417,14 @@ const LiveOverlay = () => {
                   {showVideo && (
                     <div css={videoWrapper}>
                       <video
-                        ref={(el) => {
-                          if (el && videoStream) {
-                            (el as any).srcObject = videoStream;
-                            el.play().catch(() => {});
-                          }
-                        }}
+                        ref={videoRef}
                         autoPlay
+                        playsInline 
                         muted
                         css={cameraPreview}
                       />
-
                       {isVideoRecording && (
-                        <ProgressBar percent={progress} height={6} position="absolute" bottom={3} />
+                        <ProgressBar percent={progress} height={6} position="relative" bottom={3} />
                       )}
                     </div>
                   )}
@@ -457,13 +468,6 @@ const LiveOverlay = () => {
               <span></span><span></span><span></span>
             </div>
           )}
-
-          {/* {step === 'result' && (
-            <div css={resultBox(analysisResult || 'fail')}>
-              결과: {analysisResult === 'success' ? '성공' : '실패'}
-              {analysisText && <div css={resultText}>{analysisText}</div>}
-            </div>
-          )} */}
         </div>
       )}
 
@@ -730,8 +734,8 @@ const cameraToggleBtn = (isOn: boolean) => css`
   align-items: center;
   justify-content: center;
   background: ${isOn
-    ? 'linear-gradient(90deg, #6e8efb, #a777e3)' // 켜짐 → 보라/파랑 그라데이션
-    : 'rgba(255,255,255,0.85)'};                // 꺼짐 → 연한 흰 배경
+    ? 'linear-gradient(90deg, #6e8efb, #a777e3)'
+    : 'rgba(255,255,255,0.85)'};            
   color: ${isOn ? '#fff' : '#222'};
   box-shadow: ${isOn
     ? '0 4px 15px rgba(110, 142, 251, 0.4)'
@@ -850,21 +854,6 @@ const loadingDots = css`
       transform: scale(1);
     }
   }
-`;
-
-const resultBox = (status: 'success' | 'fail') => css`
-  text-align: center;
-  font-size: 14px;
-  margin-top: 8px;
-  padding: 6px;
-  border-radius: 4px;
-  background: ${status === 'success' ? 'rgba(76, 175, 80, 0.3)' : 'rgba(244, 67, 54, 0.3)'};
-`;
-
-const resultText = css`
-  font-size: 13px;
-  margin-top: 4px;
-  color: #fff;
 `;
 
 const chatList = css`
