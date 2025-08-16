@@ -8,9 +8,6 @@ import Keyboard from '@/assets/icons/keyboard.png';
 import overlay from '@/assets/icons/overlay.png';
 import VoidaLogo from '@/assets/logo/voida-logo.png';
 import multi from '@/assets/image/multi.png';
-import vodiashow from '@/assets/show/voidashow.mp4';
-import stt from '@/assets/show/stt.mp4';
-import shortslot from '@/assets/show/shortslot.mp4';
 
 const bp = {
   tablet: '@media (min-width: 768px)',
