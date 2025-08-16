@@ -138,12 +138,24 @@ const SettingRoom = () => {
           <div css={fieldIcon}>
             <Home />
           </div>
-          <input
-            css={fieldInput}
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="방 제목을 입력해주세요."
-          />
+              <input
+                css={fieldInput}
+                value={title}
+                onChange={(e) => {
+                  if (e.target.value.length <= 16) {
+                    setTitle(e.target.value);
+                  } else {
+                    useAlertStore
+                      .getState()
+                      .showAlert(
+                        '방 제목은 최대 16자까지 입력 가능합니다.',
+                        'top',
+                      );
+                  }
+                }}
+                placeholder="방 제목을 입력해주세요."
+                maxLength={16}
+              />
         </div>
       </div>
       <div css={fieldRow}>
