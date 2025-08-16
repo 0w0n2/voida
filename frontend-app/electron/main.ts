@@ -8,20 +8,23 @@ type OverlayPos = 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT';
 let lastOverlayInit: { roomId: string; overlayPosition?: OverlayPos; overlayTransparency?: number } | null = null;
 
 app.whenReady().then(() => {
+  const isDev = !app.isPackaged;
+
+  const preloadPath = isDev
+    ? path.join(__dirname, 'preload.js')
+    : path.join(process.resourcesPath, 'app.asar.unpacked', 'electron', 'dist', 'preload.js'); 
+
   win = new BrowserWindow({
     width: 1440,
     height: 900,
     icon: path.join(__dirname, 'assets', 'icon.ico'),
     webPreferences: {
-      // preload: path.join(app.getAppPath(), 'electron', 'dist', 'preload.js'),
-      preload: path.join(__dirname, 'preload.js'),
+      preload: preloadPath,
       nodeIntegration: false,
       contextIsolation: true,
       devTools: true,
     },
   });
-
-  const isDev = !!process.env.ELECTRON_DEV;
 
   if (isDev) {
     win.loadURL('http://localhost:5173');
@@ -29,7 +32,6 @@ app.whenReady().then(() => {
     win.loadFile(path.join(__dirname, '../../dist/index.html'));
   }
 
-  // ---------- (A) 뒤로/앞으로/새로고침: IPC ----------
   ipcMain.on('nav:back', (e) => {
     const wc = e.sender;
     if (wc.canGoBack()) wc.goBack();
@@ -43,7 +45,6 @@ app.whenReady().then(() => {
     wc.reload();
   });
 
-  // ---------- (B) 전역 단축키(포커스된 창 기준) ----------
   const goBackFocused = () => {
     const focused = BrowserWindow.getFocusedWindow();
     const wc = focused?.webContents;
@@ -55,7 +56,6 @@ app.whenReady().then(() => {
     if (wc?.canGoForward()) wc.goForward();
   };
 
-  // Windows/Linux: Alt+Left/Right, macOS: Cmd+[/]
   globalShortcut.register('Alt+Left', goBackFocused);
   globalShortcut.register('Alt+Right', goForwardFocused);
   globalShortcut.register('CommandOrControl+[', goBackFocused);
@@ -65,7 +65,6 @@ app.whenReady().then(() => {
     globalShortcut.unregisterAll();
   });
 
-  // ---------- (C) Windows 마우스 뒤로/앞으로 버튼 ----------
   const attachAppCommand = (bw: BrowserWindow) => {
     bw.on('app-command', (_e, cmd) => {
       if (cmd === 'browser-backward') goBackFocused();
@@ -74,7 +73,6 @@ app.whenReady().then(() => {
   };
   attachAppCommand(win);
 
-  // ---------- 오버레이 열기 ----------
   ipcMain.on('open-overlay', (_e, init?: { roomId: string; overlayPosition?: OverlayPos; overlayTransparency?: number }) => {
     const roomId = init?.roomId;
     const overlayPosition = init?.overlayPosition ?? 'TOPRIGHT';
@@ -90,7 +88,6 @@ app.whenReady().then(() => {
 
     const overlayWin = createOverlayWindow(isDev, overlayPosition, overlayTransparency);
 
-    // 오버레이에도 마우스 버튼 뒤/앞 처리 붙이기
     attachAppCommand(overlayWin);
 
     if (isDev) {

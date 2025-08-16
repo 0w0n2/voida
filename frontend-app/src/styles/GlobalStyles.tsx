@@ -5,25 +5,25 @@ const GlobalStyles = () => (
     styles={css`
       @font-face {
         font-family: 'NanumSquareEB';
-        src: url('/fonts/NanumSquareEB.woff') format('opentype');
+        src: url('/fonts/NanumSquareEB.woff') format('woff');
         font-weight: 800;
         font-style: normal;
       }
       @font-face {
         font-family: 'NanumSquareB';
-        src: url('/fonts/NanumSquareB.woff') format('opentype');
+        src: url('/fonts/NanumSquareB.woff') format('woff');
         font-weight: 700;
         font-style: normal;
       }
       @font-face {
         font-family: 'NanumSquareR';
-        src: url('/fonts/NanumSquareR.woff') format('opentype');
+        src: url('/fonts/NanumSquareR.woff') format('woff');
         font-weight: 400;
         font-style: normal;
       }
       @font-face {
         font-family: 'NanumSquareL';
-        src: url('/fonts/NanumSquareL.woff') format('opentype');
+        src: url('/fonts/NanumSquareL.woff') format('woff');
         font-weight: 300;
         font-style: normal;
       }
@@ -71,16 +71,15 @@ const GlobalStyles = () => (
         background-color: transparent !important;
         color: var(--color-text);
         caret-color: transparent;
-        // overflow: hidden;
       }
 
       [data-modal-root] {
         opacity: 1 !important;
         pointer-events: auto !important;
-        isolation: isolate; /* 레이어 분리(선택) */
+        isolation: isolate;
       }
       body:has([data-modal-root]) {
-        overflow: hidden; /* 배경 스크롤 차단 */
+        overflow: hidden; 
         overscroll-behavior: none;
         scrollbar-gutter: stable both-edges;
       }
@@ -98,7 +97,6 @@ const GlobalStyles = () => (
         contain: none !important;
         will-change: auto !important;
         transition: none !important;
-        /* overflow:hidden은 쓰지 마 — 오버레이가 잘려 */
       }
       body:has([data-modal-root]) [data-slider-track],
       body:has([data-modal-root]) [data-slider-wrapper],

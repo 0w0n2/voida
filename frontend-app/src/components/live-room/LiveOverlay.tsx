@@ -99,6 +99,7 @@ const LiveOverlay = () => {
         const pos = (user?.setting?.overlayPosition as OverlayPos) || 'TOPRIGHT';
         setOverlayPosition(pos);
         const trans = user?.setting?.overlayTransparency;
+        console.log(trans);
         setOverlayTransparency(trans);
       } catch (err) {
         console.error('유저 정보 조회 실패:', err);
@@ -515,8 +516,8 @@ const overlayContainer = (isBottom: boolean) => css`
 `;
 
 const overlayContent = (isBottom: boolean, transparency: number) => css`
-  background: rgba(0, 0, 0, ${transparency});
-  color: white;
+  background: rgba(0, 0, 0, ${transparency / 100});
+  color: ${transparency > 30 ? 'black' : 'white'};
   border-radius: 10px;
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
