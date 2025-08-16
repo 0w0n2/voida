@@ -63,7 +63,7 @@ export default function MainPage() {
 
         <div css={heroPreviewBoxCss}>
           <video
-            src={vodiashow}
+            src={`${import.meta.env.VITE_CDN_URL}/official-website-assets/voidashow.mp4`}
             loop
             controls
             playsInline
@@ -101,7 +101,7 @@ export default function MainPage() {
           </div>
           <div css={featureBoxCss}>
             <video
-              src={stt}
+              src={`${import.meta.env.VITE_CDN_URL}/official-website-assets/stt.mp4`}
               autoPlay
               muted
               loop
@@ -115,7 +115,7 @@ export default function MainPage() {
           <div css={[featureBoxCss, { order: 1 }]}>
             <div css={featureBoxCss}>
               <video
-                src={shortslot}
+                src={`${import.meta.env.VITE_CDN_URL}/official-website-assets/shortslot.mp4`}
                 autoPlay
                 muted
                 loop
