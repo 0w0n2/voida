@@ -17,8 +17,8 @@
     "appId": "com.ssafy.voida",
     "productName": "VOIDA",
     "files": [
-      "dist/**",
-      "electron/dist/**"
+      "dist/**/*",
+      "electron/dist/**/*"
     ],
     "win": {
       "icon": "electron/assets/voida-favicon.ico",
