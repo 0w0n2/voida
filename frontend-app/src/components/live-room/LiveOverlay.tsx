@@ -318,9 +318,6 @@ const { isRecording: isVideoRecording, stream: videoStream, start: startVideo, s
       const jsonBytes = new Uint8Array(buffer, 4, jsonLength);
       const jsonString = new TextDecoder().decode(jsonBytes);
       const parsedJson: AnalysisPayload = JSON.parse(jsonString);
-
-      console.log(parsedJson);
-
       const audioStartIndex = 4 + jsonLength;
       const audioBytes = new Uint8Array(buffer, audioStartIndex);
 
@@ -356,15 +353,14 @@ const { isRecording: isVideoRecording, stream: videoStream, start: startVideo, s
 });
 
   const videoRef = useRef<HTMLVideoElement>(null);
-  useEffect(() => {
-    if (step === 'record' && videoRef.current && videoStream) {
+ useEffect(() => {
+    if (showVideo && step === 'record' && videoRef.current && videoStream) {
       videoRef.current.srcObject = videoStream;
       videoRef.current.play().catch(() => {
         console.error("비디오 자동 재생 실패");
       });
     }
-  }, [step, videoStream]);
-
+  }, [step, videoStream, showVideo]);
   // 나가기
   const exitLive = () => {
     disconnectOpenVidu();
@@ -740,6 +736,7 @@ const cameraPreview = css`
   border-radius: 8px;
   object-fit: cover;
   transform: scaleX(-1);
+  pointer-events: none; 
 `;
 
 const controlWrapper = css`
@@ -759,6 +756,7 @@ const cameraToggleBtn = (isOn: boolean) => css`
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  z-index: 9999;  
   background: ${isOn
     ? 'linear-gradient(90deg, #6e8efb, #a777e3)'
     : 'rgba(255,255,255,0.85)'};            
