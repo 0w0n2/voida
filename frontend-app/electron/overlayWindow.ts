@@ -70,7 +70,7 @@ export function createOverlayWindow(
   const realign = () => {
     if (!overlayWin) return;
     const disp = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
-    const b = calcOverlayBounds(disp, overlaySize, overlayPosition);
+    const b = calcOverlayBounds(disp, overlaySize, overlayPosition, overlayTransparency);
     overlayWin.setBounds(b);
   };
   screen.on('display-metrics-changed', realign);
