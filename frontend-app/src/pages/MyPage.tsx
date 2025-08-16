@@ -73,7 +73,9 @@ export default function MyPage() {
 }
 
 const mainWrapper = css`
-  min-height: 100vh;
+  height: 100vh; 
+  overflow: hidden; 
+  box-sizing: border-box; 
 `;
 
 const navWrapper = css`

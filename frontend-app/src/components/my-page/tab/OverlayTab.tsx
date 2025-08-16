@@ -4,12 +4,14 @@ import { useState, useEffect } from 'react';
 import { getUserSettings, updateOverlay } from '@/apis/auth/userApi';
 import { useAuthStore } from '@/stores/userStore';
 import UpdateDoneModal from '@/components/my-page/modal/UpdateDoneModal';
+import { useAlertStore } from '@/stores/useAlertStore';
 
 type OverlayPosition = 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT';
 
 const OverlayTab = () => {
   const { user } = useAuthStore();
-  const [overlayPosition, setOverlayPosition] = useState<OverlayPosition>('TOPLEFT');
+  const [overlayPosition, setOverlayPosition] =
+    useState<OverlayPosition>('TOPLEFT');
   const [liveFontSize, setLiveFontSize] = useState<number>(0);
   const [overlayTransparency, setOverlayTransparency] = useState<number>(0);
   const [changed, setChanged] = useState(false);
@@ -20,7 +22,9 @@ const OverlayTab = () => {
     const fetchUserSettings = async () => {
       try {
         const res = await getUserSettings();
-        setOverlayPosition(res.data.result.setting.overlayPosition as OverlayPosition);
+        setOverlayPosition(
+          res.data.result.setting.overlayPosition as OverlayPosition,
+        );
         setLiveFontSize(res.data.result.setting.liveFontSize);
         setOverlayTransparency(res.data.result.setting.overlayTransparency);
       } catch (err) {
@@ -35,10 +39,10 @@ const OverlayTab = () => {
     setChanged(true);
   };
 
-  const handleFontSizeChange = (size: number) => {
-    setLiveFontSize(size);
-    setChanged(true);
-  };
+  // const handleFontSizeChange = (size: number) => {
+  //   setLiveFontSize(size);
+  //   setChanged(true);
+  // };
 
   const handleTransparencyChange = (transparency: number) => {
     setOverlayTransparency(transparency);
@@ -50,6 +54,9 @@ const OverlayTab = () => {
       await updateOverlay(overlayPosition, overlayTransparency, liveFontSize);
       setShowDoneModal(true);
       setChanged(false);
+      useAlertStore
+        .getState()
+        .showAlert('유저 정보가 업데이트되었습니다.', 'top');
     } catch (err) {
       console.error('오버레이 설정 저장 실패:', err);
     }
@@ -97,27 +104,6 @@ const OverlayTab = () => {
 
         <div css={rightSectionStyle}>
           <div css={overlaySectionStyle}>
-            <h3 css={overlaySectionTitleStyle}>글자 크기</h3>
-            <p css={overlaySectionDescriptionStyle}>
-              게임 중 채팅의 글자 크기를 지정할 수 있습니다.
-            </p>
-            <div css={sliderContainerStyle}>
-              <span css={sliderLabelStyle}>가</span>
-              <input
-                css={sliderStyle}
-                type="range"
-                min="12"
-                max="48"
-                value={liveFontSize}
-                onChange={(e) => handleFontSizeChange(Number(e.target.value))}
-              />
-              <span css={sliderLabelStyle} style={{ fontSize: `${liveFontSize}px` }}>
-                가
-              </span>
-            </div>
-          </div>
-
-          <div css={overlaySectionStyle}>
             <h3 css={overlaySectionTitleStyle}>투명도</h3>
             <p css={overlaySectionDescriptionStyle}>
               게임 중 채팅의 투명도를 지정할 수 있습니다.
@@ -125,12 +111,14 @@ const OverlayTab = () => {
             <div css={sliderContainerStyle}>
               <span css={sliderLabelStyle}>0%</span>
               <input
-                css={sliderStyle}
+                css={sliderStyle(overlayTransparency)}
                 type="range"
                 min="0"
                 max="100"
                 value={overlayTransparency}
-                onChange={(e) => handleTransparencyChange(Number(e.target.value))}
+                onChange={(e) =>
+                  handleTransparencyChange(Number(e.target.value))
+                }
               />
               <span css={sliderLabelStyle}>{overlayTransparency}%</span>
             </div>
@@ -138,11 +126,11 @@ const OverlayTab = () => {
         </div>
       </div>
 
-      <UpdateDoneModal
+      {/* <UpdateDoneModal
         isOpen={showDoneModal}
         onClose={() => setShowDoneModal(false)}
         userName={user?.nickname || '사용자'}
-      />
+      /> */}
     </div>
   );
 };
@@ -183,24 +171,35 @@ const saveButtonStyle = css`
   color: var(--color-text-white);
   border: none;
   border-radius: 6px;
+  font-family: 'NanumSquareR', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   &:hover {
     background-color: var(--color-primary-dark);
   }
   &:disabled {
-    background-color: var(--color-gray-400);
+    background-color: var(--color-gray-300);
+    color: var(--color-gray-500);
     cursor: not-allowed;
   }
 `;
 
 const overlayContentStyle = css`
   display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 40px;
-  max-width: 800px;
 `;
 
-const leftSectionStyle = css`flex: 1;`;
-const rightSectionStyle = css`flex: 1; min-width: 550px;`;
+const leftSectionStyle = css`
+  flex: 1;
+`;
+const rightSectionStyle = css`
+  flex: 1;
+  min-width: 550px;
+  align-self: flex-start;
+`;
 
 const overlaySectionStyle = css`
   margin-bottom: 40px;
@@ -282,20 +281,23 @@ const sliderLabelStyle = css`
   min-width: 40px;
   text-align: center;
 `;
-const sliderStyle = css`
+
+const sliderStyle = (value: number) => css`
   flex: 1;
   height: 6px;
-  background: linear-gradient(
-    to right,
-    var(--color-primary) 0%,
-    var(--color-primary) 50%,
-    var(--color-gray-200) 50%,
-    var(--color-gray-200) 100%
-  );
   border-radius: 3px;
   outline: none;
   -webkit-appearance: none;
   appearance: none;
+
+  background: linear-gradient(
+    to right,
+    rgba(0, 123, 255, ${value / 100}) 0%,
+    rgba(0, 123, 255, ${value / 100}) ${value}%,
+    var(--color-gray-200) ${value}%,
+    var(--color-gray-200) 100%
+  );
+
   &::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 18px;

@@ -6,7 +6,7 @@ import EyeIcon from '@/assets/icons/eye.png';
 import EyeCloseIcon from '@/assets/icons/crossed-eye.png';
 import { Eye } from 'lucide-react';
 import UpdatePasswordDoneModal from '@/components/my-page/modal/UpdatePasswordDoneModal';
-
+import { useAlertStore } from '@/stores/useAlertStore';
 interface UpdatePasswordModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -143,7 +143,18 @@ const UpdatePasswordModal = ({
       await updatePassword(currentPassword, newPassword);
       // const isSuccess = res.data.isSuccess
       setIsSuccessModalOpen(true);
+      useAlertStore.getState().showAlert('비밀번호가 변경되었습니다.', 'top');
       console.log('비밀번호 변경 완료');
+
+      // 초기화처리
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setError('');
+      setCurrentPasswordError('');
+      setNewPasswordError('');
+      setConfirmPasswordError('');
+      onClose();
     } catch (err) {
       setCurrentPasswordError('현재 비밀번호가 일치하지 않습니다.');
     } finally {
@@ -302,13 +313,13 @@ const UpdatePasswordModal = ({
         </button>
       </div>
       {/* 비밀번호 수정 성공 시 모달 */}
-      <UpdatePasswordDoneModal
+      {/* <UpdatePasswordDoneModal
         isOpen={isSuccessModalOpen}
         onClose={() => setIsSuccessModalOpen(false)}
         closeAll={closeAll}
         closeDoneModal={closeDoneModal}
         handleClose={handleClose}
-      />
+      /> */}
     </div>
   );
 };
@@ -327,7 +338,7 @@ const overlayStyle = css`
 
 const modalStyle = css`
   background: white;
-  border-radius: 20px;
+  border-radius: 14px;
   padding: 50px 40px;
   width: 500px;
   max-width: 90vw;
@@ -471,7 +482,7 @@ const updateButtonStyle = css`
   background: var(--color-primary);
   color: var(--color-text-white);
   border: none;
-  border-radius: 16px;
+  border-radius: 8px;
   padding: 16px 20px;
   font-size: 16px;
   font-family: 'NanumSquareB', sans-serif;

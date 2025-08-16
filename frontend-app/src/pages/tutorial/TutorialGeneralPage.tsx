@@ -33,7 +33,7 @@ const contentWrapperStyle = css`
     max-width: 72rem;
   }
   @media (max-width: 1200px) {
-    max-width: 64rem; 
+    max-width: 64rem;
   }
   @media (max-width: 900px) {
     max-width: 80%;
@@ -111,4 +111,5 @@ const subtitleStyle = css`
 
 const footerStyle = css`
   max-width: 90%;
+  margin-top: 4rem;
 `;

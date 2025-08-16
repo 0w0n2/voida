@@ -2,7 +2,11 @@
 import { css } from '@emotion/react';
 import { X, Camera, Grid, Home, Plus, UserRound, Copy } from 'lucide-react';
 import { useState, useRef } from 'react';
-import { createRoom, postInviteCode, getInviteCode } from '@/apis/meeting-room/meetingRoomApi';
+import {
+  createRoom,
+  postInviteCode,
+  getInviteCode,
+} from '@/apis/meeting-room/meetingRoomApi';
 import { useAlertStore } from '@/stores/useAlertStore';
 
 interface CreateRoomModalProps {
@@ -34,9 +38,15 @@ const CreateRoomModal = ({ onClose }: CreateRoomModalProps) => {
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > 1 * 1024 * 1024) {
+      useAlertStore
+        .getState()
+        .showAlert('파일 크기는 1MB 이내로 업로드 해주세요.', 'top');
+      return;
+    }
     const previewUrl = URL.createObjectURL(file);
     setPreviewImageUrl(previewUrl);
-    setThumbnailImageUrl(file);  
+    setThumbnailImageUrl(file);
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -56,39 +66,39 @@ const CreateRoomModal = ({ onClose }: CreateRoomModalProps) => {
     const file = e.dataTransfer.files?.[0];
     if (file) {
       const previewUrl = URL.createObjectURL(file);
-      setPreviewImageUrl(previewUrl);   
-      setThumbnailImageUrl(file);    
-    } 
+      setPreviewImageUrl(previewUrl);
+      setThumbnailImageUrl(file);
+    }
   };
 
-const handleCreate = async () => {
-  if (!title.trim() || !category.trim()) {
-    useAlertStore
-      .getState()
-      .showAlert('방 제목과 카테고리를 모두 입력해주세요.', 'top');
-    return;
-  }
+  const handleCreate = async () => {
+    if (!title.trim() || !category.trim()) {
+      useAlertStore
+        .getState()
+        .showAlert('방 제목과 카테고리를 모두 입력해주세요.', 'top');
+      return;
+    }
 
-  setIsLoading(true);
-  try {
-    const room = await createRoom(title, category, thumbnailImageUrl);
-    await postInviteCode(room.meetingRoomId);
-    // console.log(room);
-    const { inviteCode } = await getInviteCode(room.meetingRoomId);
-    setInviteCode(inviteCode);
-    console.log(inviteCode);
-  } catch (error) {
-    console.error('방 생성 또는 초대코드 요청 실패:', error);
-  } finally {
-    setIsLoading(false);
-  }
-};
+    setIsLoading(true);
+    try {
+      const room = await createRoom(title, category, thumbnailImageUrl);
+      await postInviteCode(room.meetingRoomId);
+      // console.log(room);
+      const { inviteCode } = await getInviteCode(room.meetingRoomId);
+      setInviteCode(inviteCode);
+      console.log(inviteCode);
+    } catch (error) {
+      console.error('방 생성 또는 초대코드 요청 실패:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-const handleCopy = () => {
-  if (!inviteCode) return;
-  navigator.clipboard.writeText(inviteCode);
-  useAlertStore.getState().showAlert('초대코드가 복사되었습니다!', 'bottom');
-};
+  const handleCopy = () => {
+    if (!inviteCode) return;
+    navigator.clipboard.writeText(inviteCode);
+    useAlertStore.getState().showAlert('초대코드가 복사되었습니다!', 'bottom');
+  };
 
   return (
     <div css={overlay}>
@@ -104,7 +114,12 @@ const handleCopy = () => {
 
         {inviteCode ? (
           <>
-            <X css={closeButton} onClick={() => { onClose(); window.location.reload(); }}
+            <X
+              css={closeButton}
+              onClick={() => {
+                onClose();
+                window.location.reload();
+              }}
             />
             <h2 css={codeTitle}>코드 확인하기</h2>
             <div css={codeDisplay}>
@@ -189,11 +204,16 @@ const handleCopy = () => {
               <input
                 css={fieldInput}
                 value={title}
-               onChange={(e) => {
+                onChange={(e) => {
                   if (e.target.value.length <= 16) {
                     setTitle(e.target.value);
                   } else {
-                    useAlertStore.getState().showAlert('방 제목은 최대 16자까지 입력 가능합니다.', 'top');
+                    useAlertStore
+                      .getState()
+                      .showAlert(
+                        '방 제목은 최대 16자까지 입력 가능합니다.',
+                        'top',
+                      );
                   }
                 }}
                 placeholder="방 제목을 입력해주세요."
@@ -313,7 +333,7 @@ const closeButton = css`
   font-size: 24px;
   color: #888;
   transition: color 0.2s ease;
-    &:hover {
+  &:hover {
     color: #000;
   }
 `;

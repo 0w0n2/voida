@@ -21,6 +21,7 @@ const ShortcutsTab = () => {
   const [quickSlotHotkeys, setQuickSlotHotkeys] = useState<string[]>([]);
   const [quickSlotUrls, setQuickSlotUrls] = useState<string[]>([]);
   const [quickSlotIds, setQuickSlotIds] = useState<number[]>([]);
+  const [shortcutError, setShortcutError] = useState<boolean>(false);
 
   // 유저 단축키 불러오기
   useEffect(() => {
@@ -46,6 +47,10 @@ const ShortcutsTab = () => {
 
   const handleShortcutChange = (index: number, value: string) => {
     const newMessages = [...quickSlotMessages];
+
+    if (newMessages[index].length > 20) {
+      setShortcutError(true);
+    }
     newMessages[index] = value;
     setQuickSlotMessages(newMessages);
     setHasChanged(true);
@@ -57,7 +62,16 @@ const ShortcutsTab = () => {
 
   const handleSave = async () => {
     try {
-      await updateQuickslots(shortcuts);
+      const res = await updateQuickslots(shortcuts);
+      const resCode = res.data.code;
+
+      if (resCode === 500) {
+        useAlertStore
+          .getState()
+          .showAlert('단축키는 20자 이하로 입력해주세요.', 'top');
+        return;
+      }
+
       console.log('단축키 저장 완료');
       console.log(shortcuts);
       useAlertStore
