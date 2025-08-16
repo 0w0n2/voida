@@ -67,11 +67,14 @@ public class MyPageServiceImpl implements MyPageService {
     }
 
     @Override
-    public void checkNicknameIsValid(String nickname) {
-        if (memberRepository.existsByNicknameAndIsDeletedIsFalse(nickname)) {
+    public void checkNicknameIsValid(String currentNickname, String newNickname) {
+        if (newNickname.equals(currentNickname)) {
+            return;
+        }
+        if (memberRepository.existsByNicknameAndIsDeletedIsFalse(newNickname)) {
             throw new BaseException(BaseResponseStatus.NICKNAME_IS_DUPLICATED);
         }
-        if (nickname.length() > 10) {
+        if (newNickname.length() > 10) {
             throw new BaseException(BaseResponseStatus.NICKNAME_TOO_LONG);
         }
     }
