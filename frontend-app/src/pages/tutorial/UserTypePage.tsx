@@ -10,6 +10,7 @@ import LipReadingUserImg from '@/assets/images/lip-reading-user-gray.png';
 import LipReadingUserImgHover from '@/assets/images/lip-reading-user-blue.png';
 import Microphton from '@/assets/icons/microphone.png';
 import Lip from '@/assets/icons/lip.png';
+import { useAlertStore } from '@/stores/useAlertStore';
 
 export default function UserType() {
   const navigate = useNavigate();
@@ -17,17 +18,21 @@ export default function UserType() {
 
   const handleSelect = async (
     e: React.MouseEvent,
-    type: 'general' | 'lip-reading',
-  ) => {
+      type: 'general' | 'lip-reading',
+    ) => {
     e.stopPropagation();
     try {
-      await postUserType(type);
+      console.log(type);
+      const res = await postUserType(type);
+      console.log(res);
       navigate(
         type === 'general' ? '/tutorial/general' : '/tutorial/lip-reading',
       );
     } catch (error) {
       console.error('사용자 유형 선택 실패:', error);
-      alert('사용자 유형 선택에 실패했습니다. 다시 시도해주세요.');
+      useAlertStore
+        .getState()
+        .showAlert('사용자 유형 선택에 실패했습니다. 다시 시도해주세요.', 'top');
     }
   };
 
@@ -95,14 +100,21 @@ export default function UserType() {
               입 모양 {'→'} 텍스트
               <br />입 모양을 실시간으로 바꿔줍니다!
             </p>
-
-            <button css={cardButtonStyle}>
+            <button
+              css={[
+                cardButtonStyle,
+                hoveredCard === 'lip' && {
+                  backgroundColor: 'var(--color-primary)',
+                  color: '#fff',
+                },
+              ]}
+              onClick={(e) => handleSelect(e, 'lip-reading')}
+            >
               <img src={Lip} alt="" />
               <span>구화 테스트</span>
             </button>
           </div>
         </div>
-        {/* <TutorialFooter items={'메인으로 가기'} /> */}
       </div>
     </div>
   );
