@@ -100,7 +100,7 @@ const ShortcutsTab = () => {
         </button>
       </div>
       <p css={panelSubtitleStyle}>
-        실시간 게임 중 자주 사용하는 문구를 단축키로 등록하세요.
+        실시간 채팅 중 자주 사용하는 문구를 단축키로 등록하세요.
       </p>
 
       <div css={shortcutsGridStyle}>

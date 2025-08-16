@@ -264,4 +264,5 @@ const noMic = css`
 
 const footerStyle = css`
   max-width: 90%;
+  margin-top: 64px;
 `;

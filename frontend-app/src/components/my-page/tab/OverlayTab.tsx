@@ -71,7 +71,7 @@ const OverlayTab = () => {
         </button>
       </div>
       <p css={panelSubtitleStyle}>
-        실시간 게임 중 오버레이 화면을 커스텀 해보세요.
+        실시간 채팅 중 오버레이 화면을 커스텀 해보세요.
       </p>
 
       <div css={overlayContentStyle}>
@@ -106,7 +106,7 @@ const OverlayTab = () => {
           <div css={overlaySectionStyle}>
             <h3 css={overlaySectionTitleStyle}>투명도</h3>
             <p css={overlaySectionDescriptionStyle}>
-              게임 중 채팅의 투명도를 지정할 수 있습니다.
+              라이브 통화 중 채팅의 투명도를 지정할 수 있습니다.
             </p>
             <div css={sliderContainerStyle}>
               <span css={sliderLabelStyle}>0%</span>
@@ -163,6 +163,7 @@ const panelSubtitleStyle = css`
   font-size: 16px;
   color: var(--color-gray-600);
   margin-bottom: 48px;
+  margin-top: 11px;
 `;
 
 const saveButtonStyle = css`
