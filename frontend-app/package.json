@@ -23,7 +23,10 @@
     "win": {
       "icon": "electron/assets/voida-favicon.ico",
       "target": "nsis"
-    }
+    },
+    "asarUnpack": [
+      "electron/dist/**/*"
+    ]
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

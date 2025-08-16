@@ -516,7 +516,7 @@ const overlayContainer = (isBottom: boolean) => css`
 `;
 
 const overlayContent = (isBottom: boolean, transparency: number) => css`
-  background: rgba(255, 255, 255, ${transparency/100});
+  background: rgba(0, 0, 0, ${transparency/100});
   color: #fff;
   border-radius: 10px;
   backdrop-filter: blur(10px);
