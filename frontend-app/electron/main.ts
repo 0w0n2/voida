@@ -13,6 +13,7 @@ app.whenReady().then(() => {
     height: 900,
     icon: path.join(__dirname, 'assets', 'icon.ico'),
     webPreferences: {
+      // preload: path.join(app.getAppPath(), 'electron', 'dist', 'preload.js'),
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
