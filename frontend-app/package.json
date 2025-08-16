@@ -18,7 +18,9 @@
     "productName": "VOIDA",
     "files": [
       "dist/**/*",
-      "electron/dist/main.cjs"
+      "electron/dist/main.cjs",
+      "electron/dist/preload.js",
+      "electron/dist/overlayWindow.ts"
     ],
     "win": {
       "icon": "electron/assets/voida-favicon.ico",

@@ -113,9 +113,9 @@ const LoginForm = () => {
       setUser(user);
 
       if (isNewbie) {
-        navigate('/main');
-      } else {
         navigate('/tutorial');
+      } else {
+        navigate('/main');
       }
     } catch (e) {
       console.log(e);
