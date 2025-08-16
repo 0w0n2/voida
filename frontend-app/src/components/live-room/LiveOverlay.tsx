@@ -64,9 +64,7 @@ const LiveOverlay = () => {
 
   // 분석 상태
   const [step, setStep] = useState<'record' | 'loading' | 'result'>('record');
-  // const [analysisResult, setAnalysisResult] = useState<null | 'success' | 'fail'>(null);
-  // const [analysisText, setAnalysisText] = useState<string | null>(null);
-
+  
   const [userInfo, setUserInfo] = useState<any>(null);
 
   // 채팅 상태
@@ -164,7 +162,6 @@ const LiveOverlay = () => {
               el.src = import.meta.env.VITE_CDN_URL
                 ? `${import.meta.env.VITE_CDN_URL}/${newMsg.content}`
                 : newMsg.content;
-
               try {
                 el.play(); 
               } catch (err) {
@@ -173,13 +170,30 @@ const LiveOverlay = () => {
               return;
             }
 
-            if(newMsg.content.startsWith('http')) {
-              const audio = new Audio(newMsg.content);
-              audio.play().catch(err => console.error('재생 실패:', err));
+            // 오디오 메시지인 경우 → UI에 추가하지 않고 바로 재생
+            if (newMsg.content.startsWith("{")) {
+              const msg = JSON.parse(newMsg.content);
+
+              if (msg.kind === "audio" && msg.data?.startsWith("data:")) {
+                const audio = new Audio(msg.data);
+                audio.play().catch(err => console.error("재생 실패:", err));
+                return;
+              }
             }
+
             setChatMessages(prev => [...prev, newMsg]);
-          } catch (e) {
-            console.error("채팅 메시지 파싱 실패:", e, data);
+          } catch {
+            const newMsg: ChatMessage = {
+              messageId: crypto.randomUUID(),
+              user: {
+                userId: "unknown",
+                userNickname: "시스템",
+                userImageUrl: "",
+                },
+              content: data, // 그냥 raw 텍스트
+              timestamp: new Date().toISOString(),
+            };
+            setChatMessages(prev => [...prev, newMsg]);
           }
         },
       });
@@ -288,56 +302,68 @@ const LiveOverlay = () => {
   });
 
   // 비디오 녹화 onStop
-  const { isRecording: isVideoRecording, stream: videoStream, start: startVideo, stop: stopVideo } = useVideoRecorder({
-    maxDurationMs: 3000,
-    onProgress: (percent) => setProgress(percent),
-    onStop: async ({ blob }) => {
-      setStep('loading');
-      try {
-        const file = new File([blob], 'lip-test.webm', { type: blob.type });
-        const res = await uploadLipTestVideo(file, '0');
-        const buffer = await res;
-        const view = new DataView(buffer);
-        const jsonLength = view.getUint32(0, false);
-        const jsonBytes = new Uint8Array(buffer, 4, jsonLength);
-        const jsonString = new TextDecoder().decode(jsonBytes);
-        const parsedJson: AnalysisPayload = JSON.parse(jsonString);
-        const audioStartIndex = 4 + jsonLength;
-        const audioBytes = new Uint8Array(buffer, audioStartIndex);
+const { isRecording: isVideoRecording, stream: videoStream, start: startVideo, stop: stopVideo } = useVideoRecorder({
+  maxDurationMs: 3000,
+  onProgress: (percent) => setProgress(percent),
+  onStop: async ({ blob }) => {
+    setStep('loading');
+    try {
+      const file = new File([blob], 'lip-test.webm', { type: blob.type });
+      const res = await uploadLipTestVideo(file, '0');
+      const buffer = await res;
 
-        if(audioBytes.length > 0) {
-          const audioBlob = new Blob([audioBytes], { type: parsedJson.audioMime || 'audio/mpeg' });
-          const audioUrl = URL.createObjectURL(audioBlob);
+      // JSON + 오디오 분리
+      const view = new DataView(buffer);
+      const jsonLength = view.getUint32(0, false);
+      const jsonBytes = new Uint8Array(buffer, 4, jsonLength);
+      const jsonString = new TextDecoder().decode(jsonBytes);
+      const parsedJson: AnalysisPayload = JSON.parse(jsonString);
 
-          console.log(audioUrl);
-          setAudioUrl(audioUrl);
-          sendSignalMessage(audioUrl);
-          if (audioUrl) {
-            const audio = new Audio(audioUrl);
-            audio.play().catch(err => console.error('재생 실패:', err));
-          }
-          sendSignalMessage(parsedJson.transText || '');
-          setStep('result');
-        }
+      console.log(parsedJson);
 
-        setStep('record');
-      } catch (e) {
-        console.log(e);
-        setStep('result');
-        setTimeout(() => setStep('record'), 800);
+      const audioStartIndex = 4 + jsonLength;
+      const audioBytes = new Uint8Array(buffer, audioStartIndex);
+
+      if (parsedJson.transText) {
+        await sendSignalMessage(parsedJson.transText);
       }
-    },
-  });
+
+      if (audioBytes.length > 0) {
+        const audioBlob = new Blob([audioBytes], { type: parsedJson.audioMime || 'audio/mpeg' });
+
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+          if (reader.result) {
+            const base64DataUrl = reader.result as string;
+            await sendSignalMessage(JSON.stringify({
+              kind: "audio",
+              mime: parsedJson.audioMime || "audio/mpeg",
+              data: base64DataUrl,
+            }));
+          }
+        };
+        reader.readAsDataURL(audioBlob);
+      }
+
+      setStep('result');
+      setStep('record');
+    } catch (e) {
+      console.error(e);
+      setStep('result');
+      setTimeout(() => setStep('record'), 800);
+    }
+  },
+});
 
   const videoRef = useRef<HTMLVideoElement>(null);
   useEffect(() => {
-    if (videoRef.current && videoStream) {
+    if (step === 'record' && videoRef.current && videoStream) {
       videoRef.current.srcObject = videoStream;
       videoRef.current.play().catch(() => {
-        console.error("비디오 자동 재생에 실패했습니다.");
+        console.error("비디오 자동 재생 실패");
       });
     }
-  }, [videoStream]);
+  }, [step, videoStream]);
 
   // 나가기
   const exitLive = () => {
