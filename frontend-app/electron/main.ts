@@ -5,7 +5,7 @@ import { closeOverlayWindow, createOverlayWindow } from './overlayWindow';
 let win: BrowserWindow;
 
 type OverlayPos = 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT';
-let lastOverlayInit: { roomId: string; overlayPosition?: OverlayPos } | null = null;
+let lastOverlayInit: { roomId: string; overlayPosition?: OverlayPos; overlayTransparency?: number } | null = null;
 
 app.whenReady().then(() => {
   win = new BrowserWindow({
@@ -74,9 +74,10 @@ app.whenReady().then(() => {
   attachAppCommand(win);
 
   // ---------- 오버레이 열기 ----------
-  ipcMain.on('open-overlay', (_e, init?: { roomId: string; overlayPosition?: OverlayPos }) => {
+  ipcMain.on('open-overlay', (_e, init?: { roomId: string; overlayPosition?: OverlayPos; overlayTransparency?: number }) => {
     const roomId = init?.roomId;
     const overlayPosition = init?.overlayPosition ?? 'TOPRIGHT';
+    const overlayTransparency = init?.overlayTransparency ?? 30;
 
     if (!roomId) {
       console.error('[open-overlay] roomId 누락');
@@ -86,7 +87,7 @@ app.whenReady().then(() => {
     lastOverlayInit = { roomId, overlayPosition };
     win?.hide();
 
-    const overlayWin = createOverlayWindow(isDev, overlayPosition);
+    const overlayWin = createOverlayWindow(isDev, overlayPosition, overlayTransparency);
 
     // 오버레이에도 마우스 버튼 뒤/앞 처리 붙이기
     attachAppCommand(overlayWin);
@@ -100,7 +101,7 @@ app.whenReady().then(() => {
       overlayWin.loadFile(prodHTML, { hash });
     }
     overlayWin.webContents.once('did-finish-load', () => {
-      overlayWin.webContents.send('overlay:init', { roomId, overlayPosition });
+      overlayWin.webContents.send('overlay:init', { roomId, overlayPosition, overlayTransparency });
     });
 
     overlayWin.show();
