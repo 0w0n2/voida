@@ -32,7 +32,7 @@ export default function TutorialModal({
               <span className="dot" />
             </div>
             <h3>녹화 분석 중</h3>
-            <p>영상을 텍스트로 바꾸고 있어요.</p>
+            <p>영상을 음성으로 바꾸고 있어요.</p>
           </>
         )}
 
