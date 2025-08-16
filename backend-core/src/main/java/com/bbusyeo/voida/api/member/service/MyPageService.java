@@ -18,6 +18,8 @@ public interface MyPageService {
 
     void createDefaultSettingsAndQuickSlots(Member member);
 
+    void checkNicknameIsValid(String currentNickname, String newNickname);
+
     void updateProfile(UpdateMeProfileRequestDto requestDto, MultipartFile profileImage, Long memberId);
 
     boolean verifyPassword(Member member, String requestPassword);

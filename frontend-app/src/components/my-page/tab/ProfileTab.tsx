@@ -134,6 +134,7 @@ const ProfileTab = () => {
 
   // 소셜 계정 연동
   const handleGoogleLink = async () => {
+        console.log('클릭');
     const res = await linksocialAccount('google');
     const redirectUrl = res.data.result.redirectUrl;
     window.location.href = `${
@@ -143,7 +144,6 @@ const ProfileTab = () => {
 
   // 소셜 계정 조회
   const checkGoogleLink = async () => {
-    console.log('클릭');
     const res = await getUserSocialAccounts();
     const socialData = res.data.result.socialAccounts;
     if (socialData.length > 0) {

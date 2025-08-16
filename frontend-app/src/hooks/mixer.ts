@@ -49,7 +49,7 @@ export async function publishMixed(
   existingPublisher?: Publisher,
 ): Promise<Publisher> {
   const mixedTrack = mix.dest.stream.getAudioTracks()[0];
-  const ov = new OpenVidue();
+  const ov = new OpenVidu();
 
   if (existingPublisher) {
     await existingPublisher.replaceTrack(mixedTrack);

@@ -1,7 +1,7 @@
-import { OpenVidu, Session, Publisher, StreamEvent, SignalOptions } from 'openvidu-browser';
+import { OpenVidu, Session, Publisher, Subscriber } from 'openvidu-browser';
+import type { SignalOptions } from 'openvidu-browser';
 import apiInstanceSpring from '@/apis/core/apiInstanceSpring';
 
-// 타입 정의
 export interface LiveRoomParticipant {
   nickname: string;
   profileImageUrl: string;
@@ -37,14 +37,17 @@ export interface UserOverview {
   }[] | null;
 }
 
-// 전역 상태
+// 전역 상태 (싱글톤)
 let OV: OpenVidu | null = null;
 let session: Session | null = null;
 let publisher: Publisher | null = null;
+let subscribers: Subscriber[] = [];
 
-export const isConnected = (): boolean => Boolean(session && (session as any).connection);
+//유틸 Getter
+export const isConnected = (): boolean => Boolean(session && session.sessionId); 
 export const getSessionInstance = (): Session | null => session;
 export const getOVInstance = (): OpenVidu | null => OV;
+export const getSubscribers = (): Subscriber[] => subscribers.slice();
 
 // Spring REST API
 export const getUserOverview = async (): Promise<UserOverview> => {
@@ -62,146 +65,163 @@ export const getLiveToken = async (meetingRoomId: string): Promise<string> => {
   return res.data.result.token;
 };
 
-// Connect 옵션 타입
-type SignalCallback = (data: string) => void;
-
+// OpenVidu 연결
 export interface ConnectOptions {
-  onSignalMessage: SignalCallback;
-  clientData?: Record<string, any>;
-  audioSource?: MediaTrackConstraints | boolean;
-  videoSource?: MediaTrackConstraints | boolean;
-  publishAudio?: boolean;
-  publishVideo?: boolean;
+  nickname?: string;
+  onChatMessage?: (data: string) => void;
+  onParticipantJoin?: (participant: {
+    profileImageUrl?: string;
+    nickname?: string;
+    lipTalkMode: boolean;
+  }) => void;
+  onParticipantLeave?: (connectionId: string) => void;
 }
 
-// OpenVidu 연결
-export const connectOpenVidu = async (
-  token: string,
-  {
-    onSignalMessage,
-    clientData,
-    audioSource = true,
-    videoSource = false,
-    publishAudio = true,
-    publishVideo = false,
-  }: ConnectOptions
-): Promise<void> => {
-  if (session) {
-    console.warn('[OpenVidu] 이미 세션이 연결되어 있음. connect 건너뜀.');
-    return;
-  }
-
-  console.log('[OpenVidu] ====== 연결 시작 ======');
-  console.log('[OpenVidu] 전달받은 token:', token);
-
+export const connectOpenVidu = async (token: string, options?: ConnectOptions) => {
   try {
+    if (!token || typeof token !== 'string') {
+      throw new Error(`유효하지 않은 토큰: ${token}`);
+    }
+
     if (!OV) {
-      console.log('[OpenVidu] OpenVidu 인스턴스 생성');
       OV = new OpenVidu();
     }
 
-    console.log('[OpenVidu] 세션 초기화');
     session = OV.initSession();
 
-    // 이벤트 핸들러 등록
-    session.on('streamCreated', (event: StreamEvent) => {
-      console.log('[OpenVidu] streamCreated:', event.stream.streamId);
-      try {
-        session!.subscribe(event.stream, undefined);
-      } catch (e) {
-        console.error('[OpenVidu] subscribe error:', e);
+    console.log('연결할 토큰', token);
+
+    // 이벤트: 연결 완료 후 readyState 체크
+    session.on('sessionConnected', () => {
+      const ws = (session as any).openvidu?.rpc?.ws;
+      if (ws) {
+        console.log('[WS readyState after connect]', ws.readyState);
+      } else {
+        console.warn('WS object is still not available after connect');
       }
     });
 
-    session.on('streamDestroyed', (event: StreamEvent) => {
-      console.log('[OpenVidu] streamDestroyed:', event.stream.streamId);
-    });
+    // 이벤트: 다른 참가자 스트림 수신
+    session.on('streamCreated', (event) => {
+      const sub = session!.subscribe(event.stream, undefined, {
+        subscribeToAudio: true,
+        subscribeToVideo: false,
+      });
+      subscribers.push(sub);
 
-    session.on('signal:chat', (event: any) => {
-      console.log('[OpenVidu] signal:chat 수신:', event.data);
+      const audio = document.createElement('audio');
+      audio.autoplay = true;
+      // audio.playsInline = true;
+      audio.setAttribute('data-connection-id', event.stream.connection.connectionId);
+      sub.addVideoElement(audio as unknown as HTMLVideoElement);
+
+      document.body.appendChild(audio);
+
       try {
-        onSignalMessage?.(event.data);
+        const dataStr = event.stream.connection.data;
+        const parsed = JSON.parse(dataStr || '{}');
+        const participant = {
+          profileImageUrl: parsed.profileImageUrl || undefined,
+          nickname: parsed.nickname || undefined,
+          lipTalkMode: parsed.lipTalkMode || false,
+        };
+        options?.onParticipantJoin?.(participant);
       } catch (e) {
-        console.error('[OpenVidu] onSignalMessage handler error:', e);
+        console.warn('참가자 메타데이터 파싱 실패:', e);
       }
     });
 
-    session.on('exception', (e: any) => {
-      console.error('[OpenVidu] exception 이벤트:', e);
+    // 이벤트: 참가자 퇴장
+    session.on('streamDestroyed', (event) => {
+      subscribers = subscribers.filter(
+        (s) => s.stream.connection.connectionId !== event.stream.connection.connectionId
+      );
+
+      const audioEl = document.querySelector<HTMLAudioElement>(
+        `audio[data-connection-id="${event.stream.connection.connectionId}"]`
+      );
+      audioEl?.remove();
+
+      options?.onParticipantLeave?.(event.stream.connection.connectionId);
     });
 
-    session.on('sessionDisconnected', (e: any) => {
-      console.warn('[OpenVidu] 세션 끊김:', e?.reason);
-    });
+    // 이벤트: 채팅 시그널 수신
+    if (options?.onChatMessage) {
+      session.on('signal:chat', (event) => {
+        if (event.data) options.onChatMessage!(event.data);
+      });
+    }
 
-    // Connect
-    const metadata = clientData ? JSON.stringify(clientData) : '';
-    console.log('[OpenVidu] session.connect() 실행');
-    await session.connect(token, metadata);
-    console.log('[OpenVidu] 세션 연결 완료');
+    console.log('[OpenVidu] session.connect 실행');
+    await session.connect(token);
 
-    // Publisher 초기화
-    console.log('[OpenVidu] Publisher 초기화');
+    // 퍼블리셔 생성 (오디오만)
     publisher = await OV.initPublisherAsync(undefined, {
-      audioSource,
-      videoSource,
-      publishAudio,
-      publishVideo,
-      mirror: false,
+      audioSource: undefined, // 기본 마이크
+      videoSource: false,     // 영상 사용 안함
+      publishAudio: true,
+      publishVideo: false,
     });
 
-    console.log('[OpenVidu] Publisher 세션에 등록');
+    // 퍼블리시 시작
     await session.publish(publisher);
-    console.log('[OpenVidu] ====== 연결 완료 ======');
 
+    console.log('[OpenVidu] 연결 완료 (음성 전용)');
   } catch (err) {
     console.error('[OpenVidu] 연결 중 오류 발생:', err);
-    cleanupOpenVidu();
     throw err;
   }
 };
 
-// 채팅 전송
-export const sendChatSignal = async (payload: unknown): Promise<void> => {
+// 시그널 전송 (채팅)
+export const sendChatSignal = async (payload: string): Promise<void> => {
   if (!session) return;
   const options: SignalOptions = {
     type: 'chat',
-    data: typeof payload === 'string' ? payload : JSON.stringify(payload ?? {}),
+    data: payload,
   };
   await session.signal(options);
 };
 
-// 커스텀 시그널 전송
-export const sendSignal = async (type: string, payload?: unknown): Promise<void> => {
-  if (!session) return;
-  const options: SignalOptions = {
-    type,
-    data: payload == null ? '' : typeof payload === 'string' ? payload : JSON.stringify(payload),
-  };
-  await session.signal(options);
-};
-
-// 연결 해제
+// 연결 해제 / 정리
 export const disconnectOpenVidu = async (): Promise<void> => {
-  cleanupOpenVidu();
-};
-
-// 내부 정리 함수
-const cleanupOpenVidu = () => {
   try {
     if (publisher) {
       try {
-        publisher.stream.disposeWebRtcPeer?.();
-      } catch {}
+        ((publisher as unknown as { stream?: { disposeWebRtcPeer?: () => void } })
+          .stream?.disposeWebRtcPeer?.());
+      } catch (err) {
+        console.warn('[OpenVidu] publisher webrtc dispose 실패:', err);
+      }
+
+      try {
+        (publisher as unknown as { dispose?: () => void }).dispose?.();
+      } catch (err) {
+        console.warn('[OpenVidu] publisher dispose 실패:', err);
+      }
+
       publisher = null;
     }
+
+    subscribers.forEach((s) => {
+      try {
+        (s as unknown as { dispose?: () => void }).dispose?.();
+      } catch (err) {
+        console.warn('[OpenVidu] subscriber dispose 실패:', err);
+      }
+    });
+    subscribers = [];
+
     if (session) {
       try {
         session.disconnect();
-      } catch {}
+      } catch (err) {
+        console.warn('[OpenVidu] session.disconnect 실패:', err);
+      }
       session = null;
     }
   } finally {
     OV = null;
+    console.log('[OpenVidu] 연결 종료 및 정리 완료');
   }
 };

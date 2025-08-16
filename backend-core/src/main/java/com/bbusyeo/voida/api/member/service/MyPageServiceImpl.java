@@ -53,8 +53,8 @@ public class MyPageServiceImpl implements MyPageService {
     @Override
     public MeSettingResponseInfoDto getMeSetting(Long memberId) {
         return MeSettingResponseInfoDto.toDto(
-            memberSettingRepository.findMemberSettingsByMemberId(memberId)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_SETTING_NOT_FOUND)));
+                memberSettingRepository.findMemberSettingsByMemberId(memberId)
+                        .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_SETTING_NOT_FOUND)));
     }
 
     @Override
@@ -66,13 +66,22 @@ public class MyPageServiceImpl implements MyPageService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public void checkNicknameIsValid(String currentNickname, String newNickname) {
+        if (newNickname.equals(currentNickname)) {
+            return;
+        }
+        if (memberRepository.existsByNicknameAndIsDeletedIsFalse(newNickname)) {
+            throw new BaseException(BaseResponseStatus.NICKNAME_IS_DUPLICATED);
+        }
+        if (newNickname.length() > 10) {
+            throw new BaseException(BaseResponseStatus.NICKNAME_TOO_LONG);
+        }
+    }
+
     @Transactional
     @Override
     public void updateProfile(UpdateMeProfileRequestDto requestDto, MultipartFile profileImage, Long memberId) {
-        if (requestDto.getNickname().length() > 10) {
-            throw new BaseException(BaseResponseStatus.NICKNAME_TOO_LONG);
-        }
-
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
         String oldFileImageUrl = member.getProfileImageUrl();
@@ -144,7 +153,7 @@ public class MyPageServiceImpl implements MyPageService {
     @Override
     public void changeLipTalkMode(Long memberId, ChangeLipTalkRequestMode requestDto) {
         MemberSetting memberSetting = memberSettingRepository.findMemberSettingsByMemberId(memberId)
-            .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_SETTING_NOT_FOUND));
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_SETTING_NOT_FOUND));
         memberSetting.changeLipTalkMode(requestDto.getUseLipTalkMode());
     }
 
@@ -152,7 +161,7 @@ public class MyPageServiceImpl implements MyPageService {
     @Override
     public void changeOverlay(Long memberId, ChangeOverlayRequestDto requestDto) {
         MemberSetting memberSetting = memberSettingRepository.findMemberSettingsByMemberId(memberId)
-            .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_SETTING_NOT_FOUND));
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_SETTING_NOT_FOUND));
         memberSetting.changeOverlayPosition(requestDto.getOverlayPosition(), requestDto.getLiveFontSize(), requestDto.getOverlayTransparency());
     }
 }

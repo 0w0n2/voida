@@ -40,8 +40,8 @@ export const uploadLipTestVideo = async (file: File, sessionNumber: string) => {
 
   const res = await apiInstanceFast.post('/v1/lip', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
+    responseType: 'arraybuffer',
   });
-  console.log(res);
 
   return res.data; 
 };

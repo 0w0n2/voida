@@ -18,16 +18,17 @@ const handleJoinLive = async () => {
   try {
     const overview = await getUserOverview(); 
     const overlayPosition = overview?.setting?.overlayPosition ?? 'TOPRIGHT';
+    const overlayTransparency = overview?.setting?.overlayTransparency ?? 40;
 
     window.electronAPI?.openOverlay?.({
       roomId: meetingRoomId,
       overlayPosition,
+      overlayTransparency,
     });
   } catch (err) {
     console.error('라이브 참여 실패', err);
   }
 };
-
 
   return (
     <div css={header}>
