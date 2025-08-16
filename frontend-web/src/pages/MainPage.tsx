@@ -1,7 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import axios from 'axios';
 import { css } from '@emotion/react';
-import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Window from '@/assets/icons/window.png';
 import Microphone from '@/assets/icons/microphone.png';
@@ -9,7 +8,6 @@ import Keyboard from '@/assets/icons/keyboard.png';
 import overlay from '@/assets/icons/overlay.png';
 import VoidaLogo from '@/assets/logo/voida-logo.png';
 import multi from '@/assets/image/multi.png';
-import shortcut from '@/assets/image/shortcut.png';
 import vodiashow from '@/assets/show/voidashow.mp4';
 import stt from '@/assets/show/stt.mp4';
 import shortslot from '@/assets/show/shortslot.mp4';
