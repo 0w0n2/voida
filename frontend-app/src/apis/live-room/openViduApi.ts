@@ -75,8 +75,14 @@ export const getLiveToken = async (meetingRoomId: string): Promise<string> => {
    OpenVidu 연결 (단순 음성 + 채팅)
 ================================ */
 export interface ConnectOptions {
-  nickname?: string; // clientData에 보낼 유저 이름
-  onChatMessage?: (data: string) => void; // 채팅 수신 콜백
+  nickname?: string;
+  onChatMessage?: (data: string) => void;
+  onParticipantJoin?: (participant: {
+    profileImageUrl?: string;
+    nickname?: string;
+    lipTalkMode: boolean;
+  }) => void;
+  onParticipantLeave?: (connectionId: string) => void;
 }
 
 export const connectOpenVidu = async (token: string, options?: ConnectOptions) => {
@@ -105,8 +111,33 @@ export const connectOpenVidu = async (token: string, options?: ConnectOptions) =
 
     // 이벤트: 다른 참가자 스트림 수신
     session.on('streamCreated', (event) => {
-      const sub = session!.subscribe(event.stream, undefined);
+      const sub = session!.subscribe(event.stream, undefined, {
+        subscribeToAudio: true,
+        subscribeToVideo: false,
+      });
       subscribers.push(sub);
+
+      const audio = document.createElement('video');
+      audio.autoplay = true;
+      audio.playsInline = true;
+      audio.style.display = 'none';
+      audio.setAttribute('data-connection-id', event.stream.connection.connectionId);
+      sub.addVideoElement(audio);
+
+      document.body.appendChild(audio);
+
+      try {
+        const dataStr = event.stream.connection.data;
+        const parsed = JSON.parse(dataStr || '{}');
+        const participant = {
+          profileImageUrl: parsed.profileImageUrl || undefined,
+          nickname: parsed.nickname || undefined,
+          lipTalkMode: parsed.lipTalkMode || false,
+        };
+        options?.onParticipantJoin?.(participant);
+      } catch (e) {
+        console.warn('참가자 메타데이터 파싱 실패:', e);
+      }
     });
 
     // 이벤트: 참가자 퇴장
@@ -114,6 +145,13 @@ export const connectOpenVidu = async (token: string, options?: ConnectOptions) =
       subscribers = subscribers.filter(
         (s) => s.stream.connection.connectionId !== event.stream.connection.connectionId
       );
+
+      const audioEl = document.querySelector<HTMLAudioElement>(
+        `audio[data-connection-id="${event.stream.connection.connectionId}"]`
+      );
+      audioEl?.remove();
+
+      options?.onParticipantLeave?.(event.stream.connection.connectionId);
     });
 
     // 이벤트: 채팅 시그널 수신
@@ -143,7 +181,6 @@ export const connectOpenVidu = async (token: string, options?: ConnectOptions) =
     throw err;
   }
 };
-
 
 /* ===============================
    시그널 전송 (채팅)

@@ -2,7 +2,7 @@
 import { css } from '@emotion/react';
 import { useState, useRef, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Camera, CameraOff } from 'lucide-react';
 import User from '@/assets/icons/user.png';
 import ExitWhite from '@/assets/icons/exit-white.png';
 import ExitBlue from '@/assets/icons/exit-blue.png';
@@ -15,7 +15,6 @@ import { uploadTutorialAudio, uploadLipTestVideo } from '@/apis/tutorial/tutoria
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { useVideoRecorder } from '@/hooks/useVideoRecorder';
 import ProgressBar from './ProgressBar';
-import { dummyMessages } from './dummy';
 
 export interface ApiQuickSlot {
   quickSlotId: number;
@@ -80,6 +79,7 @@ const LiveOverlay = () => {
 
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
+  const [showVideo, setShowVideo] = useState(true);
 
   const onChatScroll = () => {
     const el = chatListRef.current;
@@ -122,18 +122,59 @@ const LiveOverlay = () => {
       try {
         const sessionInfo = await getSession(meetingRoomId);
         console.log(sessionInfo);
-        setParticipants(sessionInfo?.participants || []);
+        const initialParticipants: Participant[] = (sessionInfo?.participants || [])
+          .filter(p => p.nickname !== userInfo.member.nickname) // 또는 userId 비교
+          .concat({
+            profileImageUrl: userInfo.member.profileImageUrl,
+            nickname: userInfo.member.nickname,
+            lipTalkMode: userInfo.setting.lipTalkMode,
+          });
+        setParticipants(initialParticipants);
+        setParticipants(initialParticipants);
         const ovSessionId = sessionInfo.ovSessionId;
         console.log(ovSessionId);
 
         const token = await getLiveToken(meetingRoomId);
         console.log(token);
 
-        await connectOpenVidu(token);
-      } catch (err) {
-        console.error('OpenVidu 연결 실패:', err);
-      }
-    })();
+        await connectOpenVidu(token, {
+        onParticipantJoin: (participant) => {
+          if (participant.nickname === userInfo.member.nickname) return;
+          setParticipants((prev) => {
+            if (prev.some((p) => p.nickname === participant.nickname)) return prev;
+            return [...prev, participant];
+          });
+        },
+
+        onParticipantLeave: (connectionId) => {
+          setParticipants((prev) =>
+            prev.filter((p) => p.connectionId !== connectionId)
+          );
+        },
+
+        onChatMessage: (data) => {
+          try {
+            const parsed = JSON.parse(data);
+            const newMsg: ChatMessage = {
+              messageId: crypto.randomUUID(),
+              user: {
+                userId: parsed.userId,
+                userNickname: parsed.userNickname,
+                userImageUrl: parsed.userImageUrl,
+              },
+              content: parsed.content,
+              timestamp: new Date().toISOString(),
+            };
+            setChatMessages(prev => [...prev, newMsg]);
+          } catch (e) {
+            console.error("채팅 메시지 파싱 실패:", e, data);
+          }
+        },
+      });
+    } catch (err) {
+      console.error('OpenVidu 연결 실패:', err);
+    }
+  })();
 
     return () => {
       (async () => {
@@ -177,6 +218,7 @@ const LiveOverlay = () => {
           const sigKey = parseHotkey(slot.hotkey);
           if (!sigKey) continue;
           hotkeyMapRef.current.set(sigKey, slot.message);
+          console.log(slot.message);
           if (slot.url) ttsUrlMapRef.current.set(sigKey, slot.url);
         }
       } catch (e) {
@@ -186,16 +228,31 @@ const LiveOverlay = () => {
   }, []);
 
   // 단축키 훅
-  useQuickSlot(hotkeyMapRef, ttsUrlMapRef, audioRef);
+  useQuickSlot(hotkeyMapRef, ttsUrlMapRef, audioRef, (msg: string) => {
+    // 단축키 입력 시 실행되는 콜백
+    console.log(`1`);
+    sendSignalMessage(msg);   // 채팅으로 전송
+  });
 
   // 시그널 보내기
   const sendSignalMessage = (text: string) => {
-    sendChatSignal(text).catch((err) => console.error('시그널 전송 실패:', err));
+    if (!userInfo) return;
+
+    const payload = JSON.stringify({
+      userId: userInfo.member.memberUuid,
+      userNickname: userInfo.member.nickname,
+      userImageUrl: `${import.meta.env.VITE_CDN_URL}/${userInfo.member.profileImageUrl.replace(/^\/+/, '')}`,
+      content: text,
+    });
+
+    sendChatSignal(payload).catch((err) =>
+      console.error("시그널 전송 실패:", err)
+    );
   };
 
   // 오디오 녹음 onStop
   const { isRecording: isAudioRecording, start: startAudio, stop: stopAudio } = useAudioRecorder({
-    maxDurationMs: 5000,
+    maxDurationMs: 3000,
     onProgress: (percent) => setProgress(percent),
     onStop: async ({ blob }) => {
       setStep('loading');
@@ -209,20 +266,20 @@ const LiveOverlay = () => {
 
         if (res.result?.text) sendSignalMessage(res.result.text);
 
-        setTimeout(() => setStep('record'), 5000);
+        setStep('record');
       } catch (e) {
         console.log(e);
         setAnalysisResult('fail');
         setAnalysisText(null);
         setStep('result');
-        setTimeout(() => setStep('record'), 800);
+        setTimeout(() => setStep('record'), 500);
       }
     },
   });
 
   // 비디오 녹화 onStop
   const { isRecording: isVideoRecording, stream: videoStream, start: startVideo, stop: stopVideo } = useVideoRecorder({
-    maxDurationMs: 5000,
+    maxDurationMs: 3000,
     onProgress: (percent) => setProgress(percent),
     onStop: async ({ blob }) => {
       setStep('loading');
@@ -254,7 +311,8 @@ const LiveOverlay = () => {
           sendSignalMessage(parsedJson.transText || '');
           setStep('result');
         }
-        setTimeout(() => setStep('record'), 5000);
+
+        setStep('record');
       } catch (e) {
         console.log(e);
         setAnalysisResult('fail');
@@ -288,20 +346,27 @@ const LiveOverlay = () => {
     <div css={[overlayContent(isBottom, overlayTransparency), isExpanded ? expanded : collapsed]}>
       <div css={header}>
         <div css={headerLeft}>
-          {dummyMessages.map((m, idx) => (
-            <div key={idx} css={participantWrapper}>
+          {participants.map((p, idx) => (
+           <div key={idx} css={participantWrapper}>
+            <div css={userIconWrapper} data-nickname={p.nickname}>
               <img
-                src={m.user.userImageUrl || User}
-                alt={m.user.userNickname || '사용자'}
+                src={
+                  p.profileImageUrl
+                    ? `${import.meta.env.VITE_CDN_URL}/${p.profileImageUrl.replace(/^\/+/, '')}`
+                    : ''
+                }
+                alt={p.nickname || '사용자'}
                 css={userIcon}
               />
+              {p.lipTalkMode && <span css={lipTalkBadge} />}
             </div>
+          </div>
           ))}
         </div>
 
         <div css={headerRight}>
           <img src={User} alt="User" css={userIcon} />
-          <p>{dummyMessages.length}</p>
+          <p>{participants.length}</p>
           <div css={infoBtn}></div>
           <div css={outBtn} onClick={exitLive} />
         </div>
@@ -332,27 +397,41 @@ const LiveOverlay = () => {
             <>
             {userInfo?.setting?.lipTalkMode ? (
               <div css={lipUserControls}>
-                <div css={videoWrapper}>
-                  <video
-                    ref={(el) => {
-                      if (el && videoStream) {
-                        (el as any).srcObject = videoStream;
-                        el.play().catch(() => {});
-                      }
-                    }}
-                    autoPlay
-                    muted
-                    css={cameraPreview}
-                  />
+                <div css={lipUserVideo}>
+                  {showVideo && (
+                    <div css={videoWrapper}>
+                      <video
+                        ref={(el) => {
+                          if (el && videoStream) {
+                            (el as any).srcObject = videoStream;
+                            el.play().catch(() => {});
+                          }
+                        }}
+                        autoPlay
+                        muted
+                        css={cameraPreview}
+                      />
 
-                  {isVideoRecording && (
-                     <ProgressBar percent={progress} height={6} position="absolute" bottom={3} />
+                      {isVideoRecording && (
+                        <ProgressBar percent={progress} height={6} position="absolute" bottom={3} />
+                      )}
+                    </div>
                   )}
                 </div>
-
-                <button css={recordBtn(isVideoRecording)} onClick={isVideoRecording ? stopVideo : startVideo}>
+              <div css={controlWrapper}>
+                <div
+                  css={cameraToggleBtn(showVideo)}
+                  onClick={() => setShowVideo((prev) => !prev)}
+                >
+                  {showVideo ? <Camera size={18} /> : <CameraOff size={18} />}
+                </div>
+                <button
+                  css={recordBtn(isVideoRecording)}
+                  onClick={isVideoRecording ? stopVideo : startVideo}
+                >
                   {isVideoRecording ? '중지' : '녹화'}
                 </button>
+              </div>
               </div>
             ) : (
               <div css={normalUserControls}>
@@ -370,7 +449,6 @@ const LiveOverlay = () => {
                 </button>
               </div>    
             )}
-
             </>
           )}
 
@@ -380,12 +458,12 @@ const LiveOverlay = () => {
             </div>
           )}
 
-          {step === 'result' && (
+          {/* {step === 'result' && (
             <div css={resultBox(analysisResult || 'fail')}>
               결과: {analysisResult === 'success' ? '성공' : '실패'}
               {analysisText && <div css={resultText}>{analysisText}</div>}
             </div>
-          )}
+          )} */}
         </div>
       )}
 
@@ -464,9 +542,45 @@ const participantWrapper = css`
 `;
 
 const userIcon = css`
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
+  object-fit: cover;
+`;
+
+const userIconWrapper = css`
+  position: relative;
+  display: inline-block;
+    &::after {
+    content: attr(data-nickname);
+    position: absolute;
+    top: 130%;
+    left: 130%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 1);
+    color: #000;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  &:hover::after {
+    opacity: 1;
+  }
+`;
+
+const lipTalkBadge = css`
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  background-color: #3b82f6;
+  border-radius: 50%;
+  border: 2px solid white; 
 `;
 
 const infoBtn = css`
@@ -537,6 +651,7 @@ const expandedContentWrapper = css`
   flex-direction: column;
   align-items: center;
   gap: 10px;
+  padding-bottom: 0px;
 `;
 
 const contentBody = (isBottom: boolean) => css`
@@ -552,8 +667,14 @@ const lipUserControls = css`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 8px 0 12px;
+  margin: 8px 0px;
   gap: 6px;
+`;
+
+const lipUserVideo = css`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 const videoWrapper = css`
@@ -583,24 +704,61 @@ const normalUserControls = css`
 `;
 
 const cameraPreview = css`
-  width: 300px;
-  height: 180px;
+  width: 230px;
+  height: 130px;
   background: black;
   border-radius: 8px;
   object-fit: cover;
   transform: scaleX(-1);
 `;
 
+const controlWrapper = css`
+  display: flex;
+  flex-direction: row; 
+  align-items: center;  
+  gap: 20px;           
+  margin-top: 10px; 
+`;
+
+const cameraToggleBtn = (isOn: boolean) => css`
+  all: unset;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: ${isOn
+    ? 'linear-gradient(90deg, #6e8efb, #a777e3)' // 켜짐 → 보라/파랑 그라데이션
+    : 'rgba(255,255,255,0.85)'};                // 꺼짐 → 연한 흰 배경
+  color: ${isOn ? '#fff' : '#222'};
+  box-shadow: ${isOn
+    ? '0 4px 15px rgba(110, 142, 251, 0.4)'
+    : '0 4px 12px rgba(0,0,0,0.15)'};
+  transition: all 0.25s ease;
+
+  &:hover {
+    transform: translateY(-1px) scale(1.05);
+    box-shadow: ${isOn
+      ? '0 6px 18px rgba(110, 142, 251, 0.5)'
+      : '0 6px 16px rgba(0,0,0,0.2)'};
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+`;
+
 const recordBtn = (isActive?: boolean) => css`
   all: unset;
   cursor: pointer;
-  padding: 10px 20px;
+  padding: 10px 16px;
   border-radius: 9999px; 
-  font-size: 15px;
+  font-size: 13px;
   font-family: 'NanumSquareR';
   letter-spacing: 0.5px;
   color: ${isActive ? '#fff' : '#222'};
-  margin-top: 10px;
   background: ${isActive
     ? 'linear-gradient(90deg, #6e8efb, #a777e3)'
     : 'rgba(255,255,255,0.85)'};
@@ -643,7 +801,7 @@ const toggleBtn = (isBottom: boolean) => css`
   transform: translateX(-50%);
   background: none;
   border: none;
-  padding: 10px 0px;
+  padding: 0px 0px 10px 0px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -713,7 +871,7 @@ const chatList = css`
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 8px 8px 12px 12px;
+  padding: 8px 8px 0px 12px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -725,7 +883,7 @@ const chatList = css`
 
 const chatItem = css`
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
 `;
 
@@ -733,6 +891,7 @@ const chatAvatar = css`
   width: 32px;
   height: 32px;
   border-radius: 50%;
+  object-fit: cover;
 `;
 
 const chatContent = css`
@@ -744,23 +903,26 @@ const chatContent = css`
 const chatMeta = css`
   display: flex;
   align-items: baseline;
-  gap: 6px;
+  gap: 10px;
 `;
 
 const chatName = css`
   font-size: 13px;
-  font-weight: bold;
+  font-family: 'NanumSquareEB';
   color: #fff;
 `;
 
 const chatTime = css`
   font-size: 11px;
+  font-family: 'NanumSquareR';
   color: #ccc;
 `;
 
 const chatText = css`
   font-size: 14px;
+  font-family: 'NanumSquareR';
   color: #fff;
   white-space: pre-wrap;
   word-break: break-word;
+  margin-top: 2px;
 `;
