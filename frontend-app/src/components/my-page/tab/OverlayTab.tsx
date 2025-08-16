@@ -39,10 +39,10 @@ const OverlayTab = () => {
     setChanged(true);
   };
 
-  const handleFontSizeChange = (size: number) => {
-    setLiveFontSize(size);
-    setChanged(true);
-  };
+  // const handleFontSizeChange = (size: number) => {
+  //   setLiveFontSize(size);
+  //   setChanged(true);
+  // };
 
   const handleTransparencyChange = (transparency: number) => {
     setOverlayTransparency(transparency);
@@ -102,31 +102,7 @@ const OverlayTab = () => {
           </div>
         </div>
 
-        {/* <div css={rightSectionStyle}>
-          <div css={overlaySectionStyle}>
-            <h3 css={overlaySectionTitleStyle}>글자 크기</h3>
-            <p css={overlaySectionDescriptionStyle}>
-              게임 중 채팅의 글자 크기를 지정할 수 있습니다.
-            </p>
-            <div css={sliderContainerStyle}>
-              <span css={sliderLabelStyle}>가</span>
-              <input
-                css={sliderStyle}
-                type="range"
-                min="12"
-                max="48"
-                value={liveFontSize}
-                onChange={(e) => handleFontSizeChange(Number(e.target.value))}
-              />
-              <span
-                css={sliderLabelStyle}
-                style={{ fontSize: `${liveFontSize}px` }}
-              >
-                가
-              </span>
-            </div>
-          </div>
-
+        <div css={rightSectionStyle}>
           <div css={overlaySectionStyle}>
             <h3 css={overlaySectionTitleStyle}>투명도</h3>
             <p css={overlaySectionDescriptionStyle}>
@@ -135,7 +111,7 @@ const OverlayTab = () => {
             <div css={sliderContainerStyle}>
               <span css={sliderLabelStyle}>0%</span>
               <input
-                css={sliderStyle}
+                css={sliderStyle(overlayTransparency)}
                 type="range"
                 min="0"
                 max="100"
@@ -147,7 +123,7 @@ const OverlayTab = () => {
               <span css={sliderLabelStyle}>{overlayTransparency}%</span>
             </div>
           </div>
-        </div> */}
+        </div>
       </div>
 
       {/* <UpdateDoneModal
@@ -210,28 +186,19 @@ const saveButtonStyle = css`
 `;
 
 const overlayContentStyle = css`
-  // display: flex;
-  // gap: 40px;
-  // max-width: 800px;
-  margin-bottom: 40px;
-  border-radius: 12px;
-  background-color: var(--color-gray-100);
-  padding: 30px;
-
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 40px;
 `;
 
 const leftSectionStyle = css`
   flex: 1;
-  display: flex;
-  align-items: center; /* 세로 가운데 */
-  justify-content: center; /* 가로 가운데 */
 `;
 const rightSectionStyle = css`
   flex: 1;
   min-width: 550px;
+  align-self: flex-start;
 `;
 
 const overlaySectionStyle = css`
@@ -314,20 +281,23 @@ const sliderLabelStyle = css`
   min-width: 40px;
   text-align: center;
 `;
-const sliderStyle = css`
+
+const sliderStyle = (value: number) => css`
   flex: 1;
   height: 6px;
-  background: linear-gradient(
-    to right,
-    var(--color-primary) 0%,
-    var(--color-primary) 50%,
-    var(--color-gray-200) 50%,
-    var(--color-gray-200) 100%
-  );
   border-radius: 3px;
   outline: none;
   -webkit-appearance: none;
   appearance: none;
+
+  background: linear-gradient(
+    to right,
+    rgba(0, 123, 255, ${value / 100}) 0%,
+    rgba(0, 123, 255, ${value / 100}) ${value}%,
+    var(--color-gray-200) ${value}%,
+    var(--color-gray-200) 100%
+  );
+
   &::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 18px;
