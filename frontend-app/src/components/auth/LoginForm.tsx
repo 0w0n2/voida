@@ -2,7 +2,7 @@
 import { css } from '@emotion/react';
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { login } from '@/apis/auth/authApi';
+import { login, newbieTrans } from '@/apis/auth/authApi';
 import { getUser } from '@/apis/auth/userApi';
 import VoidaLogo from '@/assets/logo/voida-logo.png';
 import GoogleLogo from '@/assets/icons/google-logo.png';
@@ -113,12 +113,13 @@ const LoginForm = () => {
       setUser(user);
 
       if (isNewbie) {
+        await newbieTrans();
         navigate('/tutorial');
       } else {
         navigate('/main');
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   };
 

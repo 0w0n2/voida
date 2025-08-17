@@ -34,7 +34,6 @@ const ProfileTab = () => {
   const [userImage, setUserImage] = useState<string>(user?.profileImage || '');
   const [Changed, setChanged] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const [isPasswordDoneModalOpen, setIsPasswordDoneModalOpen] = useState(false);
   const [isGetOutModalOpen, setIsGetOutModalOpen] = useState(false);
   const [isSocial, setIsSocial] = useState(false);
   const [socialEmail, setSocialEmail] = useState<string | null>(null);
@@ -45,7 +44,6 @@ const ProfileTab = () => {
     setUserImage(user?.profileImage ?? '');
     setChanged(false);
     checkGoogleLink();
-    console.log('구글 계정 연동 상태:', isSocial);
   }, [user]);
 
   const handleNicknameChange = (newNickname: string) => {
@@ -102,7 +100,6 @@ const ProfileTab = () => {
             .showAlert('이미 사용중인 닉네임입니다.', 'top');
           return;
         }
-        console.log('유저 정보 업데이트 완료');
         useAuthStore.getState().setUser({
           ...user!,
           nickname: userNickname,
@@ -124,7 +121,6 @@ const ProfileTab = () => {
 
   // 소셜 계정 연동
   const handleGoogleLink = async () => {
-        console.log('클릭');
     const res = await linksocialAccount('google');
     const redirectUrl = res.data.result.redirectUrl;
     window.location.href = `${
@@ -139,7 +135,6 @@ const ProfileTab = () => {
     if (socialData.length > 0) {
       setIsSocial(true);
       setSocialEmail(socialData[0].email);
-      console.log(isSocial);
     }
     return isSocial;
   };
@@ -159,7 +154,6 @@ const ProfileTab = () => {
         return;
       }
       navigate('/login');
-      console.log('회원탈퇴 완료');
     } catch (err) {
       console.error('회원탈퇴 실패:', err);
     }
@@ -271,7 +265,7 @@ const ProfileTab = () => {
               <button
                 onClick={handleGoogleLink}
                 disabled={isSocial}
-                css={googleButtonStyle}
+                css={googleButtonStyle(isSocial)}
               >
                 <img src={google} alt="google" css={iconStyle} />
                 {isSocial ? `${socialEmail}` : 'Google 계정 연동하기'}
@@ -292,12 +286,6 @@ const ProfileTab = () => {
         userName={userNickname || userProfile?.nickname || '사용자'}
         userImage={userImage || userProfile?.profileImage || defaultProfile}
       />
-
-      {/* <UpdateDoneModal
-        isOpen={showDoneModal}
-        onClose={handleCloseModal}
-        userName={userNickname || userProfile?.nickname || '사용자'}
-      /> */}
     </>
   );
 };

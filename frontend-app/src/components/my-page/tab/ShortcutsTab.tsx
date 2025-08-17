@@ -2,7 +2,6 @@
 import { css } from '@emotion/react';
 import { useState, useEffect } from 'react';
 import { getUserQuickSlots, updateQuickslots } from '@/apis/auth/userApi';
-import { useAuthStore } from '@/stores/authStore';
 import { useAlertStore } from '@/stores/useAlertStore';
 interface Shortcut {
   quickSlotId: number;
@@ -12,11 +11,8 @@ interface Shortcut {
 }
 
 const ShortcutsTab = () => {
-  const { user } = useAuthStore();
   const [shortcuts, setShortcuts] = useState<Shortcut[]>([]);
-  const [saving, setSaving] = useState(false);
   const [hasChanged, setHasChanged] = useState(false);
-  const [showDoneModal, setShowDoneModal] = useState(false);
   const [quickSlotMessages, setQuickSlotMessages] = useState<string[]>([]);
   const [quickSlotHotkeys, setQuickSlotHotkeys] = useState<string[]>([]);
   const [quickSlotUrls, setQuickSlotUrls] = useState<string[]>([]);
@@ -28,7 +24,6 @@ const ShortcutsTab = () => {
     const fetchUserQuickSlots = async () => {
       try {
         const res = await getUserQuickSlots();
-        console.log(res);
 
         // 단축키 배열 넣어주기
         const quickSlots = res.data.result.quickSlots;
@@ -72,8 +67,6 @@ const ShortcutsTab = () => {
         return;
       }
 
-      console.log('단축키 저장 완료');
-      console.log(shortcuts);
       useAlertStore
         .getState()
         .showAlert('유저 정보가 업데이트되었습니다.', 'top');
@@ -82,10 +75,6 @@ const ShortcutsTab = () => {
       console.error('단축키 저장 실패:', err);
     }
   };
-
-  // const handleCloseModal = () => {
-  //   setShowDoneModal(false);
-  // };
 
   return (
     <div css={shortcutsPanelStyle}>
@@ -121,11 +110,6 @@ const ShortcutsTab = () => {
         ))}
       </div>
 
-      {/* <UpdateDoneModal
-        isOpen={showDoneModal}
-        onClose={handleCloseModal}
-        userName={user?.nickname || '사용자'}
-      /> */}
     </div>
   );
 };

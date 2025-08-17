@@ -194,7 +194,7 @@ const RegisterForm = () => {
         setIsEmailChecked(false);
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
       setIsEmailChecked(false);
     }
   };

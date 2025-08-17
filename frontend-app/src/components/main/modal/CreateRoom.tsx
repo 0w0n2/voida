@@ -83,10 +83,8 @@ const CreateRoomModal = ({ onClose }: CreateRoomModalProps) => {
     try {
       const room = await createRoom(title, category, thumbnailImageUrl);
       await postInviteCode(room.meetingRoomId);
-      // console.log(room);
       const { inviteCode } = await getInviteCode(room.meetingRoomId);
       setInviteCode(inviteCode);
-      console.log(inviteCode);
     } catch (error) {
       console.error('방 생성 또는 초대코드 요청 실패:', error);
     } finally {

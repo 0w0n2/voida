@@ -1,9 +1,5 @@
 import apiInstanceSpring from '@/apis/core/apiInstanceSpring';
 
-export const postUserType = (type: 'general' | 'lip-reading') => {
-  return apiInstanceSpring.post('/user/type', { type });
-};
-
 // 유저 정보 조회
 export const getUser = () => {
   return apiInstanceSpring.get('/v1/members/me/profile');

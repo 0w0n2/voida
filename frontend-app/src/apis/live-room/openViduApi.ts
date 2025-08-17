@@ -89,18 +89,6 @@ export const connectOpenVidu = async (token: string, options?: ConnectOptions) =
 
     session = OV.initSession();
 
-    console.log('연결할 토큰', token);
-
-    // 이벤트: 연결 완료 후 readyState 체크
-    session.on('sessionConnected', () => {
-      const ws = (session as any).openvidu?.rpc?.ws;
-      if (ws) {
-        console.log('[WS readyState after connect]', ws.readyState);
-      } else {
-        console.warn('WS object is still not available after connect');
-      }
-    });
-
     // 이벤트: 다른 참가자 스트림 수신
     session.on('streamCreated', (event) => {
       const sub = session!.subscribe(event.stream, undefined, {
@@ -152,7 +140,6 @@ export const connectOpenVidu = async (token: string, options?: ConnectOptions) =
       });
     }
 
-    console.log('[OpenVidu] session.connect 실행');
     await session.connect(token);
 
     // 퍼블리셔 생성 (오디오만)
@@ -165,11 +152,10 @@ export const connectOpenVidu = async (token: string, options?: ConnectOptions) =
 
     // 퍼블리시 시작
     await session.publish(publisher);
-
-    console.log('[OpenVidu] 연결 완료 (음성 전용)');
-  } catch (err) {
-    console.error('[OpenVidu] 연결 중 오류 발생:', err);
-    throw err;
+    
+  } catch (e) {
+    console.error(e);
+    throw e;
   }
 };
 
@@ -222,6 +208,5 @@ export const disconnectOpenVidu = async (): Promise<void> => {
     }
   } finally {
     OV = null;
-    console.log('[OpenVidu] 연결 종료 및 정리 완료');
   }
 };

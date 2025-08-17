@@ -294,7 +294,7 @@ const LiveOverlay = () => {
 
         setStep('record');
       } catch (e) {
-        console.log(e);
+        console.error(e);
         setStep('result');
         setTimeout(() => setStep('record'), 500);
       }
