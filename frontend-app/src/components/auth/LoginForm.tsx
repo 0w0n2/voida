@@ -93,6 +93,7 @@ const LoginForm = () => {
         return;
       }
 
+      console.log(res);
       const isNewbie = res.data.result.isNewbie;
       const accessToken = res.headers.authorization;
 
