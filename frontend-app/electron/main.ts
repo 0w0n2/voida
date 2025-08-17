@@ -34,7 +34,6 @@ app.whenReady().then(() => {
     if (details.statusCode === 302 && details.responseHeaders?.Location) {
       const location = details.responseHeaders.Location[0];
       if (location.startsWith('file://')) {
-        console.log('Intercepted file:// redirect to:', location);
 
         details.statusCode = 200;
         delete details.responseHeaders.Location;
@@ -148,11 +147,6 @@ app.whenReady().then(() => {
 
   ipcMain.on('send-quickslot', (event, message) => {
     event.sender.send('quickslot-message', message);
-    console.log(`Received quickslot: ${message}`);
-  });
-
-  ipcMain.on('overlay-log', (_e, msg) => {
-    console.log('[OVERLAY]', msg);
   });
 
   ipcMain.handle('overlay:get-init', async () => lastOverlayInit);
