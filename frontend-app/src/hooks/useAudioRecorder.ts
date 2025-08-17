@@ -9,6 +9,8 @@ interface UseAudioRecorderOptions {
     mimeType: string;
     durationMs: number;
   }) => void;
+  audioConstraints?: MediaStreamConstraints['audio'];
+  videoConstraints?: MediaStreamConstraints['video'];
 }
 
 export function useAudioRecorder({
@@ -16,6 +18,8 @@ export function useAudioRecorder({
   maxDurationMs,
   onProgress,
   onStop,
+  audioConstraints = true,
+  videoConstraints = false,
 }: UseAudioRecorderOptions) {
   const [hasPermission, setHasPermission] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -29,22 +33,27 @@ export function useAudioRecorder({
 
   // 권한 요청
   useEffect(() => {
-    navigator.mediaDevices
-      .getUserMedia({ audio: true })
-      .then((s) => {
+    let mounted = true;
+    (async () => {
+      try {
+        const s = await navigator.mediaDevices.getUserMedia({
+          audio: audioConstraints ?? true,
+          video: videoConstraints ?? false,
+        });
+        if (!mounted) return;
         setStream(s);
         setHasPermission(true);
-      })
-      .catch((err) => {
-        console.error('Audio permission denied:', err);
+      } catch (e) {
+        console.error('Audio permission denied:', e);
         setHasPermission(false);
-      });
-
+      }
+    })();
     return () => {
-      stream?.getTracks().forEach((t) => t.stop());
+      mounted = false;
+      if (stream) stream.getTracks().forEach(t => t.stop());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [JSON.stringify(audioConstraints)]);
 
   const start = useCallback(() => {
     if (!stream || isRecording) return;

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, globalShortcut } from 'electron';
+import { app, BrowserWindow, ipcMain, globalShortcut, session, shell } from 'electron';
 import * as path from 'path';
 import { closeOverlayWindow, createOverlayWindow } from './overlayWindow';
 
@@ -26,6 +26,29 @@ app.whenReady().then(() => {
     },
   });
 
+  const filter = {
+    urls: ['https://api.voida.site/login/oauth2/code/*'],
+  };
+
+  session.defaultSession.webRequest.onHeadersReceived(filter, (details, callback) => {
+    if (details.statusCode === 302 && details.responseHeaders?.Location) {
+      const location = details.responseHeaders.Location[0];
+      if (location.startsWith('file://')) {
+        console.log('Intercepted file:// redirect to:', location);
+
+        details.statusCode = 200;
+        delete details.responseHeaders.Location;
+
+        if (win) {
+          win.loadURL(location);
+        }
+        callback({ cancel: false, responseHeaders: details.responseHeaders });
+        return;
+      }
+    }
+    callback({ cancel: false, responseHeaders: details.responseHeaders });
+  });
+
   if (isDev) {
     win.loadURL('http://localhost:5173');
   } else {
@@ -44,12 +67,21 @@ app.whenReady().then(() => {
     const wc = e.sender;
     wc.reload();
   });
+  ipcMain.handle('app:get-version', () => {
+    app.getVersion();
+  });
+  ipcMain.on('open-external-link', (event, url) => {
+    if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+      shell.openExternal(url); 
+    }
+  });
 
   const goBackFocused = () => {
     const focused = BrowserWindow.getFocusedWindow();
     const wc = focused?.webContents;
     if (wc?.canGoBack()) wc.goBack();
   };
+
   const goForwardFocused = () => {
     const focused = BrowserWindow.getFocusedWindow();
     const wc = focused?.webContents;

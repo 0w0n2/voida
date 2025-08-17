@@ -38,16 +38,12 @@ const EmailVerificationModal = ({
     setError('');
     setVerificationCode('');
     try {
-      console.log(email);
-      const res = await sendEmailVerification(email.trim());
-      console.log(res)
+      await sendEmailVerification(email.trim());
       setCountdown(180); // 3분 카운트다운
       useAlertStore.getState().showAlert('인증 코드가 이메일로 발송되었습니다.', 'top')
     } catch (error) {
       if (error instanceof AxiosError) {
-        setError(
           useAlertStore.getState().showAlert('인증 코드 발송에 실패했습니다.', 'top')
-        );
       }
     } finally {
       setIsLoading(false);
@@ -64,11 +60,8 @@ const EmailVerificationModal = ({
     setError('');
 
     try {
-      console.log(email, verificationCode);
       const res = await verifyEmailCode(email, verificationCode);
-      console.log(res);
       const verified = res.data.result.verified;
-      console.log(verified);
       if (verified) {
         useAlertStore.getState().showAlert('이메일 인증이 완료되었습니다!', 'top')
       onVerificationSuccess();
