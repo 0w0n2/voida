@@ -5,25 +5,25 @@ const GlobalStyles = () => (
     styles={css`
       @font-face {
         font-family: 'NanumSquareEB';
-        src: url('/fonts/NanumSquareEB.woff') format('opentype');
+        src: url('/fonts/NanumSquareEB.woff') format('woff');
         font-weight: 800;
         font-style: normal;
       }
       @font-face {
         font-family: 'NanumSquareB';
-        src: url('/fonts/NanumSquareB.woff') format('opentype');
+        src: url('/fonts/NanumSquareB.woff') format('woff');
         font-weight: 700;
         font-style: normal;
       }
       @font-face {
         font-family: 'NanumSquareR';
-        src: url('/fonts/NanumSquareR.woff') format('opentype');
+        src: url('/fonts/NanumSquareR.woff') format('woff');
         font-weight: 400;
         font-style: normal;
       }
       @font-face {
         font-family: 'NanumSquareL';
-        src: url('/fonts/NanumSquareL.woff') format('opentype');
+        src: url('/fonts/NanumSquareL.woff') format('woff');
         font-weight: 300;
         font-style: normal;
       }

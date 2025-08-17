@@ -29,7 +29,7 @@ function calcOverlayBounds(
 }
 export function createOverlayWindow(
   _isDev: boolean,
-  overlayPosition: OverlayPos = 'TOPRIGHT'
+  overlayPosition: OverlayPos = 'TOPRIGHT',
 ): BrowserWindow {
   const overlaySize = { w: 400, h: 600 };
   const targetDisplay = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
@@ -69,7 +69,7 @@ export function createOverlayWindow(
   const realign = () => {
     if (!overlayWin) return;
     const disp = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
-    const b = calcOverlayBounds(disp, overlaySize, overlayPosition);
+    const b = calcOverlayBounds(disp, overlaySize, overlayPosition, overlayTransparency);
     overlayWin.setBounds(b);
   };
   screen.on('display-metrics-changed', realign);

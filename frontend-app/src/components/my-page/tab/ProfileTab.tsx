@@ -7,7 +7,6 @@ import defaultProfile from '@/assets/profiles/defaultProfile.png';
 import {
   deleteUser,
   updateUser,
-  getUser,
   getUserSocialAccounts,
   linksocialAccount,
 } from '@/apis/auth/userApi';
@@ -15,7 +14,6 @@ import { useAuthStore } from '@/stores/authStore';
 import UpdatePasswordModal from '../modal/UpdatePasswordModal';
 import GetOutModal from '../modal/GetOutModal';
 import google from '@/assets/icons/google-logo.png';
-import UpdateDoneModal from '../modal/UpdateDoneModal';
 import { useAlertStore } from '@/stores/useAlertStore';
 
 interface UserProfile {
@@ -38,8 +36,6 @@ const ProfileTab = () => {
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [isPasswordDoneModalOpen, setIsPasswordDoneModalOpen] = useState(false);
   const [isGetOutModalOpen, setIsGetOutModalOpen] = useState(false);
-  const [showDoneModal, setShowDoneModal] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [isSocial, setIsSocial] = useState(false);
   const [socialEmail, setSocialEmail] = useState<string | null>(null);
   const [nicknameError, setNicknameError] = useState(false);
@@ -115,7 +111,6 @@ const ProfileTab = () => {
         useAlertStore
           .getState()
           .showAlert('유저 정보가 업데이트되었습니다.', 'top');
-        setShowDoneModal(true);
         setChanged(false);
       } catch (err) {
         console.error('유저 정보 업데이트 실패:', err);
@@ -126,11 +121,6 @@ const ProfileTab = () => {
   const handlePasswordChange = () => {
     setIsPasswordModalOpen(true);
   };
-
-  // const handlePasswordUpdateSuccess = async () => {
-  //   const res = await getUserSocialAccounts();
-
-  // };
 
   // 소셜 계정 연동
   const handleGoogleLink = async () => {
@@ -166,7 +156,6 @@ const ProfileTab = () => {
         useAlertStore
           .getState()
           .showAlert('방장인 대기실이 있어 탈퇴할 수 없습니다.', 'top');
-          setShowDoneModal(false);
         return;
       }
       navigate('/login');
@@ -180,11 +169,6 @@ const ProfileTab = () => {
   const closeAllModals = () => {
     setIsPasswordModalOpen(false);
     // setIsSuccessModalOpen(false);
-  };
-
-  // 모달 창 닫는 함수
-  const handleCloseModal = () => {
-    setShowDoneModal(false);
   };
 
   return (
@@ -550,6 +534,7 @@ const infoLabelStyle = css`
   font-weight: 600;
   color: var(--color-text);
   margin-bottom: 10px;
+  caret-color: black;
 `;
 
 const cannotEditButtonStyle = css`
@@ -572,6 +557,7 @@ const inputFieldStyle = css`
   background-color: var(--color-bg-white);
   color: var(--color-text);
   margin-bottom: 16px;
+  caret-color: black;
 
   &:focus {
     outline: none;
@@ -667,7 +653,7 @@ const gradientBorderStyle = css`
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: white; // or var(--color-bg-white)
+  background-color: white;
   padding: 40px;
 `;
 

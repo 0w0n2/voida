@@ -5,7 +5,6 @@ import { getUserSettings, updateGuideMode } from '@/apis/auth/userApi';
 import { useAuthStore } from '@/stores/userStore';
 import { useAlertStore } from '@/stores/useAlertStore';
 import { useNavigate } from 'react-router-dom';
-import UpdateDoneModal from '@/components/my-page/modal/UpdateDoneModal';
 import guide from '@/assets/icons/mp-guide.png';
 
 interface UserSettings {

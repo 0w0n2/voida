@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "electron:build": "esbuild electron/main.ts --bundle --platform=node --external:electron --outfile=electron/dist/main.cjs && esbuild electron/preload.ts electron/overlayWindow.ts --bundle --platform=node --external:electron --outdir=electron/dist",
+    "electron:build": "esbuild electron/main.ts --bundle --platform=node --format=cjs --external:electron --outfile=electron/dist/main.cjs && esbuild electron/preload.ts electron/overlayWindow.ts --bundle --platform=node --format=cjs --external:electron --outdir=electron/dist",
     "electron": "cross-env ELECTRON_DEV=true electron electron/dist/main.cjs",
     "start": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && npm run electron:build && npm run electron\"",
     "build": "vite build",
@@ -17,13 +17,16 @@
     "appId": "com.ssafy.voida",
     "productName": "VOIDA",
     "files": [
-      "dist/**/*",
-      "electron/dist/main.cjs"
+      "dist/**",
+      "electron/dist/**"
     ],
     "win": {
       "icon": "electron/assets/voida-favicon.ico",
       "target": "nsis"
-    }
+    },
+    "asarUnpack": [
+      "electron/dist/preload.js"
+    ]
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -51,7 +54,7 @@
     "@types/sockjs-client": "^1.5.4",
     "@vitejs/plugin-react": "^4.6.0",
     "concurrently": "^9.2.0",
-    "electron": "^37.2.5",
+    "electron": "^37.3.0",
     "electron-builder": "^26.0.12",
     "esbuild": "^0.25.8",
     "eslint": "^9.30.1",
