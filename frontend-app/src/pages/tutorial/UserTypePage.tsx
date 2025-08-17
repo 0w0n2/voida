@@ -2,7 +2,6 @@
 import { css } from '@emotion/react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { postUserType } from '@/apis/auth/userApi';
 import Header from '@/components/Header';
 import GeneralUserImg from '@/assets/images/general-user-gray.png';
 import GeneralUserImgHover from '@/assets/images/general-user-blue.png';
@@ -10,31 +9,10 @@ import LipReadingUserImg from '@/assets/images/lip-reading-user-gray.png';
 import LipReadingUserImgHover from '@/assets/images/lip-reading-user-blue.png';
 import Microphton from '@/assets/icons/microphone.png';
 import Lip from '@/assets/icons/lip.png';
-import { useAlertStore } from '@/stores/useAlertStore';
 
 export default function UserType() {
   const navigate = useNavigate();
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
-
-  const handleSelect = async (
-    e: React.MouseEvent,
-      type: 'general' | 'lip-reading',
-    ) => {
-    e.stopPropagation();
-    try {
-      console.log(type);
-      const res = await postUserType(type);
-      console.log(res);
-      navigate(
-        type === 'general' ? '/tutorial/general' : '/tutorial/lip-reading',
-      );
-    } catch (error) {
-      console.error('사용자 유형 선택 실패:', error);
-      useAlertStore
-        .getState()
-        .showAlert('사용자 유형 선택에 실패했습니다. 다시 시도해주세요.', 'top');
-    }
-  };
 
   return (
     <div css={pageWrapperStyle}>
@@ -50,7 +28,7 @@ export default function UserType() {
             css={cardStyle}
             onMouseEnter={() => setHoveredCard('general')}
             onMouseLeave={() => setHoveredCard(null)}
-            onClick={() => navigate('/tutorial/general')}
+            onClick={() =>navigate('/tutorial/general')}
           >
             <img
               src={
@@ -73,7 +51,6 @@ export default function UserType() {
                   color: '#fff',
                 },
               ]}
-              onClick={(e) => handleSelect(e, 'general')}
             >
               <img src={Microphton} alt="" />
               <span>음성 테스트</span>
@@ -84,7 +61,7 @@ export default function UserType() {
             css={cardStyle}
             onMouseEnter={() => setHoveredCard('lip')}
             onMouseLeave={() => setHoveredCard(null)}
-            onClick={() => navigate('/tutorial/lip-reading')}
+            onClick={() => {navigate('/tutorial/lip-reading')}}
           >
             <img
               src={
@@ -108,7 +85,6 @@ export default function UserType() {
                   color: '#fff',
                 },
               ]}
-              onClick={(e) => handleSelect(e, 'lip-reading')}
             >
               <img src={Lip} alt="" />
               <span>구화 테스트</span>

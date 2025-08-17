@@ -95,3 +95,8 @@ export const getRandomNickname = () => {
 export const reissueToken = () => {
   return apiInstanceSpring.post('/v1/auth/reissue', { withCredentials: true });
 };
+
+// 뉴비 여부 전환
+export const newbieTrans = () => {
+  return apiInstanceSpring.patch('/v1/members/me/newbie', { withCredentials: true });
+};

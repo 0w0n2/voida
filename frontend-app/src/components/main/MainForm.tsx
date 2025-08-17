@@ -229,7 +229,7 @@ const searchContainer = css`
   margin: 0 auto;
 
   @media (min-height: 1000px) {
-    top: 20px;
+    top: 10px;
   }
 `;
 
@@ -312,7 +312,7 @@ const cardGrid = css`
   min-height: 0; 
 
   @media (min-height: 1000px) {
-    margin-top: 110px;
+    margin-top: 70px;
     gap: 50px;
   }
 `;

@@ -13,7 +13,6 @@ interface UpdateDoneModalProps {
 
 const UpdatePasswordDoneModal = ({
   isOpen,
-  onClose,
   closeAll,
   closeDoneModal,
   handleClose = () => {}, // 기본값으로 빈 함수 설정
@@ -21,7 +20,6 @@ const UpdatePasswordDoneModal = ({
   if (!isOpen) return null;
 
   const user = useAuthStore((state) => state.user);
-  console.log(user);
   const userImage = user?.profileImage;
   const userNickname = user?.nickname;
 
