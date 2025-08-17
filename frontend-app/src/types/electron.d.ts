@@ -1,4 +1,3 @@
-// src/types/electron.d.ts
 export {};
 
 declare global {
@@ -11,9 +10,10 @@ declare global {
       }) => void;
       closeOverlay: () => void;
       sendQuickMessage: (message: string) => void;
-
-      // onOverlayInit?: (cb: (data: { roomId: string }) => void) => () => void;
-      // getOverlayInit?: () => Promise<{ roomId: string }>;
+      getAppVersion: () => Promise<string>;
+      onOverlayInit: (cb: (data: { roomId: string }) => void) => () => void;
+      getOverlayInit: () => Promise<{ roomId: string }>;
+      openLink: (url: string) => void;
     };
   }
 }
