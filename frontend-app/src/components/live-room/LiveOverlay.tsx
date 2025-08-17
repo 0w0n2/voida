@@ -73,7 +73,6 @@ const LiveOverlay = () => {
   const [stickBottom, setStickBottom] = useState(true);
   const BOTTOM_THRESHOLD = 40;
 
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const [showVideo, setShowVideo] = useState(true);
 
