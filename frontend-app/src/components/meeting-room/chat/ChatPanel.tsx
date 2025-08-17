@@ -101,7 +101,11 @@ export default function ChatPanel({ meetingRoomId }: ChatPanelProps) {
       const msgs = res.content.map((m) => ({ ...m, isMine: m.senderUuid === myUuid })).reverse();
       setChatMessages(meetingRoomId, [...msgs, ...roomMessages], true);
       setPage(nextPage);
-      chatBoxRef.current!.scrollTop = chatBoxRef.current!.scrollHeight - prevScrollHeight;
+      // chatBoxRef.current!.scrollTop = chatBoxRef.current!.scrollHeight - prevScrollHeight;
+      requestAnimationFrame(() => {
+        chatBoxRef.current!.scrollTop =
+        chatBoxRef.current!.scrollHeight - prevScrollHeight;
+      });
     } finally {
       setLoading(false);
     }
@@ -110,7 +114,7 @@ export default function ChatPanel({ meetingRoomId }: ChatPanelProps) {
   const handleScroll = () => {
     const el = chatBoxRef.current;
     if (!el) return;
-    if (el.scrollTop === 0) fetchOldMessages();
+    if (el.scrollTop <= 10) fetchOldMessages();
     const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 50;
     setShowScrollButton(!nearBottom);
   };

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Wifi } from 'lucide-react';
 import { useMeetingRoomStore } from '@/stores/useMeetingRoomStore';
 import { getUserOverview, getSession } from '@/apis/live-room/openViduApi';
+import { useAlertStore } from '@/stores/useAlertStore';
 
 const ChatHeader = () => {
   const roomInfo = useMeetingRoomStore((state) => state.roomInfo);
@@ -27,26 +28,33 @@ const ChatHeader = () => {
     fetchSessionStatus();
   }, [meetingRoomId]);
 
-  const handleJoinLive = async () => {
-    if (!meetingRoomId) {
-      console.warn('roomId가 없습니다.');
+const handleJoinLive = async () => {
+  if (!meetingRoomId) {
+    console.warn('roomId가 없습니다.');
+    return;
+  }
+
+  try {
+    if (!window.electronAPI?.openOverlay) {
+      useAlertStore.getState().showAlert('해당 기능은 Desktop App 전용입니다. 앱 다운로드 후 이용해주세요.', 'top');
       return;
     }
 
-    try {
-      const overview = await getUserOverview(); 
-      const overlayPosition = overview?.setting?.overlayPosition ?? 'TOPRIGHT';
-      const overlayTransparency = overview?.setting?.overlayTransparency ?? 40;
+    const overview = await getUserOverview();
+    const overlayPosition = overview?.setting?.overlayPosition ?? 'TOPRIGHT';
+    const overlayTransparency = overview?.setting?.overlayTransparency ?? 40;
 
-      window.electronAPI?.openOverlay?.({
-        roomId: meetingRoomId,
-        overlayPosition,
-        overlayTransparency,
-      });
-    } catch (err) {
-      console.error('라이브 참여 실패', err);
-    }
-  };
+    window.electronAPI.openOverlay({
+      roomId: meetingRoomId,
+      overlayPosition,
+      overlayTransparency,
+    });
+  } catch (err) {
+    console.error('라이브 참여 실패', err);
+    useAlertStore.getState().showAlert('라이브 참여에 실패했습니다.', 'top');
+  }
+};
+
 
   return (
     <div css={header}>
@@ -90,7 +98,6 @@ const header = css`
   }
 `;
 
-// 버튼 스타일 (isLive 상태에 맞는 색상 적용)
 const joinBtn = (isLive: boolean | null) => css`
   padding: 12px 20px;
   border: none;

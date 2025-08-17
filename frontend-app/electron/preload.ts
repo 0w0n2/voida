@@ -1,6 +1,8 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
 contextBridge.exposeInMainWorld('electronAPI', {
+  getAppVersion: () => ipcRenderer.invoke('app:get-version'),
+
   openOverlay: (init: { 
     roomId: string; 
     overlayPosition?: 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT'; 
@@ -29,4 +31,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     overlayPosition?: 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT'
     overlayTransparency?: number
   }>,
+
+  openLink: (url) => ipcRenderer.send('open-external-link', url),
 });

@@ -105,7 +105,7 @@ const JoinRoomModal = ({ onClose }: JoinRoomModalProps) => {
   const handleEnter = async () => {
     const inviteCode = codeValues.join('');
     const res = await verifyInviteCode(inviteCode); 
-
+    
     if (res.includes('요청')) {
       useAlertStore.getState().showAlert('방 입장에 성공했습니다!', 'top');
       setTimeout(() => window.location.reload(), 500);

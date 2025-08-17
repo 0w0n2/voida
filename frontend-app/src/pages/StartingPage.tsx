@@ -7,10 +7,28 @@ import ChatImage from '@/assets/icons/main-chat.png';
 import LipIcon from '@/assets/icons/lip-blue.png';
 import StartIcon from '@/assets/icons/start.png';
 import { Globe } from 'lucide-react';
+// import { useAlertStore } from '@/stores/useAlertStore';
 
 const MainPage = () => {
   const navigate = useNavigate();
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
+
+  // const checkAppVersion = async () => {
+  //   if (!window.electronAPI?.getAppVersion) return;
+
+  //   const currentVersion = await window.electronAPI.getAppVersion();
+
+  //   console.log('currentVersion', currentVersion);
+  //   const { data } = await axios.get('/api/latest-version');
+
+  //   if (currentVersion !== data.version) {
+  //     useAlertStore.getState().showAlert(
+  //       `새 버전(${data.version})이 출시되었습니다. 다운로드 후 이용해주세요.`,
+  //       'top'
+  //     );
+  //   }
+  // };
+  // checkAppVersion();
 
   return (
     <div css={wrapper}>
@@ -46,7 +64,7 @@ const MainPage = () => {
               css={demoButton}
               onMouseEnter={() => setIsTooltipVisible(true)}
               onMouseLeave={() => setIsTooltipVisible(false)}
-              onClick={() => window.open(import.meta.env.VITE_WEB_URL)}
+              onClick={() => window.electronAPI.openLink(import.meta.env.VITE_WEB_URL)}
             >
               <Globe  />
               VOIDA

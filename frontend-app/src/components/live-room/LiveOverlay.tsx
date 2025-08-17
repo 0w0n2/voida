@@ -98,7 +98,6 @@ const LiveOverlay = () => {
         const pos = (user?.setting?.overlayPosition as OverlayPos) || 'TOPRIGHT';
         setOverlayPosition(pos);
         const trans = user?.setting?.overlayTransparency;
-        console.log(trans);
         setOverlayTransparency(trans);
       } catch (err) {
         console.error('유저 정보 조회 실패:', err);
@@ -282,6 +281,7 @@ const LiveOverlay = () => {
   const { isRecording: isAudioRecording, start: startAudio, stop: stopAudio } = useAudioRecorder({
     maxDurationMs: 3000,
     onProgress: (percent) => setProgress(percent),
+    videoConstraints: false,
     onStop: async ({ blob }) => {
       setStep('loading');
       try {
@@ -361,6 +361,7 @@ const { isRecording: isVideoRecording, stream: videoStream, start: startVideo, s
       });
     }
   }, [step, videoStream, showVideo]);
+
   // 나가기
   const exitLive = () => {
     disconnectOpenVidu();
@@ -470,7 +471,7 @@ const { isRecording: isVideoRecording, stream: videoStream, start: startVideo, s
               <div css={normalUserControls}>
                 <div css={audioWrapper}>
                   {isAudioRecording && (
-                     <ProgressBar percent={progress} height={6} position="relative" />
+                    <ProgressBar percent={progress} height={6} position="relative" />
                   )}
                 </div>
 
@@ -514,20 +515,22 @@ const overlayContainer = (isBottom: boolean) => css`
   padding: 16px;
 `;
 
-const overlayContent = (isBottom: boolean, transparency: number) => css`
-  background: rgba(0, 0, 0, ${transparency/100});
-  color: #fff;
-  border-radius: 10px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-  transition: all 0.3s ease;
-  overflow: hidden;
-  position: relative;
-  transform-origin: ${isBottom ? 'bottom center' : 'top center'};
-  display: flex;
-  flex-direction: column;
-  ${isBottom ? 'padding-top: 44px;' : 'padding-bottom: 44px;'}
-`;
+const overlayContent = (isBottom: boolean, transparency: number) => {
+  return css`
+    background: rgba(0, 0, 0, ${transparency / 100});
+    color: #fff;
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    position: relative;
+    transform-origin: ${isBottom ? 'bottom center' : 'top center'};
+    display: flex;
+    flex-direction: column;
+    ${isBottom ? 'padding-top: 44px;' : 'padding-bottom: 44px;'}
+  `;
+};
 
 const expanded = css`
   width: 100%;
@@ -922,7 +925,6 @@ const chatMeta = css`
 const chatName = css`
   font-size: 13px;
   font-family: 'NanumSquareEB';
-  color: #fff;
 `;
 
 const chatTime = css`
@@ -934,7 +936,6 @@ const chatTime = css`
 const chatText = css`
   font-size: 14px;
   font-family: 'NanumSquareR';
-  color: #fff;
   white-space: pre-wrap;
   word-break: break-word;
   margin-top: 2px;
