@@ -20,6 +20,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -50,6 +51,7 @@ public class SecurityConfig {
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final OAuthProperties oAuthProperties;
     private final OAuth2FailureHandler oAuth2FailureHandler;
+    private final ClientRegistrationRepository clientRegistrationRepository;
 
     // SecurityFilterChain : HTTP 요청에 대한 보안 설정
     // 필터를 통해 (인증) 방식과 절차에 대한 설정 수행
@@ -76,7 +78,12 @@ public class SecurityConfig {
                 // (3) OAuth2 로그인 설정
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(endpoint -> endpoint     // 인가 URI: 사용자가 구글 로그인 페이지로 리다이렉트될 때 쓰는 엔드포인트
-                                .baseUri(oAuthProperties.getAuthorizationEndpoint()))
+                                .authorizationRequestResolver(
+                                        new CustomAuthorizationRequestResolver(
+                                                clientRegistrationRepository, oAuthProperties.getAuthorizationEndpoint()
+                                        )
+                                )
+                        )
                         .redirectionEndpoint(endpoint -> endpoint       // 콜백 URI: 구글이 code를 돌려줄 때 호출되는 엔드포인트
                                 .baseUri(oAuthProperties.getRedirectionEndpoint())
                         )
