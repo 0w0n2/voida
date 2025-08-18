@@ -33,8 +33,8 @@ app.whenReady().then(() => {
   session.defaultSession.webRequest.onHeadersReceived(filter, (details, callback) => {
     if (details.statusCode === 302 && details.responseHeaders?.Location) {
       const location = details.responseHeaders.Location[0];
-      if (location.startsWith('file://')) {
-
+      
+      if (location.startsWith('https://app.voida.site')) {
         details.statusCode = 200;
         delete details.responseHeaders.Location;
 

@@ -76,19 +76,24 @@ const RegisterForm = () => {
     }
   };
 
-  const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setNickname(value);
-    setIsNicknameChecked(false);
+const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const value = e.target.value;
+  setNickname(value);
+  setIsNicknameChecked(false);
 
-    if (!value.trim()) {
-      setNicknameError('닉네임을 입력해주세요.');
-    } else if (value.length < 3 || value.length > 10) {
-      setNicknameError('3자 이상 10자 이하로 입력해주세요.');
-    } else {
-      setNicknameError('');
-    }
-  };
+  const regex = /^[a-zA-Z0-9가-힣]+$/; 
+
+  if (!value.trim()) {
+    setNicknameError('닉네임을 입력해주세요.');
+  } else if (value.length < 3 || value.length > 10) {
+    setNicknameError('3자 이상 10자 이하로 입력해주세요.');
+  } else if (!regex.test(value)) {
+    setNicknameError('닉네임은 한글, 영문, 숫자만 사용할 수 있습니다.');
+  } else {
+    setNicknameError('');
+  }
+};
+
 
   // 닉네임 랜덤 생성
   useEffect(() => {
@@ -104,35 +109,58 @@ const RegisterForm = () => {
     fetchRandomNickname();
   }, []);
 
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setPassword(value);
-    if (passwordCheck) {
-      validatePasswordCheck(passwordCheck, value);
-    }
-  };
+const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  let value = e.target.value;
 
-  const validatePassword = (value: string) => {
-    // 8자 이상, 영문, 숫자, 특수문자 포함
-    const regex =
-      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
-    if (!regex.test(value)) {
-      setPasswordError('최소 8자의 영문, 숫자, 특수문자를 입력해주세요.');
-    } else {
-      setPasswordError('');
-    }
+  if (value.length > 20) {
+    value = value.slice(0, 20);
+  }
+
+  setPassword(value);
+
+  if (passwordCheck) {
     validatePasswordCheck(passwordCheck, value);
-  };
+  }
 
-  const validatePasswordCheck = (value: string, mainPassword: string) => {
-    if (!value.trim()) {
-      setPasswordCheckError('비밀번호 확인을 입력해주세요.');
-    } else if (value !== mainPassword) {
-      setPasswordCheckError('비밀번호가 일치하지 않습니다.');
-    } else {
-      setPasswordCheckError('');
-    }
-  };
+  if (value.length < 8) {
+    setPasswordError('비밀번호는 최소 8자 이상 입력해주세요.');
+  } else {
+    setPasswordError('');
+  }
+};
+
+const validatePassword = (value: string) => {
+  if (value.length > 20) {
+    value = value.slice(0, 20);
+  }
+
+  const regex =
+    /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,20}$/;
+
+  if (!regex.test(value)) {
+    setPasswordError('영문, 숫자, 특수문자를 포함해 8~20자로 입력해주세요.');
+  } else {
+    setPasswordError('');
+  }
+
+  validatePasswordCheck(passwordCheck, value);
+};
+
+const validatePasswordCheck = (value: string, mainPassword: string) => {
+  if (value.length > 20) {
+    value = value.slice(0, 20);
+  }
+
+  if (!value.trim()) {
+    setPasswordCheckError('비밀번호 확인을 입력해주세요.');
+  } else if (value.length < 8) {
+    setPasswordCheckError('비밀번호는 최소 8자 이상 입력해주세요.');
+  } else if (value !== mainPassword) {
+    setPasswordCheckError('비밀번호가 일치하지 않습니다.');
+  } else {
+    setPasswordCheckError('');
+  }
+};
 
   const handlePrivacyCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsPrivacyChecked(e.target.checked);
