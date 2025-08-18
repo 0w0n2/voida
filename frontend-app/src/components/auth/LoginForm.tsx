@@ -52,11 +52,21 @@ const LoginForm = () => {
     }
   };
 
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  let value = e.target.value;
+
+  if (value.length > 20) {
+    value = value.slice(0, 20);
+  }
+
+  setPassword(value);
+
+  if (value.length < 8) {
+    setPasswordError('비밀번호는 최소 8자 이상 입력해주세요.');
+  } else {
     setPasswordError('');
-    const value = e.target.value;
-    setPassword(value);
-  };
+  }
+};
 
   const validate = () => {
     let isValid = true;

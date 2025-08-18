@@ -37,7 +37,7 @@ const ProfileTab = () => {
   const [isGetOutModalOpen, setIsGetOutModalOpen] = useState(false);
   const [isSocial, setIsSocial] = useState(false);
   const [socialEmail, setSocialEmail] = useState<string | null>(null);
-  const [nicknameError, setNicknameError] = useState(false);
+  const [nicknameError, setNicknameError] = useState('');
   useEffect(() => {
     setUserNickname(user?.nickname ?? '');
     setUserEmail(user?.email ?? '');
@@ -46,15 +46,28 @@ const ProfileTab = () => {
     checkGoogleLink();
   }, [user]);
 
-  const handleNicknameChange = (newNickname: string) => {
-    if (newNickname.length > 10) {
-      setNicknameError(true);
-    } else {
-      setNicknameError(false);
-    }
-    setUserNickname(newNickname);
-    setChanged(true);
-  };
+const handleNicknameChange = (newNickname: string) => {
+  if (newNickname.length > 10) {
+    newNickname = newNickname.slice(0, 10);
+  }
+
+  setUserNickname(newNickname);
+  setChanged(true);
+
+  const regex = /^[a-zA-Z0-9가-힣]+$/;
+
+  if (!newNickname.trim()) {
+    setNicknameError('닉네임을 입력해주세요.');
+  } else if (newNickname.length < 3) {
+    setNicknameError('닉네임은 3자 이상이어야 합니다.');
+  } else if (!regex.test(newNickname)) {
+    setNicknameError('닉네임은 한글, 영문, 숫자만 사용할 수 있습니다.');
+  } else if (newNickname.length > 10) {
+    setNicknameError('닉네임은 10자 이하여야 합니다.');
+  } else {
+    setNicknameError('');
+  }
+};
 
   const handleProfileImageChange = () => {
     const fileInput = document.createElement('input');
@@ -86,13 +99,13 @@ const ProfileTab = () => {
     if (nicknameError) {
       useAlertStore
         .getState()
-        .showAlert('닉네임은 10자 이하여야 합니다.', 'top');
+        .showAlert(nicknameError, 'top');
       return;
     }
+
     if (profileImageFile || userNickname !== user?.nickname) {
       try {
         const res = await updateUser(userNickname, profileImageFile);
-        // 중복 닉네임 처리
         const resCode = res.data.code;
         if (resCode === 910) {
           useAlertStore
@@ -227,7 +240,7 @@ const ProfileTab = () => {
               value={userNickname}
               onChange={(e) => handleNicknameChange(e.target.value)}
               placeholder="닉네임을 입력하세요"
-              css={nicknameError ? inputFieldErrorStyle : inputFieldStyle}
+              css={inputFieldStyle}
             />
           </div>
 
@@ -651,11 +664,4 @@ const iconStyle = css`
   justify-content: center;
   gap: 8px;
   width: 25px;
-`;
-
-const inputFieldErrorStyle = css`
-  ${inputFieldStyle}
-  border-color: var(--color-red);
-  background-color: var(--color-red-light);
-  color: var(--color-red-dark);
 `;

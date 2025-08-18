@@ -41,6 +41,10 @@ const ShortcutsTab = () => {
   }, []);
 
   const handleShortcutChange = (index: number, value: string) => {
+    if (value.length > 20) {
+      value = value.slice(0, 20);
+    }
+
     const newMessages = [...quickSlotMessages];
 
     if (newMessages[index].length > 20) {
