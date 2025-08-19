@@ -500,10 +500,25 @@ const videoRef = useRef<HTMLVideoElement>(null);
           )}
         </div>
       )}
+      <button
+        onClick={() => {
+          setIsExpanded(!isExpanded);
 
-      <button onClick={() => setIsExpanded(!isExpanded)} css={toggleBtn(isBottom)}>
-        {isExpanded ? (isBottom ? <ChevronDown size={30} /> : <ChevronUp size={30} />)
-                  : (isBottom ? <ChevronUp size={30} /> : <ChevronDown size={30} />)}
+          if (window.electronAPI?.resizeOverlay) {
+            if (isExpanded) {
+              // 접을 때
+              window.electronAPI.resizeOverlay(400, 76, true);
+            } else {
+              // 펼칠 때
+              window.electronAPI.resizeOverlay(400, 600, false);
+            }
+          }
+        }}
+        css={toggleBtn(isBottom)}
+      >
+        {isExpanded
+          ? (isBottom ? <ChevronDown size={30} /> : <ChevronUp size={30} />)
+          : (isBottom ? <ChevronUp size={30} /> : <ChevronDown size={30} />)}
       </button>
     </div>
   </div>
@@ -547,7 +562,6 @@ const expanded = css`
 
 const collapsed = css`
   width: 100%;
-  max-width: 960px;
   height: 60px;
 `;
 
@@ -846,7 +860,7 @@ const toggleBtn = (isBottom: boolean) => css`
   justify-content: center;
   svg {
     color: #565656ff;
-    transition: color 0.2s ease;
+    // transition: color 0.2s ease;
   }
   &:hover svg {
     color: #ffffffff;

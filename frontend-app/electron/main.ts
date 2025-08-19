@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain, globalShortcut, shell } from 'electron';
 import * as path from 'path';
-import { closeOverlayWindow, createOverlayWindow } from './overlayWindow';
+import { closeOverlayWindow, createOverlayWindow, getOverlayWindow } from './overlayWindow';
 
 let win: BrowserWindow;
 
@@ -52,6 +52,50 @@ app.whenReady().then(() => {
       shell.openExternal(url); 
     }
   });
+  ipcMain.on("resize-overlay", (_, { width, height, animate }) => {
+    const overlayWindow = getOverlayWindow();
+
+    if (!overlayWindow) return;
+
+    if (!animate) {
+      const bounds = overlayWindow.getBounds();
+      const steps = 10;
+      const stepH = (height - bounds.height) / steps;
+      let i = 0;
+
+      const interval = setInterval(() => {
+        if (!overlayWindow || i >= steps) {
+          clearInterval(interval);
+          return;
+        }
+        const b = overlayWindow.getBounds();
+        overlayWindow.setBounds({
+          ...b,
+          height: Math.round(b.height + stepH),
+        });
+        i++;
+      }, 30);
+    } else {
+      const bounds = overlayWindow.getBounds();
+      const steps = 8;
+      const stepH = (height - bounds.height) / steps;
+      let i = 0;
+
+      const interval = setInterval(() => {
+        if (!overlayWindow || i >= steps) {
+          clearInterval(interval);
+          return;
+        }
+        const b = overlayWindow.getBounds();
+        overlayWindow.setBounds({
+          ...b,
+          height: Math.round(b.height + stepH),
+        });
+        i++;
+      }, 25);
+    }
+  });
+
 
   const goBackFocused = () => {
     const focused = BrowserWindow.getFocusedWindow();

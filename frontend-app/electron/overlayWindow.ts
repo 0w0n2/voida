@@ -78,9 +78,14 @@ export function createOverlayWindow(
 
   return overlayWin;
 }
+export function getOverlayWindow(): BrowserWindow | null {
+  return overlayWin;
+}
+
 
 export function closeOverlayWindow() {
   if (!overlayWin) return;
   overlayWin.close();
   overlayWin = null;
 }
+
