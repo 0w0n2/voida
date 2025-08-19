@@ -1,6 +1,8 @@
 package com.bbusyeo.voida.api.liveroom.service;
 
-import static com.bbusyeo.voida.global.response.BaseResponseStatus.*;
+import static com.bbusyeo.voida.global.response.BaseResponseStatus.OPENVIDU_SERVER_ERROR;
+import static com.bbusyeo.voida.global.response.BaseResponseStatus.OPENVIDU_SESSION_NOT_FOUND;
+import static com.bbusyeo.voida.global.response.BaseResponseStatus.OPENVIDU_TOKEN_NOT_FOUND;
 import static io.openvidu.java.client.ConnectionProperties.DefaultValues.role;
 
 import com.bbusyeo.voida.api.liveroom.domain.model.Participant;
@@ -26,19 +28,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class LiveRoomServiceImpl implements LiveRoomService {
 
-    // todo : 시연용 미팅룸 (삭제 예정)
-    private static final Long DEMO_MEETING_ROOM_ID = 11L;
     private final OpenVidu openVidu;
     private final OpenViduSessionProperties sessionProps;
     private final ParticipantService participantService;
 
     @Override
     public SessionResponseDto createOrGetSession(String memberUuid, Long meetingRoomId) {
-
-        // todo : 시연 세션 아닌 경우, 세션 생성 / 조회 메서드 접근 제한 (삭제 예정)
-        if (!meetingRoomId.equals(DEMO_MEETING_ROOM_ID)) {
-            throw new BaseException(LOCKED_FOR_DEMO);
-        }
 
         final String customSessionId = generateCustomSessionId(meetingRoomId);
 
@@ -61,11 +56,6 @@ public class LiveRoomServiceImpl implements LiveRoomService {
 
     @Override
     public TokenResponseDto createToken(String memberUuid, Long meetingRoomId) {
-
-        // todo : 시연 세션 아닌 경우 토큰 발급 접근 제한 (삭제 예정)
-        if (!meetingRoomId.equals(DEMO_MEETING_ROOM_ID)) {
-            throw new BaseException(LOCKED_FOR_DEMO);
-        }
 
         final String customSessionId = generateCustomSessionId(meetingRoomId);
 
