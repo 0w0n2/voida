@@ -16,10 +16,10 @@ interface UseAudioRecorderOptions {
 export function useAudioRecorder({
   mimeType = 'audio/webm;codecs=opus',
   maxDurationMs,
-  onProgress,
-  onStop,
   audioConstraints = true,
   videoConstraints = false,
+  onProgress,
+  onStop,
 }: UseAudioRecorderOptions) {
   const [hasPermission, setHasPermission] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -31,7 +31,6 @@ export function useAudioRecorder({
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const stopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 권한 요청
   useEffect(() => {
     let mounted = true;
     (async () => {

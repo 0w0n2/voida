@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, globalShortcut, session, shell } from 'electron';
+import { app, BrowserWindow, ipcMain, globalShortcut, shell } from 'electron';
 import * as path from 'path';
 import { closeOverlayWindow, createOverlayWindow } from './overlayWindow';
 
@@ -24,28 +24,6 @@ app.whenReady().then(() => {
       contextIsolation: true,
       devTools: true,
     },
-  });
-
-  const filter = {
-    urls: ['https://api.voida.site/login/oauth2/code/*'],
-  };
-
-  session.defaultSession.webRequest.onHeadersReceived(filter, (details, callback) => {
-    if (details.statusCode === 302 && details.responseHeaders?.Location) {
-      const location = details.responseHeaders.Location[0];
-      
-      if (location.startsWith('https://app.voida.site')) {
-        details.statusCode = 200;
-        delete details.responseHeaders.Location;
-
-        if (win) {
-          win.loadURL(location);
-        }
-        callback({ cancel: false, responseHeaders: details.responseHeaders });
-        return;
-      }
-    }
-    callback({ cancel: false, responseHeaders: details.responseHeaders });
   });
 
   if (isDev) {

@@ -55,7 +55,6 @@ const handleJoinLive = async () => {
   }
 };
 
-
   return (
     <div css={header}>
       <button 

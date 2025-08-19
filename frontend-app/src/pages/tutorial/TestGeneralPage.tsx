@@ -20,6 +20,8 @@ const TestGeneralPage = () => {
   const { hasPermission, isRecording, start, stop } = useAudioRecorder({
     mimeType: 'audio/webm;codecs=opus',
     maxDurationMs: 10_000,
+    audioConstraints: true,
+    videoConstraints: false,
     onStop: async ({ blob }) => {
       setIsAnalyzing(true);
       try {
