@@ -3,7 +3,6 @@ import type { Rectangle, Display } from 'electron';
 import * as path from 'path';
 
 let overlayWin: BrowserWindow | null = null;
-
 type OverlayPos = 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT';
 
 function calcOverlayBounds(
@@ -24,12 +23,13 @@ function calcOverlayBounds(
     BOTTOMLEFT: { x: xLeft, y: yBottom },
     BOTTOMRIGHT: { x: xRight, y: yBottom },
   };
-
   return { x: map[pos].x, y: map[pos].y, width: size.w, height: size.h };
 }
+
 export function createOverlayWindow(
   _isDev: boolean,
   overlayPosition: OverlayPos = 'TOPRIGHT',
+  overlayTransparency: number = 30,
 ): BrowserWindow {
   const overlaySize = { w: 400, h: 600 };
   const targetDisplay = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());

@@ -2,20 +2,15 @@
 import { css } from '@emotion/react';
 import { useState, useEffect } from 'react';
 import { getUserSettings, updateOverlay } from '@/apis/auth/userApi';
-import { useAuthStore } from '@/stores/userStore';
-import UpdateDoneModal from '@/components/my-page/modal/UpdateDoneModal';
 import { useAlertStore } from '@/stores/useAlertStore';
 
 type OverlayPosition = 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT';
 
 const OverlayTab = () => {
-  const { user } = useAuthStore();
-  const [overlayPosition, setOverlayPosition] =
-    useState<OverlayPosition>('TOPLEFT');
+  const [overlayPosition, setOverlayPosition] = useState<OverlayPosition>('TOPLEFT');
   const [liveFontSize, setLiveFontSize] = useState<number>(0);
   const [overlayTransparency, setOverlayTransparency] = useState<number>(0);
   const [changed, setChanged] = useState(false);
-  const [showDoneModal, setShowDoneModal] = useState(false);
 
   // 유저 설정 불러오기
   useEffect(() => {
@@ -39,11 +34,6 @@ const OverlayTab = () => {
     setChanged(true);
   };
 
-  // const handleFontSizeChange = (size: number) => {
-  //   setLiveFontSize(size);
-  //   setChanged(true);
-  // };
-
   const handleTransparencyChange = (transparency: number) => {
     setOverlayTransparency(transparency);
     setChanged(true);
@@ -52,7 +42,6 @@ const OverlayTab = () => {
   const handleSave = async () => {
     try {
       await updateOverlay(overlayPosition, overlayTransparency, liveFontSize);
-      setShowDoneModal(true);
       setChanged(false);
       useAlertStore
         .getState()
@@ -125,19 +114,12 @@ const OverlayTab = () => {
           </div>
         </div>
       </div>
-
-      {/* <UpdateDoneModal
-        isOpen={showDoneModal}
-        onClose={() => setShowDoneModal(false)}
-        userName={user?.nickname || '사용자'}
-      /> */}
     </div>
   );
 };
 
 export default OverlayTab;
 
-/* === 스타일 === */
 const overlayPanelStyle = css`
   width: 100%;
   background-color: var(--color-bg-white);

@@ -59,7 +59,6 @@ const LiveOverlay = () => {
   const hotkeyMapRef = useRef(new Map<string, string>());
   const ttsUrlMapRef = useRef(new Map<string, string>());
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  // const [step, setStep] = useState<'record' | 'loading' | 'result'>('record');
   const [audioStep, setAudioStep] = useState<'record' | 'loading' | 'result'>('record');
   const [videoStep, setVideoStep] = useState<'record' | 'loading' | 'result'>('record');
   const [userInfo, setUserInfo] = useState<any>(null);
@@ -443,7 +442,7 @@ const videoRef = useRef<HTMLVideoElement>(null);
                         />
                         {isVideoRecording && (
                           <ProgressBar
-                            percent={progress} /* 분리했다면 videoProgress */
+                            percent={progress}
                             height={6}
                             position="relative"
                             bottom={3}
@@ -475,7 +474,7 @@ const videoRef = useRef<HTMLVideoElement>(null);
                     <div css={audioWrapper}>
                       {isAudioRecording && (
                         <ProgressBar
-                          percent={progress} /* 분리했다면 audioProgress */
+                          percent={progress}
                           height={6}
                           position="relative"
                         />
