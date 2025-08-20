@@ -3,13 +3,11 @@ import {
   BrowserWindow,
   ipcMain,
   globalShortcut,
-  session,
   shell,
   protocol,
   net,
 } from 'electron';
 import * as path from 'path';
-import * as dotenv from 'dotenv';
 import { closeOverlayWindow, createOverlayWindow } from './overlayWindow';
 import { request } from 'http';
 
@@ -22,8 +20,7 @@ let lastOverlayInit: {
   overlayTransparency?: number;
 } | null = null;
 
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
-const electronScheme = process.env.ELECTRON_URL || 'app';
+const electronScheme = 'voida-electron';
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -71,31 +68,6 @@ app.whenReady().then(() => {
       devTools: true,
     },
   });
-
-  const filter = {
-    urls: [`${process.env.VITE_SPRING_API_URL}/login/oauth2/code/*`],
-  };
-
-  session.defaultSession.webRequest.onHeadersReceived(
-    filter,
-    (details, callback) => {
-      if (details.statusCode === 302 && details.responseHeaders?.Location) {
-        const location = details.responseHeaders.Location[0];
-
-        if (location.startsWith(`${electronScheme}://`)) {
-          details.statusCode = 200;
-          delete details.responseHeaders.Location;
-
-          if (win) {
-            win.loadURL(location);
-          }
-          callback({ cancel: false, responseHeaders: details.responseHeaders });
-          return;
-        }
-      }
-      callback({ cancel: false, responseHeaders: details.responseHeaders });
-    },
-  );
 
   if (isDev) {
     win.loadURL('http://localhost:5173');
