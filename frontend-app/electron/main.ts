@@ -9,6 +9,7 @@ import {
   net,
 } from 'electron';
 import * as path from 'path';
+import * as dotenv from 'dotenv';
 import { closeOverlayWindow, createOverlayWindow } from './overlayWindow';
 import { request } from 'http';
 
@@ -21,9 +22,12 @@ let lastOverlayInit: {
   overlayTransparency?: number;
 } | null = null;
 
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+const electronScheme = process.env.ELECTRON_URL || 'app';
+
 protocol.registerSchemesAsPrivileged([
   {
-    scheme: 'voida-electron',
+    scheme: electronScheme,
     privileges: {
       standard: true,
       secure: true,
@@ -37,11 +41,10 @@ protocol.registerSchemesAsPrivileged([
 
 app.whenReady().then(() => {
   const isDev = !app.isPackaged;
-
   if (!isDev) {
-    protocol.handle('voida-electron', (request) => {
-      const url = new URL(request.url);
-      const relativePath = url.pathname === '/' ? '/index.html' : url.pathname;
+    protocol.handle(electronScheme, ({ url }) => {
+      const { pathname } = new URL(url);
+      const relativePath = pathname === '/' ? '/index.html' : pathname;
       const filePath = path.join(__dirname, '../../dist', relativePath);
       return net.fetch(`file://${filePath}`);
     });
@@ -70,8 +73,7 @@ app.whenReady().then(() => {
   });
 
   const filter = {
-    // urls: [`${process.env.VITE_SPRING_API_URL}/login/oauth2/code/*`],
-    urls: [`https://api.voida.site/login/oauth2/code/*`],
+    urls: [`${process.env.VITE_SPRING_API_URL}/login/oauth2/code/*`],
   };
 
   session.defaultSession.webRequest.onHeadersReceived(
@@ -80,7 +82,7 @@ app.whenReady().then(() => {
       if (details.statusCode === 302 && details.responseHeaders?.Location) {
         const location = details.responseHeaders.Location[0];
 
-        if (location.startsWith('voida-electron://')) {
+        if (location.startsWith(`${electronScheme}://`)) {
           details.statusCode = 200;
           delete details.responseHeaders.Location;
 
@@ -99,11 +101,7 @@ app.whenReady().then(() => {
     win.loadURL('http://localhost:5173');
   } else {
     // win.loadFile(path.join(__dirname, '../../dist/index.html'));
-    win.loadURL('voida-electron://index.html');
-  }
-
-  if (!isDev) {
-    win.webContents.openDevTools();
+    win.loadURL(`${electronScheme}://index.html`);
   }
 
   ipcMain.on('nav:back', (e) => {
