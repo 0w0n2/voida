@@ -13,10 +13,10 @@ export function useVideoRecorder(opts: UseVideoRecorderOptions = {}) {
   const {
     mimeType = 'video/webm;codecs=vp9,opus',
     maxDurationMs,
+    audioConstraints = false,
+    videoConstraints = true,
     onProgress,
     onStop,
-    audioConstraints = true,
-    videoConstraints = true,
   } = opts;
 
   const [hasPermission, setHasPermission] = useState(false);

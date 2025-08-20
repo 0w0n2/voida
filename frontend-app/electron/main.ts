@@ -1,6 +1,6 @@
-import { app, BrowserWindow, ipcMain, globalShortcut, session, shell } from 'electron';
+import { app, BrowserWindow, ipcMain, globalShortcut, shell } from 'electron';
 import * as path from 'path';
-import { closeOverlayWindow, createOverlayWindow } from './overlayWindow';
+import { closeOverlayWindow, createOverlayWindow, getOverlayWindow } from './overlayWindow';
 
 let win: BrowserWindow;
 
@@ -24,28 +24,6 @@ app.whenReady().then(() => {
       contextIsolation: true,
       devTools: true,
     },
-  });
-
-  const filter = {
-    urls: ['https://api.voida.site/login/oauth2/code/*'],
-  };
-
-  session.defaultSession.webRequest.onHeadersReceived(filter, (details, callback) => {
-    if (details.statusCode === 302 && details.responseHeaders?.Location) {
-      const location = details.responseHeaders.Location[0];
-      
-      if (location.startsWith('https://app.voida.site')) {
-        details.statusCode = 200;
-        delete details.responseHeaders.Location;
-
-        if (win) {
-          win.loadURL(location);
-        }
-        callback({ cancel: false, responseHeaders: details.responseHeaders });
-        return;
-      }
-    }
-    callback({ cancel: false, responseHeaders: details.responseHeaders });
   });
 
   if (isDev) {
@@ -74,6 +52,50 @@ app.whenReady().then(() => {
       shell.openExternal(url); 
     }
   });
+  ipcMain.on("resize-overlay", (_, { width, height, animate }) => {
+    const overlayWindow = getOverlayWindow();
+
+    if (!overlayWindow) return;
+
+    if (!animate) {
+      const bounds = overlayWindow.getBounds();
+      const steps = 10;
+      const stepH = (height - bounds.height) / steps;
+      let i = 0;
+
+      const interval = setInterval(() => {
+        if (!overlayWindow || i >= steps) {
+          clearInterval(interval);
+          return;
+        }
+        const b = overlayWindow.getBounds();
+        overlayWindow.setBounds({
+          ...b,
+          height: Math.round(b.height + stepH),
+        });
+        i++;
+      }, 30);
+    } else {
+      const bounds = overlayWindow.getBounds();
+      const steps = 8;
+      const stepH = (height - bounds.height) / steps;
+      let i = 0;
+
+      const interval = setInterval(() => {
+        if (!overlayWindow || i >= steps) {
+          clearInterval(interval);
+          return;
+        }
+        const b = overlayWindow.getBounds();
+        overlayWindow.setBounds({
+          ...b,
+          height: Math.round(b.height + stepH),
+        });
+        i++;
+      }, 25);
+    }
+  });
+
 
   const goBackFocused = () => {
     const focused = BrowserWindow.getFocusedWindow();

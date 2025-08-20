@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ChevronDown, ChevronUp, Camera, CameraOff } from 'lucide-react';
 import User from '@/assets/icons/user.png';
@@ -28,6 +28,7 @@ interface Participant {
   nickname?: string;
   lipTalkMode?: boolean;
 }
+
 export interface ChatMessage {
   messageId: string;
   user: {
@@ -51,28 +52,20 @@ const LiveOverlay = () => {
   const [searchParams] = useSearchParams();
   const meetingRoomId = searchParams.get('roomId');
   const [participants, setParticipants] = useState<Participant[]>([]);
-
   const [isExpanded, setIsExpanded] = useState(true);
   const [overlayPosition, setOverlayPosition] = useState<OverlayPos>('TOPRIGHT');
   const [overlayTransparency, setOverlayTransparency] = useState(30);
   const isBottom = overlayPosition.startsWith('BOTTOM');
-
-  // 단축키 / 오디오 레퍼런스
   const hotkeyMapRef = useRef(new Map<string, string>());
   const ttsUrlMapRef = useRef(new Map<string, string>());
   const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  // 분석 상태
-  const [step, setStep] = useState<'record' | 'loading' | 'result'>('record');
-  
+  const [audioStep, setAudioStep] = useState<'record' | 'loading' | 'result'>('record');
+  const [videoStep, setVideoStep] = useState<'record' | 'loading' | 'result'>('record');
   const [userInfo, setUserInfo] = useState<any>(null);
-
-  // 채팅 상태
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const chatListRef = useRef<HTMLDivElement | null>(null);
   const [stickBottom, setStickBottom] = useState(true);
   const BOTTOM_THRESHOLD = 40;
-
   const [progress, setProgress] = useState(0);
   const [showVideo, setShowVideo] = useState(true);
 
@@ -169,7 +162,6 @@ const LiveOverlay = () => {
               return;
             }
 
-            // 오디오 메시지인 경우 → UI에 추가하지 않고 바로 재생
             if (newMsg.content.startsWith("{")) {
               const msg = JSON.parse(newMsg.content);
 
@@ -181,7 +173,8 @@ const LiveOverlay = () => {
             }
 
             setChatMessages(prev => [...prev, newMsg]);
-          } catch {
+          } catch (err) {
+            console.error("JSON 파싱 실패:", err);
             const newMsg: ChatMessage = {
               messageId: crypto.randomUUID(),
               user: {
@@ -189,7 +182,7 @@ const LiveOverlay = () => {
                 userNickname: "시스템",
                 userImageUrl: "",
                 },
-              content: data, // 그냥 raw 텍스트
+              content: data, 
               timestamp: new Date().toISOString(),
             };
             setChatMessages(prev => [...prev, newMsg]);
@@ -279,40 +272,41 @@ const LiveOverlay = () => {
 
   // 오디오 녹음 onStop
   const { isRecording: isAudioRecording, start: startAudio, stop: stopAudio } = useAudioRecorder({
-    maxDurationMs: 3000,
+    maxDurationMs: 5000,
     onProgress: (percent) => setProgress(percent),
+    audioConstraints: true,
     videoConstraints: false,
     onStop: async ({ blob }) => {
-      setStep('loading');
+      setAudioStep('loading');
       try {
         const file = new File([blob], 'general-test.webm', { type: blob.type });
         const res = await uploadTutorialAudio(file, '0');
 
-        setStep('result');
+        setAudioStep('result');
 
         if (res.result?.text) sendSignalMessage(res.result.text);
 
-        setStep('record');
+        setAudioStep('record');
       } catch (e) {
         console.error(e);
-        setStep('result');
-        setTimeout(() => setStep('record'), 500);
+        setAudioStep('result');
+        setTimeout(() => setAudioStep('record'), 500);
       }
     },
   });
 
-  // 비디오 녹화 onStop
-const { isRecording: isVideoRecording, stream: videoStream, start: startVideo, stop: stopVideo } = useVideoRecorder({
+const isLipTalk = userInfo?.setting?.lipTalkMode ?? false;
+const {isRecording: isVideoRecording, stream: videoStream, start: startVideo, stop: stopVideo} = useVideoRecorder({
   maxDurationMs: 3000,
+  audioConstraints: false,
+  videoConstraints: isLipTalk, 
   onProgress: (percent) => setProgress(percent),
   onStop: async ({ blob }) => {
-    setStep('loading');
+    setVideoStep('loading');
     try {
       const file = new File([blob], 'lip-test.webm', { type: blob.type });
       const res = await uploadLipTestVideo(file, '0');
       const buffer = await res;
-
-      // JSON + 오디오 분리
       const view = new DataView(buffer);
       const jsonLength = view.getUint32(0, false);
       const jsonBytes = new Uint8Array(buffer, 4, jsonLength);
@@ -342,25 +336,57 @@ const { isRecording: isVideoRecording, stream: videoStream, start: startVideo, s
         reader.readAsDataURL(audioBlob);
       }
 
-      setStep('result');
-      setStep('record');
+      setVideoStep('result');
+      setVideoStep('record');
     } catch (e) {
       console.error(e);
-      setStep('result');
-      setTimeout(() => setStep('record'), 800);
+      setVideoStep('result');
+      setTimeout(() => setVideoStep('record'), 800);
     }
   },
 });
 
-  const videoRef = useRef<HTMLVideoElement>(null);
+const videoRef = useRef<HTMLVideoElement>(null);
+
  useEffect(() => {
-    if (showVideo && step === 'record' && videoRef.current && videoStream) {
+    if (showVideo && videoStep === 'record' && videoRef.current && videoStream) {
       videoRef.current.srcObject = videoStream;
       videoRef.current.play().catch(() => {
         console.error("비디오 자동 재생 실패");
       });
     }
-  }, [step, videoStream, showVideo]);
+  }, [videoStep, videoStream, showVideo]);
+
+
+  const isVideoMode = userInfo?.setting?.lipTalkMode ?? false;
+
+  const toggleCurrent = useCallback(() => {
+    if (videoStep !== 'record') return;
+    if (isVideoMode) {
+      (isVideoRecording ? stopVideo : startVideo)();
+    } else {
+      (isAudioRecording ? stopAudio : startAudio)();
+    }
+  }, [
+    videoStep, isVideoMode, isAudioRecording, isVideoRecording,
+    startAudio, stopAudio, startVideo, stopVideo,
+  ]);
+
+  // 키보드로 녹음, 녹화 리스닝
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.repeat) return;
+      if (e.code === 'Space') {
+        e.preventDefault();
+        toggleCurrent();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown, { passive: false });
+    return () => {
+      window.removeEventListener('keydown', onKeyDown as any);
+    };
+  }, [toggleCurrent]);
 
   // 나가기
   const exitLive = () => {
@@ -432,71 +458,97 @@ const { isRecording: isVideoRecording, stream: videoStream, start: startVideo, s
 
       {isExpanded && (
         <div css={expandedContentWrapper}>
-          {step === 'record' && (
+          {videoStep === 'record' && (
             <>
-            {userInfo?.setting?.lipTalkMode ? (
-              <div css={lipUserControls}>
-                <div css={lipUserVideo}>
-                  {showVideo && (
-                    <div css={videoWrapper}>
-                      <video
-                        ref={videoRef}
-                        autoPlay
-                        playsInline 
-                        muted
-                        css={cameraPreview}
-                      />
-                      {isVideoRecording && (
-                        <ProgressBar percent={progress} height={6} position="relative" bottom={3} />
+              {userInfo?.setting?.lipTalkMode ? (
+                <div css={lipUserControls}>
+                  <div css={lipUserVideo}>
+                    {showVideo && (
+                      <div css={videoWrapper}>
+                        <video
+                          ref={videoRef}
+                          autoPlay
+                          playsInline
+                          muted
+                          css={cameraPreview}
+                        />
+                        {isVideoRecording && (
+                          <ProgressBar
+                            percent={progress}
+                            height={6}
+                            position="relative"
+                            bottom={3}
+                          />
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div css={controlWrapper}>
+                    <div
+                      css={cameraToggleBtn(showVideo)}
+                      onClick={() => setShowVideo(prev => !prev)}
+                    >
+                      {showVideo ? <Camera size={18} /> : <CameraOff size={18} />}
+                    </div>
+
+                    <button
+                      css={recordBtn(isVideoRecording)}
+                      onClick={isVideoRecording ? stopVideo : startVideo}
+                    >
+                      {isVideoRecording ? '중지' : '녹화'}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                audioStep === 'record' && (
+                  <div css={normalUserControls}>
+                    <div css={audioWrapper}>
+                      {isAudioRecording && (
+                        <ProgressBar
+                          percent={progress}
+                          height={6}
+                          position="relative"
+                        />
                       )}
                     </div>
-                  )}
-                </div>
-              <div css={controlWrapper}>
-                <div
-                  css={cameraToggleBtn(showVideo)}
-                  onClick={() => setShowVideo((prev) => !prev)}
-                >
-                  {showVideo ? <Camera size={18} /> : <CameraOff size={18} />}
-                </div>
-                <button
-                  css={recordBtn(isVideoRecording)}
-                  onClick={isVideoRecording ? stopVideo : startVideo}
-                >
-                  {isVideoRecording ? '중지' : '녹화'}
-                </button>
-              </div>
-              </div>
-            ) : (
-              <div css={normalUserControls}>
-                <div css={audioWrapper}>
-                  {isAudioRecording && (
-                    <ProgressBar percent={progress} height={6} position="relative" />
-                  )}
-                </div>
 
-                <button
-                  css={recordBtn(isAudioRecording)}
-                  onClick={isAudioRecording ? stopAudio : startAudio}
-                >
-                  {isAudioRecording ? '중지' : '녹음'}
-                </button>
-              </div>    
-            )}
+                    <button
+                      css={recordBtn(isAudioRecording)}
+                      onClick={isAudioRecording ? stopAudio : startAudio}
+                    >
+                      {isAudioRecording ? '중지' : '녹음'}
+                    </button>
+                  </div>
+                )
+              )}
             </>
           )}
 
-          {step === 'loading' && (
+          {(audioStep === 'loading' || videoStep === 'loading') && (
             <div css={loadingDots}>
               <span></span><span></span><span></span>
             </div>
           )}
         </div>
       )}
+      <button
+        onClick={() => {
+          setIsExpanded(!isExpanded);
 
-      <button onClick={() => setIsExpanded(!isExpanded)} css={toggleBtn(isBottom)}>
-        {isExpanded ? (isBottom ? <ChevronDown size={30} /> : <ChevronUp size={30} />)
-                  : (isBottom ? <ChevronUp size={30} /> : <ChevronDown size={30} />)}
+          if (window.electronAPI?.resizeOverlay) {
+            if (isExpanded) {
+              window.electronAPI.resizeOverlay(400, 76, true);
+            } else {
+              window.electronAPI.resizeOverlay(400, 600, false);
+            }
+          }
+        }}
+        css={toggleBtn(isBottom)}
+      >
+        {isExpanded
+          ? (isBottom ? <ChevronDown size={30} /> : <ChevronUp size={30} />)
+          : (isBottom ? <ChevronUp size={30} /> : <ChevronDown size={30} />)}
       </button>
     </div>
   </div>
@@ -540,7 +592,6 @@ const expanded = css`
 
 const collapsed = css`
   width: 100%;
-  max-width: 960px;
   height: 60px;
 `;
 
@@ -781,11 +832,11 @@ const cameraToggleBtn = (isOn: boolean) => css`
   }
 `;
 
-const recordBtn = (isActive?: boolean) => css`
+const recordBtn = (isActive?: boolean, hint = '스페이스바로 말하기 ') => css`
   all: unset;
-  cursor: pointer;
+  position: relative;
   padding: 10px 16px;
-  border-radius: 9999px; 
+  border-radius: 9999px;
   font-size: 13px;
   font-family: 'NanumSquareR';
   letter-spacing: 0.5px;
@@ -801,18 +852,43 @@ const recordBtn = (isActive?: boolean) => css`
   justify-content: center;
   gap: 8px;
   transition: all 0.25s ease;
+  cursor: pointer;
 
   &:hover {
-    font-family: 'NanumSquareB';
     transform: translateY(-1px) scale(1.02);
     box-shadow: ${isActive
       ? '0 6px 18px rgba(110, 142, 251, 0.5)'
       : '0 6px 16px rgba(0,0,0,0.2)'};
   }
 
+  &::after {
+    content: "${hint}";
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    transform: translate(8px, -50%);
+    background: #fff;
+    color: #000;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 1;
+    white-space: nowrap;
+    border: 1px solid rgba(0,0,0,0.08);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transition: opacity 0.2s ease;
+  }
+  &:hover::after {
+    opacity: 1;
+  }
+
   &:active {
     transform: scale(0.98);
   }
+
   ${isActive &&
   `
     font-family: 'NanumSquareR';
