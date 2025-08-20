@@ -506,10 +506,8 @@ const videoRef = useRef<HTMLVideoElement>(null);
 
           if (window.electronAPI?.resizeOverlay) {
             if (isExpanded) {
-              // 접을 때
               window.electronAPI.resizeOverlay(400, 76, true);
             } else {
-              // 펼칠 때
               window.electronAPI.resizeOverlay(400, 600, false);
             }
           }
