@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ChevronDown, ChevronUp, Camera, CameraOff } from 'lucide-react';
 import User from '@/assets/icons/user.png';
@@ -356,6 +356,37 @@ const videoRef = useRef<HTMLVideoElement>(null);
       });
     }
   }, [videoStep, videoStream, showVideo]);
+
+
+  const isVideoMode = userInfo?.setting?.lipTalkMode ?? false;
+
+  const toggleCurrent = useCallback(() => {
+    if (videoStep !== 'record') return;
+    if (isVideoMode) {
+      (isVideoRecording ? stopVideo : startVideo)();
+    } else {
+      (isAudioRecording ? stopAudio : startAudio)();
+    }
+  }, [
+    videoStep, isVideoMode, isAudioRecording, isVideoRecording,
+    startAudio, stopAudio, startVideo, stopVideo,
+  ]);
+
+  // 키보드로 녹음, 녹화 리스닝
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.repeat) return;
+      if (e.code === 'Space') {
+        e.preventDefault();
+        toggleCurrent();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown, { passive: false });
+    return () => {
+      window.removeEventListener('keydown', onKeyDown as any);
+    };
+  }, [toggleCurrent]);
 
   // 나가기
   const exitLive = () => {
@@ -801,11 +832,11 @@ const cameraToggleBtn = (isOn: boolean) => css`
   }
 `;
 
-const recordBtn = (isActive?: boolean) => css`
+const recordBtn = (isActive?: boolean, hint = '스페이스바로 말하기 ') => css`
   all: unset;
-  cursor: pointer;
+  position: relative;
   padding: 10px 16px;
-  border-radius: 9999px; 
+  border-radius: 9999px;
   font-size: 13px;
   font-family: 'NanumSquareR';
   letter-spacing: 0.5px;
@@ -821,18 +852,43 @@ const recordBtn = (isActive?: boolean) => css`
   justify-content: center;
   gap: 8px;
   transition: all 0.25s ease;
+  cursor: pointer;
 
   &:hover {
-    font-family: 'NanumSquareB';
     transform: translateY(-1px) scale(1.02);
     box-shadow: ${isActive
       ? '0 6px 18px rgba(110, 142, 251, 0.5)'
       : '0 6px 16px rgba(0,0,0,0.2)'};
   }
 
+  &::after {
+    content: "${hint}";
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    transform: translate(8px, -50%);
+    background: #fff;
+    color: #000;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 1;
+    white-space: nowrap;
+    border: 1px solid rgba(0,0,0,0.08);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transition: opacity 0.2s ease;
+  }
+  &:hover::after {
+    opacity: 1;
+  }
+
   &:active {
     transform: scale(0.98);
   }
+
   ${isActive &&
   `
     font-family: 'NanumSquareR';
