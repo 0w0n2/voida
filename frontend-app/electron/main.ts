@@ -1,18 +1,61 @@
-import { app, BrowserWindow, ipcMain, globalShortcut, session, shell } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  globalShortcut,
+  session,
+  shell,
+  protocol,
+  net,
+} from 'electron';
 import * as path from 'path';
 import { closeOverlayWindow, createOverlayWindow } from './overlayWindow';
+import { request } from 'http';
 
 let win: BrowserWindow;
 
 type OverlayPos = 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT';
-let lastOverlayInit: { roomId: string; overlayPosition?: OverlayPos; overlayTransparency?: number } | null = null;
+let lastOverlayInit: {
+  roomId: string;
+  overlayPosition?: OverlayPos;
+  overlayTransparency?: number;
+} | null = null;
+
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'voida-electron',
+    privileges: {
+      standard: true,
+      secure: true,
+      bypassCSP: true,
+      allowServiceWorkers: true,
+      supportFetchAPI: true,
+      corsEnabled: true,
+    },
+  },
+]);
 
 app.whenReady().then(() => {
   const isDev = !app.isPackaged;
 
+  if (!isDev) {
+    protocol.handle('voida-electron', (request) => {
+      const url = new URL(request.url);
+      const relativePath = url.pathname === '/' ? '/index.html' : url.pathname;
+      const filePath = path.join(__dirname, '../../dist', relativePath);
+      return net.fetch(`file://${filePath}`);
+    });
+  }
+
   const preloadPath = isDev
     ? path.join(__dirname, 'preload.js')
-    : path.join(process.resourcesPath, 'app.asar.unpacked', 'electron', 'dist', 'preload.js'); 
+    : path.join(
+        process.resourcesPath,
+        'app.asar.unpacked',
+        'electron',
+        'dist',
+        'preload.js',
+      );
 
   win = new BrowserWindow({
     width: 1440,
@@ -27,31 +70,40 @@ app.whenReady().then(() => {
   });
 
   const filter = {
-    urls: ['https://api.voida.site/login/oauth2/code/*'],
+    // urls: [`${process.env.VITE_SPRING_API_URL}/login/oauth2/code/*`],
+    urls: [`https://api.voida.site/login/oauth2/code/*`],
   };
 
-  session.defaultSession.webRequest.onHeadersReceived(filter, (details, callback) => {
-    if (details.statusCode === 302 && details.responseHeaders?.Location) {
-      const location = details.responseHeaders.Location[0];
-      
-      if (location.startsWith('https://app.voida.site')) {
-        details.statusCode = 200;
-        delete details.responseHeaders.Location;
+  session.defaultSession.webRequest.onHeadersReceived(
+    filter,
+    (details, callback) => {
+      if (details.statusCode === 302 && details.responseHeaders?.Location) {
+        const location = details.responseHeaders.Location[0];
 
-        if (win) {
-          win.loadURL(location);
+        if (location.startsWith('voida-electron://')) {
+          details.statusCode = 200;
+          delete details.responseHeaders.Location;
+
+          if (win) {
+            win.loadURL(location);
+          }
+          callback({ cancel: false, responseHeaders: details.responseHeaders });
+          return;
         }
-        callback({ cancel: false, responseHeaders: details.responseHeaders });
-        return;
       }
-    }
-    callback({ cancel: false, responseHeaders: details.responseHeaders });
-  });
+      callback({ cancel: false, responseHeaders: details.responseHeaders });
+    },
+  );
 
   if (isDev) {
     win.loadURL('http://localhost:5173');
   } else {
-    win.loadFile(path.join(__dirname, '../../dist/index.html'));
+    // win.loadFile(path.join(__dirname, '../../dist/index.html'));
+    win.loadURL('voida-electron://index.html');
+  }
+
+  if (!isDev) {
+    win.webContents.openDevTools();
   }
 
   ipcMain.on('nav:back', (e) => {
@@ -71,7 +123,7 @@ app.whenReady().then(() => {
   });
   ipcMain.on('open-external-link', (event, url) => {
     if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
-      shell.openExternal(url); 
+      shell.openExternal(url);
     }
   });
 
@@ -104,38 +156,58 @@ app.whenReady().then(() => {
   };
   attachAppCommand(win);
 
-  ipcMain.on('open-overlay', (_e, init?: { roomId: string; overlayPosition?: OverlayPos; overlayTransparency?: number }) => {
-    const roomId = init?.roomId;
-    const overlayPosition = init?.overlayPosition ?? 'TOPRIGHT';
-    const overlayTransparency = init?.overlayTransparency ?? 30;
+  ipcMain.on(
+    'open-overlay',
+    (
+      _e,
+      init?: {
+        roomId: string;
+        overlayPosition?: OverlayPos;
+        overlayTransparency?: number;
+      },
+    ) => {
+      const roomId = init?.roomId;
+      const overlayPosition = init?.overlayPosition ?? 'TOPRIGHT';
+      const overlayTransparency = init?.overlayTransparency ?? 30;
 
-    if (!roomId) {
-      console.error('[open-overlay] roomId 누락');
-      return;
-    }
+      if (!roomId) {
+        console.error('[open-overlay] roomId 누락');
+        return;
+      }
 
-    lastOverlayInit = { roomId, overlayPosition, overlayTransparency };
-    win?.hide();
+      lastOverlayInit = { roomId, overlayPosition, overlayTransparency };
+      win?.hide();
 
-    const overlayWin = createOverlayWindow(isDev, overlayPosition, overlayTransparency);
+      const overlayWin = createOverlayWindow(
+        isDev,
+        overlayPosition,
+        overlayTransparency,
+      );
 
-    attachAppCommand(overlayWin);
+      attachAppCommand(overlayWin);
 
-    if (isDev) {
-      const overlayUrl = `http://localhost:5173/#/live-overlay?roomId=${encodeURIComponent(roomId)}`;
-      overlayWin.loadURL(overlayUrl);
-    } else {
-      const prodHTML = path.join(__dirname, '../../dist/index.html');
-      const hash = `/live-overlay?roomId=${encodeURIComponent(roomId)}`;
-      overlayWin.loadFile(prodHTML, { hash });
-    }
-    overlayWin.webContents.once('did-finish-load', () => {
-      overlayWin.webContents.send('overlay:init', { roomId, overlayPosition, overlayTransparency });
-    });
+      if (isDev) {
+        const overlayUrl = `http://localhost:5173/#/live-overlay?roomId=${encodeURIComponent(
+          roomId,
+        )}`;
+        overlayWin.loadURL(overlayUrl);
+      } else {
+        const prodHTML = path.join(__dirname, '../../dist/index.html');
+        const hash = `/live-overlay?roomId=${encodeURIComponent(roomId)}`;
+        overlayWin.loadFile(prodHTML, { hash });
+      }
+      overlayWin.webContents.once('did-finish-load', () => {
+        overlayWin.webContents.send('overlay:init', {
+          roomId,
+          overlayPosition,
+          overlayTransparency,
+        });
+      });
 
-    overlayWin.show();
-    overlayWin.focus();
-  });
+      overlayWin.show();
+      overlayWin.focus();
+    },
+  );
 
   ipcMain.on('close-overlay', () => {
     closeOverlayWindow();
