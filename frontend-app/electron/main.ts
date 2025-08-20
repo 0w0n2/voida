@@ -8,7 +8,7 @@ import {
   net,
 } from 'electron';
 import * as path from 'path';
-import { closeOverlayWindow, createOverlayWindow, getOverlayWindow } from './overlayWindow';
+import { closeOverlayWindow, createOverlayWindow } from './overlayWindow';
 
 let win: BrowserWindow;
 
@@ -84,50 +84,6 @@ app.whenReady().then(() => {
       shell.openExternal(url); 
     }
   });
-  ipcMain.on("resize-overlay", (_, { width, height, animate }) => {
-    const overlayWindow = getOverlayWindow();
-
-    if (!overlayWindow) return;
-
-    if (!animate) {
-      const bounds = overlayWindow.getBounds();
-      const steps = 10;
-      const stepH = (height - bounds.height) / steps;
-      let i = 0;
-
-      const interval = setInterval(() => {
-        if (!overlayWindow || i >= steps) {
-          clearInterval(interval);
-          return;
-        }
-        const b = overlayWindow.getBounds();
-        overlayWindow.setBounds({
-          ...b,
-          height: Math.round(b.height + stepH),
-        });
-        i++;
-      }, 30);
-    } else {
-      const bounds = overlayWindow.getBounds();
-      const steps = 8;
-      const stepH = (height - bounds.height) / steps;
-      let i = 0;
-
-      const interval = setInterval(() => {
-        if (!overlayWindow || i >= steps) {
-          clearInterval(interval);
-          return;
-        }
-        const b = overlayWindow.getBounds();
-        overlayWindow.setBounds({
-          ...b,
-          height: Math.round(b.height + stepH),
-        });
-        i++;
-      }, 25);
-    }
-  });
-
 
   const goBackFocused = () => {
     const focused = BrowserWindow.getFocusedWindow();
@@ -179,9 +135,8 @@ app.whenReady().then(() => {
       const overlayUrl = `http://localhost:5173/#/live-overlay?roomId=${encodeURIComponent(roomId)}`;
       overlayWin.loadURL(overlayUrl);
     } else {
-      const prodHTML = path.join(__dirname, '../../dist/index.html');
-      const hash = `/live-overlay?roomId=${encodeURIComponent(roomId)}`;
-      overlayWin.loadFile(prodHTML, { hash });
+      const overlayUrl = `${electronScheme}://index.html/#/live-overlay?roomId=${encodeURIComponent(roomId)}`;
+      overlayWin.loadURL(overlayUrl);
     }
     overlayWin.webContents.once('did-finish-load', () => {
       overlayWin.webContents.send('overlay:init', { roomId, overlayPosition, overlayTransparency });
