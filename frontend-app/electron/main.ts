@@ -48,13 +48,7 @@ app.whenReady().then(() => {
 
   const preloadPath = isDev
     ? path.join(__dirname, 'preload.js')
-    : path.join(
-        process.resourcesPath,
-        'app.asar.unpacked',
-        'electron',
-        'dist',
-        'preload.js',
-      );
+    : path.join(process.resourcesPath, 'app.asar.unpacked', 'electron', 'dist', 'preload.js'); 
 
   win = new BrowserWindow({
     width: 1440,
@@ -91,7 +85,7 @@ app.whenReady().then(() => {
   });
   ipcMain.on('open-external-link', (event, url) => {
     if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
-      shell.openExternal(url);
+      shell.openExternal(url); 
     }
   });
 
