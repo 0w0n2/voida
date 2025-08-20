@@ -13,11 +13,7 @@ import { closeOverlayWindow, createOverlayWindow } from './overlayWindow';
 let win: BrowserWindow;
 
 type OverlayPos = 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT';
-let lastOverlayInit: {
-  roomId: string;
-  overlayPosition?: OverlayPos;
-  overlayTransparency?: number;
-} | null = null;
+let lastOverlayInit: { roomId: string; overlayPosition?: OverlayPos; overlayTransparency?: number } | null = null;
 
 const electronScheme = 'voida-electron';
 
