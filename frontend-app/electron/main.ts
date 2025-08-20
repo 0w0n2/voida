@@ -9,7 +9,6 @@ import {
 } from 'electron';
 import * as path from 'path';
 import { closeOverlayWindow, createOverlayWindow } from './overlayWindow';
-import { request } from 'http';
 
 let win: BrowserWindow;
 
@@ -72,7 +71,6 @@ app.whenReady().then(() => {
   if (isDev) {
     win.loadURL('http://localhost:5173');
   } else {
-    // win.loadFile(path.join(__dirname, '../../dist/index.html'));
     win.loadURL(`${electronScheme}://index.html`);
   }
 
@@ -126,58 +124,38 @@ app.whenReady().then(() => {
   };
   attachAppCommand(win);
 
-  ipcMain.on(
-    'open-overlay',
-    (
-      _e,
-      init?: {
-        roomId: string;
-        overlayPosition?: OverlayPos;
-        overlayTransparency?: number;
-      },
-    ) => {
-      const roomId = init?.roomId;
-      const overlayPosition = init?.overlayPosition ?? 'TOPRIGHT';
-      const overlayTransparency = init?.overlayTransparency ?? 30;
+  ipcMain.on('open-overlay', (_e, init?: { roomId: string; overlayPosition?: OverlayPos; overlayTransparency?: number }) => {
+    const roomId = init?.roomId;
+    const overlayPosition = init?.overlayPosition ?? 'TOPRIGHT';
+    const overlayTransparency = init?.overlayTransparency ?? 30;
 
-      if (!roomId) {
-        console.error('[open-overlay] roomId 누락');
-        return;
-      }
+    if (!roomId) {
+      console.error('[open-overlay] roomId 누락');
+      return;
+    }
 
-      lastOverlayInit = { roomId, overlayPosition, overlayTransparency };
-      win?.hide();
+    lastOverlayInit = { roomId, overlayPosition, overlayTransparency };
+    win?.hide();
 
-      const overlayWin = createOverlayWindow(
-        isDev,
-        overlayPosition,
-        overlayTransparency,
-      );
+    const overlayWin = createOverlayWindow(isDev, overlayPosition, overlayTransparency);
 
-      attachAppCommand(overlayWin);
+    attachAppCommand(overlayWin);
 
-      if (isDev) {
-        const overlayUrl = `http://localhost:5173/#/live-overlay?roomId=${encodeURIComponent(
-          roomId,
-        )}`;
-        overlayWin.loadURL(overlayUrl);
-      } else {
-        const prodHTML = path.join(__dirname, '../../dist/index.html');
-        const hash = `/live-overlay?roomId=${encodeURIComponent(roomId)}`;
-        overlayWin.loadFile(prodHTML, { hash });
-      }
-      overlayWin.webContents.once('did-finish-load', () => {
-        overlayWin.webContents.send('overlay:init', {
-          roomId,
-          overlayPosition,
-          overlayTransparency,
-        });
-      });
+    if (isDev) {
+      const overlayUrl = `http://localhost:5173/#/live-overlay?roomId=${encodeURIComponent(roomId)}`;
+      overlayWin.loadURL(overlayUrl);
+    } else {
+      const prodHTML = path.join(__dirname, '../../dist/index.html');
+      const hash = `/live-overlay?roomId=${encodeURIComponent(roomId)}`;
+      overlayWin.loadFile(prodHTML, { hash });
+    }
+    overlayWin.webContents.once('did-finish-load', () => {
+      overlayWin.webContents.send('overlay:init', { roomId, overlayPosition, overlayTransparency });
+    });
 
-      overlayWin.show();
-      overlayWin.focus();
-    },
-  );
+    overlayWin.show();
+    overlayWin.focus();
+  });
 
   ipcMain.on('close-overlay', () => {
     closeOverlayWindow();
