@@ -10,9 +10,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   }) => {
     ipcRenderer.send('open-overlay', init);
   },
+
   closeOverlay: () => {
     ipcRenderer.send('close-overlay');
   },
+
+  resizeOverlay: (width: number, height: number) => ipcRenderer.send('resize-overlay', { width, height }),
 
   sendQuickMessage: (message: string) => {
     ipcRenderer.send('send-quickslot', message);

@@ -64,9 +64,17 @@ const MainPage = () => {
               css={demoButton}
               onMouseEnter={() => setIsTooltipVisible(true)}
               onMouseLeave={() => setIsTooltipVisible(false)}
-              onClick={() => window.electronAPI.openLink(import.meta.env.VITE_WEB_URL)}
+              onClick={() => {
+                const url = import.meta.env.VITE_WEB_URL;
+
+                if (window.electronAPI?.openLink) {
+                  window.electronAPI.openLink(url);
+                } else {
+                  window.open(url, "_blank");
+                }
+              }}
             >
-              <Globe  />
+              <Globe />
               VOIDA
               {isTooltipVisible && (
                 <span css={tooltipStyle}>

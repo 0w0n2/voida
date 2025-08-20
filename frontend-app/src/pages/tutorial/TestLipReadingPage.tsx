@@ -30,12 +30,11 @@ const TestLipReadingPage = () => {
   const { hasPermission, isRecording, stream, start, stop } = useVideoRecorder({
     mimeType: 'video/webm',
     maxDurationMs: maxDuration,
-    audioConstraints: true,
+    audioConstraints: false,
     videoConstraints: true,
     onProgress: (percent) => setProgress(percent),
     onStop: async ({ blob }) => {
       setIsAnalyzing(true);
-
       try {
         const file = new File([blob], 'lip-test.webm', { type: blob.type });
         const res = await uploadLipTestVideo(file, '0');
@@ -162,7 +161,6 @@ const TestLipReadingPage = () => {
 
 export default TestLipReadingPage;
 
-// ----------------- 스타일 -----------------
 const pageWrapperStyle = css`
   min-height: 100vh;
 `;
