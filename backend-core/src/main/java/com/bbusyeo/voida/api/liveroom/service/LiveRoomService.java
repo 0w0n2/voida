@@ -11,6 +11,6 @@ public interface LiveRoomService {
 
     void leaveSession(String memberUuid, Long meetingRoomId);
 
-    void checkIsLock(Long meetingRoomId);
+    void checkLocked(Long meetingRoomId);
 
 }

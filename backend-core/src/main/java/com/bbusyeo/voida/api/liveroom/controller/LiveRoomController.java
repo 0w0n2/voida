@@ -26,7 +26,7 @@ public class LiveRoomController {
         @PathVariable Long meetingRoomId,
         @AuthenticationPrincipal(expression = "member") Member member) {
 
-        liveRoomService.checkIsLock(meetingRoomId);
+        liveRoomService.checkLocked(meetingRoomId);
 
         return new BaseResponse<>(liveRoomService.createOrGetSession(
             member.getMemberUuid(), meetingRoomId));
@@ -38,7 +38,7 @@ public class LiveRoomController {
         @PathVariable Long meetingRoomId,
         @AuthenticationPrincipal(expression = "member") Member member) {
 
-        liveRoomService.checkIsLock(meetingRoomId);
+        liveRoomService.checkLocked(meetingRoomId);
 
         return new BaseResponse<>(liveRoomService.createToken(
             member.getMemberUuid(), meetingRoomId));

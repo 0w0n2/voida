@@ -128,7 +128,7 @@ public class LiveRoomServiceImpl implements LiveRoomService {
     }
 
     @Override
-    public void checkIsLock(Long meetingRoomId) { // 라이브방 whitelist 목록이 존재할 때, 해당 세션이 속하는지 검사
+    public void checkLocked(Long meetingRoomId) { // 라이브방 whitelist 목록이 존재할 때, 해당 세션이 속하는지 검사
         if (redisDao.keyExists(AuthLiveRoomValue.LIVE_ROOM_WHITELIST_KEY) &&
                 !redisDao.isSetMember(AuthLiveRoomValue.LIVE_ROOM_WHITELIST_KEY, meetingRoomId)) {
             throw new BaseException(BaseResponseStatus.OPENVIDU_SESSION_IS_LOCK);
