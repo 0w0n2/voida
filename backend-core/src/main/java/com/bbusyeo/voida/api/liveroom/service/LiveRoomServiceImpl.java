@@ -5,12 +5,15 @@ import static com.bbusyeo.voida.global.response.BaseResponseStatus.OPENVIDU_SESS
 import static com.bbusyeo.voida.global.response.BaseResponseStatus.OPENVIDU_TOKEN_NOT_FOUND;
 import static io.openvidu.java.client.ConnectionProperties.DefaultValues.role;
 
+import com.bbusyeo.voida.api.admin.constant.AuthLiveRoomValue;
 import com.bbusyeo.voida.api.liveroom.domain.model.Participant;
 import com.bbusyeo.voida.api.liveroom.dto.out.SessionResponseDto;
 import com.bbusyeo.voida.api.liveroom.dto.out.TokenResponseDto;
 import com.bbusyeo.voida.global.exception.BaseException;
 import com.bbusyeo.voida.global.properties.OpenViduSessionProperties;
 
+import com.bbusyeo.voida.global.redis.dao.RedisDao;
+import com.bbusyeo.voida.global.response.BaseResponseStatus;
 import io.openvidu.java.client.Connection;
 import io.openvidu.java.client.ConnectionProperties;
 import io.openvidu.java.client.OpenVidu;
@@ -31,6 +34,7 @@ public class LiveRoomServiceImpl implements LiveRoomService {
     private final OpenVidu openVidu;
     private final OpenViduSessionProperties sessionProps;
     private final ParticipantService participantService;
+    private final RedisDao redisDao;
 
     @Override
     public SessionResponseDto createOrGetSession(String memberUuid, Long meetingRoomId) {
@@ -123,4 +127,11 @@ public class LiveRoomServiceImpl implements LiveRoomService {
         return sessionProps.getPrefix() + meetingRoomId;
     }
 
+    @Override
+    public void checkIsLock(Long meetingRoomId) { // 라이브방 whitelist 목록이 존재할 때, 해당 세션이 속하는지 검사
+        if (redisDao.keyExists(AuthLiveRoomValue.LIVE_ROOM_WHITELIST_KEY) &&
+                !redisDao.isSetMember(AuthLiveRoomValue.LIVE_ROOM_WHITELIST_KEY, meetingRoomId)) {
+            throw new BaseException(BaseResponseStatus.OPENVIDU_SESSION_IS_LOCK);
+        }
+    }
 }

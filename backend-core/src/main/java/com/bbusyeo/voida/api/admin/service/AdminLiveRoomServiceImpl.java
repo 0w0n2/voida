@@ -17,14 +17,12 @@ public class AdminLiveRoomServiceImpl implements AdminLiveRoomService {
 
     @Override
     public void addLiveRoomWhitelist(Long meetingRoomId) {
-        String key = AuthLiveRoomValue.LIVE_ROOM_WHITELIST_KEY + meetingRoomId;
-        redisDao.addSetValue(key, meetingRoomId);
+        redisDao.addSetValue(AuthLiveRoomValue.LIVE_ROOM_WHITELIST_KEY, meetingRoomId);
     }
 
     @Override
     public void removeLiveRoomWhitelist(Long meetingRoomId) {
-        String key = AuthLiveRoomValue.LIVE_ROOM_WHITELIST_KEY + meetingRoomId;
-        redisDao.deleteSetValue(key, meetingRoomId);
+        redisDao.deleteSetValue(AuthLiveRoomValue.LIVE_ROOM_WHITELIST_KEY, meetingRoomId);
     }
 
     @Override
@@ -34,8 +32,8 @@ public class AdminLiveRoomServiceImpl implements AdminLiveRoomService {
         return Optional.ofNullable(values)
                 .orElse(Collections.emptySet())
                 .stream()
-                .filter(Long.class::isInstance)
-                .map(Long.class::cast)
+                .filter(Number.class::isInstance)
+                .map(obj -> ((Number) obj).longValue())
                 .map(LiveRoomWhitelistDto::toDto)
                 .collect(Collectors.toList());
     }

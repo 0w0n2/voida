@@ -58,4 +58,12 @@ public class RedisDao {
     public Set<Object> getSetValue(String key) {
         return setOps.members(key);
     }
+
+    public boolean isSetMember(String key, Object value) {
+        return Boolean.TRUE.equals(setOps.isMember(key, value));
+    }
+
+    public boolean keyExists(String key) {
+        return redisTemplate.hasKey(key);
+    }
 }
