@@ -1,14 +1,46 @@
-import { app, BrowserWindow, ipcMain, globalShortcut, shell } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  globalShortcut,
+  shell,
+  protocol,
+  net,
+} from 'electron';
 import * as path from 'path';
-import { closeOverlayWindow, createOverlayWindow, getOverlayWindow } from './overlayWindow';
+import { closeOverlayWindow, createOverlayWindow } from './overlayWindow';
 
 let win: BrowserWindow;
 
 type OverlayPos = 'TOPLEFT' | 'TOPRIGHT' | 'BOTTOMLEFT' | 'BOTTOMRIGHT';
 let lastOverlayInit: { roomId: string; overlayPosition?: OverlayPos; overlayTransparency?: number } | null = null;
 
+const electronScheme = 'voida-electron';
+
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: electronScheme,
+    privileges: {
+      standard: true,
+      secure: true,
+      bypassCSP: true,
+      allowServiceWorkers: true,
+      supportFetchAPI: true,
+      corsEnabled: true,
+    },
+  },
+]);
+
 app.whenReady().then(() => {
   const isDev = !app.isPackaged;
+  if (!isDev) {
+    protocol.handle(electronScheme, ({ url }) => {
+      const { pathname } = new URL(url);
+      const relativePath = pathname === '/' ? '/index.html' : pathname;
+      const filePath = path.join(__dirname, '../../dist', relativePath);
+      return net.fetch(`file://${filePath}`);
+    });
+  }
 
   const preloadPath = isDev
     ? path.join(__dirname, 'preload.js')
@@ -29,7 +61,7 @@ app.whenReady().then(() => {
   if (isDev) {
     win.loadURL('http://localhost:5173');
   } else {
-    win.loadFile(path.join(__dirname, '../../dist/index.html'));
+    win.loadURL(`${electronScheme}://index.html`);
   }
 
   ipcMain.on('nav:back', (e) => {
@@ -52,50 +84,6 @@ app.whenReady().then(() => {
       shell.openExternal(url); 
     }
   });
-  ipcMain.on("resize-overlay", (_, { width, height, animate }) => {
-    const overlayWindow = getOverlayWindow();
-
-    if (!overlayWindow) return;
-
-    if (!animate) {
-      const bounds = overlayWindow.getBounds();
-      const steps = 10;
-      const stepH = (height - bounds.height) / steps;
-      let i = 0;
-
-      const interval = setInterval(() => {
-        if (!overlayWindow || i >= steps) {
-          clearInterval(interval);
-          return;
-        }
-        const b = overlayWindow.getBounds();
-        overlayWindow.setBounds({
-          ...b,
-          height: Math.round(b.height + stepH),
-        });
-        i++;
-      }, 30);
-    } else {
-      const bounds = overlayWindow.getBounds();
-      const steps = 8;
-      const stepH = (height - bounds.height) / steps;
-      let i = 0;
-
-      const interval = setInterval(() => {
-        if (!overlayWindow || i >= steps) {
-          clearInterval(interval);
-          return;
-        }
-        const b = overlayWindow.getBounds();
-        overlayWindow.setBounds({
-          ...b,
-          height: Math.round(b.height + stepH),
-        });
-        i++;
-      }, 25);
-    }
-  });
-
 
   const goBackFocused = () => {
     const focused = BrowserWindow.getFocusedWindow();
@@ -147,9 +135,8 @@ app.whenReady().then(() => {
       const overlayUrl = `http://localhost:5173/#/live-overlay?roomId=${encodeURIComponent(roomId)}`;
       overlayWin.loadURL(overlayUrl);
     } else {
-      const prodHTML = path.join(__dirname, '../../dist/index.html');
-      const hash = `/live-overlay?roomId=${encodeURIComponent(roomId)}`;
-      overlayWin.loadFile(prodHTML, { hash });
+      const overlayUrl = `${electronScheme}://index.html/#/live-overlay?roomId=${encodeURIComponent(roomId)}`;
+      overlayWin.loadURL(overlayUrl);
     }
     overlayWin.webContents.once('did-finish-load', () => {
       overlayWin.webContents.send('overlay:init', { roomId, overlayPosition, overlayTransparency });

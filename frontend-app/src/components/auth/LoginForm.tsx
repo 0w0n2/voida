@@ -9,6 +9,7 @@ import GoogleLogo from '@/assets/icons/google-logo.png';
 import EyeIcon from '@/assets/icons/eye.png';
 import EyeCloseIcon from '@/assets/icons/crossed-eye.png';
 import { useAuthStore, type User } from '@/stores/authStore';
+import { useAlertStore } from '@/stores/useAlertStore';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -34,6 +35,10 @@ const LoginForm = () => {
 
   // 구글 로그인 리다이렉트 함수
   const handleGoogleLogin = () => {
+    if (!window.electronAPI) {
+          useAlertStore.getState().showAlert('해당 기능은 Desktop App 전용입니다. 앱 다운로드 후 이용해주세요.', 'top');
+          return;
+    }
     const provider = 'google';
     window.location.href = `${import.meta.env.VITE_SPRING_API_URL}/oauth2/authorization/${provider}`;
   };
