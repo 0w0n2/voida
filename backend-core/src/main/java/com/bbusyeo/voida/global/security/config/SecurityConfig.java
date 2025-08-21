@@ -1,5 +1,6 @@
 package com.bbusyeo.voida.global.security.config;
 
+import com.bbusyeo.voida.api.member.domain.enums.Role;
 import com.bbusyeo.voida.global.security.filter.JwtAuthorizationFilter;
 import com.bbusyeo.voida.global.security.handler.*;
 import com.bbusyeo.voida.global.security.service.oauth2.CustomOauth2UserService;
@@ -13,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -35,7 +37,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
  */
 @Configuration
 @EnableWebSecurity
-@EnableConfigurationProperties({SecurityWhitelistProperties.class, CorsProperties.class, OAuthProperties.class})
+@EnableMethodSecurity
+@EnableConfigurationProperties({SecurityWhitelistProperties.class, CorsProperties.class, OAuthProperties.class, RoleProperties.class})
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -52,6 +55,7 @@ public class SecurityConfig {
     private final OAuthProperties oAuthProperties;
     private final OAuth2FailureHandler oAuth2FailureHandler;
     private final ClientRegistrationRepository clientRegistrationRepository;
+    private final RoleProperties roleProperties;
 
     // SecurityFilterChain : HTTP 요청에 대한 보안 설정
     // 필터를 통해 (인증) 방식과 절차에 대한 설정 수행
@@ -71,6 +75,8 @@ public class SecurityConfig {
                     whitelistProperties.getParsedWhitelist().forEach((method, urls) -> {
                         urls.forEach(url -> auth.requestMatchers(method, url).permitAll());
                     });
+                    // 관리자 기능 권한 제한
+                    auth.requestMatchers(roleProperties.getAdmin().toArray(new String[0])).hasAuthority(Role.ADMIN.getRoleName());
                     // 그 외 모든 요청은 인증 필요
                     auth.anyRequest().authenticated();
                 })
