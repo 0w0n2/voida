@@ -134,6 +134,10 @@ const handleNicknameChange = (newNickname: string) => {
 
   // 소셜 계정 연동
   const handleGoogleLink = async () => {
+    if (!window.electronAPI) {
+      useAlertStore.getState().showAlert('해당 기능은 Desktop App 전용입니다. 앱 다운로드 후 이용해주세요.', 'top');
+      return;
+    }
     const res = await linksocialAccount('google');
     const redirectUrl = res.data.result.redirectUrl;
     window.location.href = `${
