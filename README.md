@@ -23,6 +23,8 @@
 
 ### <a href="#developers">🌟 팀원 구성</a>
 
+### <a href="#resources">🔽 설치 파일 및 모델 리소스</a>
+
 ### <a href="#techStack">🛠️ 기술 스택</a>
 
 ### <a href="#systemArchitecture">🌐 시스템 아키텍처</a>
@@ -119,6 +121,21 @@
 <br>
 
 </div>
+
+## 🔽 설치 파일 및 모델 리소스
+
+<a name="resources"></a>
+
+<div align="center">
+
+|    **구분**    |                                                       **파일**                                                        | **용량** |                       **설명**                       |
+| :------------: | :-------------------------------------------------------------------------------------------------------------------: | :------: | :--------------------------------------------------: |
+| 💻 Desktop App |     [VOIDA_Setup_1.0.13.exe](https://drive.google.com/file/d/1Tv7fOcJiGAiu2GrD3XHRhlQJzizOCsKt/view?usp=sharing)      | 204.2 MB |            Windows Desktop App 설치 파일             |
+|   ⚖️ Weight    |        [encoder_int8.bin](https://drive.google.com/file/d/1CvfArZwuRH_ygXReHzEzvKX348_fhLcK/view?usp=sharing)         | 178.7 MB |    인코더 가중치 <br>(`backend-lip-model/models`)    |
+|   ⚖️ Weight    | [vsr_trlrs2lrs3vox2avsp_base.pth](https://drive.google.com/file/d/1ie-1ScbkZHdE7MgoQAQ7q4e-QoYoQ2ZV/view?usp=sharing) | 955.5 MB | Lip Reading 가중치 <br>(`backend-lip-model/models`)  |
+|    🤖 Model    |            [model.bin](https://drive.google.com/file/d/1CZ9TxvdK6kEB5rDxIjjLCQHMuaDuVwxK/view?usp=sharing)            | 467.9 MB | 기타 모델 <br>(`backend-lip-model/models/lip-model`) |
+
+</div><br>
 
 ## 🛠️ 기술 스택
 
@@ -588,6 +605,7 @@
 ```
 
 </details>
+<br>
 
 ## 📦 프로젝트 산출물
 
