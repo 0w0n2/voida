@@ -52,7 +52,7 @@
         <td width="33%" align="center"> <a href="https://github.com/01seok">
             <img src="./readme-assets/seokjae_lee.png" width="160px" /> <br> 🏋️‍♀️ 이석재 <br>(Backend & Leader) </a> <br></td>
         <td width="33%" align="center"> <a href="https://github.com/0w0n2">
-            <img src="./readme-assets/hyewon_lee.png" width="160px" /> <br> 👻 이혜원 <br>(Backend) </a> <br></td>
+            <img src="./readme-assets/hyewon_lee.png" width="160px" /> <br> 👻 이혜원 <br>(Backend & JiraOps) </a> <br></td>
     </tr>
     <tr>
       <td width="280px">
@@ -65,7 +65,7 @@
       </td>
       <td width="280px">
         <sub>
-          - MeetingRoom / 초대코드 API 구현 <br>
+          - 대기방 / 초대코드 API 구현 <br>
           - WebSocket / STOMP 기반 채팅 API 구현 <br>
           - Spring: AWS S3, MongoDB 연동
         </sub>
@@ -87,9 +87,9 @@
         <td width="33%" align="center"> <a href="https://github.com/soomkim00">
         <img src="./readme-assets/soomin_kim.jpg" width="160px" /> <br> 🐶 김수민 <br>(Backend & AI) </a> <br></td>
         <td width="33%" align="center"> <a href="https://github.com/minhe8564">
-        <img src="./readme-assets/minhee_lee.jpg" width="160px" /> <br> 🍔 이민희 <br>(Frontend) </a> <br></td>
+        <img src="./readme-assets/minhee_lee.jpg" width="160px" /> <br> 🍔 이민희 <br>(Frontend & Design) </a> <br></td>
         <td width="33%" align="center"> <a href="https://github.com/OPENARMS1027">
-        <img src="./readme-assets/jinmo_lee.jpg" width="160px" /> <br> 🍥 이진모 <br>(Frontend) </a> <br></td>
+        <img src="./readme-assets/jinmo_lee.jpg" width="160px" /> <br> 🍥 이진모 <br>(Frontend & Docs) </a> <br></td>
     </tr>
     <tr>
         <td width="280px">
@@ -103,15 +103,15 @@
           <sub>
             - OpenVidu 음성 연결, Signaling 채팅 구현 <br>
             - STT / Lip Reading 결과 음성 세션 연동 <br>
-            - STOMP 기반 실시간 채팅방 구현 <br>
-            - 튜토리얼 / 마이페이지 구현
+            - STOMP 기반 실시간 채팅 구현 <br>
+            - 튜토리얼 / 대기방 / 라이브 세션 구현
           </sub>
         </td>
         <td width="280px">
           <sub>
             - LiveRoom 오버레이 창, 단축키 매핑 구현 <br>
             - 공식 웹 사이트 다운로드 페이지 구현 <br>
-            - 로그인 / 회원가입 페이지 구현
+            - 로그인 / 회원가입 / 마이페이지 구현
           </sub>
         </td>
     </tr>
@@ -156,13 +156,13 @@
 
 <br>
 
-|      **Category**       |                                                 **Stack**                                                  |
-| :---------------------: | :--------------------------------------------------------------------------------------------------------: |
-|      **Language**       |                                              TypeScript 5.8.3                                              |
-| **Runtime Environment** |                                      Node.js 22.17.0, Electron 37.3.0                                      |
-|      **Framework**      |                                      React 19.1.0, React Router 7.7.0                                      |
-|       **Library**       | STOMP.js 7.1.1, SockJS Client 1.6.1, OpenVidu Browser 2.31.0, Zustand 5.0.6, Axios 1.10.0, Emotion 11.14.0 |
-|         **IDE**         |                                         Visual Studio Code 1.103.1                                         |
+|      **Category**       |                                                   **Stack**                                                    |
+| :---------------------: | :------------------------------------------------------------------------------------------------------------: |
+|      **Language**       |                                                TypeScript 5.8.3                                                |
+| **Runtime Environment** |                                        Node.js 22.17.0, Electron 37.3.0                                        |
+|      **Framework**      |                                        React 19.1.0, React Router 7.7.0                                        |
+|       **Library**       | STOMP.js 7.1.1, SockJS Client 1.6.1, OpenVidu Browser 2.31.0,<br> Zustand 5.0.6, Axios 1.10.0, Emotion 11.14.0 |
+|         **IDE**         |                                           Visual Studio Code 1.103.1                                           |
 
 </div>
 
@@ -183,16 +183,16 @@
 ![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white)<br>
 ![OpenAI](https://img.shields.io/badge/openai-412991?style=for-the-badge&logo=openai&logoColor=white)
 
-</div>
+|  **Category**  |                                                                                                                                          **Stack**                                                                                                                                           |
+| :------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+|  **Language**  |                                                                                                                                           Java 17                                                                                                                                            |
+| **Framework**  |                                                                                                                                      Spring Boot 3.4.5                                                                                                                                       |
+|  **Library**   | Spring Security, Spring Validation, Spring Data JPA,<br> Spring Data MongoDB, Spring Data Redis, Springdoc OpenAPI 2.8.7,<br> Spring Cloud AWS S3, Spring Security OAuth2 Client, Spring Mail,<br> Spring WebSocket, Spring WebFlux, OpenVidu Java Client 2.31.0,<br> Apache HttpMime 4.5.14 |
+|  **Database**  |                                                                                                                           MySQL 9.3.0, MongoDB 8.0.11, Redis 7.4.5                                                                                                                           |
+|    **IDE**     |                                                                                                                          IntelliJ IDEA 2025.1.3 (Ultimate Edition)                                                                                                                           |
+| **Build Tool** |                                                                                                                                        Gradle 8.14.3                                                                                                                                         |
 
-|  **Category**  |                                                                                                                                  **Stack**                                                                                                                                   |
-| :------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-|  **Language**  |                                                                                                                                   Java 17                                                                                                                                    |
-| **Framework**  |                                                                                                                              Spring Boot 3.4.5                                                                                                                               |
-|  **Library**   | Spring Security, Spring Validation, Spring Data JPA, Spring Data MongoDB, Spring Data Redis, Springdoc OpenAPI 2.8.7, Spring Cloud AWS S3, Spring Security OAuth2 Client, Spring Mail, Spring WebSocket, Spring WebFlux, OpenVidu Java Client 2.31.0, Apache HttpMime 4.5.14 |
-|  **Database**  |                                                                                                                   MySQL 9.3.0, MongoDB 8.0.11, Redis 7.4.5                                                                                                                   |
-|    **IDE**     |                                                                                                                  IntelliJ IDEA 2025.1.3 (Ultimate Edition)                                                                                                                   |
-| **Build Tool** |                                                                                                                                Gradle 8.14.3                                                                                                                                 |
+</div>
 
 ### 🤖 AI
 
@@ -209,13 +209,13 @@
 ![OpenAI](https://img.shields.io/badge/openai-412991?style=for-the-badge&logo=openai&logoColor=white)
 <br>
 
-|      **Category**       |                                                                                                      **Stack**                                                                                                       |
-| :---------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-|      **Language**       |                                                                                                    Python 3.9.13                                                                                                     |
-| **Runtime Environment** |                                                                                      Uvicorn[standard] 0.35.0, Gunicorn 22.0.0                                                                                       |
-|      **Framework**      |                                                                                                   FastAPI 0.116.1                                                                                                    |
-|       **Library**       | Torch 2.8.0, Openvino-dev 2024.1.0, Ctranslate2 4.6.0, opencv-python-headless 4.9.0.80, Mediapipe 0.10.14, Sentencepiece 0.2.0, Transformers 4.45.2, Argostranslate 1.9.6, Numpy 1.26.4, Scipy 1.13.1, Openai 1.99.9 |
-|         **IDE**         |                                                                                              Visual Studio Code 1.103.1                                                                                              |
+|      **Category**       |                                                                                                            **Stack**                                                                                                             |
+| :---------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+|      **Language**       |                                                                                                          Python 3.9.13                                                                                                           |
+| **Runtime Environment** |                                                                                            Uvicorn[standard] 0.35.0, Gunicorn 22.0.0                                                                                             |
+|      **Framework**      |                                                                                                         FastAPI 0.116.1                                                                                                          |
+|       **Library**       | Torch 2.8.0, Openvino-dev 2024.1.0, Ctranslate2 4.6.0,<br> opencv-python-headless 4.9.0.80, Mediapipe 0.10.14, Sentencepiece 0.2.0,<br> Transformers 4.45.2, Argostranslate 1.9.6, Numpy 1.26.4,<br> Scipy 1.13.1, Openai 1.99.9 |
+|         **IDE**         |                                                                                                    Visual Studio Code 1.103.1                                                                                                    |
 
 </div>
 
@@ -233,17 +233,17 @@
 ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)<br>
 
-|    **Category**     |             **Spec**              |
-| :-----------------: | :-------------------------------: |
-|  **Instance Type**  |             T2.XLARGE             |
-|       **CPU**       |              4 vCPUs              |
-|       **RAM**       |               16 GB               |
-| **Storage (Disk)**  |      SSD: 320 GB, HDD: 6 TB       |
-|     **Docker**      |              v28.1.1              |
-| **Docker Compose**  |              v2.38.2              |
-|     **Jenkins**     |               2.520               |
-|      **Nginx**      |           nginx/1.18.0            |
-| **Webhook Handler** | FastAPI 0.116.1, Python 3.11-slim |
+|    **Category**     |                          **Spec**                           |
+| :-----------------: | :---------------------------------------------------------: |
+|  **Instance Type**  |                          T2.XLARGE                          |
+|       **CPU**       |                           4 vCPUs                           |
+|       **RAM**       |                            16 GB                            |
+| **Storage (Disk)**  |                   SSD: 320 GB, HDD: 6 TB                    |
+|     **Docker**      |                           v28.1.1                           |
+| **Docker Compose**  |                           v2.38.2                           |
+|     **Jenkins**     |                            2.520                            |
+|      **Nginx**      |                        nginx/1.18.0                         |
+| **Webhook Handler** | FastAPI 0.116.1, Python 3.11-slim, Uvicorn[standard] 0.35.0 |
 
 </div>
 
@@ -327,8 +327,8 @@
     <td width="50%"><img width="100%" src="./readme-assets/demostration/meeting_room_creating.gif"/></td> </tr>
   </tbody>
   <tbody align="center"> 
-    <tr> <th style="text-align: center"> 대기방 접속 </th> <th style="text-align: center"> 대기방 설정 </th> </tr>
-    <tr> <td width="50%"><img width="100%" src="./readme-assets/demostration/meeting_room_access.gif"/></td>
+    <tr> <th style="text-align: center"> 대기방 채팅 </th> <th style="text-align: center"> 대기방 설정 </th> </tr>
+    <tr> <td width="50%"><img width="100%" src="./readme-assets/demostration/chat.gif"/></td>
     <td width="50%"><img width="100%" src="./readme-assets/demostration/meeting_room_setting.gif"/></td> </tr>
   </tbody>
   <tbody align="center"> 
@@ -397,9 +397,6 @@
  ┃ ┣ 📂stores
  ┃ ┣ 📂styles
  ┃ ┣ 📂types
- ┃ ┣ 📜App.tsx
- ┃ ┣ 📜main.tsx
- ┃ ┗ 📜vite-env.d.ts
  ┣ 📜.env
  ┣ 📜.gitignore
  ┣ 📜.prettierrc
@@ -555,7 +552,6 @@
  ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂oauth2
  ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂util
  ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂support
- ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📜VoidaApplication.java
  ┃ ┃ ┗ 📂resources
  ┃ ┗ 📂test
  ┃ ┃ ┗ 📂java
