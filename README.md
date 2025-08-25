@@ -11,7 +11,8 @@
 
 - **개발 기간** : 2025.07.07 ~ 2025.08.22 **(7주)**
 - **플랫폼** : Web & Desktop App
-- **개발 인원** : 6명 <br><br>
+- **개발 인원** : 6명
+- **기관** : 삼성 청년 SW·AI 아카데미 13기 <br><br>
 
 <img src="./readme-assets/voida_thumbnail.png" />
 
@@ -225,7 +226,8 @@
 
 ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 ![Jenkins](https://img.shields.io/badge/jenkins-%232C5263.svg?style=for-the-badge&logo=jenkins&logoColor=white)
-![Nginx](https://img.shields.io/badge/nginx-%23009639.svg?style=for-the-badge&logo=nginx&logoColor=white)<br>
+![Nginx](https://img.shields.io/badge/nginx-%23009639.svg?style=for-the-badge&logo=nginx&logoColor=white)
+![OpenVidu](https://img.shields.io/badge/OpenVidu-5c9dff?style=for-the-badge&logo=webrtc&logoColor=white)<br>
 ![Ubuntu](https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white)
 ![Amazon EC2](https://img.shields.io/badge/amazonec2-FF9900.svg?style=for-the-badge&logo=amazonec2&logoColor=white)
 ![Amazon S3](https://img.shields.io/badge/Amazon%20S3-FF9900?style=for-the-badge&logo=amazons3&logoColor=white)
@@ -243,6 +245,7 @@
 | **Docker Compose**  |                           v2.38.2                           |
 |     **Jenkins**     |                            2.520                            |
 |      **Nginx**      |                        nginx/1.18.0                         |
+|    **OpenVidu**     |                    2.31.0 (Pro Edition)                     |
 | **Webhook Handler** | FastAPI 0.116.1, Python 3.11-slim, Uvicorn[standard] 0.35.0 |
 
 </div>
@@ -607,6 +610,13 @@
 
 <a name="projectDeliverables"></a>
 
+<h3><a href="https://youtu.be/C-kFXoJuF8M" target="_blank">📹 Video Portfolio</a></h3>
+<div align="center">
+
+<a href="https://youtu.be/C-kFXoJuF8M" target="_blank"><img src="./readme-assets/video_portfolio_thumbnail.png"/></a>
+
+</div>
+
 <h3>🖼️ 화면 설계서</h3>
 <div align="center">
 
@@ -622,12 +632,23 @@
 <h3>✅ Swagger API Docs</h3>
 <details align="left">
   <summary>
-    <strong>자세히</strong>
+    <strong>Backend-Core</strong>
   </summary>
 
   <div align="center">
 
-  <img src="./readme-assets/swagger_api_list.png"/>
+  <img src="./readme-assets/backend_core_swagger.png"/>
+  </div>
+</details>
+
+<details align="left">
+  <summary>
+    <strong>Backend-Lip-Model</strong>
+  </summary>
+
+  <div align="center">
+
+  <img src="./readme-assets/backend_lip_model_swagger.png"/>
   </div>
 </details>
 
@@ -644,5 +665,27 @@
 </details>
 
 <h3><a href="https://www.notion.so/24276be4587d80a78d1ad824a9c825fe" target="_blank">📋 기능 명세서</a></h3>
+<details align="left">
+  <summary>
+    <strong>자세히</strong>
+  </summary>
+  <div align="center">
+
+<a href="https://www.notion.so/24276be4587d80a78d1ad824a9c825fe" target="_blank"><img src="./readme-assets/functional_specification.png" width="60%"/></a>
+
+  </div>
+
+</details>
 
 <h3><a href="https://www.notion.so/API-22a76be4587d802cb7fed72fd1e93204" target="_blank">📡 API 명세서</a></h3>
+<details align="left">
+  <summary>
+    <strong>자세히</strong>
+  </summary>
+  <div align="center">
+
+<a href="https://www.notion.so/API-22a76be4587d802cb7fed72fd1e93204" target="_blank"><img src="./readme-assets/api_specification.png"/></a>
+
+  </div>
+
+</details>
